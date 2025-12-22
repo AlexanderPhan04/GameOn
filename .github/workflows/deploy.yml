@@ -54,9 +54,15 @@ jobs:
       - name: Upload via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
-          server: 103.12.77.228
-          username: ftp_marketplace_alexstudio_id_vn
-          password: b53b45280531f8
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./
           server-dir: /
           dangerous-clean-slate: false
+          exclude: |
+            **/node_modules/**
+            **/vendor/**
+            **/.git/**
+            **/.github/**
+            **/tests/**

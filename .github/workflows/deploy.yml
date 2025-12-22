@@ -3,7 +3,7 @@ name: CI/CD Laravel Marketplace
 on:
   push:
     branches:
-      - '**'
+      - "**"
 
 jobs:
   test:
@@ -11,6 +11,11 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
 
       - name: Install dependencies
         run: |
@@ -32,7 +37,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.4'
+          php-version: "8.4"
 
       - name: Install dependencies
         run: |
@@ -48,4 +53,4 @@ jobs:
           password: b53b45280531f8
           local-dir: ./
           server-dir: /
-          dangerous-clean-slate: false 
+          dangerous-clean-slate: false

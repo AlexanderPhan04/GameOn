@@ -1,0 +1,7 @@
+# Laravel Nginx Rewrite Rules
+# Copy toàn bộ code dưới đây và paste vào ô "URL rewrite" trong aaPanel
+
+location / {
+    try_files $uri $uri/ /index.php?$query_string;
+}
+

@@ -477,7 +477,7 @@
     </style>
     
     <!-- Vite Assets -->
-    @vite(['resources/css/app.scss', 'resources/js/app.js'])
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     
     <!-- Preload critical resources -->
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">

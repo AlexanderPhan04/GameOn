@@ -947,26 +947,6 @@
                                     </div>
 
                                     <div class="col-md-6">
-                                        <!-- Phone -->
-                                        <div class="modern-form-group">
-                                            <label class="modern-label">
-                                                <i class="fas fa-phone text-success"></i>
-                                                <span>Số điện thoại</span>
-                                            </label>
-                                            <input type="text"
-                                                class="modern-input @error('phone') is-invalid @enderror"
-                                                id="phone"
-                                                name="phone"
-                                                value="{{ old('phone', $user->phone) }}"
-                                                placeholder="Nhập số điện thoại">
-                                            @error('phone')
-                                            <div class="invalid-feedback">
-                                                <i class="fas fa-exclamation-circle"></i>
-                                                <span>{{ $message }}</span>
-                                            </div>
-                                            @enderror
-                                        </div>
-
                                         <!-- Date of Birth -->
                                         <div class="modern-form-group">
                                             <label class="modern-label">
@@ -1040,7 +1020,7 @@
                                                 name="id_app"
                                                 value="{{ old('id_app', $user->id_app ?: '@' . strtolower(str_replace(' ', '', $user->name)) . rand(1000, 9999)) }}"
                                                 readonly
-                                                style="background-color: #f1f5f9;">
+                                                style="background-color: #f1f5f9; color: #1a202c !important;">
                                             @error('id_app')
                                             <div class="invalid-feedback">
                                                 <i class="fas fa-exclamation-circle"></i>

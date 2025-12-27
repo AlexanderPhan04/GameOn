@@ -80,14 +80,14 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1><i class="fas fa-gamepad"></i> Esport Manager</h1>
+            <h1><i class="fas fa-gamepad"></i> Game On</h1>
             <p>Xác nhận địa chỉ email của bạn</p>
         </div>
 
         <div class="content">
             <h2>Xin chào {{ $user->name }}!</h2>
 
-            <p>Cảm ơn bạn đã đăng ký tài khoản tại <strong>Esport Manager</strong>. Để hoàn tất quá trình đăng ký và bắt đầu sử dụng dịch vụ, bạn cần xác nhận địa chỉ email này.</p>
+            <p>Cảm ơn bạn đã đăng ký tài khoản tại <strong>Game On</strong>. Để hoàn tất quá trình đăng ký và bắt đầu sử dụng dịch vụ, bạn cần xác nhận địa chỉ email này.</p>
 
             <p>Vui lòng nhấp vào nút bên dưới để xác nhận email:</p>
 
@@ -121,9 +121,9 @@
         </div>
 
         <div class="footer">
-            <p>Email này được gửi từ <strong>Esport Manager</strong></p>
+            <p>Email này được gửi từ <strong>Game On</strong></p>
             <p>Nếu bạn có bất kỳ thắc mắc nào, vui lòng liên hệ với chúng tôi qua email: {{ config('mail.from.address') }}</p>
-            <p>&copy; {{ date('Y') }} Esport Manager. All rights reserved.</p>
+            <p>&copy; {{ date('Y') }} Game On. All rights reserved.</p>
         </div>
     </div>
 </body>

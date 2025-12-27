@@ -5,11 +5,16 @@
 @push('styles')
 <style>
     .modern-profile-container {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-        min-height: calc(100vh - 200px);
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
+        min-height: calc(100vh - 90px);
         padding: 2rem 0;
         position: relative;
         overflow: hidden;
+    }
+    
+    html, body {
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%) !important;
+        background-attachment: fixed;
     }
     
     .modern-profile-container::before {
@@ -101,12 +106,13 @@
     }
     
     .modern-readonly-field {
-        background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
-        border: 2px solid #e2e8f0;
+        background: rgba(255, 255, 255, 0.05);
+        border: 2px solid rgba(255, 255, 255, 0.1);
         border-radius: 15px;
         padding: 1rem 1.25rem;
         position: relative;
         overflow: hidden;
+        color: white;
     }
     
     .modern-readonly-field::before {
@@ -125,9 +131,13 @@
     }
     
     .modern-readonly-field:hover {
-        background: linear-gradient(135deg, #edf2f7 0%, #e2e8f0 100%);
+        background: rgba(255, 255, 255, 0.1);
         transform: translateY(-2px);
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    .modern-readonly-field small {
+        color: rgba(255, 255, 255, 0.7) !important;
     }
     
     @keyframes tooltipFadeIn {
@@ -162,7 +172,6 @@
             transform: translateX(0);
         }
     }
-    }
     
     .modern-body {
         padding: 2.5rem;
@@ -173,6 +182,66 @@
         text-align: center;
         margin-bottom: 3rem;
         position: relative;
+    }
+    
+    /* Container styles - Center align and full width */
+    .modern-profile-container {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        width: 100% !important;
+    }
+    
+    /* Default container styling (no sidebar) */
+    .modern-profile-container .container.profile-main-content {
+        max-width: 1200px !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        padding-left: 20px !important;
+        padding-right: 20px !important;
+        width: 100% !important;
+    }
+    
+    /* When sidebar is present, adjust the outer container */
+    body.has-admin-sidebar .modern-profile-container {
+        margin-left: 280px !important;
+        width: calc(100% - 280px) !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    
+    /* Center the inner container within the available space when sidebar is present */
+    body.has-admin-sidebar .modern-profile-container .container.profile-main-content,
+    body.has-admin-sidebar .modern-profile-container .profile-main-content.container {
+        max-width: 1200px !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        padding-left: 20px !important;
+        padding-right: 20px !important;
+        width: 100% !important;
+        display: block !important;
+    }
+    
+    /* Override app.blade.php rules that might conflict */
+    body.has-admin-sidebar .profile-main-content {
+        max-width: 1200px !important;
+        width: 100% !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        padding-left: 20px !important;
+        padding-right: 20px !important;
+    }
+    
+    /* Ensure rows and columns don't have extra margins */
+    .modern-profile-container .profile-main-content .row {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+    
+    .modern-profile-container .profile-main-content .col-12 {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
     }
     
     .avatar-container {
@@ -241,33 +310,43 @@
     }
     
     .form-section {
-        background: white;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
         border-radius: 20px;
-        padding: 2rem;
-        margin-bottom: 2rem;
-        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
-        border: 1px solid rgba(0, 0, 0, 0.05);
+        padding: 0;
+        margin-bottom: 30px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.1);
         transition: all 0.3s ease;
+        overflow: hidden;
     }
     
     .form-section:hover {
         transform: translateY(-2px);
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     }
     
     .section-title {
         font-size: 1.25rem;
         font-weight: 700;
-        color: #1e293b;
-        margin-bottom: 1.5rem;
+        color: white;
+        margin-bottom: 0;
         display: flex;
         align-items: center;
         gap: 0.75rem;
+        padding: 25px 30px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    }
+    
+    .form-section .card-content {
+        padding: 30px;
     }
     
     .section-icon {
-        width: 40px;
-        height: 40px;
+        min-width: 50px;
+        min-height: 50px;
+        width: 50px;
+        height: 50px;
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         border-radius: 12px;
         display: flex;
@@ -275,6 +354,13 @@
         justify-content: center;
         color: white;
         font-size: 1rem;
+        padding: 12px;
+        box-sizing: border-box;
+    }
+    
+    .section-icon i {
+        display: block;
+        line-height: 1;
     }
     
     .modern-form-group {
@@ -287,7 +373,7 @@
         align-items: center;
         gap: 0.5rem;
         font-weight: 600;
-        color: #374151;
+        color: rgba(255, 255, 255, 0.9);
         margin-bottom: 0.75rem;
         font-size: 0.95rem;
     }
@@ -295,19 +381,25 @@
     .modern-input {
         width: 100%;
         padding: 0.875rem 1rem;
-        border: 2px solid #e5e7eb;
+        border: 2px solid rgba(255, 255, 255, 0.1);
         border-radius: 12px;
         font-size: 0.95rem;
         transition: all 0.3s ease;
-        background: #fafafa;
+        background: rgba(255, 255, 255, 0.05);
+        color: white;
+    }
+    
+    .modern-input::placeholder {
+        color: rgba(255, 255, 255, 0.5);
     }
     
     .modern-input:focus {
         outline: none;
         border-color: #667eea;
-        background: white;
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        background: rgba(255, 255, 255, 0.1);
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
         transform: translateY(-1px);
+        color: white;
     }
     
     .modern-input.is-invalid {
@@ -318,37 +410,50 @@
     .modern-select {
         width: 100%;
         padding: 0.875rem 1rem;
-        border: 2px solid #e5e7eb;
+        border: 2px solid rgba(255, 255, 255, 0.1);
         border-radius: 12px;
         font-size: 0.95rem;
-        background: #fafafa;
+        background: rgba(255, 255, 255, 0.05);
+        color: white;
         transition: all 0.3s ease;
     }
     
     .modern-select:focus {
         outline: none;
         border-color: #667eea;
-        background: white;
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        background: rgba(255, 255, 255, 0.1);
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+        color: white;
+    }
+    
+    .modern-select option {
+        background: #1a1a2e;
+        color: white;
     }
     
     .modern-textarea {
         width: 100%;
         padding: 1rem;
-        border: 2px solid #e5e7eb;
+        border: 2px solid rgba(255, 255, 255, 0.1);
         border-radius: 12px;
         font-size: 0.95rem;
-        background: #fafafa;
+        background: rgba(255, 255, 255, 0.05);
+        color: white;
         transition: all 0.3s ease;
         resize: vertical;
         min-height: 120px;
     }
     
+    .modern-textarea::placeholder {
+        color: rgba(255, 255, 255, 0.5);
+    }
+    
     .modern-textarea:focus {
         outline: none;
         border-color: #667eea;
-        background: white;
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        background: rgba(255, 255, 255, 0.1);
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+        color: white;
     }
     
     .google-link-card {
@@ -497,8 +602,8 @@
     }
     
     .google-status-card {
-        background: rgba(255, 255, 255, 0.9);
-        border: 2px solid transparent;
+        background: rgba(255, 255, 255, 0.05);
+        border: 2px solid rgba(255, 255, 255, 0.1);
         border-radius: 16px;
         padding: 1.5rem;
         transition: all 0.3s ease;
@@ -508,8 +613,8 @@
     }
     
     .google-linked-card {
-        background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
-        border-color: #22c55e;
+        background: linear-gradient(135deg, rgba(34, 197, 94, 0.2) 0%, rgba(16, 185, 129, 0.15) 100%);
+        border-color: rgba(34, 197, 94, 0.3);
         box-shadow: 0 4px 15px rgba(34, 197, 94, 0.2);
     }
     
@@ -532,9 +637,21 @@
     }
     
     .google-unlinked-card {
-        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-        border-color: #f59e0b;
+        background: linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(217, 119, 6, 0.15) 100%);
+        border-color: rgba(245, 158, 11, 0.3);
         box-shadow: 0 4px 15px rgba(245, 158, 11, 0.2);
+    }
+    
+    .google-status-card .text-muted {
+        color: rgba(255, 255, 255, 0.7) !important;
+    }
+    
+    .google-status-card .text-warning {
+        color: #fbbf24 !important;
+    }
+    
+    .google-status-card .text-success {
+        color: #34d399 !important;
     }
     
     .google-status-content {
@@ -590,7 +707,7 @@
     
     .help-text {
         font-size: 0.875rem;
-        color: #6b7280;
+        color: rgba(255, 255, 255, 0.7);
         margin-top: 0.5rem;
         display: flex;
         align-items: center;
@@ -604,6 +721,14 @@
         display: flex;
         align-items: center;
         gap: 0.5rem;
+    }
+    
+    @media (max-width: 991.98px) {
+        /* On mobile/tablet, sidebar is hidden, so reset margins */
+        body.has-admin-sidebar .modern-profile-container {
+            margin-left: 0 !important;
+            width: 100% !important;
+        }
     }
     
     @media (max-width: 768px) {
@@ -630,70 +755,95 @@
         .modern-btn {
             justify-content: center;
         }
+        
+        .modern-profile-container .container.profile-main-content,
+        body.has-admin-sidebar .modern-profile-container .container.profile-main-content {
+            padding-left: 15px !important;
+            padding-right: 15px !important;
+        }
     }
 </style>
 @endpush
 
 @section('content')
 <div class="modern-profile-container">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-xl-8 col-lg-10">
-                <div class="modern-card">
-                    <div class="modern-header">
-                        <div class="header-content">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h1 class="modern-title">
-                                        <i class="fas fa-user-edit me-3"></i>
-                                        Chỉnh sửa thông tin cá nhân
-                                    </h1>
-                                    <p class="mb-0 text-white-50 mt-2">Cập nhật thông tin cá nhân của bạn</p>
-                                </div>
-                                <a href="{{ route('profile.show') }}" class="back-btn">
-                                    <i class="fas fa-arrow-left"></i>
-                                    <span>Quay lại</span>
-                                </a>
+    <!-- Main Content -->
+    <div class="container profile-main-content">
+        @if(session('success'))
+        <div class="alert-modern alert-success">
+            <i class="fas fa-check-circle"></i>
+            <span>{{ session('success') }}</span>
+            <button type="button" class="alert-close" data-bs-dismiss="alert">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        @endif
+
+        @if(session('error'))
+        <div class="alert-modern alert-danger">
+            <i class="fas fa-exclamation-circle"></i>
+            <span>{{ session('error') }}</span>
+            <button type="button" class="alert-close" data-bs-dismiss="alert">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        @endif
+
+        <div class="row g-4" style="margin-left: 0; margin-right: 0;">
+            <div class="col-12" style="padding-left: 0; padding-right: 0;">
+                <!-- Edit Profile Header Card -->
+                <div class="info-card">
+                    <div class="card-header">
+                        <div class="card-header-content">
+                            <div class="card-icon">
+                                <i class="fas fa-user-edit"></i>
+                            </div>
+                            <div class="card-title">
+                                <h3>Chỉnh sửa thông tin cá nhân</h3>
+                                <p>Cập nhật thông tin cá nhân của bạn</p>
                             </div>
                         </div>
+                        <a href="{{ route('profile.show') }}" class="btn-modern btn-small btn-secondary">
+                            <i class="fas fa-arrow-left"></i>
+                            <span>Quay lại</span>
+                        </a>
                     </div>
+                </div>
 
-                    <div class="modern-body">
-                        <!-- Flash Messages -->
-                        @if(session('success'))
-                        <div class="alert-modern alert-success-modern">
-                            <i class="fas fa-check-circle"></i>
-                            <span>{{ session('success') }}</span>
-                        </div>
-                        @endif
-
-                        @if(session('error'))
-                        <div class="alert-modern alert-danger-modern">
-                            <i class="fas fa-exclamation-circle"></i>
-                            <span>{{ session('error') }}</span>
-                        </div>
-                        @endif
-
-                        <form method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data" id="profileForm">
+                <form method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data" id="profileForm">
                             @csrf
                             @method('PUT')
 
-                            <!-- Avatar Section -->
-                            <div class="avatar-section">
-                                <div class="avatar-container">
+                    <!-- Avatar Section -->
+                    <div class="info-card">
+                        <div class="card-header">
+                            <div class="card-header-content">
+                                <div class="card-icon">
+                                    <i class="fas fa-image"></i>
+                                </div>
+                                <div class="card-title">
+                                    <h3>Ảnh đại diện</h3>
+                                    <p>Cập nhật ảnh đại diện của bạn</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card-content">
+                            <div class="avatar-section" style="text-align: center; margin-bottom: 2rem;">
+                                <div class="avatar-container" style="position: relative; display: inline-block; margin-bottom: 1rem;">
                                     @if($user->avatar_url)
-                                    <div class="avatar-preview" id="avatarPreview">
-                                        <img src="{{ $user->avatar_url }}" alt="Avatar">
+                                    <div class="avatar-preview" id="avatarPreview" style="width: 140px; height: 140px; border-radius: 50%; border: 5px solid transparent; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) padding-box, linear-gradient(135deg, #667eea, #764ba2) border-box; position: relative; overflow: hidden; box-shadow: 0 15px 35px rgba(102, 126, 234, 0.3);">
+                                        <img src="{{ $user->avatar_url }}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
                                     </div>
                                     @else
-                                    <div class="avatar-preview" id="avatarPreview">
-                                        <div class="avatar-placeholder">
-                                            <i class="fas fa-user text-muted" style="font-size: 3rem;"></i>
+                                    <div class="avatar-preview" id="avatarPreview" style="width: 140px; height: 140px; border-radius: 50%; border: 5px solid transparent; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) padding-box, linear-gradient(135deg, #667eea, #764ba2) border-box; position: relative; overflow: hidden; box-shadow: 0 15px 35px rgba(102, 126, 234, 0.3);">
+                                        <div class="avatar-placeholder" style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); border-radius: 50%;">
+                                            <i class="fas fa-user" style="font-size: 3rem; color: #94a3b8;"></i>
                                         </div>
                                     </div>
                                     @endif
 
-                                    <label for="avatar" class="camera-btn">
+                                    <label for="avatar" class="camera-btn" style="position: absolute; bottom: 5px; right: 5px; width: 45px; height: 45px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: 3px solid white; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; font-size: 1rem; transition: all 0.3s ease; box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);">
                                         <i class="fas fa-camera"></i>
                                     </label>
                                 </div>
@@ -701,26 +851,35 @@
                                 <input type="file" class="d-none @error('avatar') is-invalid @enderror" id="avatar" name="avatar" accept="image/*">
 
                                 @error('avatar')
-                                <div class="invalid-feedback d-block">
+                                <div class="invalid-feedback d-block" style="color: #ef4444; font-size: 0.875rem; margin-top: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
                                     <i class="fas fa-exclamation-circle"></i>
                                     <span>{{ $message }}</span>
                                 </div>
                                 @enderror
 
-                                <div class="help-text">
+                                <div class="help-text" style="font-size: 0.875rem; color: rgba(255, 255, 255, 0.7); margin-top: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
                                     <i class="fas fa-info-circle"></i>
                                     <span>Chọn ảnh có kích thước nhỏ hơn 2MB (JPG, PNG, GIF)</span>
                                 </div>
                             </div>
+                        </div>
+                    </div>
 
-                            <!-- Personal Information Section -->
-                            <div class="form-section">
-                                <h3 class="section-title">
-                                    <div class="section-icon">
-                                        <i class="fas fa-user"></i>
-                                    </div>
-                                    <span>Thông tin cá nhân</span>
-                                </h3>
+                    <!-- Personal Information Section -->
+                    <div class="info-card">
+                        <div class="card-header">
+                            <div class="card-header-content">
+                                <div class="card-icon">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div class="card-title">
+                                    <h3>Thông tin cá nhân</h3>
+                                    <p>Cập nhật thông tin cá nhân của bạn</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card-content">
 
                                 <div class="row">
                                     <div class="col-md-6">
@@ -859,14 +1018,15 @@
 
                             <!-- Application Settings Section -->
                             <div class="form-section">
-                                <h3 class="section-title">
+                                <div class="section-title">
                                     <div class="section-icon">
                                         <i class="fas fa-cog"></i>
                                     </div>
                                     <span>Cài đặt ứng dụng</span>
-                                </h3>
+                                </div>
 
-                                <div class="row">
+                                <div class="card-content">
+                                    <div class="row">
                                     <div class="col-md-6">
                                         <!-- ID App -->
                                         <div class="modern-form-group">
@@ -1024,18 +1184,20 @@
                                         </div>
                                     </div>
                                 </div>
+                                </div>
                             </div>
 
                             <!-- Bio Section -->
                             <div class="form-section">
-                                <h3 class="section-title">
+                                <div class="section-title">
                                     <div class="section-icon">
                                         <i class="fas fa-comment-alt"></i>
                                     </div>
                                     <span>Giới thiệu bản thân</span>
-                                </h3>
+                                </div>
 
-                                <div class="modern-form-group">
+                                <div class="card-content">
+                                    <div class="modern-form-group">
                                     <label class="modern-label">
                                         <i class="fas fa-pen text-secondary"></i>
                                         <span>Mô tả về bản thân</span>
@@ -1055,15 +1217,16 @@
                                         <span>Tối đa 1000 ký tự</span>
                                     </div>
                                 </div>
+                                </div>
                             </div>
 
                             <!-- Submit Buttons -->
-                            <div class="button-group">
-                                <a href="{{ route('profile.show') }}" class="modern-btn btn-secondary-modern">
+                            <div class="button-group" style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem;">
+                                <a href="{{ route('profile.show') }}" class="btn-modern btn-secondary">
                                     <i class="fas fa-times"></i>
                                     <span>Hủy</span>
                                 </a>
-                                <button type="submit" class="modern-btn btn-primary-modern" id="submitBtn">
+                                <button type="submit" class="btn-modern btn-primary" id="submitBtn">
                                     <i class="fas fa-save"></i>
                                     <span>Lưu thay đổi</span>
                                 </button>

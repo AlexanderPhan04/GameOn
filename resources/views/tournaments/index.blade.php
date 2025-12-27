@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Giải đấu - Esport Manager')
+@section('title', 'Giải đấu - Game On')
 
 @push('styles')
 <style>

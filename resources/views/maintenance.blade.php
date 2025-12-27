@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bảo trì hệ thống - Esport Manager</title>
+    <title>Bảo trì hệ thống - Game On</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         * {
@@ -356,7 +356,7 @@
 
         <!-- Footer -->
         <div class="footer">
-            <div class="footer-brand">Esport Manager</div>
+            <div class="footer-brand">Game On</div>
             <div>Nền tảng quản lý giải đấu esports chuyên nghiệp</div>
         </div>
     </div>

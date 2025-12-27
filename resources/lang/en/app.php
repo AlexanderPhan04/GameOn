@@ -2,7 +2,7 @@
 
 return [
     // Application
-    'name' => 'Esport Manager',
+    'name' => 'Game On',
     'tagline' => 'Pro Gaming Platform',
     'description' => 'Professional esports management platform for gamers, teams and tournaments.',
 
@@ -54,7 +54,7 @@ return [
         'register_now' => 'Register now',
         'back_to_home' => 'Back to home',
         'welcome_back' => 'Welcome Back!',
-        'create_new_account' => 'Create new Esport Manager account',
+        'create_new_account' => 'Create new Game On account',
         'enter_personal_details' => 'Enter your personal details to use all of site features',
         'hello_friend' => 'Hello, Friend!',
         'register_personal_details' => 'Register with your personal details to use all of site features',
@@ -240,6 +240,14 @@ return [
         'join_professional_gaming_community' => 'Join the professional gaming community today and discover your unlimited potential!',
         'register_free' => 'Register Free',
         'start_now' => 'Start Now',
+        'contributed_by' => 'Contributed By',
+        'developer' => 'Developer',
+        'developer_description' => 'Development and system maintenance',
+        'community' => 'Community',
+        'community_description' => 'Contributions from the user community',
+        'contributors' => 'Contributors',
+        'contributors_description' => 'Developers and testers',
+        'made_with_love' => 'Made with ❤️ by the development team',
     ],
 
     // Profile

@@ -15,13 +15,19 @@
     <!-- Critical CSS inline to prevent FOUC -->
     <style>
         /* Critical styles for immediate rendering */
+        html {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
+            height: 100%;
+        }
+        
         body {
             margin: 0;
             padding: 0;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #0f0f23;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
             color: white;
             overflow-x: hidden;
+            min-height: 100vh;
         }
         
         /* Hide content until CSS loads */
@@ -52,15 +58,21 @@
         /* Profile specific critical styles */
         @if(Request::is('profile*'))
         .modern-profile-container {
-            min-height: 100vh;
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
             position: relative;
             overflow-x: hidden;
+            padding-bottom: 0;
+        }
+        
+        html, body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%) !important;
+            background-attachment: fixed;
         }
         
         /* Adjust profile container when sidebar is present */
         body.has-admin-sidebar .modern-profile-container {
             margin-left: 280px;
+            width: calc(100% - 280px);
         }
         
         .profile-hero {
@@ -70,14 +82,40 @@
             margin-bottom: 40px;
         }
         
+        .profile-hero .container {
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+        
         /* Adjust profile hero padding when sidebar is present */
         body.has-admin-sidebar .profile-hero {
             padding-top: 90px;
         }
         
+        body.has-admin-sidebar .profile-hero .container {
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+        
         /* Adjust profile main content when sidebar is present */
         body.has-admin-sidebar .profile-main-content {
             margin-left: 0;
+            padding-left: 20px;
+            padding-right: 20px;
+            padding-bottom: 0;
+            max-width: 100%;
+            width: 100%;
+        }
+        
+        .profile-main-content {
+            padding-bottom: 0;
+        }
+        
+        body.has-admin-sidebar .profile-main-content .container {
+            max-width: 100%;
+            width: 100%;
+            padding-left: 20px;
+            padding-right: 20px;
         }
         
         .profile-avatar-section {
@@ -125,6 +163,10 @@
             font-weight: 500;
         }
         
+        .role-badge-wrapper {
+            margin-bottom: 25px;
+        }
+        
         .role-badge {
             display: inline-flex;
             align-items: center;
@@ -143,6 +185,13 @@
             background: linear-gradient(135deg, rgba(255, 215, 0, 0.2) 0%, rgba(255, 193, 7, 0.2) 100%);
             color: #ffd700;
             border-color: rgba(255, 215, 0, 0.3);
+        }
+        
+        .profile-actions {
+            margin-top: 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
         }
         
         .profile-stats {
@@ -211,6 +260,10 @@
             overflow: hidden;
         }
         
+        .info-card:last-child {
+            margin-bottom: 0;
+        }
+        
         .card-header {
             padding: 25px 30px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
@@ -220,17 +273,35 @@
             align-items: center;
         }
         
+        .card-header-content {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+        }
+        
         .card-icon {
-            width: 50px;
-            height: 50px;
+            min-width: 60px;
+            min-height: 60px;
+            width: 60px;
+            height: 60px;
             border-radius: 15px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
             font-size: 20px;
+            padding: 16px;
+            box-sizing: border-box;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
+            flex-shrink: 0;
+        }
+        
+        .card-icon i {
+            display: block;
+            line-height: 1;
+            font-size: 20px;
         }
         
         .card-title h3 {
@@ -433,6 +504,12 @@
         @media (max-width: 991.98px) {
             body.has-admin-sidebar .modern-profile-container {
                 margin-left: 0;
+                width: 100%;
+            }
+            
+            body.has-admin-sidebar .profile-main-content {
+                padding-left: 15px;
+                padding-right: 15px;
             }
         }
         @endif
@@ -936,6 +1013,7 @@
         #searchBox {
             transform-origin: center center;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 100000 !important;
         }
         .search-panel{backdrop-filter:blur(12px);background:rgba(255,255,255,.9);border:1px solid rgba(148,163,184,.25);border-radius:16px;box-shadow:0 18px 60px rgba(2,6,23,.25);width:560px;max-width:90vw;transform-origin:center center}
         .search-input-wrap{display:flex;align-items:center;gap:.5rem;padding:.6rem .75rem;border-bottom:1px solid rgba(148,163,184,.25)}
@@ -2000,7 +2078,7 @@
                     <button type="button" class="btn btn-light btn-sm" id="searchToggle" title="{{ __('app.search.search') }}" aria-expanded="false">
                         <i class="fas fa-search"></i>
                     </button>
-                    <div id="searchBox" class="position-absolute end-0 mt-2" style="display:none; z-index: 2000;">
+                    <div id="searchBox" class="position-absolute end-0 mt-2" style="display:none; z-index: 100000;">
                         <div class="search-panel">
                             <div class="search-input-wrap">
                                 <i class="fas fa-search text-secondary"></i>
@@ -2085,7 +2163,7 @@
                             <button type="button" class="btn btn-light btn-sm" id="searchToggle" title="{{ __('app.search.search') }}" aria-expanded="false">
                                 <i class="fas fa-search"></i>
                             </button>
-                            <div id="searchBox" class="position-absolute end-0 mt-2" style="display:none; z-index: 2000;">
+                            <div id="searchBox" class="position-absolute end-0 mt-2" style="display:none; z-index: 100000;">
                                 <div class="search-panel">
                                     <div class="search-input-wrap">
                                         <i class="fas fa-search text-secondary"></i>

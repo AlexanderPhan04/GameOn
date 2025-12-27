@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', config('app.name', __('app.name')))
+@section('title', __('app.name'))
 
 @push('styles')
 <style>
@@ -117,7 +117,7 @@
                         <a href="{{ route('auth.register') }}" class="btn btn-warning btn-lg btn-custom"><i class="fas fa-rocket me-2"></i>{{ __('app.home.get_started') }}</a>
                         <a href="{{ route('auth.login') }}" class="btn btn-outline-light btn-lg btn-custom"><i class="fas fa-sign-in-alt me-2"></i>{{ __('app.auth.login') }}</a>
                         @else
-                        <a href="{{ route('dashboard') }}" class="btn btn-warning btn-lg btn-custom"><i class="fas fa-tachometer-alt me-2"></i>{{ __('app.home.go_to_dashboard') }}</a>
+                        <a href="{{ route('posts.index') }}" class="btn btn-warning btn-lg btn-custom"><i class="fas fa-bell me-2"></i>You got something new?</a>
                         @endguest
                     </div>
                     <div class="mt-4 d-flex flex-wrap align-items-center gap-3 opacity-75">

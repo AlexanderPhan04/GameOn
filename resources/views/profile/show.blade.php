@@ -138,8 +138,8 @@
         @endif
 
         <div class="row g-4">
-            <!-- Left Column - Personal Information -->
-            <div class="col-lg-8">
+            <!-- Personal Information -->
+            <div class="col-12">
                 <!-- Personal Details Card -->
                 <div class="info-card">
                     <div class="card-header">
@@ -217,77 +217,6 @@
                             </div>
                         </div>
                         @endif
-                    </div>
-                </div>
-
-                <!-- Account Stats -->
-                <div class="info-card">
-                    <div class="card-header">
-                        <div class="card-header-content">
-                            <div class="card-icon stats">
-                                <i class="fas fa-chart-line"></i>
-                            </div>
-                            <div class="card-title">
-                                <h3>{{ __('app.dashboard.activity_statistics') }}</h3>
-                                <p>{{ __('app.profile.account_overview') }}</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="card-content">
-                        <div class="stat-list">
-                            <div class="stat-list-item">
-                                <div class="stat-list-icon">
-                                    <i class="fas fa-calendar-plus"></i>
-                                </div>
-                                <div class="stat-list-content">
-                                    <div class="stat-list-value">{{ $user->created_at->format('d/m/Y') }}</div>
-                                    <div class="stat-list-label">{{ __('app.profile.join_date') }}</div>
-                                </div>
-                            </div>
-
-                            <div class="stat-list-item">
-                                <div class="stat-list-icon">
-                                    <i class="fas fa-calendar-check"></i>
-                                </div>
-                                <div class="stat-list-content">
-                                    <div class="stat-list-value">{{ max(1, now()->startOfDay()->diffInDays($user->created_at->startOfDay()) + 1) }} {{ __('app.profile.days') }}</div>
-                                    <div class="stat-list-label">{{ __('app.profile.activity_time') }}</div>
-                                </div>
-                            </div>
-
-                            @if($user->user_role === 'player')
-                            <div class="stat-list-item">
-                                <div class="stat-list-icon">
-                                    <i class="fas fa-users"></i>
-                                </div>
-                                <div class="stat-list-content">
-                                    <div class="stat-list-value">{{ $user->teams->count() ?? 0 }}</div>
-                                    <div class="stat-list-label">{{ __('app.profile.teams_joined') }}</div>
-                                </div>
-                            </div>
-                            @endif
-
-                            <div class="stat-list-item">
-                                <div class="stat-list-icon">
-                                    <i class="fas fa-shield-alt"></i>
-                                </div>
-                                <div class="stat-list-content">
-                                    <div class="stat-list-value">{{ $user->email_verified_at ? __('app.profile.verified') : __('app.profile.not_verified') }}</div>
-                                    <div class="stat-list-label">{{ __('app.profile.email_status') }}</div>
-                                </div>
-                            </div>
-
-                            <div class="stat-list-item">
-                                <div class="stat-list-icon">
-                                    <i class="fas fa-user-tag"></i>
-                                </div>
-                                <div class="stat-list-content">
-                                    <div class="stat-list-value">{{ $user->id_app ?: 'APP' . str_pad($user->id, 6, '0', STR_PAD_LEFT) }}</div>
-                                    <div class="stat-list-label">{{ __('app.profile.app_id') }}</div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
 
@@ -375,10 +304,7 @@
                     </div>
                 </div>
                 @endif
-            </div>
 
-            <!-- Right Column - Activity & Settings -->
-            <div class="col-lg-4">
                 <!-- Account Settings -->
                 <div class="info-card">
                     <div class="card-header">

@@ -18,6 +18,8 @@ use App\Http\Controllers\TeamController;
 use App\Http\Controllers\TournamentController;
 use App\Http\Controllers\TournamentManagementController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\MarketplaceController;
+use App\Http\Controllers\Admin\MarketplaceController as AdminMarketplaceController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -264,6 +266,18 @@ Route::prefix('admin/honor')->name('admin.honor.')->middleware(['auth.session'])
     Route::delete('/{honorEvent}', [HonorManagementController::class, 'destroy'])->name('destroy');
 });
 
+// Admin Marketplace Management Routes
+Route::prefix('admin/marketplace')->name('admin.marketplace.')->middleware(['auth.session'])->group(function () {
+    Route::get('/', [AdminMarketplaceController::class, 'index'])->name('index');
+    Route::get('/create', [AdminMarketplaceController::class, 'create'])->name('create');
+    Route::post('/', [AdminMarketplaceController::class, 'store'])->name('store');
+    Route::get('/{id}', [AdminMarketplaceController::class, 'show'])->name('show');
+    Route::get('/{id}/edit', [AdminMarketplaceController::class, 'edit'])->name('edit');
+    Route::put('/{id}', [AdminMarketplaceController::class, 'update'])->name('update');
+    Route::delete('/{id}', [AdminMarketplaceController::class, 'destroy'])->name('destroy');
+    Route::patch('/{id}/toggle-status', [AdminMarketplaceController::class, 'toggleStatus'])->name('toggleStatus');
+});
+
 // Payment Routes - VNPay Integration
 Route::prefix('payment')->name('payment.')->group(function () {
     // Tạo đơn hàng và chuyển hướng đến VNPay
@@ -281,7 +295,14 @@ Route::prefix('payment')->name('payment.')->group(function () {
 
 // Marketplace Routes
 Route::prefix('marketplace')->name('marketplace.')->group(function () {
-    Route::get('/', function () {
-        return view('marketplace.index');
-    })->name('index');
+    Route::get('/', [MarketplaceController::class, 'index'])->name('index');
+    Route::get('/product/{id}', [MarketplaceController::class, 'show'])->name('show');
+    Route::post('/cart/{id}', [MarketplaceController::class, 'addToCart'])->name('addToCart');
+    Route::get('/cart', [MarketplaceController::class, 'cart'])->name('cart');
+    Route::delete('/cart/{id}', [MarketplaceController::class, 'removeFromCart'])->name('removeFromCart');
+    Route::get('/checkout', [MarketplaceController::class, 'checkout'])->name('checkout')->middleware('auth.session');
+    Route::post('/process-payment', [MarketplaceController::class, 'processPayment'])->name('processPayment')->middleware('auth.session');
+    Route::get('/inventory', [MarketplaceController::class, 'inventory'])->name('inventory')->middleware('auth.session');
+    Route::post('/inventory/{id}/equip', [MarketplaceController::class, 'equipItem'])->name('equipItem')->middleware('auth.session');
+    Route::post('/donate/{playerId}', [MarketplaceController::class, 'donate'])->name('donate')->middleware('auth.session');
 });

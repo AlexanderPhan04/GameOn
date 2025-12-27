@@ -73,6 +73,17 @@
         body.has-admin-sidebar .modern-profile-container {
             margin-left: 280px;
             width: calc(100% - 280px);
+            transition: margin-left 0.3s ease, width 0.3s ease;
+        }
+
+        body.has-admin-sidebar .admin-sidebar.collapsed ~ * .modern-profile-container {
+            margin-left: 80px;
+            width: calc(100% - 80px);
+        }
+
+        body.has-admin-sidebar .admin-sidebar.collapsed:hover ~ * .modern-profile-container {
+            margin-left: 280px;
+            width: calc(100% - 280px);
         }
         
         .profile-hero {
@@ -1310,9 +1321,219 @@
             box-shadow: 2px 0 20px rgba(0, 0, 0, 0.3);
             z-index: 1000;
             overflow: hidden;
-            transition: transform 0.3s ease;
+            transition: width 0.3s ease;
             display: flex;
             flex-direction: column;
+        }
+
+        /* Collapsed sidebar - chỉ hiện icon */
+        .admin-sidebar.collapsed {
+            width: 80px;
+        }
+
+        .admin-sidebar.collapsed .sidebar-brand-text,
+        .admin-sidebar.collapsed .menu-link span,
+        .admin-sidebar.collapsed .menu-link-logout span,
+        .admin-sidebar.collapsed .user-details,
+        .admin-sidebar.collapsed .menu-submenu,
+        .admin-sidebar.collapsed .menu-link::after {
+            opacity: 0;
+            width: 0;
+            overflow: hidden;
+            white-space: nowrap;
+            transition: opacity 0.2s ease, width 0.3s ease;
+            display: none;
+        }
+
+        /* Khi hover vào sidebar collapsed, hiện text */
+        .admin-sidebar.collapsed:hover {
+            width: 280px;
+            z-index: 1001;
+            box-shadow: 4px 0 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .admin-sidebar.collapsed:hover .sidebar-brand-text,
+        .admin-sidebar.collapsed:hover .menu-link span,
+        .admin-sidebar.collapsed:hover .menu-link-logout span,
+        .admin-sidebar.collapsed:hover .user-details,
+        .admin-sidebar.collapsed:hover .menu-submenu,
+        .admin-sidebar.collapsed:hover .menu-link::after {
+            opacity: 1;
+            width: auto;
+            display: block;
+        }
+
+        .admin-sidebar.collapsed:hover .menu-link::after {
+            display: inline-block;
+        }
+
+        .admin-sidebar.collapsed:hover .menu-link-logout {
+            justify-content: flex-start !important;
+            padding: 0.875rem 1.5rem !important;
+        }
+
+        .admin-sidebar.collapsed:hover .menu-link {
+            justify-content: flex-start !important;
+            padding: 0.875rem 1.5rem !important;
+        }
+
+        .admin-sidebar.collapsed:hover .sidebar-brand {
+            justify-content: flex-start !important;
+        }
+
+        .admin-sidebar.collapsed:hover .brand-icon {
+            margin-right: 1rem !important;
+        }
+
+        /* Đảm bảo icon luôn hiện */
+        .admin-sidebar.collapsed .menu-link i {
+            opacity: 1;
+            width: auto;
+            flex-shrink: 0;
+        }
+
+        .admin-sidebar.collapsed .brand-icon {
+            display: none;
+        }
+
+        .admin-sidebar.collapsed:hover .brand-icon {
+            display: flex;
+        }
+
+        /* Căn giữa icon khi collapsed */
+        .admin-sidebar.collapsed .menu-link {
+            justify-content: center;
+            padding: 0.875rem 1rem;
+        }
+
+        .admin-sidebar.collapsed .menu-link-logout {
+            justify-content: center !important;
+            padding: 0.875rem 1rem !important;
+            width: 100%;
+        }
+
+        .admin-sidebar.collapsed .menu-form {
+            width: 100%;
+        }
+
+        .admin-sidebar.collapsed .menu-form button {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .admin-sidebar.collapsed .sidebar-brand {
+            justify-content: center;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .admin-sidebar.collapsed .brand-icon {
+            margin-right: 0 !important;
+        }
+
+        .admin-sidebar.collapsed .sidebar-header {
+            padding: 1rem 0.5rem;
+            justify-content: center;
+            min-height: 60px;
+        }
+
+        .admin-sidebar.collapsed .sidebar-brand {
+            display: none;
+        }
+
+        .admin-sidebar.collapsed:hover .sidebar-brand {
+            display: flex;
+        }
+
+        .admin-sidebar.collapsed .sidebar-header .sidebar-toggle {
+            display: none;
+        }
+
+        .admin-sidebar.collapsed .menu-divider {
+            margin: 0.75rem 0.5rem;
+        }
+
+        .admin-sidebar.collapsed .sidebar-footer {
+            padding: 1rem 0.5rem;
+        }
+
+        /* Ẩn text và arrow trong language switcher khi collapsed */
+        .admin-sidebar.collapsed .language-switcher-sidebar .dropdown-toggle::after {
+            display: none;
+        }
+
+        .admin-sidebar.collapsed .language-switcher-sidebar .btn {
+            padding: 0.5rem !important;
+            width: 40px !important;
+            height: 40px !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50% !important;
+        }
+
+        .admin-sidebar.collapsed .language-switcher-sidebar .btn span,
+        .admin-sidebar.collapsed .language-switcher-sidebar .btn-text {
+            display: none;
+        }
+
+        .admin-sidebar.collapsed .language-switcher-sidebar .btn i {
+            margin: 0 !important;
+        }
+
+        /* Hiện lại khi hover */
+        .admin-sidebar.collapsed:hover .language-switcher-sidebar .dropdown-toggle::after {
+            display: inline-block;
+        }
+
+        .admin-sidebar.collapsed:hover .language-switcher-sidebar .btn {
+            padding: 0.375rem 0.75rem !important;
+            width: 100% !important;
+            height: auto !important;
+            border-radius: 0.25rem !important;
+        }
+
+        .admin-sidebar.collapsed:hover .language-switcher-sidebar .btn span,
+        .admin-sidebar.collapsed:hover .language-switcher-sidebar .btn-text {
+            display: inline;
+        }
+
+        .admin-sidebar.collapsed:hover .language-switcher-sidebar .btn i {
+            margin-right: 0.5rem !important;
+        }
+
+        /* Điều chỉnh margin khi sidebar collapsed */
+        body.has-admin-sidebar .admin-sidebar.collapsed ~ .content-wrapper,
+        body.has-admin-sidebar .admin-sidebar.collapsed ~ main {
+            margin-left: 80px;
+        }
+
+        body.has-admin-sidebar .admin-sidebar.collapsed:hover ~ .content-wrapper,
+        body.has-admin-sidebar .admin-sidebar.collapsed:hover ~ main {
+            margin-left: 280px;
+        }
+
+        /* Tooltip khi collapsed */
+        .admin-sidebar.collapsed .menu-link {
+            position: relative;
+        }
+
+        .admin-sidebar.collapsed .menu-link[title]:hover::before {
+            content: attr(title);
+            position: absolute;
+            left: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+            margin-left: 10px;
+            padding: 0.5rem 0.75rem;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            border-radius: 6px;
+            white-space: nowrap;
+            z-index: 1002;
+            font-size: 0.875rem;
+            pointer-events: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         }
 
         /* Hide scrollbar for sidebar */
@@ -1597,6 +1818,22 @@
             position: fixed;
             top: 0;
             left: 280px;
+            transition: left 0.3s ease;
+        }
+
+        body.has-admin-sidebar .admin-sidebar.collapsed ~ * .admin-topbar,
+        .admin-sidebar.collapsed ~ .admin-topbar {
+            left: 80px;
+        }
+
+        body.has-admin-sidebar .admin-sidebar.collapsed:hover ~ * .admin-topbar,
+        .admin-sidebar.collapsed:hover ~ .admin-topbar {
+            left: 280px;
+        }
+
+        .admin-topbar {
+            position: fixed;
+            top: 0;
             right: 0;
             height: 70px;
             background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 30%, #16213e 70%, #0f0f23 100%);
@@ -1633,12 +1870,41 @@
         /* Content Wrapper with Sidebar */
         .content-wrapper-with-sidebar {
             margin-left: 280px;
+            transition: margin-left 0.3s ease;
+        }
+
+        body.has-admin-sidebar .admin-sidebar.collapsed ~ * .content-wrapper-with-sidebar {
+            margin-left: 80px;
+        }
+
+        body.has-admin-sidebar .admin-sidebar.collapsed:hover ~ * .content-wrapper-with-sidebar {
+            margin-left: 280px;
+        }
+
+        .content-wrapper-with-sidebar {
             padding-top: 70px;
         }
 
         /* Adjust body padding for admin */
         body.has-admin-sidebar {
             padding-top: 0;
+        }
+
+        /* Adjust main content margin when sidebar collapsed */
+        body.has-admin-sidebar main,
+        body.has-admin-sidebar .content-wrapper {
+            margin-left: 280px;
+            transition: margin-left 0.3s ease;
+        }
+
+        body.has-admin-sidebar .admin-sidebar.collapsed ~ main,
+        body.has-admin-sidebar .admin-sidebar.collapsed ~ .content-wrapper {
+            margin-left: 80px;
+        }
+
+        body.has-admin-sidebar .admin-sidebar.collapsed:hover ~ main,
+        body.has-admin-sidebar .admin-sidebar.collapsed:hover ~ .content-wrapper {
+            margin-left: 280px;
         }
 
         /* Sidebar Backdrop */
@@ -1941,7 +2207,7 @@
         <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
         
         <!-- Admin Sidebar -->
-        <aside class="admin-sidebar" id="adminSidebar">
+        <aside class="admin-sidebar collapsed" id="adminSidebar">
             <div class="sidebar-header">
                 <a href="{{ route('home') }}" class="sidebar-brand">
                     <div class="brand-icon">
@@ -1960,66 +2226,72 @@
             <nav class="sidebar-nav">
                 <ul class="sidebar-menu">
                     <li class="menu-item {{ Request::is('dashboard*') ? 'active' : '' }}">
-                        <a href="{{ route('dashboard') }}" class="menu-link">
+                        <a href="{{ route('dashboard') }}" class="menu-link" title="{{ __('app.nav.dashboard') }}">
                             <i class="fas fa-tachometer-alt"></i>
                             <span>{{ __('app.nav.dashboard') }}</span>
                         </a>
                     </li>
                     <li class="menu-item {{ Request::is('admin/players*') || Request::is('players*') ? 'active' : '' }}">
-                        <a href="{{ route('players.index') }}" class="menu-link">
+                        <a href="{{ route('players.index') }}" class="menu-link" title="{{ __('app.nav.players') }}">
                             <i class="fas fa-user-friends"></i>
                             <span>{{ __('app.nav.players') }}</span>
                         </a>
                     </li>
                     <li class="menu-divider"></li>
-                    <li class="menu-item has-submenu {{ Request::is('admin/tournaments*') || Request::is('admin/games*') || Request::is('admin/teams*') || Request::is('admin/users*') || Request::is('admin/honor*') || Request::is('honor*') ? 'open' : '' }}" id="managerMenu">
-                        <a href="#" class="menu-link" onclick="event.preventDefault(); toggleSubmenu('managerMenu');">
+                    <li class="menu-item has-submenu {{ Request::is('admin/tournaments*') || Request::is('admin/games*') || Request::is('admin/teams*') || Request::is('admin/users*') || Request::is('admin/honor*') || Request::is('admin/marketplace*') || Request::is('honor*') ? 'open' : '' }}" id="managerMenu">
+                        <a href="#" class="menu-link" onclick="event.preventDefault(); toggleSubmenu('managerMenu');" title="Manager">
                             <i class="fas fa-briefcase"></i>
                             <span>Manager</span>
                         </a>
                         <ul class="menu-submenu">
                             <li class="menu-item {{ Request::is('admin/tournaments*') ? 'active' : '' }}">
-                                <a href="{{ route('admin.tournaments.index') }}" class="menu-link">
+                                <a href="{{ route('admin.tournaments.index') }}" class="menu-link" title="{{ __('app.profile.manage_tournaments') }}">
                                     <i class="fas fa-trophy"></i>
                                     <span>{{ __('app.profile.manage_tournaments') }}</span>
                                 </a>
                             </li>
                             <li class="menu-item {{ Request::is('admin/games*') ? 'active' : '' }}">
-                                <a href="{{ route('admin.games.index') }}" class="menu-link">
+                                <a href="{{ route('admin.games.index') }}" class="menu-link" title="{{ __('app.profile.manage_games') }}">
                                     <i class="fas fa-gamepad"></i>
                                     <span>{{ __('app.profile.manage_games') }}</span>
                                 </a>
                             </li>
                             <li class="menu-item {{ Request::is('admin/teams*') ? 'active' : '' }}">
-                                <a href="{{ route('admin.teams.index') }}" class="menu-link">
+                                <a href="{{ route('admin.teams.index') }}" class="menu-link" title="{{ __('app.profile.manage_teams') }}">
                                     <i class="fas fa-users-cog"></i>
                                     <span>{{ __('app.profile.manage_teams') }}</span>
                                 </a>
                             </li>
                             <li class="menu-item {{ Request::is('admin/users*') ? 'active' : '' }}">
-                                <a href="{{ route('admin.users.index') }}" class="menu-link">
+                                <a href="{{ route('admin.users.index') }}" class="menu-link" title="{{ __('app.profile.manage_users') }}">
                                     <i class="fas fa-users"></i>
                                     <span>{{ __('app.profile.manage_users') }}</span>
                                 </a>
                             </li>
                             <li class="menu-item {{ Request::is('admin/honor*') || Request::is('honor*') ? 'active' : '' }}">
-                                <a href="{{ route('admin.honor.index') }}" class="menu-link">
+                                <a href="{{ route('admin.honor.index') }}" class="menu-link" title="{{ __('app.honor.manage_title') }}">
                                     <i class="fas fa-trophy"></i>
                                     <span>{{ __('app.honor.manage_title') }}</span>
+                                </a>
+                            </li>
+                            <li class="menu-item {{ Request::is('admin/marketplace*') ? 'active' : '' }}">
+                                <a href="{{ route('admin.marketplace.index') }}" class="menu-link" title="Quản lý Marketplace">
+                                    <i class="fas fa-store"></i>
+                                    <span>Quản lý Marketplace</span>
                                 </a>
                             </li>
                         </ul>
                     </li>
                     <li class="menu-divider"></li>
                     <li class="menu-item {{ Request::is('admin/system*') || Request::is('admin/settings*') ? 'active' : '' }}">
-                        <a href="{{ route('admin.system.settings') }}" class="menu-link">
+                        <a href="{{ route('admin.system.settings') }}" class="menu-link" title="Setting">
                             <i class="fas fa-sliders-h"></i>
                             <span>Setting</span>
                         </a>
                     </li>
                     <li class="menu-divider"></li>
                     <li class="menu-item">
-                        <a href="{{ route('profile.show') }}" class="menu-link">
+                        <a href="{{ route('profile.show') }}" class="menu-link" title="{{ __('app.profile.personal_info') }}">
                             <i class="fas fa-id-card"></i>
                             <span>{{ __('app.profile.personal_info') }}</span>
                         </a>
@@ -2027,7 +2299,7 @@
                     <li class="menu-item">
                         <form method="POST" action="{{ route('auth.logout') }}" class="menu-form">
                             @csrf
-                            <button type="submit" class="menu-link menu-link-logout">
+                            <button type="submit" class="menu-link menu-link-logout" title="{{ __('app.auth.logout') }}">
                                 <i class="fas fa-sign-out-alt"></i>
                                 <span>{{ __('app.auth.logout') }}</span>
                             </button>
@@ -2051,8 +2323,8 @@
                 </div>
                 <div class="language-switcher-sidebar">
                     <div class="dropdown">
-                        <button class="btn btn-sm btn-outline-light w-100 dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-globe me-2"></i>{{ strtoupper(app()->getLocale()) }}
+                        <button class="btn btn-sm btn-outline-light w-100 dropdown-toggle" type="button" data-bs-toggle="dropdown" title="{{ strtoupper(app()->getLocale()) }}">
+                            <i class="fas fa-globe me-2"></i><span class="btn-text">{{ strtoupper(app()->getLocale()) }}</span>
                         </button>
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item language-switch" href="#" data-locale="en">
@@ -2229,6 +2501,9 @@
                                 </a></li>
                             <li><a class="dropdown-item" href="{{ route('admin.honor.index') }}">
                                     <i class="fas fa-trophy"></i>{{ __('app.honor.manage_title') }}
+                                </a></li>
+                            <li><a class="dropdown-item" href="{{ route('admin.marketplace.index') }}">
+                                    <i class="fas fa-store"></i>Quản lý Marketplace
                                 </a></li>
                             @endif
                             <li>

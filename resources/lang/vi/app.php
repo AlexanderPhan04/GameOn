@@ -2,7 +2,7 @@
 
 return [
     // Application
-    'name' => 'Esport Manager',
+    'name' => 'Game On',
     'tagline' => 'Nền tảng Gaming Chuyên nghiệp',
     'description' => 'Nền tảng quản lý esports chuyên nghiệp dành cho game thủ, đội tuyển và giải đấu.',
 
@@ -39,7 +39,7 @@ return [
         'register_now' => 'Đăng ký ngay',
         'back_to_home' => 'Quay lại',
         'welcome_back' => 'Chào mừng trở lại!',
-        'create_new_account' => 'Tạo tài khoản Esports Manager mới',
+        'create_new_account' => 'Tạo tài khoản Game On mới',
         'enter_personal_details' => 'Nhập thông tin cá nhân của bạn để sử dụng tất cả các tính năng của trang web',
         'hello_friend' => 'Xin chào, bạn!',
         'register_personal_details' => 'Đăng ký với thông tin cá nhân của bạn để sử dụng tất cả các tính năng của trang web',
@@ -224,6 +224,14 @@ return [
         'join_professional_gaming_community' => 'Tham gia cộng đồng game thủ chuyên nghiệp ngay hôm nay và khám phá tiềm năng vô hạn của bạn!',
         'register_free' => 'Đăng ký miễn phí',
         'start_now' => 'Bắt đầu ngay',
+        'contributed_by' => 'Đóng góp bởi',
+        'developer' => 'Nhà phát triển',
+        'developer_description' => 'Phát triển và duy trì hệ thống',
+        'community' => 'Cộng đồng',
+        'community_description' => 'Đóng góp từ cộng đồng người dùng',
+        'contributors' => 'Người đóng góp',
+        'contributors_description' => 'Các nhà phát triển và tester',
+        'made_with_love' => 'Được tạo với ❤️ bởi đội ngũ phát triển',
     ],
 
     // Profile

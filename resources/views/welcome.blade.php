@@ -106,7 +106,7 @@
                 <div class="col-lg-6 text-white">
                     <h1 class="display-4 fw-bold mb-4">
                         {{ __('app.home.welcome_to') }}<br>
-                        <span class="text-warning">{{ config('app.name', __('app.name')) }}</span>
+                        <span class="text-warning">{{ __('app.name') }}</span>
                     </h1>
                     <p class="lead mb-4">
                         {{ __('app.home.professional_esports_platform') }}<br>
@@ -317,6 +317,79 @@
                 @else
                 <a href="{{ route('dashboard') }}" class="btn btn-warning btn-lg btn-custom"><i class="fas fa-tachometer-alt me-2"></i>{{ __('app.home.start_now') }}</a>
                 @endguest
+            </div>
+        </div>
+    </section>
+
+    <!-- Contributed By Section -->
+    <section class="py-5 bg-light">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8 text-center">
+                    <h3 class="fw-bold mb-4">
+                        <i class="fas fa-heart text-danger me-2"></i>
+                        {{ __('app.home.contributed_by', ['default' => 'Đóng góp bởi']) }}
+                    </h3>
+                    <div class="row g-4 justify-content-center">
+                        @php
+                            $contributors = [
+                                [
+                                    'name' => 'Alexander Phan',
+                                    'description' => __('app.home.developer_description', ['default' => 'Phát triển và duy trì hệ thống']),
+                                    'image' => 'AlexanderPhan.jpg',
+                                    'icon' => 'fa-user-tie',
+                                    'gradient' => 'bg-gradient-primary',
+                                ],
+                                [
+                                    'name' => 'Đỗ Thế An',
+                                    'description' => __('app.home.community_description', ['default' => 'Đóng góp từ cộng đồng người dùng']),
+                                    'image' => 'DoTheAn.jpg',
+                                    'icon' => 'fa-users',
+                                    'gradient' => 'bg-gradient-success',
+                                ],
+                                [
+                                    'name' => 'Lê Khánh An',
+                                    'description' => __('app.home.contributors_description', ['default' => 'Các nhà phát triển và tester']),
+                                    'image' => 'LeKhanhAn.jpg',
+                                    'icon' => 'fa-code',
+                                    'gradient' => 'bg-gradient-info',
+                                ],
+                            ];
+                        @endphp
+                        @foreach($contributors as $contributor)
+                        <div class="col-md-6 col-lg-4">
+                            <div class="card feature-card h-100 text-center p-4">
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        @php
+                                            $imagePath = asset('contributors/' . $contributor['image']);
+                                            $imageExists = file_exists(public_path('contributors/' . $contributor['image']));
+                                        @endphp
+                                        @if($imageExists)
+                                            <img src="{{ $imagePath }}" alt="{{ $contributor['name'] }}" 
+                                                class="rounded-circle mx-auto d-block" 
+                                                style="width: 80px; height: 80px; object-fit: cover; border: 3px solid #667eea;">
+                                        @else
+                                            <div class="{{ $contributor['gradient'] }} rounded-circle mx-auto d-flex align-items-center justify-content-center"
+                                                style="width: 80px; height: 80px;">
+                                                <i class="fas {{ $contributor['icon'] }} text-white fa-2x"></i>
+                                            </div>
+                                        @endif
+                                    </div>
+                                    <h6 class="fw-bold mb-2">{{ $contributor['name'] }}</h6>
+                                    <p class="text-muted small mb-0">{{ $contributor['description'] }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                    <div class="mt-4">
+                        <p class="text-muted mb-0">
+                            <i class="fas fa-code-branch me-2"></i>
+                            {{ __('app.home.made_with_love', ['default' => 'Được tạo với ❤️ bởi đội ngũ phát triển']) }}
+                        </p>
+                    </div>
+                </div>
             </div>
         </div>
     </section>

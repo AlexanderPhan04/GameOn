@@ -12,6 +12,15 @@
         padding-top: 90px !important;
     }
     
+    /* Prevent scrollbars in input fields */
+    input[type="email"],
+    input[type="password"],
+    input[type="text"] {
+        overflow: hidden !important;
+        overflow-x: hidden !important;
+        overflow-y: hidden !important;
+    }
+    
     .content-wrapper {
         display: flex;
         align-items: center;
@@ -27,11 +36,24 @@
         border-radius: 30px;
         box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05);
         position: relative;
-        overflow: hidden;
+        overflow: visible;
         width: 900px;
         max-width: 95%;
         min-height: 600px;
         font-family: 'Montserrat', sans-serif;
+    }
+    
+    .auth-container #login-alert-container,
+    .auth-container #register-alert-container {
+        width: 100%;
+        margin-bottom: 10px;
+        flex-shrink: 0;
+    }
+    
+    .auth-container #login-alert-container .alert,
+    .auth-container #register-alert-container .alert {
+        margin-bottom: 0;
+        word-wrap: break-word;
     }
 
     .auth-container p {
@@ -110,7 +132,14 @@
         padding: 40px 50px;
         height: 100%;
         overflow-y: auto;
+        overflow-x: hidden;
         box-sizing: border-box;
+        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none; /* IE and Edge */
+    }
+    
+    .auth-container form::-webkit-scrollbar {
+        display: none; /* Chrome, Safari, Opera */
     }
 
     .auth-container form h1 {
@@ -135,6 +164,18 @@
         box-sizing: border-box;
         outline: none;
         transition: all 0.3s ease;
+        overflow: hidden;
+        resize: none;
+        line-height: 1.5;
+    }
+    
+    .auth-container input[type="email"],
+    .auth-container input[type="password"],
+    .auth-container input[type="text"] {
+        overflow-x: hidden;
+        overflow-y: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
     }
 
     .auth-container input::placeholder {
@@ -152,6 +193,7 @@
         top: 0;
         height: 100%;
         transition: all 0.6s ease-in-out;
+        overflow: hidden;
     }
 
     .sign-in {

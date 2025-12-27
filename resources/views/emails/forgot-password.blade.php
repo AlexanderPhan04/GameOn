@@ -90,14 +90,14 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1><i class="fas fa-gamepad"></i> Esport Manager</h1>
+            <h1><i class="fas fa-gamepad"></i> Game On</h1>
             <p>Yêu cầu đặt lại mật khẩu</p>
         </div>
 
         <div class="content">
             <h2>Xin chào {{ $user->name }}!</h2>
 
-            <p>Chúng tôi nhận được yêu cầu đặt lại mật khẩu cho tài khoản <strong>{{ $user->email }}</strong> tại <strong>Esport Manager</strong>.</p>
+            <p>Chúng tôi nhận được yêu cầu đặt lại mật khẩu cho tài khoản <strong>{{ $user->email }}</strong> tại <strong>Game On</strong>.</p>
 
             <div class="info-box">
                 <p><strong>📧 Thông tin yêu cầu:</strong></p>
@@ -143,9 +143,9 @@
         </div>
 
         <div class="footer">
-            <p>Email này được gửi từ <strong>Esport Manager</strong></p>
+            <p>Email này được gửi từ <strong>Game On</strong></p>
             <p>Nếu bạn có bất kỳ thắc mắc nào, vui lòng liên hệ với chúng tôi qua email: {{ config('mail.from.address') }}</p>
-            <p>&copy; {{ date('Y') }} Esport Manager. All rights reserved.</p>
+            <p>&copy; {{ date('Y') }} Game On. All rights reserved.</p>
         </div>
     </div>
 </body>

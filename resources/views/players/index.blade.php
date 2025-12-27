@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Người chơi - Esport Manager')
+@section('title', 'Người chơi - Game On')
 
 @section('content')
 <div class="container">

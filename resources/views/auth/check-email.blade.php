@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kiểm tra email - Esport Manager</title>
+    <title>Kiểm tra email - Game On</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -71,7 +71,7 @@
                         <h5>📋 Những gì bạn cần làm:</h5>
                         <ol class="text-start">
                             <li>Kiểm tra hộp thư email ({{ $email ?? 'địa chỉ email của bạn' }})</li>
-                            <li>Tìm email từ "Esport Manager"</li>
+                            <li>Tìm email từ "Game On"</li>
                             <li>Nhấp vào nút "Xác nhận địa chỉ email"</li>
                             <li>Quay lại và đăng nhập</li>
                         </ol>

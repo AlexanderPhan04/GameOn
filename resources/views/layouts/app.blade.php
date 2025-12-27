@@ -5,7 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', __('app.name'))</title>
+    <title>@yield('title', __('app.name')) - {{ __('app.tagline') }}</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
+    <link rel="icon" type="image/png" href="{{ asset('favicon.ico') }}">
+    <link rel="apple-touch-icon" href="{{ asset('favicon.svg') }}">
 
     <!-- Critical CSS inline to prevent FOUC -->
     <style>
@@ -1232,21 +1237,15 @@
             flex-direction: column;
         }
 
+        /* Hide scrollbar for sidebar */
         .admin-sidebar::-webkit-scrollbar {
-            width: 6px;
+            width: 0px;
+            display: none;
         }
 
-        .admin-sidebar::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        .admin-sidebar::-webkit-scrollbar-thumb {
-            background: rgba(102, 126, 234, 0.3);
-            border-radius: 3px;
-        }
-
-        .admin-sidebar::-webkit-scrollbar-thumb:hover {
-            background: rgba(102, 126, 234, 0.5);
+        .admin-sidebar {
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE and Edge */
         }
 
         .sidebar-header {
@@ -1334,6 +1333,16 @@
 
         .sidebar-nav {
             padding: 1rem 0;
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE and Edge */
+        }
+        
+        .sidebar-nav::-webkit-scrollbar {
+            width: 0px;
+            display: none;
         }
 
         .sidebar-menu {
@@ -1887,7 +1896,7 @@
                     <li class="menu-divider"></li>
                     <li class="menu-item has-submenu {{ Request::is('admin/tournaments*') || Request::is('admin/games*') || Request::is('admin/teams*') || Request::is('admin/users*') || Request::is('admin/honor*') || Request::is('honor*') ? 'open' : '' }}" id="managerMenu">
                         <a href="#" class="menu-link" onclick="event.preventDefault(); toggleSubmenu('managerMenu');">
-                            <i class="fas fa-cog"></i>
+                            <i class="fas fa-briefcase"></i>
                             <span>Manager</span>
                         </a>
                         <ul class="menu-submenu">
@@ -1926,7 +1935,7 @@
                     <li class="menu-divider"></li>
                     <li class="menu-item {{ Request::is('admin/system*') || Request::is('admin/settings*') ? 'active' : '' }}">
                         <a href="{{ route('admin.system.settings') }}" class="menu-link">
-                            <i class="fas fa-cog"></i>
+                            <i class="fas fa-sliders-h"></i>
                             <span>Setting</span>
                         </a>
                     </li>
@@ -2041,12 +2050,6 @@
                             </a>
                         </li>
                         @endif
-                        <li class="nav-item">
-                            <a class="nav-link modern-nav-link" href="{{ route('tournaments.index') }}">
-                                <i class="fas fa-trophy"></i>
-                                <span>{{ __('app.nav.tournaments') }}</span>
-                            </a>
-                        </li>
                         @if(Auth::user()->user_role === 'player')
                         <li class="nav-item">
                             <a class="nav-link modern-nav-link" href="{{ route('teams.index') }}">
@@ -2055,18 +2058,6 @@
                             </a>
                         </li>
                         @endif
-                        <li class="nav-item">
-                            <a class="nav-link modern-nav-link" href="{{ route('players.index') }}">
-                                <i class="fas fa-user-friends"></i>
-                                <span>{{ __('app.nav.players') }}</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link modern-nav-link" href="{{ route('honor.index') }}">
-                                <i class="fas fa-trophy"></i>
-                                <span>Honor</span>
-                            </a>
-                        </li>
                     @endauth
                 </ul>
 
@@ -2225,7 +2216,7 @@
                                 <i class="fas fa-gamepad"></i>
                             </div>
                             <div class="footer-brand-text">
-                                <h5 class="brand-title">Esport Manager</h5>
+                                <h5 class="brand-title">Game On</h5>
                                 <p class="brand-subtitle">{{ __('app.footer.professional_esports_management_platform') }}</p>
                             </div>
                         </div>
@@ -2286,7 +2277,7 @@
                 <div class="footer-bottom">
                     <div class="row align-items-center">
                         <div class="col-md-6">
-                            <p class="copyright">&copy; {{ date('Y') }} Esport Manager. All rights reserved.</p>
+                            <p class="copyright">&copy; {{ date('Y') }} Game On. All rights reserved.</p>
                         </div>
                         <div class="col-md-6 text-md-end">
                             <div class="footer-bottom-links">
@@ -2316,7 +2307,7 @@
                                     <i class="fas fa-gamepad"></i>
                                 </div>
                                 <div class="footer-brand-text">
-                                    <h5 class="brand-title">Esport Manager</h5>
+                                    <h5 class="brand-title">Game On</h5>
                                     <p class="brand-subtitle">{{ __('app.footer.professional_esports_management_platform') }}</p>
                                 </div>
                             </div>
@@ -2377,7 +2368,7 @@
                     <div class="footer-bottom">
                         <div class="row align-items-center">
                             <div class="col-md-6">
-                                <p class="copyright">&copy; {{ date('Y') }} Esport Manager. All rights reserved.</p>
+                                <p class="copyright">&copy; {{ date('Y') }} Game On. All rights reserved.</p>
                             </div>
                             <div class="col-md-6 text-md-end">
                                 <div class="footer-bottom-links">

@@ -122,11 +122,21 @@
             padding-bottom: 0;
         }
         
+        /* Limit container width to prevent excessive empty space */
         body.has-admin-sidebar .profile-main-content .container {
-            max-width: 100%;
+            max-width: 1200px;
             width: 100%;
+            margin-left: auto;
+            margin-right: auto;
             padding-left: 20px;
             padding-right: 20px;
+        }
+        
+        /* Also limit container when no sidebar */
+        .profile-main-content .container {
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
         }
         
         .profile-avatar-section {
@@ -330,13 +340,32 @@
         
         .card-content {
             padding: 30px;
+            display: flex;
+            flex-direction: column;
         }
         
         .info-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 20px;
             margin-bottom: 30px;
+            max-width: 100%;
+            justify-content: start;
+        }
+        
+        /* Better responsive grid layout - limit width to prevent excessive spacing */
+        @media (min-width: 600px) and (max-width: 1199px) {
+            .info-grid {
+                grid-template-columns: repeat(2, 1fr);
+                max-width: 800px;
+            }
+        }
+        
+        @media (min-width: 1200px) {
+            .info-grid {
+                grid-template-columns: repeat(3, 1fr);
+                max-width: 1000px;
+            }
         }
         
         .info-item {
@@ -519,6 +548,13 @@
             }
             
             body.has-admin-sidebar .profile-main-content {
+                padding-left: 15px;
+                padding-right: 15px;
+            }
+            
+            .profile-main-content .container,
+            body.has-admin-sidebar .profile-main-content .container {
+                max-width: 100%;
                 padding-left: 15px;
                 padding-right: 15px;
             }

@@ -17,6 +17,7 @@ use App\Http\Controllers\SearchController;
 use App\Http\Controllers\TeamController;
 use App\Http\Controllers\TournamentController;
 use App\Http\Controllers\TournamentManagementController;
+use App\Http\Controllers\PaymentController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -261,4 +262,26 @@ Route::prefix('admin/honor')->name('admin.honor.')->middleware(['auth.session'])
     Route::patch('/{honorEvent}/toggle', [HonorManagementController::class, 'toggleStatus'])->name('toggle');
     Route::delete('/{honorEvent}/reset', [HonorManagementController::class, 'resetVotes'])->name('reset');
     Route::delete('/{honorEvent}', [HonorManagementController::class, 'destroy'])->name('destroy');
+});
+
+// Payment Routes - VNPay Integration
+Route::prefix('payment')->name('payment.')->group(function () {
+    // Tạo đơn hàng và chuyển hướng đến VNPay
+    Route::post('/vnpay/create', [PaymentController::class, 'createPayment'])->name('vnpay.create');
+    
+    // Callback từ VNPay sau khi thanh toán
+    Route::get('/vnpay/return', [PaymentController::class, 'vnpayReturn'])->name('vnpay.return');
+    
+    // IPN (Instant Payment Notification) từ VNPay
+    Route::post('/vnpay/ipn', [PaymentController::class, 'vnpayIpn'])->name('vnpay.ipn');
+    
+    // Query transaction từ VNPay
+    Route::post('/vnpay/query', [PaymentController::class, 'queryTransaction'])->name('vnpay.query');
+});
+
+// Marketplace Routes
+Route::prefix('marketplace')->name('marketplace.')->group(function () {
+    Route::get('/', function () {
+        return view('marketplace.index');
+    })->name('index');
 });

@@ -2191,6 +2191,7 @@
                         <ul class="dropdown-menu modern-dropdown">
                             <li><a class="dropdown-item" href="{{ route('chat.index') }}"><i class="fas fa-comments"></i> {{ __('app.nav.chat') }}</a></li>
                             <li><a class="dropdown-item" href="{{ route('posts.index') }}"><i class="fas fa-newspaper"></i> {{ __('app.nav.posts') }}</a></li>
+                            <li><a class="dropdown-item" href="{{ route('marketplace.index') }}"><i class="fas fa-store"></i> Marketplace</a></li>
                         </ul>
                     </li>
                     <li class="nav-item dropdown">

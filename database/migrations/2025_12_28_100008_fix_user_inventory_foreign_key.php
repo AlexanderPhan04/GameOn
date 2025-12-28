@@ -14,35 +14,52 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Kiểm tra và xóa foreign key cũ nếu tồn tại
-        $foreignKeys = DB::select("
-            SELECT CONSTRAINT_NAME 
-            FROM information_schema.KEY_COLUMN_USAGE 
-            WHERE TABLE_SCHEMA = DATABASE() 
-            AND TABLE_NAME = 'user_inventory' 
-            AND COLUMN_NAME = 'product_id' 
-            AND REFERENCED_TABLE_NAME IS NOT NULL
-        ");
-
-        if (!empty($foreignKeys)) {
-            Schema::table('user_inventory', function (Blueprint $table) {
-                // Xóa foreign key cũ
-                $table->dropForeign(['product_id']);
-            });
+        // Kiểm tra bảng tồn tại trước
+        if (!Schema::hasTable('user_inventory')) {
+            return; // Bảng chưa tồn tại, bỏ qua migration này
         }
 
-        Schema::table('user_inventory', function (Blueprint $table) {
+        $isSqlite = config('database.default') === 'sqlite' || 
+                    (config('database.connections.'.config('database.default').'.driver') === 'sqlite');
+
+        if (!$isSqlite) {
+            // Kiểm tra và xóa foreign key cũ nếu tồn tại (chỉ cho MySQL)
+            $foreignKeys = DB::select("
+                SELECT CONSTRAINT_NAME 
+                FROM information_schema.KEY_COLUMN_USAGE 
+                WHERE TABLE_SCHEMA = DATABASE() 
+                AND TABLE_NAME = 'user_inventory' 
+                AND COLUMN_NAME = 'product_id' 
+                AND REFERENCED_TABLE_NAME IS NOT NULL
+            ");
+
+            if (!empty($foreignKeys)) {
+                Schema::table('user_inventory', function (Blueprint $table) {
+                    // Xóa foreign key cũ
+                    $table->dropForeign(['product_id']);
+                });
+            }
+        }
+
+        Schema::table('user_inventory', function (Blueprint $table) use ($isSqlite) {
             // Đổi cột product_id thành nullable trước
+            if ($isSqlite) {
+                // SQLite không hỗ trợ change(), cần recreate table
+                // Tạm thời bỏ qua nếu là SQLite
+                return;
+            }
             $table->unsignedBigInteger('product_id')->nullable()->change();
         });
 
-        Schema::table('user_inventory', function (Blueprint $table) {
-            // Tạo lại foreign key với ON DELETE SET NULL
-            $table->foreign('product_id')
-                  ->references('id')
-                  ->on('marketplace_products')
-                  ->onDelete('set null');
-        });
+        if (!$isSqlite) {
+            Schema::table('user_inventory', function (Blueprint $table) {
+                // Tạo lại foreign key với ON DELETE SET NULL
+                $table->foreign('product_id')
+                      ->references('id')
+                      ->on('marketplace_products')
+                      ->onDelete('set null');
+            });
+        }
     }
 
     /**

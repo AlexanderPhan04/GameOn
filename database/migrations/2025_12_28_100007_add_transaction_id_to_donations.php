@@ -12,9 +12,21 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Kiểm tra bảng tồn tại trước khi thêm cột
+        if (!Schema::hasTable('donations')) {
+            return; // Bảng chưa tồn tại, bỏ qua migration này
+        }
+
         Schema::table('donations', function (Blueprint $table) {
             if (!Schema::hasColumn('donations', 'transaction_id')) {
-                $table->foreignId('transaction_id')->nullable()->after('id')->constrained('transactions')->onDelete('set null');
+                $isSqlite = config('database.default') === 'sqlite' || 
+                            (config('database.connections.'.config('database.default').'.driver') === 'sqlite');
+                
+                if ($isSqlite) {
+                    $table->foreignId('transaction_id')->nullable()->constrained('transactions')->onDelete('set null');
+                } else {
+                    $table->foreignId('transaction_id')->nullable()->after('id')->constrained('transactions')->onDelete('set null');
+                }
                 $table->index('transaction_id');
             }
         });

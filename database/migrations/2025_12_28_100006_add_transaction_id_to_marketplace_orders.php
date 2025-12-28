@@ -12,13 +12,25 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('marketplace_orders', function (Blueprint $table) {
+        // Kiểm tra bảng tồn tại trước khi thêm cột
+        if (!Schema::hasTable('marketplace_orders')) {
+            return; // Bảng chưa tồn tại, bỏ qua migration này
+        }
+
+        $isSqlite = config('database.default') === 'sqlite' || 
+                    (config('database.connections.'.config('database.default').'.driver') === 'sqlite');
+
+        Schema::table('marketplace_orders', function (Blueprint $table) use ($isSqlite) {
             if (!Schema::hasColumn('marketplace_orders', 'transaction_id')) {
-                $table->foreignId('transaction_id')->nullable()->after('id')->constrained('transactions')->onDelete('set null');
+                if ($isSqlite) {
+                    $table->foreignId('transaction_id')->nullable()->constrained('transactions')->onDelete('set null');
+                } else {
+                    $table->foreignId('transaction_id')->nullable()->after('id')->constrained('transactions')->onDelete('set null');
+                }
                 $table->index('transaction_id');
             }
-            // Đổi order_id thành order_code để nhất quán
-            if (Schema::hasColumn('marketplace_orders', 'order_id') && !Schema::hasColumn('marketplace_orders', 'order_code')) {
+            // Đổi order_id thành order_code để nhất quán (chỉ cho MySQL, SQLite không hỗ trợ renameColumn dễ dàng)
+            if (!$isSqlite && Schema::hasColumn('marketplace_orders', 'order_id') && !Schema::hasColumn('marketplace_orders', 'order_code')) {
                 $table->renameColumn('order_id', 'order_code');
             }
         });

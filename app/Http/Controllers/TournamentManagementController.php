@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\GameManagement;
-use App\Models\TournamentManagement;
+use App\Models\Game;
+use App\Models\Tournament;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -28,7 +28,7 @@ class TournamentManagementController extends Controller
     {
         $this->checkAdminAccess();
 
-        $query = TournamentManagement::with(['game', 'creator'])
+        $query = Tournament::with(['game', 'creator'])
             ->orderBy('created_at', 'desc');
 
         // Filter by game
@@ -47,7 +47,7 @@ class TournamentManagementController extends Controller
         }
 
         $tournaments = $query->paginate(12);
-        $games = GameManagement::orderBy('name')->get();
+        $games = Game::orderBy('name')->get();
 
         return view('admin.tournaments.index', compact('tournaments', 'games'));
     }
@@ -58,7 +58,7 @@ class TournamentManagementController extends Controller
     public function create()
     {
         $this->checkAdminAccess();
-        $games = GameManagement::where('status', 'active')->orderBy('name')->get();
+        $games = Game::active()->orderBy('name')->get();
 
         return view('admin.tournaments.create', compact('games'));
     }
@@ -72,7 +72,7 @@ class TournamentManagementController extends Controller
 
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'game_id' => 'required|exists:games_management,id',
+            'game_id' => 'required|exists:games,id',
             'competition_type' => 'required|in:individual,team',
             'format' => 'nullable|string|max:50',
             'description' => 'nullable|string|max:2000',
@@ -160,7 +160,14 @@ class TournamentManagementController extends Controller
 
         // Set created_by
         $data['created_by'] = Auth::id();
-        TournamentManagement::create($data);
+        
+        // Map tournament_format to format
+        if (isset($data['tournament_format'])) {
+            $data['format'] = $data['tournament_format'];
+            unset($data['tournament_format']);
+        }
+        
+        Tournament::create($data);
 
         return redirect()->route('admin.tournaments.index')
             ->with('success', 'Tournament đã được tạo thành công!');
@@ -169,10 +176,10 @@ class TournamentManagementController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(TournamentManagement $tournament)
+    public function show(Tournament $tournament)
     {
         $this->checkAdminAccess();
-        $tournament->load(['game', 'creator', 'updater']);
+        $tournament->load(['game', 'creator']);
 
         return view('admin.tournaments.show', compact('tournament'));
     }
@@ -180,10 +187,10 @@ class TournamentManagementController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(TournamentManagement $tournament)
+    public function edit(Tournament $tournament)
     {
         $this->checkAdminAccess();
-        $games = GameManagement::where('status', 'active')->orderBy('name')->get();
+        $games = Game::active()->orderBy('name')->get();
 
         return view('admin.tournaments.edit', compact('tournament', 'games'));
     }
@@ -191,13 +198,13 @@ class TournamentManagementController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, TournamentManagement $tournament)
+    public function update(Request $request, Tournament $tournament)
     {
         $this->checkAdminAccess();
 
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'game_id' => 'required|exists:games_management,id',
+            'game_id' => 'required|exists:games,id',
             'competition_type' => 'required|in:individual,team',
             'format' => 'nullable|string|max:50',
             'description' => 'nullable|string|max:2000',
@@ -281,8 +288,11 @@ class TournamentManagementController extends Controller
             }
         }
 
-        // Set updated_by
-        $data['updated_by'] = Auth::id();
+        // Map tournament_format to format
+        if (isset($data['tournament_format'])) {
+            $data['format'] = $data['tournament_format'];
+            unset($data['tournament_format']);
+        }
 
         $tournament->update($data);
 
@@ -293,16 +303,13 @@ class TournamentManagementController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(TournamentManagement $tournament)
+    public function destroy(Tournament $tournament)
     {
         $this->checkAdminAccess();
 
         // Delete associated files
-        if ($tournament->logo) {
-            Storage::disk('public')->delete($tournament->logo);
-        }
-        if ($tournament->banner) {
-            Storage::disk('public')->delete($tournament->banner);
+        if ($tournament->image_url) {
+            Storage::disk('public')->delete($tournament->image_url);
         }
 
         $tournament->delete();
@@ -317,7 +324,7 @@ class TournamentManagementController extends Controller
     {
         $this->checkAdminAccess();
 
-        $tournaments = TournamentManagement::with(['game'])
+        $tournaments = Tournament::with(['game'])
             ->when($request->status, function ($query) use ($request) {
                 return $query->where('status', $request->status);
             })

@@ -4,8 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Game;
 use App\Models\Team;
-use App\Models\TournamentManagement;
+use App\Models\Tournament;
 use App\Models\User;
+use Illuminate\Support\Facades\Schema;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
@@ -19,18 +20,20 @@ class HomeController extends Controller
         // Always show home page with general information
         $stats = [
             'total_users' => User::count(),
-            'total_teams' => Team::count(),
-            'active_tournaments' => TournamentManagement::where('status', 'active')->count(),
-            'featured_tournaments' => TournamentManagement::with(['game', 'creator'])
+            'total_teams' => Schema::hasTable('teams') ? Team::count() : 0,
+            'active_tournaments' => Tournament::where('status', 'active')->count(),
+            'featured_tournaments' => Tournament::with(['game', 'creator'])
                 ->where('status', 'active')
                 ->orderBy('start_date', 'desc')
                 ->take(3)
                 ->get(),
-            'top_teams' => Team::withCount('activeMembers')
-                ->where('status', 'active')
-                ->orderBy('active_members_count', 'desc')
-                ->take(4)
-                ->get(),
+            'top_teams' => Schema::hasTable('teams') 
+                ? Team::withCount('activeMembers')
+                    ->where('status', 'active')
+                    ->orderBy('active_members_count', 'desc')
+                    ->take(4)
+                    ->get()
+                : collect(),
         ];
 
         return view('welcome', compact('stats'));
@@ -78,20 +81,21 @@ class HomeController extends Controller
         $totalGames = Game::count();
 
         // Get active tournaments
-        $activeTournaments = TournamentManagement::where('status', 'active')->count();
+        $activeTournaments = Tournament::where('status', 'active')->count();
 
         $stats = [
             'total_users' => User::count(),
             'total_admins' => User::where('user_role', 'admin')->count(),
             'total_players' => User::where('user_role', 'player')->count(),
             'total_viewers' => User::where('user_role', 'viewer')->count(),
-            'total_teams' => Team::count(),
-            'active_teams' => Team::where('status', 'active')->count(),
+            'total_teams' => Schema::hasTable('teams') ? Team::count() : 0,
+            'active_teams' => Schema::hasTable('teams') ? Team::where('status', 'active')->count() : 0,
             'total_games' => $totalGames,
             'active_tournaments' => $activeTournaments,
             'user_growth_labels' => $userGrowthLabels,
             'user_growth_data' => $userGrowthData,
-            'recent_users' => User::select(['id', 'name', 'full_name', 'email', 'avatar', 'user_role', 'status', 'created_at'])
+            'recent_users' => User::with('profile')
+                ->select(['id', 'name', 'email', 'user_role', 'status', 'created_at'])
                 ->orderBy('created_at', 'desc')
                 ->paginate(5, ['*'], 'users_page'),
             'user_roles_distribution' => User::selectRaw('user_role, COUNT(*) as count')
@@ -107,7 +111,8 @@ class HomeController extends Controller
      */
     public function getRecentUsers()
     {
-        $recentUsers = User::select(['id', 'name', 'full_name', 'email', 'avatar', 'user_role', 'status', 'created_at'])
+        $recentUsers = User::with('profile')
+            ->select(['id', 'name', 'email', 'user_role', 'status', 'created_at'])
             ->orderBy('created_at', 'desc')
             ->paginate(5, ['*'], 'users_page');
 
@@ -122,9 +127,10 @@ class HomeController extends Controller
         $stats = [
             'total_users' => User::count(),
             'total_players' => User::where('user_role', 'player')->count(),
-            'total_teams' => Team::count(),
-            'active_teams' => Team::where('status', 'active')->count(),
-            'recent_users' => User::select(['id', 'name', 'full_name', 'email', 'avatar', 'user_role', 'status', 'created_at'])
+            'total_teams' => Schema::hasTable('teams') ? Team::count() : 0,
+            'active_teams' => Schema::hasTable('teams') ? Team::where('status', 'active')->count() : 0,
+            'recent_users' => User::with('profile')
+                ->select(['id', 'name', 'email', 'user_role', 'status', 'created_at'])
                 ->orderBy('created_at', 'desc')
                 ->take(5)
                 ->get(),
@@ -159,10 +165,12 @@ class HomeController extends Controller
     {
         $data = [
             'featured_tournaments' => [], // TODO: Get featured tournaments
-            'popular_teams' => Team::withCount('activeMembers')
-                ->orderBy('active_members_count', 'desc')
-                ->take(6)
-                ->get(),
+            'popular_teams' => Schema::hasTable('teams')
+                ? Team::withCount('activeMembers')
+                    ->orderBy('active_members_count', 'desc')
+                    ->take(6)
+                    ->get()
+                : collect(),
             'recent_matches' => [], // TODO: Get recent matches
         ];
 

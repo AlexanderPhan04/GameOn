@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\GameManagement;
+use App\Models\Game;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -32,7 +32,7 @@ class GameManagementController extends Controller
     {
         $this->checkAdminAccess();
 
-        $games = GameManagement::with(['creator', 'updater'])
+        $games = Game::with(['creator', 'updater'])
             ->orderBy('created_at', 'desc')
             ->paginate(12);
 
@@ -57,7 +57,7 @@ class GameManagementController extends Controller
         $this->checkAdminAccess();
 
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255|unique:games_management,name',
+            'name' => 'required|string|max:255|unique:games,name',
             'genre' => 'nullable|string|max:100',
             'publisher' => 'nullable|string|max:255',
             'release_date' => 'nullable|date',
@@ -88,28 +88,37 @@ class GameManagementController extends Controller
         $data = $validator->validated();
 
         // Convert checkbox value to boolean
-        $data['esport_support'] = $request->has('esport_support') ? 1 : 0;
+        $data['is_esport_supported'] = $request->has('esport_support') ? 1 : 0;
+
+        // Handle format_metadata
+        if ($request->has('team_size') || $request->has('competition_formats') || $request->has('game_modes')) {
+            $data['format_metadata'] = [
+                'team_size' => $request->input('team_size'),
+                'competition_formats' => $request->input('competition_formats', []),
+                'game_modes' => $request->input('game_modes', []),
+            ];
+        }
 
         // Handle file uploads
         if ($request->hasFile('logo')) {
             $logoFile = $request->file('logo');
             if ($logoFile->isValid()) {
-                $data['logo'] = $logoFile->store('games/logos', 'public');
+                $data['image_url'] = $logoFile->store('games/logos', 'public');
             }
         }
 
         if ($request->hasFile('banner')) {
             $bannerFile = $request->file('banner');
             if ($bannerFile->isValid()) {
-                $data['banner'] = $bannerFile->store('games/banners', 'public');
+                $data['banner_url'] = $bannerFile->store('games/banners', 'public');
             }
         }
 
-        // Set created_by
+        // Set created_by and updated_by
         $data['created_by'] = Auth::id();
         $data['updated_by'] = Auth::id();
 
-        GameManagement::create($data);
+        Game::create($data);
 
         return redirect()->route('admin.games.index')
             ->with('success', 'Game đã được thêm thành công!');
@@ -118,7 +127,7 @@ class GameManagementController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(GameManagement $game)
+    public function show(Game $game)
     {
         $this->checkAdminAccess();
 
@@ -128,7 +137,7 @@ class GameManagementController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(GameManagement $game)
+    public function edit(Game $game)
     {
         $this->checkAdminAccess();
 
@@ -138,12 +147,12 @@ class GameManagementController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, GameManagement $game)
+    public function update(Request $request, Game $game)
     {
         $this->checkAdminAccess();
 
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255|unique:games_management,name,'.$game->id,
+            'name' => 'required|string|max:255|unique:games,name,'.$game->id,
             'genre' => 'nullable|string|max:100',
             'publisher' => 'nullable|string|max:255',
             'release_date' => 'nullable|date',
@@ -174,26 +183,35 @@ class GameManagementController extends Controller
         $data = $validator->validated();
 
         // Convert checkbox value to boolean
-        $data['esport_support'] = $request->has('esport_support') ? 1 : 0;
+        $data['is_esport_supported'] = $request->has('esport_support') ? 1 : 0;
+
+        // Handle format_metadata
+        if ($request->has('team_size') || $request->has('competition_formats') || $request->has('game_modes')) {
+            $data['format_metadata'] = [
+                'team_size' => $request->input('team_size'),
+                'competition_formats' => $request->input('competition_formats', []),
+                'game_modes' => $request->input('game_modes', []),
+            ];
+        }
 
         // Handle file uploads and delete old files
         if ($request->hasFile('logo')) {
             $logoFile = $request->file('logo');
             if ($logoFile->isValid()) {
-                if ($game->logo) {
-                    Storage::disk('public')->delete($game->logo);
+                if ($game->image_url) {
+                    Storage::disk('public')->delete($game->image_url);
                 }
-                $data['logo'] = $logoFile->store('games/logos', 'public');
+                $data['image_url'] = $logoFile->store('games/logos', 'public');
             }
         }
 
         if ($request->hasFile('banner')) {
             $bannerFile = $request->file('banner');
             if ($bannerFile->isValid()) {
-                if ($game->banner) {
-                    Storage::disk('public')->delete($game->banner);
+                if ($game->banner_url) {
+                    Storage::disk('public')->delete($game->banner_url);
                 }
-                $data['banner'] = $bannerFile->store('games/banners', 'public');
+                $data['banner_url'] = $bannerFile->store('games/banners', 'public');
             }
         }
 
@@ -209,16 +227,16 @@ class GameManagementController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(GameManagement $game)
+    public function destroy(Game $game)
     {
         $this->checkAdminAccess();
 
         // Delete associated files
-        if ($game->logo) {
-            Storage::disk('public')->delete($game->logo);
+        if ($game->image_url) {
+            Storage::disk('public')->delete($game->image_url);
         }
-        if ($game->banner) {
-            Storage::disk('public')->delete($game->banner);
+        if ($game->banner_url) {
+            Storage::disk('public')->delete($game->banner_url);
         }
 
         $game->delete();
@@ -234,9 +252,9 @@ class GameManagementController extends Controller
      */
     public function getGames(Request $request): JsonResponse
     {
-        $games = GameManagement::select('id', 'name', 'genre', 'esport_support', 'team_size')
+        $games = Game::select('id', 'name', 'genre', 'is_esport_supported', 'format_metadata')
             ->when($request->esport_only, function ($query) {
-                return $query->where('esport_support', true);
+                return $query->where('is_esport_supported', true);
             })
             ->when($request->status, function ($query, $status) {
                 return $query->where('status', $status);

@@ -687,90 +687,105 @@
 @section('content')
 <!-- Header Section với màu hệ thống -->
 <div class="settings-header">
-    <div class="container-fluid">
-        <h1 class="h3 mb-0" style="color: #ffffff !important;">
+    <div class="container mx-auto px-5">
+        <h1 class="text-2xl font-bold mb-0" style="color: #ffffff !important;">
             <i class="fas fa-cogs" style="color: #ffffff !important;"></i>Cài đặt hệ thống
         </h1>
     </div>
 </div>
 
 <!-- Main Content -->
-<div class="container-fluid">
+<div class="container mx-auto px-5">
 
     @if(session('success'))
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
+        <div class="flex items-center">
+            <i class="fas fa-check-circle mr-2"></i>
+            <span>{{ session('success') }}</span>
+            <button type="button" class="absolute top-0 right-0 px-4 py-3" onclick="this.parentElement.parentElement.remove()">
+                <span class="text-green-700">&times;</span>
+            </button>
+        </div>
     </div>
     @endif
 
     <!-- Tabs Navigation -->
-    <ul class="nav nav-tabs mb-4" id="settingsTabs" role="tablist">
-        <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="system-tab" data-bs-toggle="tab" data-bs-target="#system" type="button" role="tab" aria-controls="system" aria-selected="true" style="color: #ffffff !important;">
-                <i class="fas fa-cogs me-2" style="color: #ffffff !important;"></i><span style="color: #ffffff !important; font-weight: 600;">Hệ thống</span>
+    <div class="border-b-2 border-white/20 mb-4">
+        <div class="flex space-x-1" id="settingsTabs" role="tablist">
+            <button class="px-6 py-3 text-white font-semibold border-b-2 border-primary bg-primary/30 transition-all" 
+                    id="system-tab" 
+                    onclick="switchTab('system')" 
+                    type="button" 
+                    role="tab" 
+                    aria-controls="system" 
+                    aria-selected="true">
+                <i class="fas fa-cogs mr-2"></i><span>Hệ thống</span>
             </button>
-        </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link" id="interface-tab" data-bs-toggle="tab" data-bs-target="#interface" type="button" role="tab" aria-controls="interface" aria-selected="false" style="color: #ffffff !important;">
-                <i class="fas fa-palette me-2" style="color: #ffffff !important;"></i><span style="color: #ffffff !important; font-weight: 600;">Cài đặt giao diện</span>
+            <button class="px-6 py-3 text-white font-semibold border-b-2 border-transparent hover:border-white/50 hover:bg-white/10 transition-all" 
+                    id="interface-tab" 
+                    onclick="switchTab('interface')" 
+                    type="button" 
+                    role="tab" 
+                    aria-controls="interface" 
+                    aria-selected="false">
+                <i class="fas fa-palette mr-2"></i><span>Cài đặt giao diện</span>
             </button>
-        </li>
-    </ul>
+        </div>
+    </div>
 
     <!-- Tabs Content -->
-    <div class="tab-content" id="settingsTabsContent">
+    <div id="settingsTabsContent">
         <!-- System Settings Tab -->
-        <div class="tab-pane fade show active" id="system" role="tabpanel" aria-labelledby="system-tab">
-            <div class="row">
+        <div class="tab-pane active" id="system" role="tabpanel" aria-labelledby="system-tab">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 <!-- System Information -->
-                <div class="col-lg-6">
-                    <div class="card shadow mb-4">
-                        <div class="card-header py-3">
-                            <h6 class="m-0 font-weight-bold text-primary">
-                                <i class="fas fa-info-circle me-2"></i>Thông tin hệ thống
+                <div class="lg:col-span-1">
+                    <div class="bg-white rounded-lg shadow mb-4">
+                        <div class="border-b border-gray-200 py-3 px-4">
+                            <h6 class="m-0 font-bold text-primary">
+                                <i class="fas fa-info-circle mr-2"></i>Thông tin hệ thống
                             </h6>
                         </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-6">
-                                    <p><strong>Tên website:</strong></p>
-                                    <p><strong>URL:</strong></p>
-                                    <p><strong>Môi trường:</strong></p>
-                                    <p><strong>Debug mode:</strong></p>
+                        <div class="p-4">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="col-span-1">
+                                    <p class="mb-3"><strong>Tên website:</strong></p>
+                                    <p class="mb-3"><strong>URL:</strong></p>
+                                    <p class="mb-3"><strong>Môi trường:</strong></p>
+                                    <p class="mb-3"><strong>Debug mode:</strong></p>
                                 </div>
-                                <div class="col-6">
-                                    <p>{{ $settings['site_name'] }}</p>
-                                    <p>{{ $settings['site_url'] }}</p>
-                                    <p>
-                                        <span class="badge bg-{{ $settings['environment'] === 'production' ? 'success' : 'warning' }}">
+                                <div class="col-span-1">
+                                    <p class="mb-3">{{ $settings['site_name'] }}</p>
+                                    <p class="mb-3">{{ $settings['site_url'] }}</p>
+                                    <p class="mb-3">
+                                        <span class="inline-block px-3 py-1 rounded-full text-sm font-semibold {{ $settings['environment'] === 'production' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
                                             {{ ucfirst($settings['environment']) }}
                                         </span>
                                     </p>
-                                    <p>
-                                        <span class="badge bg-{{ $settings['debug_mode'] ? 'danger' : 'success' }}">
+                                    <p class="mb-3">
+                                        <span class="inline-block px-3 py-1 rounded-full text-sm font-semibold {{ $settings['debug_mode'] ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800' }}">
                                             {{ $settings['debug_mode'] ? 'Enabled' : 'Disabled' }}
                                         </span>
                                     </p>
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col-6">
-                                    <p><strong>Timezone:</strong></p>
-                                    <p><strong>Locale:</strong></p>
-                                    <p><strong>Cache:</strong></p>
-                                    <p><strong>Maintenance:</strong></p>
+                            <div class="grid grid-cols-2 gap-4 mt-4">
+                                <div class="col-span-1">
+                                    <p class="mb-3"><strong>Timezone:</strong></p>
+                                    <p class="mb-3"><strong>Locale:</strong></p>
+                                    <p class="mb-3"><strong>Cache:</strong></p>
+                                    <p class="mb-3"><strong>Maintenance:</strong></p>
                                 </div>
-                                <div class="col-6">
-                                    <p>{{ $settings['timezone'] }}</p>
-                                    <p>{{ $settings['locale'] }}</p>
-                                    <p>
-                                        <span class="badge bg-{{ $settings['cache_enabled'] ? 'success' : 'warning' }}">
+                                <div class="col-span-1">
+                                    <p class="mb-3">{{ $settings['timezone'] }}</p>
+                                    <p class="mb-3">{{ $settings['locale'] }}</p>
+                                    <p class="mb-3">
+                                        <span class="inline-block px-3 py-1 rounded-full text-sm font-semibold {{ $settings['cache_enabled'] ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
                                             {{ $settings['cache_enabled'] ? 'Enabled' : 'Disabled' }}
                                         </span>
                                     </p>
-                                    <p>
-                                        <span class="badge bg-{{ $settings['maintenance_mode'] ? 'danger' : 'success' }}">
+                                    <p class="mb-3">
+                                        <span class="inline-block px-3 py-1 rounded-full text-sm font-semibold {{ $settings['maintenance_mode'] ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800' }}">
                                             {{ $settings['maintenance_mode'] ? 'Active' : 'Inactive' }}
                                         </span>
                                     </p>
@@ -781,60 +796,60 @@
                 </div>
 
                 <!-- Quick Actions -->
-                <div class="col-lg-6">
-                    <div class="card shadow mb-4">
-                        <div class="card-header py-3">
-                            <h6 class="m-0 font-weight-bold text-primary">
-                                <i class="fas fa-bolt me-2"></i>Thao tác nhanh
+                <div class="lg:col-span-1">
+                    <div class="bg-white rounded-lg shadow mb-4">
+                        <div class="border-b border-gray-200 py-3 px-4">
+                            <h6 class="m-0 font-bold text-primary">
+                                <i class="fas fa-bolt mr-2"></i>Thao tác nhanh
                             </h6>
                         </div>
-                        <div class="card-body">
-                            <div class="d-grid gap-3">
-                                <button class="btn btn-outline-primary" onclick="clearCache()">
-                                    <i class="fas fa-broom me-2"></i>Xóa Cache hệ thống
+                        <div class="p-4">
+                            <div class="flex flex-col gap-3">
+                                <button class="px-4 py-2 border-2 border-primary text-primary rounded-lg hover:bg-primary hover:text-white transition-colors font-medium" onclick="clearCache()">
+                                    <i class="fas fa-broom mr-2"></i>Xóa Cache hệ thống
                                 </button>
-                                <button class="btn btn-outline-warning" onclick="optimizeDatabase()">
-                                    <i class="fas fa-database me-2"></i>Tối ưu hóa Database
+                                <button class="px-4 py-2 border-2 border-yellow-500 text-yellow-600 rounded-lg hover:bg-yellow-500 hover:text-white transition-colors font-medium" onclick="optimizeDatabase()">
+                                    <i class="fas fa-database mr-2"></i>Tối ưu hóa Database
                                 </button>
-                                <button class="btn btn-outline-info" onclick="checkSystemHealth()">
-                                    <i class="fas fa-heartbeat me-2"></i>Kiểm tra sức khỏe hệ thống
+                                <button class="px-4 py-2 border-2 border-blue-500 text-blue-600 rounded-lg hover:bg-blue-500 hover:text-white transition-colors font-medium" onclick="checkSystemHealth()">
+                                    <i class="fas fa-heartbeat mr-2"></i>Kiểm tra sức khỏe hệ thống
                                 </button>
-                                <a href="{{ route('admin.system.logs') }}" class="btn btn-outline-secondary">
-                                    <i class="fas fa-file-alt me-2"></i>Xem System Logs
+                                <a href="{{ route('admin.system.logs') }}" class="px-4 py-2 border-2 border-gray-400 text-gray-600 rounded-lg hover:bg-gray-400 hover:text-white transition-colors font-medium text-center">
+                                    <i class="fas fa-file-alt mr-2"></i>Xem System Logs
                                 </a>
                             </div>
                         </div>
                     </div>
 
                     <!-- System Status -->
-                    <div class="card shadow">
-                        <div class="card-header py-3">
-                            <h6 class="m-0 font-weight-bold text-primary">
-                                <i class="fas fa-server me-2"></i>Trạng thái hệ thống
+                    <div class="bg-white rounded-lg shadow">
+                        <div class="border-b border-gray-200 py-3 px-4">
+                            <h6 class="m-0 font-bold text-primary">
+                                <i class="fas fa-server mr-2"></i>Trạng thái hệ thống
                             </h6>
                         </div>
-                        <div class="card-body">
-                            <div class="row text-center">
-                                <div class="col-4">
-                                    <div class="text-success mb-2">
-                                        <i class="fas fa-check-circle fa-2x"></i>
+                        <div class="p-4">
+                            <div class="grid grid-cols-3 text-center">
+                                <div class="col-span-1">
+                                    <div class="text-green-600 mb-2">
+                                        <i class="fas fa-check-circle text-3xl"></i>
                                     </div>
-                                    <h6>Web Server</h6>
-                                    <small class="text-muted">Online</small>
+                                    <h6 class="font-semibold">Web Server</h6>
+                                    <small class="text-gray-500">Online</small>
                                 </div>
-                                <div class="col-4">
-                                    <div class="text-success mb-2">
-                                        <i class="fas fa-database fa-2x"></i>
+                                <div class="col-span-1">
+                                    <div class="text-green-600 mb-2">
+                                        <i class="fas fa-database text-3xl"></i>
                                     </div>
-                                    <h6>Database</h6>
-                                    <small class="text-muted">Connected</small>
+                                    <h6 class="font-semibold">Database</h6>
+                                    <small class="text-gray-500">Connected</small>
                                 </div>
-                                <div class="col-4">
-                                    <div class="text-success mb-2">
-                                        <i class="fas fa-memory fa-2x"></i>
+                                <div class="col-span-1">
+                                    <div class="text-green-600 mb-2">
+                                        <i class="fas fa-memory text-3xl"></i>
                                     </div>
-                                    <h6>Cache</h6>
-                                    <small class="text-muted">Working</small>
+                                    <h6 class="font-semibold">Cache</h6>
+                                    <small class="text-gray-500">Working</small>
                                 </div>
                             </div>
                         </div>
@@ -844,17 +859,17 @@
         </div>
 
         <!-- Interface Settings Tab -->
-        <div class="tab-pane fade" id="interface" role="tabpanel" aria-labelledby="interface-tab">
-            <div class="row">
-                <div class="col-12">
+        <div class="tab-pane hidden" id="interface" role="tabpanel" aria-labelledby="interface-tab">
+            <div class="grid grid-cols-1">
+                <div class="col-span-1">
                     <!-- Toggle Switch Container - 3 Levels -->
-                    <div class="d-flex align-items-center gap-4 mb-4">
-                        <label class="form-label fw-bold mb-0" style="color: #ffffff !important; font-size: 0.95rem; white-space: nowrap; line-height: 38px; height: 38px; display: flex; align-items: center;">
-                            <i class="fas fa-moon me-2" style="color: #ffffff !important;"></i>Chế độ hiển thị
+                    <div class="flex items-center gap-4 mb-4">
+                        <label class="font-bold mb-0 text-white text-base whitespace-nowrap leading-[38px] h-[38px] flex items-center">
+                            <i class="fas fa-moon mr-2 text-white"></i>Chế độ hiển thị
                         </label>
                         
-                        <div class="theme-toggle-container" style="flex: 1; display: flex; align-items: center;">
-                            <div class="theme-toggle-wrapper-3" style="margin: 0;">
+                        <div class="theme-toggle-container flex-1 flex items-center">
+                            <div class="theme-toggle-wrapper-3 m-0">
                                     <input type="radio" name="theme" id="theme-light" value="light" {{ session('theme', 'light') === 'light' ? 'checked' : '' }} class="theme-radio" onchange="updateToggleSwitch3(); saveTheme()">
                                     <input type="radio" name="theme" id="theme-auto" value="auto" {{ session('theme', 'light') === 'auto' ? 'checked' : '' }} class="theme-radio" onchange="updateToggleSwitch3(); saveTheme()">
                                     <input type="radio" name="theme" id="theme-dark" value="dark" {{ session('theme', 'light') === 'dark' ? 'checked' : '' }} class="theme-radio" onchange="updateToggleSwitch3(); saveTheme()">
@@ -884,32 +899,46 @@
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+    // Tab switching function
+    function switchTab(tabName) {
+        // Hide all tab panes
+        document.querySelectorAll('.tab-pane').forEach(pane => {
+            pane.classList.add('hidden');
+            pane.classList.remove('active');
+        });
+        
+        // Remove active state from all tabs
+        document.querySelectorAll('[role="tab"]').forEach(tab => {
+            tab.classList.remove('border-primary', 'bg-primary/30');
+            tab.classList.add('border-transparent');
+            tab.setAttribute('aria-selected', 'false');
+        });
+        
+        // Show selected tab pane
+        const selectedPane = document.getElementById(tabName);
+        if (selectedPane) {
+            selectedPane.classList.remove('hidden');
+            selectedPane.classList.add('active');
+        }
+        
+        // Activate selected tab button
+        const selectedTab = document.getElementById(tabName + '-tab');
+        if (selectedTab) {
+            selectedTab.classList.remove('border-transparent', 'hover:border-white/50', 'hover:bg-white/10');
+            selectedTab.classList.add('border-primary', 'bg-primary/30');
+            selectedTab.setAttribute('aria-selected', 'true');
+        }
+    }
+    
     // Initialize theme selection on page load
     document.addEventListener('DOMContentLoaded', function() {
         updateToggleSwitch3();
         
         // Check URL hash and activate corresponding tab
         if (window.location.hash === '#interface') {
-            const interfaceTab = document.getElementById('interface-tab');
-            const interfacePane = document.getElementById('interface');
-            const systemTab = document.getElementById('system-tab');
-            const systemPane = document.getElementById('system');
-            
-            if (interfaceTab && interfacePane) {
-                // Remove active class from system tab
-                if (systemTab) {
-                    systemTab.classList.remove('active');
-                    systemTab.setAttribute('aria-selected', 'false');
-                }
-                if (systemPane) {
-                    systemPane.classList.remove('show', 'active');
-                }
-                
-                // Add active class to interface tab
-                interfaceTab.classList.add('active');
-                interfaceTab.setAttribute('aria-selected', 'true');
-                interfacePane.classList.add('show', 'active');
-            }
+            switchTab('interface');
+        } else {
+            switchTab('system');
         }
     });
 

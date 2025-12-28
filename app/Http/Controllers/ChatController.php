@@ -234,6 +234,7 @@ class ChatController extends Controller
 
     /**
      * Update typing status
+     * Lưu ý: Nên dùng Redis hoặc in-memory cache thay vì database
      */
     public function updateTypingStatus(Request $request, ChatConversation $conversation)
     {
@@ -245,25 +246,24 @@ class ChatController extends Controller
 
         $isTyping = $request->boolean('is_typing');
 
-        if ($isTyping) {
-            // Add or update typing indicator
-            DB::table('chat_typing_indicators')->updateOrInsert(
-                ['conversation_id' => $conversation->id, 'user_id' => $user->id],
-                ['started_typing_at' => now(), 'updated_at' => now()]
-            );
-        } else {
-            // Remove typing indicator
-            DB::table('chat_typing_indicators')
-                ->where('conversation_id', $conversation->id)
-                ->where('user_id', $user->id)
-                ->delete();
-        }
+        // Update user activity (tạm thời, nên dùng Redis sau)
+        $user->activity()->updateOrCreate(
+            ['user_id' => $user->id],
+            [
+                'is_typing' => $isTyping,
+                'typing_started_at' => $isTyping ? now() : null,
+            ]
+        );
+
+        // TODO: Nên dùng Redis để lưu typing status theo conversation_id
+        // Cache::put("typing:{$conversation->id}:{$user->id}", $isTyping, 5);
 
         return response()->json(['success' => true]);
     }
 
     /**
      * Get typing users in conversation
+     * Lưu ý: Nên dùng Redis để lưu typing status theo conversation_id
      */
     public function getTypingUsers(ChatConversation $conversation)
     {
@@ -273,13 +273,24 @@ class ChatController extends Controller
             return response()->json(['error' => 'Access denied'], 403);
         }
 
-        $typingUsers = DB::table('chat_typing_indicators')
-            ->join('users', 'chat_typing_indicators.user_id', '=', 'users.id')
-            ->where('conversation_id', $conversation->id)
+        // TODO: Nên dùng Redis để lưu typing status theo conversation_id
+        // Tạm thời lấy từ user_activities (không lý tưởng vì không có conversation_id)
+        $participants = $conversation->participants()
             ->where('user_id', '!=', $user->id)
-            ->where('started_typing_at', '>', now()->subSeconds(5))
-            ->select('users.id', 'users.name')
+            ->with(['user.activity'])
             ->get();
+
+        $typingUsers = $participants->filter(function ($participant) {
+            return $participant->user->activity 
+                && $participant->user->activity->is_typing 
+                && $participant->user->activity->typing_started_at 
+                && $participant->user->activity->typing_started_at->gt(now()->subSeconds(5));
+        })->map(function ($participant) {
+            return [
+                'id' => $participant->user->id,
+                'name' => $participant->user->name,
+            ];
+        });
 
         return response()->json([
             'typing_users' => $typingUsers,

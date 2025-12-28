@@ -11,6 +11,7 @@ class Donation extends Model
     protected $table = 'donations';
 
     protected $fillable = [
+        'transaction_id',
         'donation_id',
         'donor_id',
         'recipient_id',
@@ -56,6 +57,14 @@ class Donation extends Model
     public function recipient(): BelongsTo
     {
         return $this->belongsTo(User::class, 'recipient_id');
+    }
+
+    /**
+     * Transaction associated with this donation
+     */
+    public function transaction(): BelongsTo
+    {
+        return $this->belongsTo(Transaction::class);
     }
 
     /**

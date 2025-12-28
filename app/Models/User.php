@@ -46,21 +46,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'google_id',
         'google_email',
         'email_verification_token',
-        'avatar',
-        'full_name',
-        'id_app',
         'user_role',
-        'bio',
-        'date_of_birth',
-        'phone',
-        'country',
         'status',
-        'last_login',
-        'last_activity_at',
-        'gaming_nickname',
-        'team_preference',
-        'description',
-        'upgraded_to_player_at',
     ];
 
     /**
@@ -83,11 +70,33 @@ class User extends Authenticatable implements MustVerifyEmail
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
-            'date_of_birth' => 'date',
-            'last_login' => 'datetime',
-            'last_activity_at' => 'datetime',
-            'upgraded_to_player_at' => 'datetime',
         ];
+    }
+
+    // ========== RELATIONSHIPS ==========
+
+    /**
+     * Get the user's profile.
+     */
+    public function profile()
+    {
+        return $this->hasOne(UserProfile::class, 'user_id');
+    }
+
+    /**
+     * Get the user's activity.
+     */
+    public function activity()
+    {
+        return $this->hasOne(UserActivity::class, 'user_id');
+    }
+
+    /**
+     * Get user's transactions.
+     */
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class);
     }
 
     // Relationships
@@ -132,14 +141,19 @@ class User extends Authenticatable implements MustVerifyEmail
             throw new \Exception('Gaming nickname is required');
         }
 
-        // Update user data
-        $this->update([
-            'user_role' => 'player',
-            'gaming_nickname' => $gamingNickname,
-            'team_preference' => $teamPreference,
-            'description' => $description,
-            'upgraded_to_player_at' => now(),
-        ]);
+        // Update user role
+        $this->update(['user_role' => 'player']);
+
+        // Update or create profile
+        $this->profile()->updateOrCreate(
+            ['user_id' => $this->id],
+            [
+                'gaming_nickname' => $gamingNickname,
+                'team_preference' => $teamPreference,
+                'description' => $description,
+                'upgraded_to_player_at' => now(),
+            ]
+        );
 
         return $this;
     }
@@ -170,12 +184,44 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function getAvatarUrlAttribute()
     {
-        return $this->avatar ? asset('storage/'.$this->avatar) : null;
+        return $this->profile?->avatar ? asset('storage/'.$this->profile->avatar) : null;
     }
 
     public function getDisplayNameAttribute()
     {
-        return $this->full_name ?: $this->name;
+        return $this->profile?->full_name ?: $this->name;
+    }
+
+    /**
+     * Get full_name from profile
+     */
+    public function getFullNameAttribute()
+    {
+        return $this->profile?->full_name;
+    }
+
+    /**
+     * Get avatar from profile
+     */
+    public function getAvatarAttribute()
+    {
+        return $this->profile?->avatar;
+    }
+
+    /**
+     * Get gaming_nickname from profile
+     */
+    public function getGamingNicknameAttribute()
+    {
+        return $this->profile?->gaming_nickname;
+    }
+
+    /**
+     * Check if user is verified
+     */
+    public function isVerified()
+    {
+        return $this->profile?->is_verified ?? false;
     }
 
     // Status helper methods
@@ -257,8 +303,11 @@ class User extends Authenticatable implements MustVerifyEmail
             return $query->where(function ($q) use ($search) {
                 $q->where('name', 'LIKE', "%{$search}%")
                     ->orWhere('email', 'LIKE', "%{$search}%")
-                    ->orWhere('full_name', 'LIKE', "%{$search}%")
-                    ->orWhere('id', 'LIKE', "%{$search}%");
+                    ->orWhere('id', 'LIKE', "%{$search}%")
+                    ->orWhereHas('profile', function ($profileQuery) use ($search) {
+                        $profileQuery->where('full_name', 'LIKE', "%{$search}%")
+                            ->orWhere('id_app', 'LIKE', "%{$search}%");
+                    });
             });
         }
 
@@ -302,7 +351,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function isOnline(): bool
     {
-        return $this->online_status === 'online';
+        return $this->activity?->online_status === 'online';
     }
 
     /**
@@ -310,10 +359,46 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function setOnlineStatus($status)
     {
-        $this->update([
-            'online_status' => $status,
-            'last_seen_at' => now(),
-        ]);
+        $this->activity()->updateOrCreate(
+            ['user_id' => $this->id],
+            [
+                'online_status' => $status,
+                'last_seen_at' => now(),
+                'last_activity_at' => now(),
+            ]
+        );
+    }
+
+    /**
+     * Get online_status from activity
+     */
+    public function getOnlineStatusAttribute()
+    {
+        return $this->activity?->online_status ?? 'offline';
+    }
+
+    /**
+     * Get last_seen_at from activity
+     */
+    public function getLastSeenAtAttribute()
+    {
+        return $this->activity?->last_seen_at;
+    }
+
+    /**
+     * Get last_activity_at from activity
+     */
+    public function getLastActivityAtAttribute()
+    {
+        return $this->activity?->last_activity_at;
+    }
+
+    /**
+     * Get is_typing from activity
+     */
+    public function getIsTypingAttribute()
+    {
+        return $this->activity?->is_typing ?? false;
     }
 
     /**
@@ -321,8 +406,8 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function getDisplayAvatar()
     {
-        return $this->avatar
-            ? asset('storage/'.$this->avatar)
+        return $this->profile?->avatar
+            ? asset('storage/'.$this->profile->avatar)
             : asset('images/default-avatar.png');
     }
 
@@ -377,15 +462,21 @@ class User extends Authenticatable implements MustVerifyEmail
             $search->where(function ($q) use ($query) {
                 $q->where('name', 'LIKE', "%{$query}%")
                     ->orWhere('email', 'LIKE', "%{$query}%")
-                    ->orWhere('full_name', 'LIKE', "%{$query}%")
-                    ->orWhere('id', 'LIKE', "%{$query}%");
+                    ->orWhere('id', 'LIKE', "%{$query}%")
+                    ->orWhereHas('profile', function ($profileQuery) use ($query) {
+                        $profileQuery->where('full_name', 'LIKE', "%{$query}%")
+                            ->orWhere('id_app', 'LIKE', "%{$query}%");
+                    });
             });
         }
 
         return $search->where('status', 'active')
-            ->orderBy('online_status', 'desc')
-            ->orderBy('created_at', 'desc')
-            ->limit(50)
-            ->get();
+            ->with('activity')
+            ->get()
+            ->sortByDesc(function ($user) {
+                return $user->activity?->online_status === 'online' ? 1 : 0;
+            })
+            ->take(50)
+            ->values();
     }
 }

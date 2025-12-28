@@ -12,7 +12,9 @@ class MarketplaceOrder extends Model
     protected $table = 'marketplace_orders';
 
     protected $fillable = [
+        'transaction_id',
         'order_id',
+        'order_code',
         'user_id',
         'total_amount',
         'discount_amount',
@@ -58,6 +60,14 @@ class MarketplaceOrder extends Model
     public function items(): HasMany
     {
         return $this->hasMany(MarketplaceOrderItem::class, 'order_id');
+    }
+
+    /**
+     * Transaction associated with this order
+     */
+    public function transaction(): BelongsTo
+    {
+        return $this->belongsTo(Transaction::class);
     }
 
     /**

@@ -3,8 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Services\VnpayService;
+use App\Models\MarketplaceOrder;
+use App\Models\MarketplaceOrderItem;
+use App\Models\UserInventory;
+use App\Models\Donation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class PaymentController extends Controller
 {
@@ -135,11 +140,14 @@ class PaymentController extends Controller
                 $status = 'success';
                 $message = 'Giao dịch thành công';
                 
-                // TODO: Cập nhật trạng thái đơn hàng trong database
-                // $this->updateOrderStatus($orderId, 'success', $transactionNo);
+                // Cập nhật trạng thái đơn hàng/donation
+                $this->updatePaymentStatus($orderId, 'success', $transactionNo, $bankCode, $amount / 100);
             } else {
                 $status = 'failed';
                 $message = 'Giao dịch không thành công';
+                
+                // Cập nhật trạng thái thất bại
+                $this->updatePaymentStatus($orderId, 'failed', null, null, $amount / 100);
             }
         } else {
             $status = 'invalid';
@@ -191,53 +199,99 @@ class PaymentController extends Controller
             }
 
             $orderId = $inputData['vnp_TxnRef'] ?? '';
-            $vnpAmount = ($inputData['vnp_Amount'] ?? 0) / 100; // Chia 100 để lấy số tiền thực
+            $vnpAmount = ($inputData['vnp_Amount'] ?? 0) / 100;
             $vnpTransactionNo = $inputData['vnp_TransactionNo'] ?? '';
             $vnpBankCode = $inputData['vnp_BankCode'] ?? '';
             $responseCode = $inputData['vnp_ResponseCode'] ?? '';
             $transactionStatus = $inputData['vnp_TransactionStatus'] ?? '';
 
-            // TODO: Lấy thông tin đơn hàng từ database
-            // $order = Order::where('order_id', $orderId)->first();
+            // Kiểm tra là marketplace order hay donation
+            $order = MarketplaceOrder::where('order_id', $orderId)->first();
+            $donation = null;
+            
+            if (!$order) {
+                $donation = Donation::where('donation_id', $orderId)->first();
+            }
 
-            // Giả sử đơn hàng tồn tại (bạn cần thay thế bằng logic thực tế)
-            $order = null; // Order::where('order_id', $orderId)->first();
-
-            if ($order === null) {
+            if (!$order && !$donation) {
                 $returnData['RspCode'] = '01';
                 $returnData['Message'] = 'Order not found';
                 return response()->json($returnData);
             }
 
             // Kiểm tra số tiền
-            // if ($order->amount != $vnpAmount) {
-            //     $returnData['RspCode'] = '04';
-            //     $returnData['Message'] = 'Invalid amount';
-            //     return response()->json($returnData);
-            // }
+            if ($order && abs($order->final_amount - $vnpAmount) > 0.01) {
+                $returnData['RspCode'] = '04';
+                $returnData['Message'] = 'Invalid amount';
+                return response()->json($returnData);
+            }
 
-            // Kiểm tra trạng thái đơn hàng (tránh xử lý trùng lặp)
-            // if ($order->status != 0) {
-            //     $returnData['RspCode'] = '02';
-            //     $returnData['Message'] = 'Order already confirmed';
-            //     return response()->json($returnData);
-            // }
+            if ($donation && abs($donation->amount - $vnpAmount) > 0.01) {
+                $returnData['RspCode'] = '04';
+                $returnData['Message'] = 'Invalid amount';
+                return response()->json($returnData);
+            }
 
-            // Cập nhật trạng thái đơn hàng
+            // Kiểm tra trạng thái (tránh xử lý trùng lặp)
+            if ($order && $order->payment_status === 'paid') {
+                $returnData['RspCode'] = '02';
+                $returnData['Message'] = 'Order already confirmed';
+                return response()->json($returnData);
+            }
+
+            if ($donation && $donation->payment_status === 'paid') {
+                $returnData['RspCode'] = '02';
+                $returnData['Message'] = 'Donation already confirmed';
+                return response()->json($returnData);
+            }
+
+            // Cập nhật trạng thái
             if ($responseCode == '00' || $transactionStatus == '00') {
-                // TODO: Cập nhật đơn hàng thành công
-                // $order->update([
-                //     'status' => 1,
-                //     'transaction_no' => $vnpTransactionNo,
-                //     'bank_code' => $vnpBankCode,
-                //     'paid_at' => now(),
-                // ]);
+                if ($order) {
+                    DB::transaction(function() use ($order, $vnpTransactionNo, $vnpBankCode) {
+                        $order->payment_status = 'paid';
+                        $order->status = 'completed';
+                        $order->vnpay_transaction_no = $vnpTransactionNo;
+                        $order->vnpay_bank_code = $vnpBankCode;
+                        $order->paid_at = now();
+                        $order->save();
+
+                        // Thêm items vào inventory
+                        foreach ($order->items as $item) {
+                            for ($i = 0; $i < $item->quantity; $i++) {
+                                UserInventory::create([
+                                    'user_id' => $order->user_id,
+                                    'product_id' => $item->product_id,
+                                    'order_id' => $order->id,
+                                    'quantity' => 1,
+                                ]);
+                            }
+                            
+                            // Cập nhật số lượng đã bán
+                            $item->product->increment('sold_count', $item->quantity);
+                        }
+                    });
+                } elseif ($donation) {
+                    $donation->payment_status = 'paid';
+                    $donation->status = 'completed';
+                    $donation->vnpay_transaction_no = $vnpTransactionNo;
+                    $donation->vnpay_bank_code = $vnpBankCode;
+                    $donation->paid_at = now();
+                    $donation->save();
+                }
 
                 $returnData['RspCode'] = '00';
                 $returnData['Message'] = 'Confirm Success';
             } else {
-                // TODO: Cập nhật đơn hàng thất bại
-                // $order->update(['status' => 2]);
+                if ($order) {
+                    $order->payment_status = 'failed';
+                    $order->status = 'cancelled';
+                    $order->save();
+                } elseif ($donation) {
+                    $donation->payment_status = 'failed';
+                    $donation->status = 'cancelled';
+                    $donation->save();
+                }
 
                 $returnData['RspCode'] = '00';
                 $returnData['Message'] = 'Transaction failed';
@@ -279,6 +333,76 @@ class PaymentController extends Controller
                 'message' => 'Query failed',
                 'data' => $e->getMessage()
             ], 500);
+        }
+    }
+
+    /**
+     * Cập nhật trạng thái thanh toán cho order hoặc donation
+     */
+    protected function updatePaymentStatus($orderId, $status, $transactionNo = null, $bankCode = null, $amount = null)
+    {
+        try {
+            // Kiểm tra là marketplace order hay donation
+            $order = MarketplaceOrder::where('order_id', $orderId)->first();
+            $donation = null;
+            
+            if (!$order) {
+                $donation = Donation::where('donation_id', $orderId)->first();
+            }
+
+            if (!$order && !$donation) {
+                return false;
+            }
+
+            DB::transaction(function() use ($order, $donation, $status, $transactionNo, $bankCode, $amount) {
+                if ($order) {
+                    if ($status === 'success') {
+                        $order->payment_status = 'paid';
+                        $order->status = 'completed';
+                        $order->vnpay_transaction_no = $transactionNo;
+                        $order->vnpay_bank_code = $bankCode;
+                        $order->paid_at = now();
+                        $order->save();
+
+                        // Thêm items vào inventory
+                        foreach ($order->items as $item) {
+                            for ($i = 0; $i < $item->quantity; $i++) {
+                                UserInventory::create([
+                                    'user_id' => $order->user_id,
+                                    'product_id' => $item->product_id,
+                                    'order_id' => $order->id,
+                                    'quantity' => 1,
+                                ]);
+                            }
+                            
+                            // Cập nhật số lượng đã bán
+                            $item->product->increment('sold_count', $item->quantity);
+                        }
+                    } else {
+                        $order->payment_status = 'failed';
+                        $order->status = 'cancelled';
+                        $order->save();
+                    }
+                } elseif ($donation) {
+                    if ($status === 'success') {
+                        $donation->payment_status = 'paid';
+                        $donation->status = 'completed';
+                        $donation->vnpay_transaction_no = $transactionNo;
+                        $donation->vnpay_bank_code = $bankCode;
+                        $donation->paid_at = now();
+                        $donation->save();
+                    } else {
+                        $donation->payment_status = 'failed';
+                        $donation->status = 'cancelled';
+                        $donation->save();
+                    }
+                }
+            });
+
+            return true;
+        } catch (\Exception $e) {
+            Log::error('Update Payment Status Error: ' . $e->getMessage());
+            return false;
         }
     }
 }

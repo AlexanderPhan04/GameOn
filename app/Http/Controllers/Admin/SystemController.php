@@ -49,6 +49,24 @@ class SystemController extends Controller
     }
 
     /**
+     * Update theme preference
+     */
+    public function updateTheme(Request $request)
+    {
+        $request->validate([
+            'theme' => 'required|in:light,dark,auto',
+        ]);
+
+        // Store theme preference in session
+        session(['theme' => $request->theme]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Cài đặt giao diện đã được cập nhật thành công!',
+        ]);
+    }
+
+    /**
      * Display system logs
      */
     public function logs()

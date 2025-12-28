@@ -13,37 +13,130 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('tournaments', function (Blueprint $table) {
+        // Kiểm tra xem bảng tournaments có tồn tại không
+        if (!Schema::hasTable('tournaments')) {
+            // Nếu bảng tournaments chưa tồn tại, tạo mới với tất cả các cột
+            Schema::create('tournaments', function (Blueprint $table) {
+                $table->id();
+                $table->string('name');
+                $table->text('description')->nullable();
+                $table->foreignId('game_id')->constrained('games')->onDelete('cascade');
+                $table->foreignId('organizer_id')->nullable()->constrained('users')->onDelete('set null');
+                $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');
+                $table->datetime('start_date');
+                $table->datetime('end_date');
+                $table->datetime('registration_deadline')->nullable();
+                $table->integer('max_teams')->nullable();
+                $table->integer('max_participants')->nullable();
+                $table->decimal('entry_fee', 10, 2)->default(0);
+                $table->decimal('prize_pool', 15, 2)->default(0);
+                // SQLite không hỗ trợ JSON type, dùng text thay thế
+                if (config('database.default') === 'sqlite') {
+                    $table->text('prize_distribution')->nullable();
+                    $table->text('rules')->nullable();
+                } else {
+                    $table->json('prize_distribution')->nullable();
+                    $table->json('rules')->nullable();
+                }
+                // SQLite không hỗ trợ enum, dùng string
+                $isSqlite = config('database.default') === 'sqlite' || 
+                            (config('database.connections.'.config('database.default').'.driver') === 'sqlite');
+                if ($isSqlite) {
+                    $table->string('status')->default('draft');
+                    $table->string('format')->default('single_elimination');
+                    $table->string('competition_type')->default('team');
+                    $table->string('location_type')->default('online');
+                } else {
+                    $table->enum('status', ['draft', 'registration', 'ongoing', 'completed', 'cancelled'])->default('draft');
+                    $table->enum('format', ['single_elimination', 'double_elimination', 'round_robin', 'swiss'])->default('single_elimination');
+                    $table->enum('competition_type', ['individual', 'team'])->default('team');
+                    $table->enum('location_type', ['online', 'lan'])->default('online');
+                }
+                $table->string('location_address')->nullable();
+                $table->string('image_url')->nullable();
+                $table->string('stream_link')->nullable();
+                $table->boolean('is_active')->default(true);
+                $table->timestamps();
+            });
+            return;
+        }
+
+        $isSqlite = config('database.default') === 'sqlite' || 
+                    (config('database.connections.'.config('database.default').'.driver') === 'sqlite');
+        
+        Schema::table('tournaments', function (Blueprint $table) use ($isSqlite) {
             // Thêm các cột từ tournaments_management
             if (!Schema::hasColumn('tournaments', 'format')) {
-                $table->enum('format', ['single_elimination', 'double_elimination', 'round_robin', 'swiss'])->default('single_elimination')->after('status');
+                if ($isSqlite) {
+                    $table->string('format')->default('single_elimination');
+                } else {
+                    $table->enum('format', ['single_elimination', 'double_elimination', 'round_robin', 'swiss'])->default('single_elimination')->after('status');
+                }
             }
             if (!Schema::hasColumn('tournaments', 'competition_type')) {
-                $table->enum('competition_type', ['individual', 'team'])->default('team')->after('format');
+                if ($isSqlite) {
+                    $table->string('competition_type')->default('team');
+                } else {
+                    $table->enum('competition_type', ['individual', 'team'])->default('team')->after('format');
+                }
             }
             if (!Schema::hasColumn('tournaments', 'registration_deadline')) {
-                $table->datetime('registration_deadline')->nullable()->after('end_date');
+                if ($isSqlite) {
+                    $table->datetime('registration_deadline')->nullable();
+                } else {
+                    $table->datetime('registration_deadline')->nullable()->after('end_date');
+                }
             }
             if (!Schema::hasColumn('tournaments', 'location_type')) {
-                $table->enum('location_type', ['online', 'lan'])->default('online')->after('registration_deadline');
+                if ($isSqlite) {
+                    $table->string('location_type')->default('online');
+                } else {
+                    $table->enum('location_type', ['online', 'lan'])->default('online')->after('registration_deadline');
+                }
             }
             if (!Schema::hasColumn('tournaments', 'location_address')) {
-                $table->string('location_address')->nullable()->after('location_type');
+                if ($isSqlite) {
+                    $table->string('location_address')->nullable();
+                } else {
+                    $table->string('location_address')->nullable()->after('location_type');
+                }
             }
             if (!Schema::hasColumn('tournaments', 'prize_distribution')) {
-                $table->json('prize_distribution')->nullable()->after('prize_pool');
+                // SQLite không hỗ trợ JSON type, dùng text thay thế
+                if ($isSqlite) {
+                    $table->text('prize_distribution')->nullable();
+                } else {
+                    $table->json('prize_distribution')->nullable()->after('prize_pool');
+                }
             }
             if (!Schema::hasColumn('tournaments', 'rules')) {
-                $table->json('rules')->nullable()->after('prize_distribution');
+                // SQLite không hỗ trợ JSON type, dùng text thay thế
+                if ($isSqlite) {
+                    $table->text('rules')->nullable();
+                } else {
+                    $table->json('rules')->nullable()->after('prize_distribution');
+                }
             }
             if (!Schema::hasColumn('tournaments', 'image_url')) {
-                $table->string('image_url')->nullable()->after('rules');
+                if ($isSqlite) {
+                    $table->string('image_url')->nullable();
+                } else {
+                    $table->string('image_url')->nullable()->after('rules');
+                }
             }
             if (!Schema::hasColumn('tournaments', 'stream_link')) {
-                $table->string('stream_link')->nullable()->after('image_url');
+                if ($isSqlite) {
+                    $table->string('stream_link')->nullable();
+                } else {
+                    $table->string('stream_link')->nullable()->after('image_url');
+                }
             }
             if (!Schema::hasColumn('tournaments', 'created_by')) {
-                $table->foreignId('created_by')->nullable()->after('organizer_id')->constrained('users')->onDelete('set null');
+                if ($isSqlite) {
+                    $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');
+                } else {
+                    $table->foreignId('created_by')->nullable()->after('organizer_id')->constrained('users')->onDelete('set null');
+                }
             }
         });
 

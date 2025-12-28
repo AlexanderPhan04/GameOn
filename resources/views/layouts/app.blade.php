@@ -815,33 +815,7 @@
             }
         }
 
-        /* Modern Footer Styles */
-        .modern-footer {
-            position: relative;
-            margin-top: 0;
-            padding: 1.5rem 0 1.5rem;
-            color: white;
-            overflow: hidden;
-        }
-
-        /* Compact footer for chat pages */
-        .chat-page .modern-footer {
-            padding: 2.5rem 0 2.5rem;
-        }
-        .chat-page .footer-title { margin-bottom: 1rem; }
-        .chat-page .footer-links li { margin-bottom: 0.5rem; }
-        .chat-page .social-links { gap: 0.75rem; margin-bottom: 1rem; }
-        .chat-page .social-link { padding: 0.5rem 0.75rem; font-size: 0.85rem; }
-        .chat-page .newsletter { margin-top: 1rem; }
-        .chat-page .newsletter-form { padding: 0.4rem; }
-        .chat-page .newsletter-input { padding: 0.5rem 0.75rem; font-size: 0.85rem; }
-        .chat-page .newsletter-btn { width: 40px; height: 40px; }
-        .chat-page .footer-bottom { margin-top: 1.5rem; padding-top: 1rem; }
-        
-        /* Remove footer margin on chat page */
-        .chat-page .modern-footer {
-            margin-top: 0;
-        }
+        /* Footer styles are now handled by Tailwind CSS classes */
 
         /* Global Search - Modern UI */
         #searchBox {
@@ -888,238 +862,7 @@
             }
         }
 
-        .footer-background {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            z-index: 1;
-        }
-
-        .footer-gradient {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 30%, #0f0f23 70%, #1a1a2e 100%);
-        }
-
-        .footer-pattern {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-image: 
-                radial-gradient(circle at 25% 25%, rgba(102, 126, 234, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 75% 75%, rgba(118, 75, 162, 0.1) 0%, transparent 50%);
-            background-size: 400px 400px;
-            animation: float-pattern 20s ease-in-out infinite;
-        }
-
-        @keyframes float-pattern {
-            0%, 100% { transform: translate(0, 0) rotate(0deg); }
-            33% { transform: translate(-20px, -20px) rotate(1deg); }
-            66% { transform: translate(20px, -10px) rotate(-1deg); }
-        }
-
-        .modern-footer .container {
-            position: relative;
-            z-index: 2;
-        }
-
-        .footer-brand {
-            display: flex;
-            align-items: flex-start;
-            gap: 1rem;
-            margin-bottom: .5rem;
-        }
-
-        .footer-logo {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: .95rem;
-            color: white;
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
-        }
-
-        .footer-brand-text .brand-title {
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-            background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .brand-subtitle {
-            color: #94a3b8;
-            margin-bottom: 0;
-            line-height: 1.5;
-        }
-
-        .footer-title {
-            color: white;
-            font-weight: 600;
-            margin-bottom: .75rem;
-            position: relative;
-            padding-bottom: 0.5rem;
-        }
-
-        .footer-title::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 30px;
-            height: 2px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 2px;
-        }
-
-        .footer-links {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .footer-links li {
-            margin-bottom: 0.75rem;
-        }
-
-        .footer-links a {
-            color: #94a3b8;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            display: inline-block;
-        }
-
-        .footer-links a:hover {
-            color: white;
-            transform: translateX(5px);
-        }
-
-        .social-links {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: .75rem;
-            flex-wrap: wrap;
-        }
-
-        .social-link {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.4rem 0.6rem;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 25px;
-            color: white;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            font-size: 0.8rem;
-        }
-
-        .social-link:hover {
-            transform: translateY(-2px);
-            color: white;
-            background: rgba(255, 255, 255, 0.2);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-        }
-
-        .social-link.facebook:hover { border-color: #1877f2; }
-        .social-link.twitter:hover { border-color: #1da1f2; }
-        .social-link.discord:hover { border-color: #5865f2; }
-        .social-link.youtube:hover { border-color: #ff0000; }
-
-        .newsletter { margin-top: .75rem; }
-
-        .newsletter-text {
-            color: #94a3b8;
-            margin-bottom: 1rem;
-            font-size: 0.9rem;
-        }
-
-        .newsletter-form {
-            display: flex;
-            gap: 0.5rem;
-            background: rgba(255, 255, 255, 0.1);
-            padding: 0.3rem;
-            border-radius: 25px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .newsletter-input {
-            flex: 1;
-            background: transparent;
-            border: none;
-            padding: 0.4rem 0.6rem;
-            color: white;
-            font-size: 0.8rem;
-        }
-
-        .newsletter-input::placeholder {
-            color: rgba(255, 255, 255, 0.6);
-        }
-
-        .newsletter-input:focus {
-            outline: none;
-        }
-
-        .newsletter-btn {
-            width: 34px;
-            height: 34px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            border-radius: 50%;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-        }
-
-        .newsletter-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-
-        .footer-bottom {
-            margin-top: .75rem;
-            padding-top: .75rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .copyright {
-            color: #94a3b8;
-            margin: 0;
-            font-size: 0.9rem;
-        }
-
-        .footer-bottom-links {
-            display: flex;
-            gap: 1.5rem;
-            flex-wrap: wrap;
-            justify-content: flex-end;
-        }
-
-        .footer-bottom-links a {
-            color: #94a3b8;
-            text-decoration: none;
-            font-size: 0.9rem;
-            transition: color 0.3s ease;
-        }
-
-        .footer-bottom-links a:hover {
-            color: white;
-        }
+        /* Footer styles are now handled by Tailwind CSS classes */
 
         /* Body offset for fixed header */
         body {
@@ -1877,137 +1620,7 @@
                 justify-content: center;
             }
             
-            .footer-bottom-links {
-                justify-content: center;
-                margin-top: 1rem;
-            }
-            
-            .modern-footer {
-                margin-top: 0;
-                padding: 1.5rem 0 1.5rem;
-            }
-            
-            /* Compact footer on mobile */
-            .modern-footer .container {
-                padding-left: 15px;
-                padding-right: 15px;
-            }
-            
-            .modern-footer .row {
-                margin-bottom: 0;
-            }
-            
-            .modern-footer .mb-4 {
-                margin-bottom: 1rem !important;
-            }
-            
-            /* Adjust column layout on mobile for better balance */
-            @media (max-width: 576px) {
-                .modern-footer .col-6:first-child,
-                .modern-footer .col-6:last-child {
-                    width: 100%;
-                    max-width: 100%;
-                    flex: 0 0 100%;
-                }
-                
-                .modern-footer .col-6:nth-child(2),
-                .modern-footer .col-6:nth-child(3) {
-                    width: 50%;
-                    max-width: 50%;
-                    flex: 0 0 50%;
-                }
-            }
-            
-            .footer-brand {
-                margin-bottom: 0.5rem !important;
-                gap: 0.75rem;
-            }
-            
-            .footer-logo {
-                width: 35px;
-                height: 35px;
-                font-size: 0.85rem;
-            }
-            
-            .footer-brand-text .brand-title {
-                font-size: 1rem;
-                margin-bottom: 0.25rem;
-            }
-            
-            .brand-subtitle {
-                font-size: 0.75rem;
-                line-height: 1.3;
-            }
-            
-            .footer-title {
-                font-size: 0.9rem;
-                margin-bottom: 0.5rem;
-                padding-bottom: 0.25rem;
-            }
-            
-            .footer-links li {
-                margin-bottom: 0.5rem;
-            }
-            
-            .footer-links a {
-                font-size: 0.85rem;
-            }
-            
-            .social-links {
-                gap: 0.5rem;
-                margin-bottom: 0.75rem;
-            }
-            
-            .social-link {
-                padding: 0.35rem 0.5rem;
-                font-size: 0.75rem;
-            }
-            
-            .social-link span {
-                display: none;
-            }
-            
-            .newsletter {
-                margin-top: 0.5rem;
-            }
-            
-            .newsletter-text {
-                font-size: 0.8rem;
-                margin-bottom: 0.75rem;
-            }
-            
-            .newsletter-form {
-                padding: 0.25rem;
-            }
-            
-            .newsletter-input {
-                padding: 0.4rem 0.5rem;
-                font-size: 0.75rem;
-            }
-            
-            .newsletter-btn {
-                width: 30px;
-                height: 30px;
-                font-size: 0.75rem;
-            }
-            
-            .footer-bottom {
-                margin-top: 0.5rem;
-                padding-top: 0.5rem;
-            }
-            
-            .copyright {
-                font-size: 0.8rem;
-            }
-            
-            .footer-bottom-links {
-                gap: 0.75rem;
-                margin-top: 0.5rem;
-            }
-            
-            .footer-bottom-links a {
-                font-size: 0.8rem;
-            }
+            /* Footer styles are now handled by Tailwind CSS */
             
             /* Ensure navbar collapse doesn't block content when closed */
             .navbar-collapse:not(.show) {
@@ -2443,90 +2056,147 @@
 
     <!-- Modern Footer - Only show for guests or on welcome page -->
     @guest
-        <footer class="modern-footer">
-            <div class="footer-background">
-                <div class="footer-gradient"></div>
-                <div class="footer-pattern"></div>
-            </div>
+        <footer class="bg-midnight border-t border-border pt-16 pb-8 text-text-muted font-body relative overflow-hidden">
+            <!-- Background Blur Effect -->
+            <div class="absolute top-0 left-1/4 w-96 h-96 bg-brand/20 rounded-full blur-[100px] pointer-events-none"></div>
             
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-4 col-md-6 col-6 mb-4">
-                        <div class="footer-brand">
-                            <div class="footer-logo">
-                                <i class="fas fa-gamepad"></i>
-                            </div>
-                            <div class="footer-brand-text">
-                                <h5 class="brand-title">Game On</h5>
-                                <p class="brand-subtitle">{{ __('app.footer.professional_esports_management_platform') }}</p>
-                            </div>
+            <div class="container mx-auto px-6 relative z-10">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+                    <!-- Brand Section -->
+                    <div class="space-y-6">
+                        <div class="flex items-center gap-3">
+                            <i class="fas fa-ghost text-3xl text-neon"></i>
+                            <span class="font-display font-bold text-3xl text-white tracking-wider">
+                                GAME <span class="text-neon">ON</span>
+                            </span>
+                        </div>
+                        <p class="text-sm leading-relaxed">
+                            {{ __('app.footer.professional_esports_management_platform') }}
+                        </p>
+                        <div class="flex gap-4">
+                            <a href="#" class="w-10 h-10 rounded-lg bg-void border border-border flex items-center justify-center hover:bg-brand hover:text-white hover:border-neon transition-all duration-300 group">
+                                <i class="fab fa-facebook-f group-hover:scale-110 transition-transform"></i>
+                            </a>
+                            <a href="#" class="w-10 h-10 rounded-lg bg-void border border-border flex items-center justify-center hover:bg-[#5865F2] hover:text-white hover:border-[#5865F2] transition-all duration-300 group">
+                                <i class="fab fa-discord group-hover:scale-110 transition-transform"></i>
+                            </a>
+                            <a href="#" class="w-10 h-10 rounded-lg bg-void border border-border flex items-center justify-center hover:bg-red-600 hover:text-white hover:border-red-600 transition-all duration-300 group">
+                                <i class="fab fa-youtube group-hover:scale-110 transition-transform"></i>
+                            </a>
                         </div>
                     </div>
                     
-                    <div class="col-lg-2 col-md-6 col-6 mb-4">
-                        <h6 class="footer-title">{{ __('app.footer.features') }}</h6>
-                        <ul class="footer-links">
-                            <li><a href="{{ route('tournaments.index') }}">{{ __('app.nav.tournaments') }}</a></li>
-                            <li><a href="{{ route('teams.index') }}">{{ __('app.nav.my_teams') }}</a></li>
-                            <li><a href="{{ route('players.index') }}">{{ __('app.nav.players') }}</a></li>
-                            <li><a href="{{ route('chat.index') }}">{{ __('app.nav.chat') }}</a></li>
+                    <!-- Features Section -->
+                    <div>
+                        <h3 class="font-display font-bold text-white text-lg uppercase tracking-wider mb-6 border-l-4 border-neon pl-3">
+                            {{ __('app.footer.features') }}
+                        </h3>
+                        <ul class="space-y-3">
+                            <li>
+                                <a href="{{ route('tournaments.index') }}" class="hover:text-neon transition-colors flex items-center gap-2">
+                                    <i class="fas fa-angle-right text-xs"></i>
+                                    {{ __('app.nav.tournaments') }}
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('teams.index') }}" class="hover:text-neon transition-colors flex items-center gap-2">
+                                    <i class="fas fa-angle-right text-xs"></i>
+                                    {{ __('app.nav.my_teams') }}
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('players.index') }}" class="hover:text-neon transition-colors flex items-center gap-2">
+                                    <i class="fas fa-angle-right text-xs"></i>
+                                    {{ __('app.nav.players') }}
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('chat.index') }}" class="hover:text-neon transition-colors flex items-center gap-2">
+                                    <i class="fas fa-angle-right text-xs"></i>
+                                    {{ __('app.nav.chat') }}
+                                </a>
+                            </li>
                         </ul>
                     </div>
                     
-                    <div class="col-lg-2 col-md-6 col-6 mb-4">
-                        <h6 class="footer-title">{{ __('app.footer.support') }}</h6>
-                        <ul class="footer-links">
-                            <li><a href="#">{{ __('app.footer.help_center') }}</a></li>
-                            <li><a href="#">{{ __('app.footer.contact') }}</a></li>
-                            <li><a href="#">{{ __('app.footer.bug_report') }}</a></li>
-                            <li><a href="#">{{ __('app.footer.faq') }}</a></li>
+                    <!-- Support Section -->
+                    <div>
+                        <h3 class="font-display font-bold text-white text-lg uppercase tracking-wider mb-6 border-l-4 border-neon pl-3">
+                            {{ __('app.footer.support') }}
+                        </h3>
+                        <ul class="space-y-3">
+                            <li>
+                                <a href="#" class="hover:text-neon transition-colors">
+                                    {{ __('app.footer.help_center') }}
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" class="hover:text-neon transition-colors">
+                                    {{ __('app.footer.contact') }}
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" class="hover:text-neon transition-colors">
+                                    {{ __('app.footer.bug_report') }}
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" class="hover:text-neon transition-colors">
+                                    {{ __('app.footer.faq') }}
+                                </a>
+                            </li>
                         </ul>
                     </div>
                     
-                    <div class="col-lg-4 col-md-6 col-6 mb-4">
-                        <h6 class="footer-title">{{ __('app.footer.connect') }}</h6>
-                        <div class="social-links">
-                            <a href="#" class="social-link facebook">
-                                <i class="fab fa-facebook-f"></i>
-                                <span>Facebook</span>
-                            </a>
-                            <a href="#" class="social-link twitter">
-                                <i class="fab fa-twitter"></i>
-                                <span>Twitter</span>
-                            </a>
-                            <a href="#" class="social-link discord">
-                                <i class="fab fa-discord"></i>
-                                <span>Discord</span>
-                            </a>
-                            <a href="#" class="social-link youtube">
-                                <i class="fab fa-youtube"></i>
-                                <span>YouTube</span>
-                            </a>
-                        </div>
-                        <div class="newsletter">
-                            <p class="newsletter-text">{{ __('app.footer.subscribe_newsletter') }}</p>
-                            <div class="newsletter-form">
-                                <input type="email" placeholder="{{ __('app.footer.your_email') }}" class="newsletter-input">
-                                <button class="newsletter-btn">
-                                    <i class="fas fa-paper-plane"></i>
+                    <!-- Newsletter Section -->
+                    <div>
+                        <h3 class="font-display font-bold text-white text-lg uppercase tracking-wider mb-6 border-l-4 border-neon pl-3">
+                            {{ __('app.footer.connect') }}
+                        </h3>
+                        <p class="text-sm mb-4">{{ __('app.footer.subscribe_newsletter') }}</p>
+                        
+                        <div class="relative mb-6">
+                            <form>
+                                <input type="email" placeholder="{{ __('app.footer.your_email') }}" 
+                                    class="w-full bg-void border border-border rounded-lg py-3 px-4 text-white focus:outline-none focus:border-neon transition-colors text-sm pr-20">
+                                <button type="submit" class="absolute right-1 top-1 bottom-1 bg-brand hover:bg-[#1a237e] text-white px-4 rounded-md font-display font-bold uppercase text-xs tracking-wide transition-colors">
+                                    {{ __('app.footer.send') }}
                                 </button>
-                            </div>
+                            </form>
+                        </div>
+                        
+                        <!-- App Download Buttons -->
+                        <div class="flex gap-3">
+                            <button class="flex-1 bg-void border border-border hover:border-white rounded p-2 flex items-center justify-center gap-2 transition-colors">
+                                <i class="fab fa-apple text-xl"></i>
+                                <div class="text-left leading-none">
+                                    <div class="text-[10px]">Download on</div>
+                                    <div class="text-xs font-bold text-white">App Store</div>
+                                </div>
+                            </button>
+                            <button class="flex-1 bg-void border border-border hover:border-white rounded p-2 flex items-center justify-center gap-2 transition-colors">
+                                <i class="fab fa-google-play text-lg"></i>
+                                <div class="text-left leading-none">
+                                    <div class="text-[10px]">Get it on</div>
+                                    <div class="text-xs font-bold text-white">Google Play</div>
+                                </div>
+                            </button>
                         </div>
                     </div>
                 </div>
                 
-                <div class="footer-bottom">
-                    <div class="row align-items-center">
-                        <div class="col-md-6">
-                            <p class="copyright">&copy; {{ date('Y') }} Game On. All rights reserved.</p>
-                        </div>
-                        <div class="col-md-6 text-md-end">
-                            <div class="footer-bottom-links">
-                                <a href="#">Privacy Policy</a>
-                                <a href="#">Terms of Service</a>
-                                <a href="#">Cookies</a>
-                            </div>
-                        </div>
+                <!-- Footer Bottom -->
+                <div class="border-t border-border pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs">
+                    <div>
+                        &copy; {{ date('Y') }} <span class="text-white font-bold">Game On</span>. All rights reserved.
+                    </div>
+                    <div class="flex gap-6">
+                        <a href="#" class="hover:text-white transition-colors">{{ __('app.footer.terms_of_service') }}</a>
+                        <a href="#" class="hover:text-white transition-colors">{{ __('app.footer.privacy_policy') }}</a>
+                        <a href="#" class="hover:text-white transition-colors">{{ __('app.footer.cookie_policy') }}</a>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        Made with <i class="fas fa-heart text-red-500 animate-pulse"></i> by <span class="text-neon font-bold">GameOn Team</span>
                     </div>
                 </div>
             </div>
@@ -2534,90 +2204,147 @@
     @else
         {{-- Show footer only on welcome page for authenticated users --}}
         @if(Request::is('/') || Request::is('welcome'))
-            <footer class="modern-footer">
-                <div class="footer-background">
-                    <div class="footer-gradient"></div>
-                    <div class="footer-pattern"></div>
-                </div>
+            <footer class="bg-midnight border-t border-border pt-16 pb-8 text-text-muted font-body relative overflow-hidden">
+                <!-- Background Blur Effect -->
+                <div class="absolute top-0 left-1/4 w-96 h-96 bg-brand/20 rounded-full blur-[100px] pointer-events-none"></div>
                 
-                <div class="container">
-                    <div class="row">
-                        <div class="col-lg-4 col-md-6 col-6 mb-4">
-                            <div class="footer-brand">
-                                <div class="footer-logo">
-                                    <i class="fas fa-gamepad"></i>
-                                </div>
-                                <div class="footer-brand-text">
-                                    <h5 class="brand-title">Game On</h5>
-                                    <p class="brand-subtitle">{{ __('app.footer.professional_esports_management_platform') }}</p>
-                                </div>
+                <div class="container mx-auto px-6 relative z-10">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+                        <!-- Brand Section -->
+                        <div class="space-y-6">
+                            <div class="flex items-center gap-3">
+                                <i class="fas fa-ghost text-3xl text-neon"></i>
+                                <span class="font-display font-bold text-3xl text-white tracking-wider">
+                                    GAME <span class="text-neon">ON</span>
+                                </span>
+                            </div>
+                            <p class="text-sm leading-relaxed">
+                                {{ __('app.footer.professional_esports_management_platform') }}
+                            </p>
+                            <div class="flex gap-4">
+                                <a href="#" class="w-10 h-10 rounded-lg bg-void border border-border flex items-center justify-center hover:bg-brand hover:text-white hover:border-neon transition-all duration-300 group">
+                                    <i class="fab fa-facebook-f group-hover:scale-110 transition-transform"></i>
+                                </a>
+                                <a href="#" class="w-10 h-10 rounded-lg bg-void border border-border flex items-center justify-center hover:bg-[#5865F2] hover:text-white hover:border-[#5865F2] transition-all duration-300 group">
+                                    <i class="fab fa-discord group-hover:scale-110 transition-transform"></i>
+                                </a>
+                                <a href="#" class="w-10 h-10 rounded-lg bg-void border border-border flex items-center justify-center hover:bg-red-600 hover:text-white hover:border-red-600 transition-all duration-300 group">
+                                    <i class="fab fa-youtube group-hover:scale-110 transition-transform"></i>
+                                </a>
                             </div>
                         </div>
                         
-                        <div class="col-lg-2 col-md-6 col-6 mb-4">
-                            <h6 class="footer-title">{{ __('app.footer.features') }}</h6>
-                            <ul class="footer-links">
-                                <li><a href="{{ route('tournaments.index') }}">{{ __('app.nav.tournaments') }}</a></li>
-                                <li><a href="{{ route('teams.index') }}">{{ __('app.nav.my_teams') }}</a></li>
-                                <li><a href="{{ route('players.index') }}">{{ __('app.nav.players') }}</a></li>
-                                <li><a href="{{ route('chat.index') }}">{{ __('app.nav.chat') }}</a></li>
+                        <!-- Features Section -->
+                        <div>
+                            <h3 class="font-display font-bold text-white text-lg uppercase tracking-wider mb-6 border-l-4 border-neon pl-3">
+                                {{ __('app.footer.features') }}
+                            </h3>
+                            <ul class="space-y-3">
+                                <li>
+                                    <a href="{{ route('tournaments.index') }}" class="hover:text-neon transition-colors flex items-center gap-2">
+                                        <i class="fas fa-angle-right text-xs"></i>
+                                        {{ __('app.nav.tournaments') }}
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('teams.index') }}" class="hover:text-neon transition-colors flex items-center gap-2">
+                                        <i class="fas fa-angle-right text-xs"></i>
+                                        {{ __('app.nav.my_teams') }}
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('players.index') }}" class="hover:text-neon transition-colors flex items-center gap-2">
+                                        <i class="fas fa-angle-right text-xs"></i>
+                                        {{ __('app.nav.players') }}
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('chat.index') }}" class="hover:text-neon transition-colors flex items-center gap-2">
+                                        <i class="fas fa-angle-right text-xs"></i>
+                                        {{ __('app.nav.chat') }}
+                                    </a>
+                                </li>
                             </ul>
                         </div>
                         
-                        <div class="col-lg-2 col-md-6 col-6 mb-4">
-                            <h6 class="footer-title">{{ __('app.footer.support') }}</h6>
-                            <ul class="footer-links">
-                                <li><a href="#">{{ __('app.footer.help_center') }}</a></li>
-                                <li><a href="#">{{ __('app.footer.contact') }}</a></li>
-                                <li><a href="#">{{ __('app.footer.bug_report') }}</a></li>
-                                <li><a href="#">{{ __('app.footer.faq') }}</a></li>
+                        <!-- Support Section -->
+                        <div>
+                            <h3 class="font-display font-bold text-white text-lg uppercase tracking-wider mb-6 border-l-4 border-neon pl-3">
+                                {{ __('app.footer.support') }}
+                            </h3>
+                            <ul class="space-y-3">
+                                <li>
+                                    <a href="#" class="hover:text-neon transition-colors">
+                                        {{ __('app.footer.help_center') }}
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#" class="hover:text-neon transition-colors">
+                                        {{ __('app.footer.contact') }}
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#" class="hover:text-neon transition-colors">
+                                        {{ __('app.footer.bug_report') }}
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#" class="hover:text-neon transition-colors">
+                                        {{ __('app.footer.faq') }}
+                                    </a>
+                                </li>
                             </ul>
                         </div>
                         
-                        <div class="col-lg-4 col-md-6 col-6 mb-4">
-                            <h6 class="footer-title">{{ __('app.footer.connect') }}</h6>
-                            <div class="social-links">
-                                <a href="#" class="social-link facebook">
-                                    <i class="fab fa-facebook-f"></i>
-                                    <span>Facebook</span>
-                                </a>
-                                <a href="#" class="social-link twitter">
-                                    <i class="fab fa-twitter"></i>
-                                    <span>Twitter</span>
-                                </a>
-                                <a href="#" class="social-link discord">
-                                    <i class="fab fa-discord"></i>
-                                    <span>Discord</span>
-                                </a>
-                                <a href="#" class="social-link youtube">
-                                    <i class="fab fa-youtube"></i>
-                                    <span>YouTube</span>
-                                </a>
-                            </div>
-                            <div class="newsletter">
-                                <p class="newsletter-text">{{ __('app.footer.subscribe_newsletter') }}</p>
-                                <div class="newsletter-form">
-                                    <input type="email" placeholder="{{ __('app.footer.your_email') }}" class="newsletter-input">
-                                    <button class="newsletter-btn">
-                                        <i class="fas fa-paper-plane"></i>
+                        <!-- Newsletter Section -->
+                        <div>
+                            <h3 class="font-display font-bold text-white text-lg uppercase tracking-wider mb-6 border-l-4 border-neon pl-3">
+                                {{ __('app.footer.connect') }}
+                            </h3>
+                            <p class="text-sm mb-4">{{ __('app.footer.subscribe_newsletter') }}</p>
+                            
+                            <div class="relative mb-6">
+                                <form>
+                                    <input type="email" placeholder="{{ __('app.footer.your_email') }}" 
+                                        class="w-full bg-void border border-border rounded-lg py-3 px-4 text-white focus:outline-none focus:border-neon transition-colors text-sm pr-20">
+                                    <button type="submit" class="absolute right-1 top-1 bottom-1 bg-brand hover:bg-[#1a237e] text-white px-4 rounded-md font-display font-bold uppercase text-xs tracking-wide transition-colors">
+                                        {{ __('app.footer.send') }}
                                     </button>
-                                </div>
+                                </form>
+                            </div>
+                            
+                            <!-- App Download Buttons -->
+                            <div class="flex gap-3">
+                                <button class="flex-1 bg-void border border-border hover:border-white rounded p-2 flex items-center justify-center gap-2 transition-colors">
+                                    <i class="fab fa-apple text-xl"></i>
+                                    <div class="text-left leading-none">
+                                        <div class="text-[10px]">Download on</div>
+                                        <div class="text-xs font-bold text-white">App Store</div>
+                                    </div>
+                                </button>
+                                <button class="flex-1 bg-void border border-border hover:border-white rounded p-2 flex items-center justify-center gap-2 transition-colors">
+                                    <i class="fab fa-google-play text-lg"></i>
+                                    <div class="text-left leading-none">
+                                        <div class="text-[10px]">Get it on</div>
+                                        <div class="text-xs font-bold text-white">Google Play</div>
+                                    </div>
+                                </button>
                             </div>
                         </div>
                     </div>
                     
-                    <div class="footer-bottom">
-                        <div class="row align-items-center">
-                            <div class="col-md-6">
-                                <p class="copyright">&copy; {{ date('Y') }} Game On. All rights reserved.</p>
-                            </div>
-                            <div class="col-md-6 text-md-end">
-                                <div class="footer-bottom-links">
-                                    <a href="#">Privacy Policy</a>
-                                    <a href="#">Terms of Service</a>
-                                    <a href="#">Cookies</a>
-                                </div>
-                            </div>
+                    <!-- Footer Bottom -->
+                    <div class="border-t border-border pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs">
+                        <div>
+                            &copy; {{ date('Y') }} <span class="text-white font-bold">Game On</span>. All rights reserved.
+                        </div>
+                        <div class="flex gap-6">
+                            <a href="#" class="hover:text-white transition-colors">{{ __('app.footer.terms_of_service') }}</a>
+                            <a href="#" class="hover:text-white transition-colors">{{ __('app.footer.privacy_policy') }}</a>
+                            <a href="#" class="hover:text-white transition-colors">{{ __('app.footer.cookie_policy') }}</a>
+                        </div>
+                        <div class="flex items-center gap-1">
+                            Made with <i class="fas fa-heart text-red-500 animate-pulse"></i> by <span class="text-neon font-bold">GameOn Team</span>
                         </div>
                     </div>
                 </div>

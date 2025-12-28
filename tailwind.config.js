@@ -13,7 +13,9 @@ export default {
                 midnight: "#000022", // Background Sidebar
                 surface: "#0d1b2a", // Background Cards/Post (Màu than xanh)
                 "deep-navy": "#000055", // Primary Brand
+                brand: "#000055", // Brand color (alias for deep-navy)
                 neon: "#00E5FF", // Accent/Highlight (Cyan)
+                border: "#1a237e", // Border color
                 "text-main": "#FFFFFF",
                 "text-muted": "#94a3b8",
                 // Giữ lại primary/secondary để tương thích

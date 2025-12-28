@@ -336,84 +336,121 @@
     </section>
     @endif
 
-    <!-- Contributed By Section -->
+    <!-- Development Team Section -->
     <section class="py-20 bg-surface">
         <div class="container mx-auto px-4">
             <div class="text-center mb-12">
-                <h2 class="text-4xl lg:text-5xl font-bold mb-4 font-display neon-text">
-                    <i class="fas fa-heart text-red-500 mr-3" style="filter: drop-shadow(0 0 10px rgba(239, 68, 68, 0.5));"></i>
-                    {{ __('app.home.contributed_by', ['default' => 'Đóng góp bởi']) }}
+                <h2 class="font-display font-bold text-4xl md:text-5xl uppercase tracking-wider mb-2">
+                    Đội Ngũ <span class="text-neon">Phát Triển</span>
                 </h2>
-                <p class="text-text-muted text-lg font-body max-w-2xl mx-auto">
-                    {{ __('app.home.made_with_love', ['default' => 'Được tạo với ❤️ bởi đội ngũ phát triển']) }}
+                <div class="h-1 w-24 bg-gradient-to-r from-transparent via-brand to-transparent mx-auto"></div>
+                <p class="text-text-muted mt-4 max-w-lg mx-auto font-body">
+                    Những người đứng sau sự thành công của hệ thống Game On.
                 </p>
             </div>
-            <div class="flex flex-wrap justify-center items-stretch gap-6 lg:gap-8 max-w-7xl mx-auto">
+
+            <div class="grid gap-8 w-full max-w-7xl mx-auto" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2rem;">
                 @php
-                    $contributors = [
+                    $teamMembers = [
                         [
                             'name' => 'Alexander Phan',
-                            'description' => __('app.home.developer_description', ['default' => 'Phát triển và duy trì hệ thống']),
+                            'role' => 'Leader',
+                            'position' => 'Project Manager',
                             'image' => 'AlexanderPhan.jpg',
-                            'icon' => 'fa-user-tie',
-                            'gradient' => 'from-deep-navy to-neon',
+                            'hover_color' => '#00E5FF',
+                            'hover_shadow' => 'rgba(0, 229, 255, 0.15)',
+                            'gradient_to' => '#00E5FF',
+                            'gradient_bg' => 'rgba(0, 229, 255, 0.05)',
+                            'role_bg' => '#000055',
+                            'role_text' => '#00E5FF',
+                            'role_border' => '#1a237e',
+                            'text_hover' => '#00E5FF',
                         ],
                         [
                             'name' => 'Đỗ Thế An',
-                            'description' => __('app.home.community_description', ['default' => 'Đóng góp từ cộng đồng người dùng']),
+                            'role' => 'Dev',
+                            'position' => 'Backend Developer',
                             'image' => 'DoTheAn.jpg',
-                            'icon' => 'fa-users',
-                            'gradient' => 'from-green-500 to-neon',
+                            'hover_color' => '#a855f7',
+                            'hover_shadow' => 'rgba(168, 85, 247, 0.15)',
+                            'gradient_to' => '#a855f7',
+                            'gradient_bg' => 'rgba(168, 85, 247, 0.05)',
+                            'role_bg' => '#2d0a4e',
+                            'role_text' => '#a78bfa',
+                            'role_border' => '#581c87',
+                            'text_hover' => '#a78bfa',
                         ],
                         [
                             'name' => 'Lê Khánh An',
-                            'description' => __('app.home.contributors_description', ['default' => 'Các nhà phát triển và tester']),
+                            'role' => 'Dev',
+                            'position' => 'Frontend Developer',
                             'image' => 'LeKhanhAn.jpg',
-                            'icon' => 'fa-code',
-                            'gradient' => 'from-neon to-blue-400',
+                            'hover_color' => '#eab308',
+                            'hover_shadow' => 'rgba(234, 179, 8, 0.15)',
+                            'gradient_to' => '#eab308',
+                            'gradient_bg' => 'rgba(234, 179, 8, 0.05)',
+                            'role_bg' => '#422006',
+                            'role_text' => '#facc15',
+                            'role_border' => '#854d0e',
+                            'text_hover' => '#facc15',
                         ],
                         [
                             'name' => 'Nguyễn Phương Anh',
-                            'description' => __('app.home.designer_description', ['default' => 'Thiết kế giao diện và trải nghiệm người dùng']),
+                            'role' => 'UI/UX',
+                            'position' => 'UI/UX Designer',
                             'image' => 'NguyenPhuongAnh.png',
-                            'icon' => 'fa-palette',
-                            'gradient' => 'from-purple-500 to-neon',
+                            'hover_color' => '#ec4899',
+                            'hover_shadow' => 'rgba(236, 72, 153, 0.15)',
+                            'gradient_to' => '#ec4899',
+                            'gradient_bg' => 'rgba(236, 72, 153, 0.05)',
+                            'role_bg' => '#500724',
+                            'role_text' => '#f9a8d4',
+                            'role_border' => '#831843',
+                            'text_hover' => '#f9a8d4',
                         ],
                     ];
                 @endphp
-                @foreach($contributors as $contributor)
-                <div class="group flex-1 min-w-[200px] max-w-[250px]">
-                    <div class="feature-card h-full text-center p-6 relative overflow-hidden">
-                        <!-- Background glow effect -->
-                        <div class="absolute inset-0 bg-gradient-to-br from-neon/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                        
-                        <div class="relative z-10">
-                            <div class="mb-6 flex justify-center">
-                                @php
-                                    $imagePath = asset('contributors/' . $contributor['image']);
-                                    $imageExists = file_exists(public_path('contributors/' . $contributor['image']));
-                                @endphp
+
+                @foreach($teamMembers as $index => $member)
+                @php
+                    $imagePath = asset('contributors/' . $member['image']);
+                    $imageExists = file_exists(public_path('contributors/' . $member['image']));
+                @endphp
+                <div class="group relative bg-surface border border-border rounded-2xl p-6 transition-all duration-300 hover:-translate-y-2" 
+                     style="border-color: #1a237e;"
+                     onmouseover="this.style.borderColor='{{ $member['hover_color'] }}'; this.style.boxShadow='0 0 30px {{ $member['hover_shadow'] }}';"
+                     onmouseout="this.style.borderColor='#1a237e'; this.style.boxShadow='none';">
+                    <div class="absolute inset-0 bg-gradient-to-b opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl" 
+                         style="background: linear-gradient(to bottom, {{ $member['gradient_bg'] }}, transparent);"></div>
+                    
+                    <div class="relative z-10 flex flex-col items-center text-center">
+                        <div class="relative mb-4">
+                            <div class="w-24 h-24 rounded-full p-1 overflow-hidden" style="background: linear-gradient(to top right, #1a237e, {{ $member['gradient_to'] }}); width: 96px; height: 96px; min-width: 96px; min-height: 96px; max-width: 96px; max-height: 96px;">
                                 @if($imageExists)
-                                    <div class="relative">
-                                        <img src="{{ $imagePath }}" alt="{{ $contributor['name'] }}" 
-                                            class="rounded-full mx-auto block w-24 h-24 object-cover border-4 border-neon/50 group-hover:border-neon transition-all duration-300"
-                                            style="box-shadow: 0 0 20px rgba(0, 229, 255, 0.3);">
-                                        <div class="absolute inset-0 rounded-full bg-neon/0 group-hover:bg-neon/10 transition-all duration-300"></div>
-                                    </div>
+                                    <img src="{{ $imagePath }}" alt="{{ $member['name'] }}" 
+                                        class="rounded-full object-cover border-4 border-surface"
+                                        style="width: 100%; height: 100%; object-fit: cover;">
                                 @else
-                                    <div class="bg-gradient-to-r {{ $contributor['gradient'] }} rounded-full mx-auto flex items-center justify-center w-24 h-24 border-4 border-neon/50 group-hover:border-neon transition-all duration-300"
-                                         style="box-shadow: 0 0 20px rgba(0, 229, 255, 0.3);">
-                                        <i class="fas {{ $contributor['icon'] }} text-white text-4xl"></i>
+                                    <div class="w-full h-full rounded-full bg-void flex items-center justify-center border-4 border-surface">
+                                        <i class="fas fa-user text-4xl" style="color: {{ $member['gradient_to'] }};"></i>
                                     </div>
                                 @endif
                             </div>
-                            <h6 class="font-bold mb-3 text-text-main font-display text-xl group-hover:text-neon transition-colors duration-300">
-                                {{ $contributor['name'] }}
-                            </h6>
-                            <p class="text-text-muted text-sm mb-0 font-body leading-relaxed">
-                                {{ $contributor['description'] }}
-                            </p>
+                            <div class="absolute -bottom-2 left-1/2 transform -translate-x-1/2 text-xs font-bold px-2 py-0.5 rounded border font-display uppercase tracking-widest whitespace-nowrap" 
+                                 style="background-color: {{ $member['role_bg'] }}; color: {{ $member['role_text'] }}; border-color: {{ $member['role_border'] }};">
+                                {{ $member['role'] }}
+                            </div>
                         </div>
+
+                        <h3 class="font-display font-bold text-xl text-white transition-colors mb-1" 
+                            style="color: white;"
+                            onmouseover="this.style.color='{{ $member['text_hover'] }}';"
+                            onmouseout="this.style.color='white';">
+                            {{ $member['name'] }}
+                        </h3>
+                        <p class="text-sm text-text-muted mb-4 font-body">
+                            {{ $member['position'] }}
+                        </p>
                     </div>
                 </div>
                 @endforeach
@@ -421,26 +458,4 @@
         </div>
     </section>
 
-    <!-- CTA with wave top -->
-    <div style="line-height:0"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 120" preserveAspectRatio="none" style="display:block"><path fill="#000055" d="M0,64L60,85.3C120,107,240,149,360,149.3C480,149,600,107,720,96C840,85,960,107,1080,117.3C1200,128,1320,128,1380,128L1440,128L1440,0L1380,0C1320,0,1200,0,1080,0C960,0,840,0,720,0C600,0,480,0,360,0C240,0,120,0,60,0L0,0Z"></path></svg></div>
-    <section class="py-16 bg-deep-navy text-white">
-        <div class="container mx-auto px-4 text-center">
-            <h2 class="text-4xl lg:text-5xl font-bold mb-6 font-display neon-text">{{ __('app.home.ready_enter_esports_world') }}</h2>
-            <p class="text-xl mb-8 text-text-muted font-body">{{ __('app.home.join_professional_gaming_community') }}</p>
-            <div class="flex justify-center gap-4 flex-wrap">
-                @guest
-                <a href="{{ route('auth.register') }}" class="btn-primary-custom font-semibold py-4 px-8 rounded-full font-display inline-block">
-                    <i class="fas fa-rocket mr-2"></i>{{ __('app.home.register_free') }}
-                </a>
-                <a href="{{ route('auth.login') }}" class="btn-neon font-semibold py-4 px-8 rounded-full font-display inline-block">
-                    <i class="fas fa-sign-in-alt mr-2"></i>{{ __('app.auth.login') }}
-                </a>
-                @else
-                <a href="{{ route('dashboard') }}" class="btn-primary-custom font-semibold py-4 px-8 rounded-full font-display inline-block">
-                    <i class="fas fa-tachometer-alt mr-2"></i>{{ __('app.home.start_now') }}
-                </a>
-                @endguest
-            </div>
-        </div>
-    </section>
 @endsection

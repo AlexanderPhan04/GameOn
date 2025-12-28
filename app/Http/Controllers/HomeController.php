@@ -18,23 +18,38 @@ class HomeController extends Controller
     public function index()
     {
         // Always show home page with general information
-        $stats = [
-            'total_users' => User::count(),
-            'total_teams' => Schema::hasTable('teams') ? Team::count() : 0,
-            'active_tournaments' => Tournament::where('status', 'active')->count(),
-            'featured_tournaments' => Tournament::with(['game', 'creator'])
-                ->where('status', 'active')
-                ->orderBy('start_date', 'desc')
-                ->take(3)
-                ->get(),
-            'top_teams' => Schema::hasTable('teams') 
-                ? Team::withCount('activeMembers')
-                    ->where('status', 'active')
-                    ->orderBy('active_members_count', 'desc')
-                    ->take(4)
-                    ->get()
-                : collect(),
-        ];
+        try {
+            $stats = [
+                'total_users' => User::count(),
+                'total_teams' => Schema::hasTable('teams') ? Team::count() : 0,
+                'active_tournaments' => Schema::hasTable('tournaments') 
+                    ? Tournament::where('status', 'active')->count() 
+                    : 0,
+                'featured_tournaments' => Schema::hasTable('tournaments')
+                    ? Tournament::with(['game', 'creator'])
+                        ->where('status', 'active')
+                        ->orderBy('start_date', 'desc')
+                        ->take(3)
+                        ->get()
+                    : collect(),
+                'top_teams' => Schema::hasTable('teams') 
+                    ? Team::withCount('activeMembers')
+                        ->where('status', 'active')
+                        ->orderBy('active_members_count', 'desc')
+                        ->take(4)
+                        ->get()
+                    : collect(),
+            ];
+        } catch (\Exception $e) {
+            // Fallback nếu có lỗi
+            $stats = [
+                'total_users' => 0,
+                'total_teams' => 0,
+                'active_tournaments' => 0,
+                'featured_tournaments' => collect(),
+                'top_teams' => collect(),
+            ];
+        }
 
         return view('welcome', compact('stats'));
     }

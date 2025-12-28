@@ -7,6 +7,11 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', __('app.name')) - {{ __('app.tagline') }}</title>
     
+    <!-- Google Fonts - Rajdhani (Display) & Inter (Body) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
     <link rel="icon" type="image/png" href="{{ asset('favicon.ico') }}">
@@ -609,7 +614,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     
     <!-- Preload critical resources -->
-    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <link rel="preload" href="{{ asset('css/custom.css') }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
     @if(Request::is('profile*'))
     <link rel="preload" href="{{ asset('css/profile.css') }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
@@ -617,7 +622,7 @@
     
     <!-- Fallback for browsers that don't support preload -->
     <noscript>
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
         <link href="{{ asset('css/custom.css') }}" rel="stylesheet">
         @if(Request::is('profile*'))
         <link href="{{ asset('css/profile.css') }}" rel="stylesheet">
@@ -629,403 +634,185 @@
     
     <style>
         /* Modern Header Styles */
-        .modern-navbar {
-            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 30%, #16213e 70%, #0f0f23 100%);
-            backdrop-filter: blur(25px);
-            border-bottom: 1px solid rgba(102, 126, 234, 0.2);
-            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05);
-            padding: 0.75rem 0;
+        /* ===== NAVBAR MỚI - ĐƠN GIẢN, GỌN GÀNG ===== */
+        .gameon-navbar {
+            background: #000022; /* Midnight */
+            border-bottom: 1px solid rgba(0, 229, 255, 0.2);
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
-            width: 100%;
-            z-index: 99999;
-            transition: all 0.3s ease;
-        }
-        .modern-navbar, .modern-navbar * { pointer-events: auto; }
-        
-        /* Ensure navbar toggler is always clickable */
-        .modern-toggler {
-            pointer-events: auto !important;
-            z-index: 100000;
-            position: relative;
+            z-index: 9999;
+            height: 64px;
         }
 
-        .modern-navbar::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(90deg, transparent 0%, rgba(102, 126, 234, 0.1) 50%, transparent 100%);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .modern-navbar:hover::before {
-            opacity: 1;
-        }
-
-        .modern-navbar .container {
+        .gameon-navbar .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding-left: 15px;
-            padding-right: 15px;
-        }
-
-        .modern-brand {
+            padding: 0 1.25rem;
+            height: 100%;
             display: flex;
             align-items: center;
+            justify-content: space-between;
+        }
+
+        .gameon-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
             text-decoration: none;
-            color: white !important;
-            transition: all 0.3s ease;
-            padding: 0.5rem 1rem;
-            border-radius: 15px;
+            color: white;
         }
 
-        .modern-brand:hover {
-            transform: translateY(-2px);
-            color: white !important;
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .brand-icon {
-            width: 50px;
-            height: 50px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 15px;
+        .gameon-brand-icon {
+            width: 40px;
+            height: 40px;
+            background: #000055; /* Deep Navy */
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-right: 1rem;
-            font-size: 1.5rem;
-            color: white;
-            position: relative;
-            overflow: hidden;
+            color: #00E5FF; /* Neon */
+            font-size: 1.25rem;
+            box-shadow: 0 0 10px rgba(0, 229, 255, 0.4);
         }
 
-        .brand-icon::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, transparent 40%, rgba(255,255,255,0.3) 50%, transparent 60%);
-            transform: rotate(-45deg);
-            transition: all 0.6s;
-            opacity: 0;
-        }
-
-        .modern-brand:hover .brand-icon::before {
-            animation: shine 1s ease;
-        }
-
-        @keyframes shine {
-            0% { transform: translateX(-100%) rotate(-45deg); opacity: 0; }
-            50% { opacity: 1; }
-            100% { transform: translateX(100%) rotate(-45deg); opacity: 0; }
-        }
-
-        .brand-text {
+        .gameon-brand-text {
             display: flex;
             flex-direction: column;
         }
 
-        .brand-name {
-            font-weight: 800;
-            font-size: 1.35rem;
-            margin-bottom: -3px;
-            background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 50%, #e2e8f0 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            letter-spacing: 0.02em;
+        .gameon-brand-name {
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: #FFFFFF;
             line-height: 1.1;
-            display: inline-block;
-            vertical-align: top;
-            font-variant: normal;
-            text-rendering: optimizeLegibility;
+            text-shadow: 0 0 10px rgba(0, 229, 255, 0.4);
         }
 
-        .brand-tagline {
-            color: #a1a9b8;
-            font-size: 0.7rem;
-            font-weight: 600;
+        .gameon-brand-tagline {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.625rem;
+            color: #94a3b8;
             text-transform: uppercase;
-            letter-spacing: 0.08em;
-            opacity: 0.9;
+            letter-spacing: 0.1em;
+            line-height: 1.1;
         }
 
-        .modern-toggler {
-            border: none;
-            padding: 0.5rem;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            transition: all 0.3s ease;
-        }
-
-        .modern-toggler:focus {
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.4);
-        }
-
-        .toggler-line {
-            display: block;
-            width: 22px;
-            height: 2px;
-            background: white;
-            margin: 4px 0;
-            border-radius: 2px;
-            transition: all 0.3s ease;
-        }
-
-        .modern-nav {
-            gap: 0.5rem;
-        }
-
-        .modern-nav-link {
-            color: rgba(255, 255, 255, 0.85) !important;
-            text-decoration: none;
+        .gameon-nav-links {
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            padding: 0.75rem 1.25rem;
-            border-radius: 12px;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
+        }
+
+        .gameon-nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #94a3b8;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9375rem;
             font-weight: 600;
-            font-size: 0.95rem;
-            letter-spacing: 0.025em;
-            overflow: hidden;
+            transition: all 0.3s ease;
         }
 
-        .modern-nav-link::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-            transition: left 0.6s ease;
+        .gameon-nav-link:hover {
+            color: #00E5FF;
+            background: rgba(0, 229, 255, 0.1);
         }
 
-        .modern-nav-link:hover::before {
-            left: 100%;
-        }
-
-        .modern-nav-link:hover {
-            color: white !important;
-            background: rgba(102, 126, 234, 0.15);
-            transform: translateY(-2px) scale(1.02);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
-            border: 1px solid rgba(102, 126, 234, 0.3);
-        }
-
-        .modern-nav-link.active {
-            color: white !important;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-            transform: translateY(-1px);
-        }
-
-        .modern-nav-link i {
+        .gameon-nav-link i {
             font-size: 1rem;
             width: 18px;
             text-align: center;
         }
 
-        .modern-user-nav {
-            gap: 0.5rem;
-            align-items: center;
-        }
-
-        .modern-auth-link {
-            color: rgba(255, 255, 255, 0.8) !important;
-            text-decoration: none;
+        .gameon-user-menu {
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            padding: 0.75rem 1.25rem;
-            border-radius: 25px;
-            transition: all 0.3s ease;
-            font-weight: 600;
-            border: 2px solid transparent;
         }
 
-        .login-btn:hover {
-            color: white !important;
-            border-color: rgba(255, 255, 255, 0.3);
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .register-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-            color: white !important;
-            border-color: transparent !important;
-        }
-
-        .register-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-            color: white !important;
-        }
-
-        .chat-link {
-            position: relative;
-        }
-
-        .chat-notification {
-            position: absolute;
-            top: 6px;
-            right: 6px;
-            width: 10px;
-            height: 10px;
-            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-            border-radius: 50%;
-            border: 2px solid rgba(15, 15, 35, 0.8);
-            animation: pulse-notification 2s infinite;
-            box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
-        }
-
-        @keyframes pulse-notification {
-            0% { 
-                transform: scale(1); 
-                opacity: 1;
-                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
-            }
-            50% { 
-                transform: scale(1.1); 
-                opacity: 0.8;
-                box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
-            }
-            100% { 
-                transform: scale(1); 
-                opacity: 1;
-                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
-            }
-        }
-
-        .modern-user-dropdown {
-            color: rgba(255, 255, 255, 0.9) !important;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 0.6rem 1.2rem;
-            border-radius: 30px;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(10px);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .modern-user-dropdown::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.2), transparent);
-            transition: left 0.6s ease;
-        }
-
-        .modern-user-dropdown:hover::before {
-            left: 100%;
-        }
-
-        .modern-user-dropdown:hover {
-            color: white !important;
-            background: rgba(102, 126, 234, 0.2);
-            transform: translateY(-2px) scale(1.02);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.25);
-            border-color: rgba(102, 126, 234, 0.4);
-        }
-
-        .user-avatar {
-            width: 38px;
-            height: 38px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .gameon-user-avatar {
+            width: 36px;
+            height: 36px;
+            background: #000055;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            transition: all 0.3s ease;
+            color: #00E5FF;
+            font-size: 1rem;
+            box-shadow: 0 0 10px rgba(0, 229, 255, 0.4);
+            border: 2px solid rgba(0, 229, 255, 0.3);
         }
 
-        .modern-user-dropdown:hover .user-avatar {
-            transform: scale(1.05);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-        }
-
-        .user-info {
+        .gameon-user-info {
             display: flex;
             flex-direction: column;
         }
 
-        .user-name {
+        .gameon-user-name {
+            font-family: 'Rajdhani', sans-serif;
             font-weight: 700;
-            font-size: 0.95rem;
+            font-size: 0.9375rem;
+            color: #FFFFFF;
             line-height: 1.2;
-            color: white;
         }
 
-        .user-role {
-            color: #a1a9b8;
-            font-size: 0.65rem;
+        .gameon-user-role {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.625rem;
+            color: #94a3b8;
             text-transform: uppercase;
-            letter-spacing: 0.08em;
-            font-weight: 600;
+            line-height: 1.1;
         }
 
-        .dropdown-arrow {
-            font-size: 0.7rem;
-            transition: transform 0.3s ease;
-        }
-
-        .dropdown-toggle[aria-expanded="true"] .dropdown-arrow {
-            transform: rotate(180deg);
-        }
-
-        .modern-dropdown {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 15px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        .gameon-dropdown {
+            background: #0d1b2a; /* Surface */
+            border: 1px solid rgba(0, 229, 255, 0.2);
+            border-radius: 12px;
             padding: 0.5rem;
             margin-top: 0.5rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
         }
 
-        .modern-dropdown .dropdown-item {
-            color: #1e293b;
-            border-radius: 10px;
-            padding: 0.75rem 1rem;
-            margin-bottom: 0.25rem;
+        .gameon-dropdown-item {
             display: flex;
             align-items: center;
             gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #94a3b8;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.875rem;
             transition: all 0.3s ease;
         }
 
-        .modern-dropdown .dropdown-item:hover {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            transform: translateX(5px);
+        .gameon-dropdown-item:hover {
+            background: rgba(0, 229, 255, 0.15);
+            color: #00E5FF;
         }
 
-        .modern-dropdown .dropdown-item i {
+        .gameon-dropdown-item i {
             width: 18px;
             text-align: center;
+        }
+
+        /* Mobile */
+        @media (max-width: 991px) {
+            .gameon-nav-links {
+                display: none;
+            }
+
+            .gameon-user-info {
+                display: none;
+            }
         }
 
         /* Modern Footer Styles */
@@ -1336,7 +1123,18 @@
 
         /* Body offset for fixed header */
         body {
-            padding-top: 90px;
+            padding-top: 64px;
+        }
+
+        /* Mobile menu */
+        #mobileNav {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        #mobileNav.show {
+            max-height: 500px;
         }
         
         /* Remove padding-top on welcome page */
@@ -2003,11 +1801,11 @@
         /* Adjust for mobile */
         @media (max-width: 768px) {
             body {
-                padding-top: 80px;
+                padding-top: 50px;
             }
             
             .modern-navbar {
-                padding: 0.5rem 0;
+                padding: 0.25rem 0;
             }
             
             .modern-navbar .container {
@@ -2026,10 +1824,15 @@
                 width: 40px;
                 height: 40px;
                 margin-right: 0.75rem;
+                font-size: 1.2rem;
             }
             
             .brand-name {
                 font-size: 1.1rem;
+            }
+            
+            .brand-tagline {
+                font-size: 0.65rem;
             }
             
             .modern-nav-link {
@@ -2038,12 +1841,36 @@
             }
             
             .modern-user-dropdown {
-                padding: 0.25rem 0.75rem;
+                padding: 0.4rem 0.75rem;
             }
             
             .user-avatar {
                 width: 30px;
                 height: 30px;
+            }
+
+            .user-name {
+                font-size: 0.85rem;
+            }
+
+            .user-role {
+                font-size: 0.6rem;
+            }
+
+            /* Compact navbar trên mobile */
+            .modern-navbar {
+                padding: 0.5rem 0;
+            }
+
+            .modern-nav {
+                flex-direction: column;
+                gap: 0.25rem;
+            }
+
+            .modern-user-nav {
+                flex-direction: column;
+                gap: 0.25rem;
+                margin-top: 0.5rem;
             }
             
             .social-links {
@@ -2187,16 +2014,20 @@
                 pointer-events: none;
                 height: 0;
                 overflow: hidden;
+                max-height: 0;
             }
             
             .navbar-collapse.show {
                 pointer-events: auto;
+                max-height: calc(100vh - 100px);
+                overflow-y: auto;
             }
             
             /* Ensure navbar collapse doesn't overlay content */
             .navbar-collapse {
                 position: relative;
                 z-index: 99998;
+                transition: max-height 0.3s ease;
             }
             
             /* Ensure main content is clickable */
@@ -2384,15 +2215,15 @@
                 @auth
                 <div id="header-search" class="position-relative">
                     <button type="button" class="btn btn-light btn-sm" id="searchToggle" title="{{ __('app.search.search') }}" aria-expanded="false">
-                        <i class="fas fa-search"></i>
+                        <i class="fas fa-magnifying-glass"></i>
                     </button>
                     <div id="searchBox" class="position-absolute end-0 mt-2" style="display:none; z-index: 100000;">
                         <div class="search-panel">
                             <div class="search-input-wrap">
-                                <i class="fas fa-search text-secondary"></i>
+                                <i class="fas fa-magnifying-glass text-secondary"></i>
                                 <input id="searchInput" class="search-input" placeholder="{{ __('app.search.search_users_teams_tournaments_games') }}" />
                                 <div id="searchLoading" class="search-loading"></div>
-                                <button id="searchClear" class="search-clear" title="{{ __('app.search.clear') }}"><i class="fas fa-times"></i></button>
+                                <button id="searchClear" class="search-clear" title="{{ __('app.search.clear') }}"><i class="fas fa-xmark"></i></button>
                                 <span class="ms-2 d-none d-md-inline text-secondary" title="{{ __('app.search.shortcut') }}"><span class="search-kbd">/</span> <span class="search-kbd">Enter</span></span>
                             </div>
                             <div id="searchResults" class="search-results"></div>
@@ -2406,160 +2237,180 @@
             </div>
         </div>
     @else
-        <!-- Modern Navigation (for non-admin users) -->
-    <nav class="navbar navbar-expand-lg modern-navbar">
-        <div class="container">
-            <a class="navbar-brand modern-brand" href="{{ route('home') }}">
-                <div class="brand-icon">
-                    <i class="fas fa-gamepad"></i>
-                </div>
-                <div class="brand-text">
-                    <span class="brand-name">{{ __('app.name') }}</span>
-                    <small class="brand-tagline">{{ __('app.tagline') }}</small>
-                </div>
-            </a>
+        <!-- Navbar Mới - Đơn Giản -->
+        <nav class="gameon-navbar">
+            <div class="container">
+                <!-- Brand -->
+                <a href="{{ route('home') }}" class="gameon-brand">
+                    <div class="gameon-brand-icon">
+                        <i class="fas fa-gamepad"></i>
+                    </div>
+                    <div class="gameon-brand-text">
+                        <div class="gameon-brand-name">{{ __('app.name') }}</div>
+                        <div class="gameon-brand-tagline">{{ __('app.tagline') }}</div>
+                    </div>
+                </a>
 
-            <button class="navbar-toggler modern-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="toggler-line"></span>
-                <span class="toggler-line"></span>
-                <span class="toggler-line"></span>
-            </button>
-
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto modern-nav">
+                <!-- Desktop: Nav Links -->
+                <div class="gameon-nav-links d-none d-lg-flex">
                     @auth
                         @if(!Request::is('dashboard*'))
-                        <li class="nav-item">
-                            <a class="nav-link modern-nav-link" href="{{ route('dashboard') }}">
-                                <i class="fas fa-tachometer-alt"></i>
-                                <span>{{ __('app.nav.dashboard') }}</span>
-                            </a>
-                        </li>
+                        <a href="{{ route('dashboard') }}" class="gameon-nav-link">
+                            <i class="fas fa-gauge-high"></i>
+                            <span>{{ __('app.nav.dashboard') }}</span>
+                        </a>
                         @endif
                         @if(Auth::user()->user_role === 'player')
-                        <li class="nav-item">
-                            <a class="nav-link modern-nav-link" href="{{ route('teams.index') }}">
-                                <i class="fas fa-users"></i>
-                                <span>{{ __('app.nav.my_teams') }}</span>
-                            </a>
-                        </li>
-                        @endif
-                    @endauth
-                </ul>
-
-                <ul class="navbar-nav modern-user-nav">
-                    <!-- Language Switcher -->
-                    <li class="nav-item dropdown me-2">
-                        <a class="nav-link dropdown-toggle modern-nav-link" href="#" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-globe"></i>
-                            <span>{{ strtoupper(app()->getLocale()) }}</span>
+                        <a href="{{ route('teams.index') }}" class="gameon-nav-link">
+                            <i class="fas fa-users"></i>
+                            <span>{{ __('app.nav.my_teams') }}</span>
                         </a>
-                        <ul class="dropdown-menu modern-dropdown">
-                            <li><a class="dropdown-item language-switch" href="#" data-locale="en">
-                                <i class="fas fa-flag-usa me-2"></i>English
-                            </a></li>
-                            <li><a class="dropdown-item language-switch" href="#" data-locale="vi">
-                                <i class="fas fa-flag me-2"></i>Tiếng Việt
-                            </a></li>
-                        </ul>
-                    </li>
-                    
-                    <!-- Global Search (only for authenticated) -->
+                        @endif
+                        <a href="{{ route('chat.index') }}" class="gameon-nav-link">
+                            <i class="fas fa-comments"></i>
+                            <span>{{ __('app.nav.chat') }}</span>
+                        </a>
+                        <a href="{{ route('posts.index') }}" class="gameon-nav-link">
+                            <i class="fas fa-newspaper"></i>
+                            <span>{{ __('app.nav.posts') }}</span>
+                        </a>
+                        <a href="{{ route('marketplace.index') }}" class="gameon-nav-link">
+                            <i class="fas fa-store"></i>
+                            <span>Marketplace</span>
+                        </a>
+                        <a href="{{ route('profile.show') }}" class="gameon-nav-link">
+                            <i class="fas fa-id-card"></i>
+                            <span>{{ __('app.profile.personal_info') }}</span>
+                        </a>
+                    @endauth
+                </div>
+
+                <!-- Right Side: Language, Search, User -->
+                <div class="gameon-user-menu">
+                    <!-- Language -->
+                    <a href="#" class="gameon-nav-link language-switch d-none d-lg-flex" data-locale="en" title="English">
+                        <i class="fas fa-flag-usa"></i>
+                    </a>
+                    <a href="#" class="gameon-nav-link language-switch d-none d-lg-flex" data-locale="vi" title="Tiếng Việt">
+                        <i class="fas fa-flag"></i>
+                    </a>
+
+                    <!-- Search -->
                     @auth
-                    <li class="nav-item d-none d-md-block me-2">
-                        <div id="header-search" class="position-relative">
-                            <button type="button" class="btn btn-light btn-sm" id="searchToggle" title="{{ __('app.search.search') }}" aria-expanded="false">
-                                <i class="fas fa-search"></i>
-                            </button>
-                            <div id="searchBox" class="position-absolute end-0 mt-2" style="display:none; z-index: 100000;">
-                                <div class="search-panel">
-                                    <div class="search-input-wrap">
-                                        <i class="fas fa-search text-secondary"></i>
-                                        <input id="searchInput" class="search-input" placeholder="{{ __('app.search.search_users_teams_tournaments_games') }}" />
-                                        <div id="searchLoading" class="search-loading"></div>
-                                        <button id="searchClear" class="search-clear" title="{{ __('app.search.clear') }}"><i class="fas fa-times"></i></button>
-                                        <span class="ms-2 d-none d-md-inline text-secondary" title="{{ __('app.search.shortcut') }}"><span class="search-kbd">/</span> <span class="search-kbd">Enter</span></span>
-                                    </div>
-                                    <div id="searchResults" class="search-results"></div>
-                                    <div class="p-2 border-top" id="searchFooter" style="display:none;">
-                                        <a id="searchSeeAll" class="btn btn-sm btn-outline-primary w-100">{{ __('app.search.see_all_results') }}</a>
-                                    </div>
+                    <div class="position-relative d-none d-md-block">
+                        <button type="button" class="gameon-nav-link" id="searchToggle" style="border: none; background: none; cursor: pointer;">
+                            <i class="fas fa-magnifying-glass"></i>
+                        </button>
+                        <div id="searchBox" class="position-absolute end-0 mt-2" style="display:none; z-index: 100000;">
+                            <div class="search-panel">
+                                <div class="search-input-wrap">
+                                    <i class="fas fa-magnifying-glass text-secondary"></i>
+                                    <input id="searchInput" class="search-input" placeholder="{{ __('app.search.search_users_teams_tournaments_games') }}" />
+                                    <div id="searchLoading" class="search-loading"></div>
+                                    <button id="searchClear" class="search-clear" title="{{ __('app.search.clear') }}"><i class="fas fa-xmark"></i></button>
                                 </div>
+                                <div id="searchResults" class="search-results"></div>
                             </div>
                         </div>
-                    </li>
+                    </div>
                     @endauth
-                    @guest
-                    @else
-                    <li class="nav-item dropdown">
-                        <a class="nav-link modern-nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-share-alt"></i>
-                            <span>{{ __('app.nav.social_media') }}</span>
-                        </a>
-                        <ul class="dropdown-menu modern-dropdown">
-                            <li><a class="dropdown-item" href="{{ route('chat.index') }}"><i class="fas fa-comments"></i> {{ __('app.nav.chat') }}</a></li>
-                            <li><a class="dropdown-item" href="{{ route('posts.index') }}"><i class="fas fa-newspaper"></i> {{ __('app.nav.posts') }}</a></li>
-                            <li><a class="dropdown-item" href="{{ route('marketplace.index') }}"><i class="fas fa-store"></i> Marketplace</a></li>
-                        </ul>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle modern-user-dropdown" href="#" role="button" data-bs-toggle="dropdown">
-                            <div class="user-avatar">
+
+                    <!-- User Menu -->
+                    @auth
+                    <div class="dropdown">
+                        <a href="#" class="gameon-nav-link dropdown-toggle" data-bs-toggle="dropdown" style="text-decoration: none;">
+                            <div class="gameon-user-avatar">
                                 <i class="fas fa-user"></i>
                             </div>
-                            <div class="user-info">
-                                <span class="user-name">{{ Auth::user()->name ?? 'User' }}</span>
-                                <small class="user-role">{{ ucfirst(str_replace('_', ' ', Auth::user()->user_role ?? 'user')) }}</small>
+                            <div class="gameon-user-info d-none d-lg-block">
+                                <div class="gameon-user-name">{{ Auth::user()->name ?? 'User' }}</div>
+                                <div class="gameon-user-role">{{ ucfirst(str_replace('_', ' ', Auth::user()->user_role ?? 'user')) }}</div>
                             </div>
-                            <i class="fas fa-chevron-down dropdown-arrow"></i>
+                            <i class="fas fa-chevron-down"></i>
                         </a>
-                        <ul class="dropdown-menu modern-dropdown">
-                            <li><a class="dropdown-item" href="{{ route('profile.show') }}">
-                                    <i class="fas fa-id-card"></i>{{ __('app.profile.personal_info') }}
-                                </a></li>
+                        <ul class="dropdown-menu gameon-dropdown">
                             @if(Auth::user()->user_role === 'player')
-                            <li><a class="dropdown-item" href="{{ route('teams.index') }}">
-                                    <i class="fas fa-users"></i>{{ __('app.nav.my_teams') }}
-                                </a></li>
+                            <li><a href="{{ route('teams.index') }}" class="gameon-dropdown-item">
+                                <i class="fas fa-users"></i>
+                                <span>{{ __('app.nav.my_teams') }}</span>
+                            </a></li>
                             @endif
                             @if(Auth::user()->user_role === 'admin' || Auth::user()->user_role === 'super_admin')
-                            <li><a class="dropdown-item" href="{{ route('admin.games.index') }}">
-                                    <i class="fas fa-gamepad"></i>{{ __('app.profile.manage_games') }}
-                                </a></li>
-                            <li><a class="dropdown-item" href="{{ route('admin.tournaments.index') }}">
-                                    <i class="fas fa-trophy"></i>{{ __('app.profile.manage_tournaments') }}
-                                </a></li>
-                            <li><a class="dropdown-item" href="{{ route('admin.teams.index') }}">
-                                    <i class="fas fa-users-cog"></i>{{ __('app.profile.manage_teams') }}
-                                </a></li>
-                            <li><a class="dropdown-item" href="{{ route('admin.users.index') }}">
-                                    <i class="fas fa-users"></i>{{ __('app.profile.manage_users') }}
-                                </a></li>
-                            <li><a class="dropdown-item" href="{{ route('admin.honor.index') }}">
-                                    <i class="fas fa-trophy"></i>{{ __('app.honor.manage_title') }}
-                                </a></li>
-                            <li><a class="dropdown-item" href="{{ route('admin.marketplace.index') }}">
-                                    <i class="fas fa-store"></i>Quản lý Marketplace
-                                </a></li>
+                            <li><a href="{{ route('admin.games.index') }}" class="gameon-dropdown-item">
+                                <i class="fas fa-gamepad"></i>
+                                <span>{{ __('app.profile.manage_games') }}</span>
+                            </a></li>
+                            <li><a href="{{ route('admin.tournaments.index') }}" class="gameon-dropdown-item">
+                                <i class="fas fa-trophy"></i>
+                                <span>{{ __('app.profile.manage_tournaments') }}</span>
+                            </a></li>
+                            <li><a href="{{ route('admin.teams.index') }}" class="gameon-dropdown-item">
+                                <i class="fas fa-users-gear"></i>
+                                <span>{{ __('app.profile.manage_teams') }}</span>
+                            </a></li>
+                            <li><a href="{{ route('admin.users.index') }}" class="gameon-dropdown-item">
+                                <i class="fas fa-users"></i>
+                                <span>{{ __('app.profile.manage_users') }}</span>
+                            </a></li>
                             @endif
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
+                            <li><hr class="dropdown-divider"></li>
                             <li>
                                 <form method="POST" action="{{ route('auth.logout') }}">
                                     @csrf
-                                    <button type="submit" class="dropdown-item">
-                                        <i class="fas fa-sign-out-alt"></i>{{ __('app.auth.logout') }}
+                                    <button type="submit" class="gameon-dropdown-item" style="width: 100%; border: none; background: none; text-align: left;">
+                                        <i class="fas fa-right-from-bracket"></i>
+                                        <span>{{ __('app.auth.logout') }}</span>
                                     </button>
                                 </form>
                             </li>
                         </ul>
-                    </li>
-                    @endguest
-                </ul>
+                    </div>
+                    @else
+                    <a href="{{ route('auth.login') }}" class="gameon-nav-link">
+                        <i class="fas fa-sign-in-alt"></i>
+                        <span>{{ __('app.auth.login') }}</span>
+                    </a>
+                    <a href="{{ route('auth.register') }}" class="gameon-nav-link" style="background: rgba(0, 229, 255, 0.1); border: 1px solid rgba(0, 229, 255, 0.3);">
+                        <i class="fas fa-user-plus"></i>
+                        <span>{{ __('app.auth.register') }}</span>
+                    </a>
+                    @endauth
+
+                    <!-- Mobile Menu Toggle -->
+                    <button class="gameon-nav-link d-lg-none" type="button" data-bs-toggle="collapse" data-bs-target="#mobileNav" style="border: none; background: none; cursor: pointer;">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
             </div>
-        </div>
-    </nav>
+
+            <!-- Mobile Menu -->
+            <div class="collapse d-lg-none" id="mobileNav">
+                <div style="background: #0d1b2a; border-top: 1px solid rgba(0, 229, 255, 0.2); padding: 1rem;">
+                    @auth
+                    <a href="{{ route('dashboard') }}" class="gameon-dropdown-item" style="display: block; margin-bottom: 0.5rem;">
+                        <i class="fas fa-gauge-high"></i>
+                        <span>{{ __('app.nav.dashboard') }}</span>
+                    </a>
+                    <a href="{{ route('chat.index') }}" class="gameon-dropdown-item" style="display: block; margin-bottom: 0.5rem;">
+                        <i class="fas fa-comments"></i>
+                        <span>{{ __('app.nav.chat') }}</span>
+                    </a>
+                    <a href="{{ route('posts.index') }}" class="gameon-dropdown-item" style="display: block; margin-bottom: 0.5rem;">
+                        <i class="fas fa-newspaper"></i>
+                        <span>{{ __('app.nav.posts') }}</span>
+                    </a>
+                    <a href="{{ route('marketplace.index') }}" class="gameon-dropdown-item" style="display: block; margin-bottom: 0.5rem;">
+                        <i class="fas fa-store"></i>
+                        <span>Marketplace</span>
+                    </a>
+                    <a href="{{ route('profile.show') }}" class="gameon-dropdown-item" style="display: block; margin-bottom: 0.5rem;">
+                        <i class="fas fa-id-card"></i>
+                        <span>{{ __('app.profile.personal_info') }}</span>
+                    </a>
+                    @endauth
+                </div>
+            </div>
+        </nav>
     @endif
 
     <!-- Main Content -->

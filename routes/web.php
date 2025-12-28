@@ -165,6 +165,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth.session'])->group(func
     Route::prefix('system')->name('system.')->group(function () {
         Route::get('settings', [\App\Http\Controllers\Admin\SystemController::class, 'settings'])->name('settings');
         Route::post('settings', [\App\Http\Controllers\Admin\SystemController::class, 'updateSettings'])->name('update-settings');
+        Route::post('update-theme', [\App\Http\Controllers\Admin\SystemController::class, 'updateTheme'])->name('update-theme');
         Route::get('logs', [\App\Http\Controllers\Admin\SystemController::class, 'logs'])->name('logs');
         Route::get('backups', [\App\Http\Controllers\Admin\SystemController::class, 'listBackups'])->name('backups');
         Route::post('create-backup', [\App\Http\Controllers\Admin\SystemController::class, 'createBackup'])->name('create-backup');

@@ -38,6 +38,7 @@
         .content-wrapper {
             opacity: 0;
             transition: opacity 0.3s ease-in-out;
+            margin-bottom: 3rem;
         }
         
         .content-wrapper.loaded {
@@ -809,6 +810,21 @@
         footer {
             position: relative !important;
             overflow: hidden !important;
+        }
+        
+        /* Remove underline from all footer links */
+        footer a {
+            text-decoration: none !important;
+        }
+        
+        /* Remove bullet points from footer lists */
+        footer ul {
+            list-style: none !important;
+            padding-left: 0 !important;
+        }
+        
+        footer li {
+            list-style: none !important;
         }
         
         footer.bg-midnight,
@@ -2331,7 +2347,7 @@
 
     <!-- Modern Footer - Only show for guests or on welcome page -->
     @guest
-        <footer class="bg-midnight border-t border-border pt-16 pb-8 text-slate-400 font-body relative overflow-hidden">
+        <footer class="bg-midnight border-t border-border pt-24 pb-16 text-slate-400 font-body relative overflow-hidden">
             <!-- Background Blur Effect -->
             <div class="absolute top-0 left-1/4 w-96 h-96 bg-brand/20 rounded-full blur-[100px] pointer-events-none"></div>
             
@@ -2368,26 +2384,22 @@
                         </h3>
                         <ul class="space-y-3">
                             <li>
-                                <a href="{{ route('tournaments.index') }}" class="text-white hover:text-neon transition-colors flex items-center gap-2">
-                                    <i class="fas fa-angle-right text-xs text-slate-400"></i>
+                                <a href="{{ route('tournaments.index') }}" class="text-white hover:text-neon transition-colors">
                                     {{ __('app.nav.tournaments') }}
                                 </a>
                             </li>
                             <li>
-                                <a href="{{ route('teams.index') }}" class="text-white hover:text-neon transition-colors flex items-center gap-2">
-                                    <i class="fas fa-angle-right text-xs text-slate-400"></i>
+                                <a href="{{ route('teams.index') }}" class="text-white hover:text-neon transition-colors">
                                     {{ __('app.nav.my_teams') }}
                                 </a>
                             </li>
                             <li>
-                                <a href="{{ route('players.index') }}" class="text-white hover:text-neon transition-colors flex items-center gap-2">
-                                    <i class="fas fa-angle-right text-xs text-slate-400"></i>
+                                <a href="{{ route('players.index') }}" class="text-white hover:text-neon transition-colors">
                                     {{ __('app.nav.players') }}
                                 </a>
                             </li>
                             <li>
-                                <a href="{{ route('chat.index') }}" class="text-white hover:text-neon transition-colors flex items-center gap-2">
-                                    <i class="fas fa-angle-right text-xs text-slate-400"></i>
+                                <a href="{{ route('chat.index') }}" class="text-white hover:text-neon transition-colors">
                                     {{ __('app.nav.chat') }}
                                 </a>
                             </li>
@@ -2461,7 +2473,7 @@
                             </div>
                 
                 <!-- Footer Bottom -->
-                <div class="border-t border-border pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-white">
+                <div class="border-t border-border pt-8 pb-8 flex flex-row flex-wrap justify-between items-center gap-4 text-xs text-white">
                     <div>
                         &copy; {{ date('Y') }} <span class="font-bold">Game On</span>. All rights reserved.
                         </div>
@@ -2479,7 +2491,7 @@
     @else
         {{-- Show footer only on welcome page for authenticated users --}}
         @if(Request::is('/') || Request::is('welcome'))
-            <footer class="bg-midnight border-t border-border pt-16 pb-8 text-slate-400 font-body relative overflow-hidden">
+            <footer class="bg-midnight border-t border-border pt-24 pb-16 text-slate-400 font-body relative overflow-hidden">
                 <!-- Background Blur Effect -->
                 <div class="absolute top-0 left-1/4 w-96 h-96 bg-brand/20 rounded-full blur-[100px] pointer-events-none"></div>
                 
@@ -2609,7 +2621,7 @@
                                 </div>
                     
                     <!-- Footer Bottom -->
-                    <div class="border-t border-border pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-white">
+                    <div class="border-t border-border pt-8 pb-8 flex flex-row flex-wrap justify-between items-center gap-4 text-xs text-white">
                         <div>
                             &copy; {{ date('Y') }} <span class="font-bold">Game On</span>. All rights reserved.
                             </div>

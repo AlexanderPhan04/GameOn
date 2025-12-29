@@ -260,22 +260,22 @@
                     <p class="text-text-muted text-xl mb-0 font-body">{{ __('app.home.discover_powerful_features') }}</p>
                 </div>
             </div>
-            <div class="flex flex-wrap justify-center items-stretch gap-6 lg:gap-8">
-                <div class="flex-1 min-w-[280px] max-w-[350px]">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-16 justify-items-center">
+                <div class="w-full max-w-[350px]">
                     <div class="feature-card h-full text-center p-8">
                         <i class="fas fa-users text-neon mb-4 text-5xl" style="filter: drop-shadow(0 0 10px rgba(0, 229, 255, 0.5));"></i>
                         <h5 class="text-xl font-semibold mb-3 font-display text-text-main">{{ __('app.home.team_management') }}</h5>
                         <p class="text-text-muted font-body">{{ __('app.home.create_manage_teams') }}</p>
                     </div>
                 </div>
-                <div class="flex-1 min-w-[280px] max-w-[350px]">
+                <div class="w-full max-w-[350px]">
                     <div class="feature-card h-full text-center p-8">
                         <i class="fas fa-trophy text-neon mb-4 text-5xl" style="filter: drop-shadow(0 0 10px rgba(0, 229, 255, 0.5));"></i>
                         <h5 class="text-xl font-semibold mb-3 font-display text-text-main">{{ __('app.home.tournament_organization') }}</h5>
                         <p class="text-text-muted font-body">{{ __('app.home.organize_tournaments') }}</p>
                     </div>
                 </div>
-                <div class="flex-1 min-w-[280px] max-w-[350px]">
+                <div class="w-full max-w-[350px]">
                     <div class="feature-card h-full text-center p-8">
                         <i class="fas fa-chart-line text-neon mb-4 text-5xl" style="filter: drop-shadow(0 0 10px rgba(0, 229, 255, 0.5));"></i>
                         <h5 class="text-xl font-semibold mb-3 font-display text-text-main">{{ __('app.home.detailed_statistics') }}</h5>

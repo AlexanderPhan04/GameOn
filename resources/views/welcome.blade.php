@@ -130,6 +130,54 @@
     .btn-joined-secondary:hover i {
         transform: translateX(4px);
     }
+    
+    /* Development Team Section - Ensure spacing from footer and prevent overflow */
+    section.bg-surface.mb-16 {
+        margin-bottom: 4rem !important;
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
+    
+    @media (min-width: 768px) {
+        section.bg-surface.mb-16 {
+            margin-bottom: 5rem !important;
+            padding-left: 1.5rem !important;
+            padding-right: 1.5rem !important;
+        }
+    }
+    
+    @media (min-width: 1024px) {
+        section.bg-surface.mb-16 {
+            padding-left: 2rem !important;
+            padding-right: 2rem !important;
+        }
+    }
+    
+    /* Ensure grid doesn't overflow and displays correctly */
+    section.bg-surface .grid {
+        max-width: 100% !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+    }
+    
+    /* Force 4 columns on xl screens */
+    @media (min-width: 1280px) {
+        section.bg-surface .grid {
+            grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+        }
+    }
+    
+    /* 2 columns on md screens */
+    @media (min-width: 768px) and (max-width: 1279px) {
+        section.bg-surface .grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        }
+    }
+    
+    /* Force social icons to be perfectly round */
+    section.bg-surface .flex.gap-6 a {
+        border-radius: 50% !important;
+    }
 </style>
 @endpush
 
@@ -337,8 +385,8 @@
     @endif
 
     <!-- Development Team Section -->
-    <section class="py-20 bg-surface">
-        <div class="container mx-auto px-4">
+    <section class="pt-20 pb-32 bg-surface mb-16">
+        <div class="container mx-auto px-4 md:px-6 lg:px-8 xl:px-12">
             <div class="text-center mb-12">
                 <h2 class="font-display font-bold text-4xl md:text-5xl uppercase tracking-wider mb-2">
                     Đội Ngũ <span class="text-neon">Phát Triển</span>
@@ -349,7 +397,7 @@
                 </p>
             </div>
 
-            <div class="grid gap-8 w-full max-w-7xl mx-auto" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2rem;">
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8 max-w-7xl mx-auto">
                 @php
                     $teamMembers = [
                         [
@@ -416,7 +464,7 @@
                     $imagePath = asset('contributors/' . $member['image']);
                     $imageExists = file_exists(public_path('contributors/' . $member['image']));
                 @endphp
-                <div class="group relative bg-surface border border-border rounded-2xl p-6 transition-all duration-300 hover:-translate-y-2" 
+                <div class="group relative bg-surface border border-border rounded-2xl p-6 transition-all duration-300 hover:-translate-y-2 {{ $index === 0 ? 'hover:border-neon' : ($index === 1 ? 'hover:border-purple-500' : ($index === 2 ? 'hover:border-yellow-500' : 'hover:border-pink-500')) }} hover:shadow-[0_0_30px_{{ str_replace(['rgba(', ')', ' '], ['', '', '_'], $member['hover_shadow']) }}]"
                      style="border-color: #1a237e;"
                      onmouseover="this.style.borderColor='{{ $member['hover_color'] }}'; this.style.boxShadow='0 0 30px {{ $member['hover_shadow'] }}';"
                      onmouseout="this.style.borderColor='#1a237e'; this.style.boxShadow='none';">
@@ -442,7 +490,7 @@
                             </div>
                         </div>
 
-                        <h3 class="font-display font-bold text-xl text-white transition-colors mb-1" 
+                        <h3 class="font-display font-bold text-xl text-white transition-colors mb-1 {{ $index === 0 ? 'group-hover:text-neon' : ($index === 1 ? 'group-hover:text-purple-400' : ($index === 2 ? 'group-hover:text-yellow-400' : 'group-hover:text-pink-400')) }}" 
                             style="color: white;"
                             onmouseover="this.style.color='{{ $member['text_hover'] }}';"
                             onmouseout="this.style.color='white';">
@@ -451,6 +499,40 @@
                         <p class="text-sm text-text-muted mb-4 font-body">
                             {{ $member['position'] }}
                         </p>
+                        
+                        <!-- Social Links -->
+                        <div class="flex gap-6">
+                            @if($index === 0)
+                                <!-- Leader: GitHub & Facebook -->
+                                <a href="#" class="w-8 h-8 flex items-center justify-center rounded-full bg-void border border-border text-slate-400 hover:text-white hover:border-neon hover:bg-brand transition-all" style="border-radius: 50% !important;">
+                                    <i class="fab fa-github"></i>
+                                </a>
+                                <a href="#" class="w-8 h-8 flex items-center justify-center rounded-full bg-void border border-border text-slate-400 hover:text-blue-500 hover:border-blue-500 hover:bg-void transition-all" style="border-radius: 50% !important;">
+                                    <i class="fab fa-facebook-f"></i>
+                                </a>
+                            @elseif($index === 1)
+                                <!-- Backend Dev: GitHub & LinkedIn -->
+                                <a href="#" class="w-8 h-8 flex items-center justify-center rounded-full bg-void border border-border hover:bg-purple-900 hover:text-white transition-all" style="border-radius: 50% !important;">
+                                    <i class="fab fa-github"></i>
+                                </a>
+                                <a href="#" class="w-8 h-8 flex items-center justify-center rounded-full bg-void border border-border hover:bg-blue-600 hover:text-white transition-all" style="border-radius: 50% !important;">
+                                    <i class="fab fa-linkedin-in"></i>
+                                </a>
+                            @elseif($index === 2)
+                                <!-- Frontend Dev: GitHub & Instagram -->
+                                <a href="#" class="w-8 h-8 flex items-center justify-center rounded-full bg-void border border-border hover:bg-yellow-900 hover:text-white transition-all" style="border-radius: 50% !important;">
+                                    <i class="fab fa-github"></i>
+                                </a>
+                                <a href="#" class="w-8 h-8 flex items-center justify-center rounded-full bg-void border border-border hover:bg-pink-600 hover:text-white transition-all" style="border-radius: 50% !important;">
+                                    <i class="fab fa-instagram"></i>
+                                </a>
+                            @else
+                                <!-- UI/UX: Email -->
+                                <a href="#" class="w-8 h-8 flex items-center justify-center rounded-full bg-void border border-border hover:bg-pink-900 hover:text-white transition-all" style="border-radius: 50% !important;">
+                                    <i class="fas fa-envelope"></i>
+                                </a>
+                            @endif
+                        </div>
                     </div>
                 </div>
                 @endforeach

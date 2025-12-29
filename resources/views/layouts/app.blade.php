@@ -13,9 +13,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
-    <link rel="icon" type="image/png" href="{{ asset('favicon.ico') }}">
-    <link rel="apple-touch-icon" href="{{ asset('favicon.svg') }}">
+    <link rel="icon" type="image/png" href="{{ asset('logo_remove_bg.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('logo_remove_bg.png') }}">
 
     <!-- Critical CSS inline to prevent FOUC -->
     <style>
@@ -613,20 +612,10 @@
     <!-- Vite Assets -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     
-    <!-- Preload critical resources -->
+    <!-- Font Awesome -->
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <link rel="preload" href="{{ asset('css/custom.css') }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    @if(Request::is('profile*'))
-    <link rel="preload" href="{{ asset('css/profile.css') }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    @endif
-    
-    <!-- Fallback for browsers that don't support preload -->
     <noscript>
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
-        <link href="{{ asset('css/custom.css') }}" rel="stylesheet">
-        @if(Request::is('profile*'))
-        <link href="{{ asset('css/profile.css') }}" rel="stylesheet">
-        @endif
     </noscript>
     
     <!-- AOS Animation - Load after critical content -->
@@ -667,14 +656,15 @@
         .gameon-brand-icon {
             width: 40px;
             height: 40px;
-            background: #000055; /* Deep Navy */
-            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #00E5FF; /* Neon */
-            font-size: 1.25rem;
-            box-shadow: 0 0 10px rgba(0, 229, 255, 0.4);
+        }
+        
+        .gameon-brand-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
         }
 
         .gameon-brand-text {
@@ -815,7 +805,276 @@
             }
         }
 
-        /* Footer styles are now handled by Tailwind CSS classes */
+        /* Footer Styles - Comprehensive CSS to ensure proper display */
+        footer {
+            position: relative !important;
+            overflow: hidden !important;
+        }
+        
+        footer.bg-midnight,
+        footer[class*="bg-midnight"] {
+            background-color: #000022 !important;
+        }
+        
+        footer [class*="border-border"],
+        footer .border-border {
+            border-color: #1a237e !important;
+        }
+        
+        footer.text-slate-400,
+        footer [class*="text-slate-400"] {
+            color: #94a3b8 !important;
+        }
+        
+        footer [class*="text-white"],
+        footer .text-white {
+            color: #ffffff !important;
+        }
+        
+        footer [class*="bg-void"],
+        footer .bg-void {
+            background-color: #000814 !important;
+        }
+        
+        footer [class*="bg-brand"]:not([class*="bg-brand/"]),
+        footer .bg-brand {
+            background-color: #000055 !important;
+        }
+        
+        footer [class*="text-neon"],
+        footer .text-neon {
+            color: #00E5FF !important;
+        }
+        
+        footer [class*="border-neon"],
+        footer .border-neon {
+            border-color: #00E5FF !important;
+        }
+        
+        /* Blur effect background */
+        footer [class*="bg-brand/20"],
+        footer [class*="bg-brand\/20"] {
+            background-color: rgba(0, 0, 85, 0.2) !important;
+        }
+        
+        /* Ensure font families work */
+        footer [class*="font-display"],
+        footer .font-display {
+            font-family: 'Rajdhani', sans-serif !important;
+        }
+        
+        footer [class*="font-body"],
+        footer .font-body {
+            font-family: 'Inter', sans-serif !important;
+        }
+        
+        /* Grid and layout */
+        footer .container {
+            max-width: 1280px !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
+            padding-left: 1.5rem !important;
+            padding-right: 1.5rem !important;
+        }
+        
+        footer .grid {
+            display: grid !important;
+        }
+        
+        /* Spacing */
+        footer .space-y-6 > * + * {
+            margin-top: 1.5rem !important;
+        }
+        
+        footer .space-y-3 > * + * {
+            margin-top: 0.75rem !important;
+        }
+        
+        footer .gap-12 {
+            gap: 3rem !important;
+        }
+        
+        footer .gap-4 {
+            gap: 1rem !important;
+        }
+        
+        footer .gap-3 {
+            gap: 0.75rem !important;
+        }
+        
+        footer .gap-2 {
+            gap: 0.5rem !important;
+        }
+        
+        footer .gap-1 {
+            gap: 0.25rem !important;
+        }
+        
+        /* Padding and margins */
+        footer .pt-16 {
+            padding-top: 4rem !important;
+        }
+        
+        footer .pb-8 {
+            padding-bottom: 2rem !important;
+        }
+        
+        footer .mb-16 {
+            margin-bottom: 4rem !important;
+        }
+        
+        footer .mb-6 {
+            margin-bottom: 1.5rem !important;
+        }
+        
+        footer .mb-4 {
+            margin-bottom: 1rem !important;
+        }
+        
+        footer .px-6 {
+            padding-left: 1.5rem !important;
+            padding-right: 1.5rem !important;
+        }
+        
+        footer .pt-8 {
+            padding-top: 2rem !important;
+        }
+        
+        /* Border */
+        footer .border-t {
+            border-top-width: 1px !important;
+        }
+        
+        footer .border-l-4 {
+            border-left-width: 4px !important;
+        }
+        
+        footer .pl-3 {
+            padding-left: 0.75rem !important;
+        }
+        
+        /* Rounded */
+        footer .rounded-lg {
+            border-radius: 0.5rem !important;
+        }
+        
+        footer .rounded-md {
+            border-radius: 0.375rem !important;
+        }
+        
+        footer .rounded {
+            border-radius: 0.25rem !important;
+        }
+        
+        /* Flexbox */
+        footer .flex {
+            display: flex !important;
+        }
+        
+        footer .items-center {
+            align-items: center !important;
+        }
+        
+        footer .items-start {
+            align-items: flex-start !important;
+        }
+        
+        footer .justify-center {
+            justify-content: center !important;
+        }
+        
+        footer .justify-between {
+            justify-content: space-between !important;
+        }
+        
+        /* Text */
+        footer .text-3xl {
+            font-size: 1.875rem !important;
+            line-height: 2.25rem !important;
+        }
+        
+        footer .text-lg {
+            font-size: 1.125rem !important;
+            line-height: 1.75rem !important;
+        }
+        
+        footer .text-sm {
+            font-size: 0.875rem !important;
+            line-height: 1.25rem !important;
+        }
+        
+        footer .text-xs {
+            font-size: 0.75rem !important;
+            line-height: 1rem !important;
+        }
+        
+        footer .font-bold {
+            font-weight: 700 !important;
+        }
+        
+        footer .font-semibold {
+            font-weight: 600 !important;
+        }
+        
+        footer .uppercase {
+            text-transform: uppercase !important;
+        }
+        
+        footer .tracking-wider {
+            letter-spacing: 0.05em !important;
+        }
+        
+        footer .leading-relaxed {
+            line-height: 1.625 !important;
+        }
+        
+        /* Width and height */
+        footer .w-10 {
+            width: 2.5rem !important;
+        }
+        
+        footer .h-10 {
+            height: 2.5rem !important;
+        }
+        
+        footer .w-full {
+            width: 100% !important;
+        }
+        
+        footer .flex-1 {
+            flex: 1 1 0% !important;
+        }
+        
+        /* Position */
+        footer .relative {
+            position: relative !important;
+        }
+        
+        footer .absolute {
+            position: absolute !important;
+        }
+        
+        footer .z-10 {
+            z-index: 10 !important;
+        }
+        
+        /* Blur */
+        footer [class*="blur-\[100px\]"] {
+            filter: blur(100px) !important;
+        }
+        
+        /* Responsive */
+        @media (min-width: 768px) {
+            footer .md\:grid-cols-2 {
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            }
+        }
+        
+        @media (min-width: 1024px) {
+            footer .lg\:grid-cols-4 {
+                grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+            }
+        }
 
         /* Global Search - Modern UI */
         #searchBox {
@@ -1138,6 +1397,22 @@
             text-decoration: none;
             color: white !important;
             flex: 1;
+        }
+        
+        .brand-icon {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.75rem;
+            flex-shrink: 0;
+        }
+        
+        .brand-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
         }
 
         .sidebar-toggle {
@@ -1691,7 +1966,7 @@
             <div class="sidebar-header">
                 <a href="{{ route('home') }}" class="sidebar-brand">
                     <div class="brand-icon">
-                        <i class="fas fa-gamepad"></i>
+                        <img src="{{ asset('logo_remove_bg.png') }}" alt="{{ __('app.name') }}" class="w-8 h-8 object-contain">
                     </div>
                     <div class="brand-text">
                         <span class="brand-name">{{ __('app.name') }}</span>
@@ -1856,7 +2131,7 @@
                 <!-- Brand -->
                 <a href="{{ route('home') }}" class="gameon-brand">
                     <div class="gameon-brand-icon">
-                        <i class="fas fa-gamepad"></i>
+                        <img src="{{ asset('logo_remove_bg.png') }}" alt="{{ __('app.name') }}" class="w-8 h-8 object-contain">
                     </div>
                     <div class="gameon-brand-text">
                         <div class="gameon-brand-name">{{ __('app.name') }}</div>
@@ -2056,7 +2331,7 @@
 
     <!-- Modern Footer - Only show for guests or on welcome page -->
     @guest
-        <footer class="bg-midnight border-t border-border pt-16 pb-8 text-text-muted font-body relative overflow-hidden">
+        <footer class="bg-midnight border-t border-border pt-16 pb-8 text-slate-400 font-body relative overflow-hidden">
             <!-- Background Blur Effect -->
             <div class="absolute top-0 left-1/4 w-96 h-96 bg-brand/20 rounded-full blur-[100px] pointer-events-none"></div>
             
@@ -2065,23 +2340,23 @@
                     <!-- Brand Section -->
                     <div class="space-y-6">
                         <div class="flex items-center gap-3">
-                            <i class="fas fa-ghost text-3xl text-neon"></i>
+                            <img src="{{ asset('logo_remove_bg.png') }}" alt="{{ __('app.name') }}" class="w-10 h-10 object-contain">
                             <span class="font-display font-bold text-3xl text-white tracking-wider">
                                 GAME <span class="text-neon">ON</span>
                             </span>
-                        </div>
-                        <p class="text-sm leading-relaxed">
+                            </div>
+                        <p class="text-sm leading-relaxed text-white">
                             {{ __('app.footer.professional_esports_management_platform') }}
                         </p>
                         <div class="flex gap-4">
                             <a href="#" class="w-10 h-10 rounded-lg bg-void border border-border flex items-center justify-center hover:bg-brand hover:text-white hover:border-neon transition-all duration-300 group">
-                                <i class="fab fa-facebook-f group-hover:scale-110 transition-transform"></i>
+                                <i class="fab fa-facebook-f text-white group-hover:scale-110 transition-transform"></i>
                             </a>
                             <a href="#" class="w-10 h-10 rounded-lg bg-void border border-border flex items-center justify-center hover:bg-[#5865F2] hover:text-white hover:border-[#5865F2] transition-all duration-300 group">
-                                <i class="fab fa-discord group-hover:scale-110 transition-transform"></i>
+                                <i class="fab fa-discord text-white group-hover:scale-110 transition-transform"></i>
                             </a>
                             <a href="#" class="w-10 h-10 rounded-lg bg-void border border-border flex items-center justify-center hover:bg-red-600 hover:text-white hover:border-red-600 transition-all duration-300 group">
-                                <i class="fab fa-youtube group-hover:scale-110 transition-transform"></i>
+                                <i class="fab fa-youtube text-white group-hover:scale-110 transition-transform"></i>
                             </a>
                         </div>
                     </div>
@@ -2093,26 +2368,26 @@
                         </h3>
                         <ul class="space-y-3">
                             <li>
-                                <a href="{{ route('tournaments.index') }}" class="hover:text-neon transition-colors flex items-center gap-2">
-                                    <i class="fas fa-angle-right text-xs"></i>
+                                <a href="{{ route('tournaments.index') }}" class="text-white hover:text-neon transition-colors flex items-center gap-2">
+                                    <i class="fas fa-angle-right text-xs text-slate-400"></i>
                                     {{ __('app.nav.tournaments') }}
                                 </a>
                             </li>
                             <li>
-                                <a href="{{ route('teams.index') }}" class="hover:text-neon transition-colors flex items-center gap-2">
-                                    <i class="fas fa-angle-right text-xs"></i>
+                                <a href="{{ route('teams.index') }}" class="text-white hover:text-neon transition-colors flex items-center gap-2">
+                                    <i class="fas fa-angle-right text-xs text-slate-400"></i>
                                     {{ __('app.nav.my_teams') }}
                                 </a>
                             </li>
                             <li>
-                                <a href="{{ route('players.index') }}" class="hover:text-neon transition-colors flex items-center gap-2">
-                                    <i class="fas fa-angle-right text-xs"></i>
+                                <a href="{{ route('players.index') }}" class="text-white hover:text-neon transition-colors flex items-center gap-2">
+                                    <i class="fas fa-angle-right text-xs text-slate-400"></i>
                                     {{ __('app.nav.players') }}
                                 </a>
                             </li>
                             <li>
-                                <a href="{{ route('chat.index') }}" class="hover:text-neon transition-colors flex items-center gap-2">
-                                    <i class="fas fa-angle-right text-xs"></i>
+                                <a href="{{ route('chat.index') }}" class="text-white hover:text-neon transition-colors flex items-center gap-2">
+                                    <i class="fas fa-angle-right text-xs text-slate-400"></i>
                                     {{ __('app.nav.chat') }}
                                 </a>
                             </li>
@@ -2126,70 +2401,70 @@
                         </h3>
                         <ul class="space-y-3">
                             <li>
-                                <a href="#" class="hover:text-neon transition-colors">
+                                <a href="#" class="text-white hover:text-neon transition-colors">
                                     {{ __('app.footer.help_center') }}
                                 </a>
                             </li>
                             <li>
-                                <a href="#" class="hover:text-neon transition-colors">
+                                <a href="#" class="text-white hover:text-neon transition-colors">
                                     {{ __('app.footer.contact') }}
                                 </a>
                             </li>
                             <li>
-                                <a href="#" class="hover:text-neon transition-colors">
+                                <a href="#" class="text-white hover:text-neon transition-colors">
                                     {{ __('app.footer.bug_report') }}
                                 </a>
                             </li>
                             <li>
-                                <a href="#" class="hover:text-neon transition-colors">
+                                <a href="#" class="text-white hover:text-neon transition-colors">
                                     {{ __('app.footer.faq') }}
                                 </a>
                             </li>
                         </ul>
-                    </div>
+                        </div>
                     
                     <!-- Newsletter Section -->
                     <div>
                         <h3 class="font-display font-bold text-white text-lg uppercase tracking-wider mb-6 border-l-4 border-neon pl-3">
                             {{ __('app.footer.connect') }}
                         </h3>
-                        <p class="text-sm mb-4">{{ __('app.footer.subscribe_newsletter') }}</p>
+                        <p class="text-sm mb-4 text-white">{{ __('app.footer.subscribe_newsletter') }}</p>
                         
                         <div class="relative mb-6">
                             <form>
                                 <input type="email" placeholder="{{ __('app.footer.your_email') }}" 
-                                    class="w-full bg-void border border-border rounded-lg py-3 px-4 text-white focus:outline-none focus:border-neon transition-colors text-sm pr-20">
+                                    class="w-full bg-void border border-border rounded-lg py-3 px-4 text-white placeholder:text-slate-400 focus:outline-none focus:border-neon transition-colors text-sm pr-20">
                                 <button type="submit" class="absolute right-1 top-1 bottom-1 bg-brand hover:bg-[#1a237e] text-white px-4 rounded-md font-display font-bold uppercase text-xs tracking-wide transition-colors">
                                     {{ __('app.footer.send') }}
                                 </button>
                             </form>
-                        </div>
+                            </div>
                         
                         <!-- App Download Buttons -->
                         <div class="flex gap-3">
                             <button class="flex-1 bg-void border border-border hover:border-white rounded p-2 flex items-center justify-center gap-2 transition-colors">
-                                <i class="fab fa-apple text-xl"></i>
+                                <i class="fab fa-apple text-xl text-white"></i>
                                 <div class="text-left leading-none">
-                                    <div class="text-[10px]">Download on</div>
+                                    <div class="text-[10px] text-white">Download on</div>
                                     <div class="text-xs font-bold text-white">App Store</div>
-                                </div>
+                        </div>
                             </button>
                             <button class="flex-1 bg-void border border-border hover:border-white rounded p-2 flex items-center justify-center gap-2 transition-colors">
-                                <i class="fab fa-google-play text-lg"></i>
+                                <i class="fab fa-google-play text-lg text-white"></i>
                                 <div class="text-left leading-none">
-                                    <div class="text-[10px]">Get it on</div>
+                                    <div class="text-[10px] text-white">Get it on</div>
                                     <div class="text-xs font-bold text-white">Google Play</div>
-                                </div>
-                            </button>
-                        </div>
                     </div>
+                            </button>
                 </div>
+                        </div>
+                            </div>
                 
                 <!-- Footer Bottom -->
-                <div class="border-t border-border pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs">
+                <div class="border-t border-border pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-white">
                     <div>
-                        &copy; {{ date('Y') }} <span class="text-white font-bold">Game On</span>. All rights reserved.
-                    </div>
+                        &copy; {{ date('Y') }} <span class="font-bold">Game On</span>. All rights reserved.
+                        </div>
                     <div class="flex gap-6">
                         <a href="#" class="hover:text-white transition-colors">{{ __('app.footer.terms_of_service') }}</a>
                         <a href="#" class="hover:text-white transition-colors">{{ __('app.footer.privacy_policy') }}</a>
@@ -2204,7 +2479,7 @@
     @else
         {{-- Show footer only on welcome page for authenticated users --}}
         @if(Request::is('/') || Request::is('welcome'))
-            <footer class="bg-midnight border-t border-border pt-16 pb-8 text-text-muted font-body relative overflow-hidden">
+            <footer class="bg-midnight border-t border-border pt-16 pb-8 text-slate-400 font-body relative overflow-hidden">
                 <!-- Background Blur Effect -->
                 <div class="absolute top-0 left-1/4 w-96 h-96 bg-brand/20 rounded-full blur-[100px] pointer-events-none"></div>
                 
@@ -2213,23 +2488,23 @@
                         <!-- Brand Section -->
                         <div class="space-y-6">
                             <div class="flex items-center gap-3">
-                                <i class="fas fa-ghost text-3xl text-neon"></i>
+                                <img src="{{ asset('logo_remove_bg.png') }}" alt="{{ __('app.name') }}" class="w-10 h-10 object-contain">
                                 <span class="font-display font-bold text-3xl text-white tracking-wider">
                                     GAME <span class="text-neon">ON</span>
                                 </span>
-                            </div>
-                            <p class="text-sm leading-relaxed">
+                                </div>
+                            <p class="text-sm leading-relaxed text-white">
                                 {{ __('app.footer.professional_esports_management_platform') }}
                             </p>
                             <div class="flex gap-4">
                                 <a href="#" class="w-10 h-10 rounded-lg bg-void border border-border flex items-center justify-center hover:bg-brand hover:text-white hover:border-neon transition-all duration-300 group">
-                                    <i class="fab fa-facebook-f group-hover:scale-110 transition-transform"></i>
+                                    <i class="fab fa-facebook-f text-white group-hover:scale-110 transition-transform"></i>
                                 </a>
                                 <a href="#" class="w-10 h-10 rounded-lg bg-void border border-border flex items-center justify-center hover:bg-[#5865F2] hover:text-white hover:border-[#5865F2] transition-all duration-300 group">
-                                    <i class="fab fa-discord group-hover:scale-110 transition-transform"></i>
+                                    <i class="fab fa-discord text-white group-hover:scale-110 transition-transform"></i>
                                 </a>
                                 <a href="#" class="w-10 h-10 rounded-lg bg-void border border-border flex items-center justify-center hover:bg-red-600 hover:text-white hover:border-red-600 transition-all duration-300 group">
-                                    <i class="fab fa-youtube group-hover:scale-110 transition-transform"></i>
+                                    <i class="fab fa-youtube text-white group-hover:scale-110 transition-transform"></i>
                                 </a>
                             </div>
                         </div>
@@ -2241,26 +2516,26 @@
                             </h3>
                             <ul class="space-y-3">
                                 <li>
-                                    <a href="{{ route('tournaments.index') }}" class="hover:text-neon transition-colors flex items-center gap-2">
-                                        <i class="fas fa-angle-right text-xs"></i>
+                                    <a href="{{ route('tournaments.index') }}" class="text-white hover:text-neon transition-colors flex items-center gap-2">
+                                        <i class="fas fa-angle-right text-xs text-slate-400"></i>
                                         {{ __('app.nav.tournaments') }}
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="{{ route('teams.index') }}" class="hover:text-neon transition-colors flex items-center gap-2">
-                                        <i class="fas fa-angle-right text-xs"></i>
+                                    <a href="{{ route('teams.index') }}" class="text-white hover:text-neon transition-colors flex items-center gap-2">
+                                        <i class="fas fa-angle-right text-xs text-slate-400"></i>
                                         {{ __('app.nav.my_teams') }}
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="{{ route('players.index') }}" class="hover:text-neon transition-colors flex items-center gap-2">
-                                        <i class="fas fa-angle-right text-xs"></i>
+                                    <a href="{{ route('players.index') }}" class="text-white hover:text-neon transition-colors flex items-center gap-2">
+                                        <i class="fas fa-angle-right text-xs text-slate-400"></i>
                                         {{ __('app.nav.players') }}
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="{{ route('chat.index') }}" class="hover:text-neon transition-colors flex items-center gap-2">
-                                        <i class="fas fa-angle-right text-xs"></i>
+                                    <a href="{{ route('chat.index') }}" class="text-white hover:text-neon transition-colors flex items-center gap-2">
+                                        <i class="fas fa-angle-right text-xs text-slate-400"></i>
                                         {{ __('app.nav.chat') }}
                                     </a>
                                 </li>
@@ -2274,70 +2549,70 @@
                             </h3>
                             <ul class="space-y-3">
                                 <li>
-                                    <a href="#" class="hover:text-neon transition-colors">
+                                    <a href="#" class="text-white hover:text-neon transition-colors">
                                         {{ __('app.footer.help_center') }}
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="#" class="hover:text-neon transition-colors">
+                                    <a href="#" class="text-white hover:text-neon transition-colors">
                                         {{ __('app.footer.contact') }}
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="#" class="hover:text-neon transition-colors">
+                                    <a href="#" class="text-white hover:text-neon transition-colors">
                                         {{ __('app.footer.bug_report') }}
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="#" class="hover:text-neon transition-colors">
+                                    <a href="#" class="text-white hover:text-neon transition-colors">
                                         {{ __('app.footer.faq') }}
                                     </a>
                                 </li>
                             </ul>
-                        </div>
+                            </div>
                         
                         <!-- Newsletter Section -->
                         <div>
                             <h3 class="font-display font-bold text-white text-lg uppercase tracking-wider mb-6 border-l-4 border-neon pl-3">
                                 {{ __('app.footer.connect') }}
                             </h3>
-                            <p class="text-sm mb-4">{{ __('app.footer.subscribe_newsletter') }}</p>
+                            <p class="text-sm mb-4 text-white">{{ __('app.footer.subscribe_newsletter') }}</p>
                             
                             <div class="relative mb-6">
                                 <form>
                                     <input type="email" placeholder="{{ __('app.footer.your_email') }}" 
-                                        class="w-full bg-void border border-border rounded-lg py-3 px-4 text-white focus:outline-none focus:border-neon transition-colors text-sm pr-20">
+                                        class="w-full bg-void border border-border rounded-lg py-3 px-4 text-white placeholder:text-slate-400 focus:outline-none focus:border-neon transition-colors text-sm pr-20">
                                     <button type="submit" class="absolute right-1 top-1 bottom-1 bg-brand hover:bg-[#1a237e] text-white px-4 rounded-md font-display font-bold uppercase text-xs tracking-wide transition-colors">
                                         {{ __('app.footer.send') }}
                                     </button>
                                 </form>
-                            </div>
+                                </div>
                             
                             <!-- App Download Buttons -->
                             <div class="flex gap-3">
                                 <button class="flex-1 bg-void border border-border hover:border-white rounded p-2 flex items-center justify-center gap-2 transition-colors">
-                                    <i class="fab fa-apple text-xl"></i>
+                                    <i class="fab fa-apple text-xl text-white"></i>
                                     <div class="text-left leading-none">
-                                        <div class="text-[10px]">Download on</div>
+                                        <div class="text-[10px] text-white">Download on</div>
                                         <div class="text-xs font-bold text-white">App Store</div>
-                                    </div>
+                            </div>
                                 </button>
                                 <button class="flex-1 bg-void border border-border hover:border-white rounded p-2 flex items-center justify-center gap-2 transition-colors">
-                                    <i class="fab fa-google-play text-lg"></i>
+                                    <i class="fab fa-google-play text-lg text-white"></i>
                                     <div class="text-left leading-none">
-                                        <div class="text-[10px]">Get it on</div>
+                                        <div class="text-[10px] text-white">Get it on</div>
                                         <div class="text-xs font-bold text-white">Google Play</div>
-                                    </div>
-                                </button>
-                            </div>
                         </div>
+                                </button>
                     </div>
+                            </div>
+                                </div>
                     
                     <!-- Footer Bottom -->
-                    <div class="border-t border-border pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs">
+                    <div class="border-t border-border pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-white">
                         <div>
-                            &copy; {{ date('Y') }} <span class="text-white font-bold">Game On</span>. All rights reserved.
-                        </div>
+                            &copy; {{ date('Y') }} <span class="font-bold">Game On</span>. All rights reserved.
+                            </div>
                         <div class="flex gap-6">
                             <a href="#" class="hover:text-white transition-colors">{{ __('app.footer.terms_of_service') }}</a>
                             <a href="#" class="hover:text-white transition-colors">{{ __('app.footer.privacy_policy') }}</a>

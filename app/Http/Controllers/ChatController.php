@@ -18,6 +18,11 @@ class ChatController extends Controller
     {
         $user = Auth::user();
 
+        // Check if user is authenticated
+        if (!$user) {
+            return redirect()->route('auth.login');
+        }
+
         // Get conversations directly using query builder
         $conversations = ChatConversation::whereHas('participants', function ($query) use ($user) {
             $query->where('user_id', $user->id);

@@ -89,22 +89,43 @@
     }
 
     .auth-container button {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: #fff;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        color: #fff !important;
         font-size: 12px;
         padding: 12px 45px;
-        border: 1px solid transparent;
+        border: 1px solid transparent !important;
         border-radius: 8px;
         font-weight: 600;
         letter-spacing: 0.5px;
         text-transform: uppercase;
         margin-top: 15px;
+        margin-bottom: 0;
         width: 100%;
         max-width: 100%;
         box-sizing: border-box;
         cursor: pointer;
         transition: all 0.3s ease;
         box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+    
+    /* Nút submit trong form - nhỏ hơn, chỉ to hơn input một chút, căn giữa */
+    .auth-container form button[type="submit"] {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        color: #fff !important;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        margin-top: 20px !important;
+        margin-bottom: 30px !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        width: auto !important;
+        min-width: 200px;
+        max-width: 90%;
+        padding: 10px 35px !important;
     }
 
     .auth-container button:hover {
@@ -112,15 +133,23 @@
         box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
     }
 
-    .auth-container button.hidden {
-        background-color: transparent;
-        border-color: #fff;
-        box-shadow: none;
+    .auth-container button.hidden,
+    .auth-container button.toggle-button {
+        background-color: transparent !important;
+        border: 2px solid #fff !important;
+        box-shadow: none !important;
+        color: #fff !important;
+        margin-top: 20px !important;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
     }
 
-    .auth-container button.hidden:hover {
-        background-color: rgba(255, 255, 255, 0.1);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    .auth-container button.hidden:hover,
+    .auth-container button.toggle-button:hover {
+        background-color: rgba(255, 255, 255, 0.2) !important;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) !important;
+        transform: translateY(-2px) !important;
     }
 
     .auth-container form {
@@ -129,13 +158,15 @@
         align-items: flex-start;
         justify-content: flex-start;
         flex-direction: column;
-        padding: 40px 50px;
-        height: 100%;
+        padding: 40px 50px 100px 50px;
+        min-height: 100%;
+        height: auto;
         overflow-y: auto;
         overflow-x: hidden;
         box-sizing: border-box;
         scrollbar-width: none; /* Firefox */
         -ms-overflow-style: none; /* IE and Edge */
+        flex: 1;
     }
     
     .auth-container form::-webkit-scrollbar {
@@ -194,6 +225,26 @@
         height: 100%;
         transition: all 0.6s ease-in-out;
         overflow: hidden;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    /* Đảm bảo form không che toggle panel */
+    .sign-in {
+        z-index: 2;
+    }
+    
+    .sign-up {
+        z-index: 1;
+    }
+    
+    .auth-container.active .sign-in {
+        z-index: 1;
+    }
+    
+    .auth-container.active .sign-up {
+        z-index: 2;
     }
 
     .sign-in {
@@ -274,7 +325,7 @@
         overflow: hidden;
         transition: all 0.6s ease-in-out;
         border-radius: 150px 0 0 100px;
-        z-index: 1000;
+        z-index: 3;
     }
 
     .auth-container.active .toggle-container {
@@ -312,6 +363,8 @@
         top: 0;
         transform: translateX(0);
         transition: all 0.6s ease-in-out;
+        z-index: 10;
+        box-sizing: border-box;
     }
 
     .toggle-left {
@@ -336,12 +389,32 @@
         font-size: 32px;
         font-weight: 600;
         margin-bottom: 15px;
+        z-index: 10;
+        position: relative;
+        padding: 0 20px;
     }
 
     .toggle-panel p {
         color: rgba(255, 255, 255, 0.9);
         font-size: 14px;
         margin-bottom: 20px;
+        padding: 0 20px;
+        z-index: 10;
+        position: relative;
+        text-align: center;
+        max-width: 100%;
+        line-height: 1.6;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    
+    .toggle-logo {
+        width: 80px;
+        height: 80px;
+        object-fit: contain;
+        margin-bottom: 20px;
+        z-index: 10;
+        position: relative;
     }
 
     .form-check {
@@ -413,7 +486,7 @@
         }
 
         .auth-container form {
-            padding: 30px 25px;
+            padding: 30px 25px 80px 25px;
         }
 
         .form-container {
@@ -527,14 +600,16 @@
     <div class="toggle-container">
         <div class="toggle">
             <div class="toggle-panel toggle-left">
+                <img src="{{ asset('logo_remove_bg.png') }}" alt="{{ __('app.name') }}" class="toggle-logo mb-3">
                 <h1>{{ __('app.auth.welcome_back') }}</h1>
                 <p>{{ __('app.auth.enter_personal_details') }}</p>
-                <button class="hidden" id="loginToggle">{{ __('app.auth.login') }}</button>
+                <button class="toggle-button" id="loginToggle">{{ __('app.auth.login') }}</button>
             </div>
             <div class="toggle-panel toggle-right">
+                <img src="{{ asset('logo_remove_bg.png') }}" alt="{{ __('app.name') }}" class="toggle-logo mb-3">
                 <h1>{{ __('app.auth.hello_friend') }}</h1>
                 <p>{{ __('app.auth.register_personal_details') }}</p>
-                <button class="hidden" id="registerToggle">{{ __('app.auth.register') }}</button>
+                <button class="toggle-button" id="registerToggle">{{ __('app.auth.register') }}</button>
             </div>
         </div>
     </div>

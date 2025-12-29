@@ -13,9 +13,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
-    <link rel="icon" type="image/png" href="{{ asset('favicon.ico') }}">
-    <link rel="apple-touch-icon" href="{{ asset('favicon.svg') }}">
+    <link rel="icon" type="image/png" href="{{ asset('logo_remove_bg.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('logo_remove_bg.png') }}">
 
     <!-- Critical CSS inline to prevent FOUC -->
     <style>
@@ -657,14 +656,15 @@
         .gameon-brand-icon {
             width: 40px;
             height: 40px;
-            background: #000055; /* Deep Navy */
-            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #00E5FF; /* Neon */
-            font-size: 1.25rem;
-            box-shadow: 0 0 10px rgba(0, 229, 255, 0.4);
+        }
+        
+        .gameon-brand-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
         }
 
         .gameon-brand-text {
@@ -1398,6 +1398,22 @@
             color: white !important;
             flex: 1;
         }
+        
+        .brand-icon {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.75rem;
+            flex-shrink: 0;
+        }
+        
+        .brand-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
 
         .sidebar-toggle {
             background: rgba(255, 255, 255, 0.1);
@@ -1950,7 +1966,7 @@
             <div class="sidebar-header">
                 <a href="{{ route('home') }}" class="sidebar-brand">
                     <div class="brand-icon">
-                        <i class="fas fa-gamepad"></i>
+                        <img src="{{ asset('logo_remove_bg.png') }}" alt="{{ __('app.name') }}" class="w-8 h-8 object-contain">
                     </div>
                     <div class="brand-text">
                         <span class="brand-name">{{ __('app.name') }}</span>
@@ -2115,7 +2131,7 @@
                 <!-- Brand -->
                 <a href="{{ route('home') }}" class="gameon-brand">
                     <div class="gameon-brand-icon">
-                        <i class="fas fa-gamepad"></i>
+                        <img src="{{ asset('logo_remove_bg.png') }}" alt="{{ __('app.name') }}" class="w-8 h-8 object-contain">
                     </div>
                     <div class="gameon-brand-text">
                         <div class="gameon-brand-name">{{ __('app.name') }}</div>
@@ -2324,7 +2340,7 @@
                     <!-- Brand Section -->
                     <div class="space-y-6">
                         <div class="flex items-center gap-3">
-                            <i class="fas fa-ghost text-3xl text-neon"></i>
+                            <img src="{{ asset('logo_remove_bg.png') }}" alt="{{ __('app.name') }}" class="w-10 h-10 object-contain">
                             <span class="font-display font-bold text-3xl text-white tracking-wider">
                                 GAME <span class="text-neon">ON</span>
                             </span>
@@ -2472,7 +2488,7 @@
                         <!-- Brand Section -->
                         <div class="space-y-6">
                             <div class="flex items-center gap-3">
-                                <i class="fas fa-ghost text-3xl text-neon"></i>
+                                <img src="{{ asset('logo_remove_bg.png') }}" alt="{{ __('app.name') }}" class="w-10 h-10 object-contain">
                                 <span class="font-display font-bold text-3xl text-white tracking-wider">
                                     GAME <span class="text-neon">ON</span>
                                 </span>

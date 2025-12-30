@@ -272,8 +272,7 @@
                             <option value="super_admin" {{ request('role') === 'super_admin' ? 'selected' : '' }}>Super Admin</option>
                             @endif
                             <option value="admin" {{ request('role') === 'admin' ? 'selected' : '' }}>Admin</option>
-                            <option value="player" {{ request('role') === 'player' ? 'selected' : '' }}>Player</option>
-                            <option value="viewer" {{ request('role') === 'viewer' ? 'selected' : '' }}>Viewer</option>
+                            <option value="participant" {{ request('role') === 'participant' ? 'selected' : '' }}>Participant</option>
                         </select>
                     </div>
                     <div>

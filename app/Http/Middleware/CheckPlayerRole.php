@@ -22,9 +22,9 @@ class CheckPlayerRole
 
         $user = Auth::user();
 
-        // Allow admin and player roles to access team features
-        if ($user->user_role !== 'player' && $user->user_role !== 'admin') {
-            return redirect()->route('home')->with('error', 'Bạn cần có vai trò Player hoặc Admin để truy cập tính năng này.');
+        // Allow admin, participant (merged player/viewer) roles to access team features
+        if (!in_array($user->user_role, ['participant', 'player', 'admin', 'super_admin'])) {
+            return redirect()->route('home')->with('error', 'Bạn cần đăng nhập để truy cập tính năng này.');
         }
 
         return $next($request);

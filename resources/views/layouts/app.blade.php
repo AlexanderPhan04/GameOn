@@ -825,6 +825,7 @@
             gap: 5px;
             border-radius: 8px;
             transition: background 0.3s ease;
+            margin-right: 10px;
         }
         
         .mobile-menu-toggle:hover {
@@ -1501,20 +1502,19 @@
             padding-top: 0;
         }
 
-        /* Admin Sidebar Styles */
+        /* Admin Sidebar Styles - Deep Blue Design System */
         .admin-sidebar {
             position: fixed;
             left: 0;
             top: 0;
             width: 280px;
             height: 100vh;
-            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 30%, #16213e 70%, #0f0f23 100%);
-            backdrop-filter: blur(25px);
-            border-right: 1px solid rgba(102, 126, 234, 0.2);
-            box-shadow: 2px 0 20px rgba(0, 0, 0, 0.3);
+            background: #000022; /* Midnight */
+            border-right: 1px solid rgba(0, 229, 255, 0.15);
+            box-shadow: 2px 0 20px rgba(0, 0, 0, 0.5);
             z-index: 1000;
             overflow: hidden;
-            transition: width 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
             flex-direction: column;
         }
@@ -1534,7 +1534,7 @@
             width: 0;
             overflow: hidden;
             white-space: nowrap;
-            transition: opacity 0.2s ease, width 0.3s ease;
+            transition: opacity 0.3s ease, width 0.4s ease;
             display: none;
         }
 
@@ -1542,7 +1542,7 @@
         .admin-sidebar.collapsed:hover {
             width: 280px;
             z-index: 1001;
-            box-shadow: 4px 0 30px rgba(0, 0, 0, 0.5);
+            box-shadow: 4px 0 40px rgba(0, 229, 255, 0.15);
         }
 
         .admin-sidebar.collapsed:hover .sidebar-brand-text,
@@ -1648,6 +1648,15 @@
 
         .admin-sidebar.collapsed .sidebar-footer {
             padding: 1rem 0.5rem;
+            align-items: center;
+        }
+
+        .admin-sidebar.collapsed .sidebar-user-info {
+            justify-content: center;
+        }
+
+        .admin-sidebar.collapsed .sidebar-user-info .user-avatar {
+            margin: 0 auto;
         }
 
         /* Ẩn text trong language switcher khi collapsed */
@@ -1659,6 +1668,12 @@
             align-items: center;
             justify-content: center;
             border-radius: 50% !important;
+            margin: 0 auto;
+        }
+
+        .admin-sidebar.collapsed .language-switcher-sidebar {
+            display: flex;
+            justify-content: center;
         }
 
         .admin-sidebar.collapsed .language-switcher-sidebar button span {
@@ -1670,6 +1685,10 @@
         }
 
         /* Hiện lại khi hover */
+        .admin-sidebar.collapsed:hover .language-switcher-sidebar {
+            display: block;
+        }
+
         .admin-sidebar.collapsed:hover .language-switcher-sidebar button {
             padding: 0.375rem 0.75rem !important;
             width: 100% !important;
@@ -1689,6 +1708,7 @@
         body.has-admin-sidebar .admin-sidebar.collapsed ~ .content-wrapper,
         body.has-admin-sidebar .admin-sidebar.collapsed ~ main {
             margin-left: 80px;
+            transition: margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         body.has-admin-sidebar .admin-sidebar.collapsed:hover ~ .content-wrapper,
@@ -1709,14 +1729,15 @@
             transform: translateY(-50%);
             margin-left: 10px;
             padding: 0.5rem 0.75rem;
-            background: rgba(0, 0, 0, 0.9);
-            color: white;
+            background: #0d1b2a;
+            color: #00E5FF;
+            border: 1px solid rgba(0, 229, 255, 0.3);
             border-radius: 6px;
             white-space: nowrap;
             z-index: 1002;
             font-size: 0.875rem;
             pointer-events: none;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 20px rgba(0, 229, 255, 0.2);
         }
 
         /* Hide scrollbar for sidebar */
@@ -1732,7 +1753,7 @@
 
         .sidebar-header {
             padding: 1.5rem;
-            border-bottom: 1px solid rgba(102, 126, 234, 0.2);
+            border-bottom: 1px solid rgba(0, 229, 255, 0.15);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -1763,9 +1784,9 @@
         }
 
         .sidebar-toggle {
-            background: rgba(255, 255, 255, 0.1);
-            border: none;
-            color: white;
+            background: rgba(0, 229, 255, 0.1);
+            border: 1px solid rgba(0, 229, 255, 0.2);
+            color: #00E5FF;
             padding: 0.5rem;
             border-radius: 8px;
             cursor: pointer;
@@ -1773,7 +1794,8 @@
         }
 
         .sidebar-toggle:hover {
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(0, 229, 255, 0.2);
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.3);
         }
 
         .sidebar-user-info {
@@ -1788,14 +1810,16 @@
             width: 50px;
             height: 50px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #000055, #000077);
+            border: 2px solid rgba(0, 229, 255, 0.3);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
+            color: #00E5FF;
             font-size: 1.2rem;
             overflow: hidden;
             flex-shrink: 0;
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.2);
         }
 
         .sidebar-user-info .user-avatar img {
@@ -1810,8 +1834,9 @@
         }
 
         .user-details .user-name {
+            font-family: 'Rajdhani', sans-serif;
             font-weight: 700;
-            color: white;
+            color: #FFFFFF;
             font-size: 0.95rem;
             margin-bottom: 0.25rem;
             white-space: nowrap;
@@ -1820,7 +1845,7 @@
         }
 
         .user-details .user-role {
-            color: #a1a9b8;
+            color: #00E5FF;
             font-size: 0.75rem;
             text-transform: uppercase;
             letter-spacing: 0.05em;
@@ -1858,22 +1883,33 @@
             align-items: center;
             gap: 1rem;
             padding: 0.875rem 1.5rem;
-            color: rgba(255, 255, 255, 0.8);
+            color: #94a3b8;
             text-decoration: none;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             font-weight: 500;
+            font-family: 'Inter', sans-serif;
         }
 
         .menu-link:hover {
-            color: white;
-            background: rgba(102, 126, 234, 0.15);
+            color: #00E5FF;
+            background: rgba(0, 229, 255, 0.1);
+        }
+
+        .menu-link:hover i {
+            color: #00E5FF;
+            text-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
         }
 
         .menu-item.active .menu-link {
-            color: white;
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.3), rgba(118, 75, 162, 0.3));
-            border-left: 3px solid #667eea;
+            color: #00E5FF;
+            background: rgba(0, 229, 255, 0.15);
+            border-left: 3px solid #00E5FF;
+        }
+
+        .menu-item.active .menu-link i {
+            color: #00E5FF;
+            text-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
         }
 
         .menu-item.active .menu-link::before {
@@ -1883,26 +1919,34 @@
             top: 0;
             bottom: 0;
             width: 3px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: #00E5FF;
+            box-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
         }
 
         .menu-link i {
             width: 20px;
             text-align: center;
             font-size: 1.1rem;
+            color: #94a3b8;
+            transition: all 0.3s ease;
         }
 
         .menu-link-logout {
-            color: rgba(255, 255, 255, 0.8) !important;
+            color: #94a3b8 !important;
             background: transparent !important;
             border-radius: 0 !important;
             border: none !important;
         }
 
         .menu-link-logout:hover {
-            color: white !important;
-            background: rgba(102, 126, 234, 0.15) !important;
+            color: #00E5FF !important;
+            background: rgba(0, 229, 255, 0.1) !important;
             border-radius: 0 !important;
+        }
+
+        .menu-link-logout:hover i {
+            color: #00E5FF;
+            text-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
         }
         
         .menu-form button.menu-link-logout,
@@ -1927,7 +1971,7 @@
 
         .menu-divider {
             height: 1px;
-            background: rgba(102, 126, 234, 0.2);
+            background: rgba(0, 229, 255, 0.15);
             margin: 0.75rem 1.5rem;
         }
         
@@ -1945,11 +1989,13 @@
             font-family: 'Font Awesome 5 Free';
             font-weight: 900;
             margin-left: auto;
-            transition: transform 0.3s ease;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            color: #94a3b8;
         }
         
         .menu-item.has-submenu.open > .menu-link::after {
             transform: rotate(180deg);
+            color: #00E5FF;
         }
         
         .menu-submenu {
@@ -1958,8 +2004,8 @@
             margin: 0;
             max-height: 0;
             overflow: hidden;
-            transition: max-height 0.3s ease;
-            background: rgba(0, 0, 0, 0.2);
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(0, 0, 0, 0.3);
         }
         
         .menu-item.has-submenu.open > .menu-submenu {
@@ -1974,12 +2020,13 @@
         }
         
         .menu-submenu .menu-item.active .menu-link {
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.25), rgba(118, 75, 162, 0.25));
-            border-left: 3px solid #667eea;
+            background: rgba(0, 229, 255, 0.15);
+            border-left: 3px solid #00E5FF;
+            color: #00E5FF;
         }
         
         .menu-item.has-submenu.open > .menu-link {
-            background: rgba(102, 126, 234, 0.1);
+            background: rgba(0, 229, 255, 0.1);
         }
 
         .sidebar-footer {
@@ -1988,8 +2035,8 @@
             left: 0;
             right: 0;
             padding: 1rem 1.5rem;
-            border-top: 1px solid rgba(102, 126, 234, 0.2);
-            background: rgba(15, 15, 35, 0.95);
+            border-top: 1px solid rgba(0, 229, 255, 0.15);
+            background: #000022;
             margin-top: auto;
             display: flex;
             flex-direction: column;
@@ -2003,13 +2050,15 @@
         }
 
         .language-switcher-sidebar .btn {
-            border-color: rgba(255, 255, 255, 0.3);
-            color: rgba(255, 255, 255, 0.9);
+            border-color: rgba(0, 229, 255, 0.3);
+            color: #94a3b8;
+            transition: all 0.3s ease;
         }
 
         .language-switcher-sidebar .btn:hover {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: rgba(255, 255, 255, 0.5);
+            background: rgba(0, 229, 255, 0.1);
+            border-color: #00E5FF;
+            color: #00E5FF;
         }
 
         /* Admin Top Bar */
@@ -2017,7 +2066,7 @@
             position: fixed;
             top: 0;
             left: 280px;
-            transition: left 0.3s ease;
+            transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         body.has-admin-sidebar .admin-sidebar.collapsed ~ * .admin-topbar,
@@ -2035,20 +2084,19 @@
             top: 0;
             right: 0;
             height: 70px;
-            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 30%, #16213e 70%, #0f0f23 100%);
-            backdrop-filter: blur(25px);
-            border-bottom: 1px solid rgba(102, 126, 234, 0.2);
+            background: #000022;
+            border-bottom: 1px solid rgba(0, 229, 255, 0.15);
             display: flex;
             align-items: center;
             padding: 0 1.5rem;
             z-index: 999;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
         }
 
         .sidebar-toggle-mobile {
-            background: rgba(255, 255, 255, 0.1);
-            border: none;
-            color: white;
+            background: rgba(0, 229, 255, 0.1);
+            border: 1px solid rgba(0, 229, 255, 0.2);
+            color: #00E5FF;
             padding: 0.75rem;
             border-radius: 10px;
             cursor: pointer;
@@ -2130,6 +2178,7 @@
             .admin-sidebar {
                 transform: translateX(-100%);
                 z-index: 1000;
+                width: 280px;
             }
 
             .admin-sidebar.show {
@@ -2137,11 +2186,23 @@
             }
 
             .admin-topbar {
-                left: 0;
+                left: 0 !important;
+                right: 0 !important;
+                width: 100% !important;
             }
 
             .content-wrapper-with-sidebar {
                 margin-left: 0;
+            }
+            
+            /* Fix: Remove margin-left on mobile for admin dashboard */
+            body.has-admin-sidebar main,
+            body.has-admin-sidebar .content-wrapper,
+            body.has-admin-sidebar .dashboard-container,
+            body.has-admin-sidebar .admin-sidebar.collapsed ~ main,
+            body.has-admin-sidebar .admin-sidebar.collapsed ~ .content-wrapper {
+                margin-left: 0 !important;
+                width: 100% !important;
             }
 
             .sidebar-toggle-mobile {
@@ -2314,10 +2375,6 @@
                 <a href="{{ route('home') }}" class="sidebar-brand">
                     <div class="brand-icon">
                         <img src="{{ asset('logo_remove_bg.png') }}" alt="{{ __('app.name') }}" class="w-8 h-8 object-contain">
-                    </div>
-                    <div class="brand-text">
-                        <span class="brand-name">{{ __('app.name') }}</span>
-                        <small class="brand-tagline">{{ __('app.tagline') }}</small>
                     </div>
                 </a>
                 <button class="sidebar-toggle lg:hidden" id="sidebarToggle">

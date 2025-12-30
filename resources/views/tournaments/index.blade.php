@@ -2,6 +2,10 @@
 
 @section('title', __('app.nav.tournaments') . ' - ' . __('app.name'))
 
+@section('meta_description', 'Khám phá và tham gia các giải đấu esport hấp dẫn trên GameOn. Giải đấu Liên Quân, Valorant, PUBG Mobile, Free Fire và nhiều game khác. Đăng ký miễn phí ngay!')
+
+@section('meta_keywords', 'giải đấu esport, tournament game, giải đấu Liên Quân Mobile, giải Valorant Việt Nam, tournament PUBG Mobile, giải đấu Free Fire, đăng ký giải đấu game, thi đấu esport online')
+
 @push('styles')
 <style>
     .tournaments-container {

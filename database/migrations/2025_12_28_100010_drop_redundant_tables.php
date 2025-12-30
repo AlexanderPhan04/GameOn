@@ -13,10 +13,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Xóa foreign keys trước khi xóa bảng
+        $isSqlite = config('database.default') === 'sqlite' || 
+                    (config('database.connections.'.config('database.default').'.driver') === 'sqlite');
         
-        // Xóa foreign key từ tournaments_management trỏ đến games_management
-        if (Schema::hasTable('tournaments_management')) {
+        // Xóa foreign keys trước khi xóa bảng (chỉ MySQL)
+        if (!$isSqlite && Schema::hasTable('tournaments_management')) {
             try {
                 DB::statement('ALTER TABLE tournaments_management DROP FOREIGN KEY tournaments_management_game_id_foreign');
             } catch (\Exception $e) {

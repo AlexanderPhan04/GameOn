@@ -48,6 +48,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'email_verification_token',
         'user_role',
         'status',
+        'is_verified_gamer',
     ];
 
     /**
@@ -128,21 +129,55 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function isPlayer()
     {
-        return $this->user_role === 'player';
+        return $this->user_role === 'participant' || $this->user_role === 'player';
     }
 
     /**
-     * Upgrade user to player role
+     * Check if user is a participant (new role combining player + viewer)
      */
-    public function upgradeToPlayer($gamingNickname, $teamPreference = null, $description = null)
+    public function isParticipant()
+    {
+        return $this->user_role === 'participant';
+    }
+
+    /**
+     * Check if user is a verified gamer (has blue tick)
+     */
+    public function isVerifiedGamer()
+    {
+        return $this->is_verified_gamer ?? false;
+    }
+
+    /**
+     * Grant verified gamer status (blue tick)
+     */
+    public function grantVerifiedGamer()
+    {
+        $this->update(['is_verified_gamer' => true]);
+        return $this;
+    }
+
+    /**
+     * Revoke verified gamer status
+     */
+    public function revokeVerifiedGamer()
+    {
+        $this->update(['is_verified_gamer' => false]);
+        return $this;
+    }
+
+    /**
+     * Upgrade user to participant role with gaming profile
+     */
+    public function upgradeToParticipant($gamingNickname, $teamPreference = null, $description = null)
     {
         // Validate required fields
         if (empty($gamingNickname)) {
             throw new \Exception('Gaming nickname is required');
         }
 
-        // Update user role
-        $this->update(['user_role' => 'player']);
+        // Update user role to participant
+        $this->update(['user_role' => 'participant']);
 
         // Update or create profile
         $this->profile()->updateOrCreate(
@@ -159,11 +194,19 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * Check if user can upgrade to player
+     * Check if user can upgrade (legacy method for compatibility)
      */
     public function canUpgradeToPlayer()
     {
-        return $this->user_role === 'viewer' && $this->isActive();
+        return $this->canUpgradeToParticipant();
+    }
+
+    /**
+     * Check if user can set gaming profile
+     */
+    public function canUpgradeToParticipant()
+    {
+        return $this->user_role === 'participant' && $this->isActive();
     }
 
     public function canManageUsers()
@@ -176,8 +219,9 @@ class User extends Authenticatable implements MustVerifyEmail
         return match ($this->user_role) {
             'super_admin' => 'Super Admin',
             'admin' => 'Quản trị viên',
-            'player' => 'Người chơi',
-            'viewer' => 'Người xem',
+            'participant' => $this->is_verified_gamer ? 'Pro Gamer ✓' : 'Participant',
+            'player' => 'Participant', // Legacy support
+            'viewer' => 'Participant', // Legacy support
             default => 'Không xác định'
         };
     }
@@ -272,8 +316,9 @@ class User extends Authenticatable implements MustVerifyEmail
         return match ($this->user_role) {
             'super_admin' => 'bg-danger',
             'admin' => 'bg-warning',
-            'player' => 'bg-primary',
-            'viewer' => 'bg-secondary',
+            'participant' => $this->is_verified_gamer ? 'bg-info' : 'bg-primary',
+            'player' => 'bg-primary', // Legacy
+            'viewer' => 'bg-secondary', // Legacy
             default => 'bg-secondary'
         };
     }

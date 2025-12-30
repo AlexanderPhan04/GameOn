@@ -16,8 +16,11 @@ return new class extends Migration
             return;
         }
 
+        $isSqlite = config('database.default') === 'sqlite' || 
+                    (config('database.connections.'.config('database.default').'.driver') === 'sqlite');
+        $falseValue = $isSqlite ? '0' : 'false';
+
         // Migrate dữ liệu profile
-        // Kiểm tra các cột có tồn tại trong users không
         $columns = [
             'full_name' => Schema::hasColumn('users', 'full_name'),
             'avatar' => Schema::hasColumn('users', 'avatar'),
@@ -34,11 +37,9 @@ return new class extends Migration
             'verified_at' => Schema::hasColumn('users', 'verified_at'),
         ];
 
-        // Chỉ migrate nếu có ít nhất một cột profile tồn tại
         $hasProfileColumns = in_array(true, $columns, true);
         
         if ($hasProfileColumns) {
-            // Build SELECT statement với các cột có sẵn
             $selectFields = ['id as user_id'];
             $insertFields = ['user_id'];
             
@@ -47,9 +48,8 @@ return new class extends Migration
                     $selectFields[] = $column;
                     $insertFields[] = $column;
                 } else {
-                    // Nếu cột không tồn tại, dùng NULL hoặc default
                     if ($column === 'is_verified') {
-                        $selectFields[] = 'false as is_verified';
+                        $selectFields[] = $falseValue . ' as is_verified';
                     } else {
                         $selectFields[] = 'NULL as ' . $column;
                     }
@@ -61,20 +61,6 @@ return new class extends Migration
             $selectFields[] = 'updated_at';
             $insertFields[] = 'created_at';
             $insertFields[] = 'updated_at';
-            
-            // Nếu không có is_verified, thêm default
-            if (!$columns['is_verified']) {
-                $selectFields = array_map(function($field) {
-                    return str_replace('NULL as is_verified', 'false as is_verified', $field);
-                }, $selectFields);
-            }
-            
-            // Nếu không có verified_at, thêm NULL
-            if (!$columns['verified_at']) {
-                $selectFields = array_map(function($field) {
-                    return str_replace('NULL as verified_at', 'NULL as verified_at', $field);
-                }, $selectFields);
-            }
             
             $sql = "
                 INSERT INTO user_profiles (" . implode(', ', $insertFields) . ")
@@ -88,12 +74,11 @@ return new class extends Migration
             
             DB::statement($sql);
         } else {
-            // Nếu không có cột profile nào, chỉ tạo profile rỗng với user_id
             DB::statement("
                 INSERT INTO user_profiles (user_id, is_verified, verified_at, created_at, updated_at)
                 SELECT 
                     id as user_id,
-                    false as is_verified,
+                    {$falseValue} as is_verified,
                     NULL as verified_at,
                     created_at,
                     updated_at
@@ -105,7 +90,6 @@ return new class extends Migration
         }
 
         // Migrate dữ liệu activities
-        // Kiểm tra các cột có tồn tại trong users không
         $activityColumns = [
             'last_login' => Schema::hasColumn('users', 'last_login'),
             'last_seen_at' => Schema::hasColumn('users', 'last_seen_at'),
@@ -121,7 +105,6 @@ return new class extends Migration
             $selectFields = ['id as user_id'];
             $insertFields = ['user_id'];
             
-            // last_login_at
             if ($activityColumns['last_login']) {
                 $selectFields[] = 'last_login as last_login_at';
             } else {
@@ -129,7 +112,6 @@ return new class extends Migration
             }
             $insertFields[] = 'last_login_at';
             
-            // last_seen_at
             if ($activityColumns['last_seen_at']) {
                 $selectFields[] = 'last_seen_at';
             } else {
@@ -137,7 +119,6 @@ return new class extends Migration
             }
             $insertFields[] = 'last_seen_at';
             
-            // online_status
             if ($activityColumns['online_status']) {
                 $selectFields[] = "COALESCE(online_status, 'offline') as online_status";
             } else {
@@ -145,15 +126,13 @@ return new class extends Migration
             }
             $insertFields[] = 'online_status';
             
-            // is_typing
             if ($activityColumns['is_typing']) {
-                $selectFields[] = 'COALESCE(is_typing, false) as is_typing';
+                $selectFields[] = "COALESCE(is_typing, {$falseValue}) as is_typing";
             } else {
-                $selectFields[] = 'false as is_typing';
+                $selectFields[] = "{$falseValue} as is_typing";
             }
             $insertFields[] = 'is_typing';
             
-            // typing_started_at
             if ($activityColumns['typing_started_at']) {
                 $selectFields[] = 'typing_started_at';
             } else {
@@ -161,7 +140,6 @@ return new class extends Migration
             }
             $insertFields[] = 'typing_started_at';
             
-            // last_activity_at
             if ($activityColumns['last_activity_at']) {
                 $selectFields[] = 'last_activity_at';
             } else {
@@ -186,13 +164,12 @@ return new class extends Migration
             
             DB::statement($sql);
         } else {
-            // Nếu không có cột activity nào, chỉ tạo activity rỗng với user_id
             DB::statement("
                 INSERT INTO user_activities (user_id, online_status, is_typing, created_at, updated_at)
                 SELECT 
                     id as user_id,
                     'offline' as online_status,
-                    false as is_typing,
+                    {$falseValue} as is_typing,
                     created_at,
                     updated_at
                 FROM users
@@ -209,7 +186,6 @@ return new class extends Migration
     public function down(): void
     {
         // Không thể rollback dễ dàng vì đã tách dữ liệu
-        // Cần merge lại thủ công nếu cần
     }
 };
 

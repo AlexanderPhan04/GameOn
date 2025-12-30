@@ -4,37 +4,39 @@
 
 @push('styles')
 <style>
+    /* Override body padding for chat page */
+    body:has(.chat-index-container) {
+        padding-top: 64px !important;
+        background: #000814 !important;
+    }
+    
+    /* Chat page container */
+    .chat-index-container {
+        background: #000814;
+        min-height: calc(100vh - 64px);
+    }
+    
+    .chat-index-container > .row {
+        min-height: calc(100vh - 64px);
+    }
+    
     /* Remove default main padding for chat page */
     body:has(.chat-index-container) main {
         padding: 0 !important;
+        background: #000814 !important;
     }
     
-    /* Alternative method if :has() not supported */
-    .chat-page main {
-        padding: 0 !important;
-    }
-    
-    /* Allow scrolling to see footer */
-    .chat-page {
-        height: auto;
-        min-height: 100vh;
-    }
-    
-    .chat-page main {
-        min-height: calc(100vh - 76px); /* navbar height */
-    }
-    
-    .chat-page .chat-index-container {
-        min-height: calc(100vh - 76px);
+    body:has(.chat-index-container) footer {
+        display: none !important;
     }
 </style>
 @endpush
 
 @section('content')
 <div class="chat-index-container">
-    <div class="row h-100 g-0">
+    <div class="row g-0" style="min-height: calc(100vh - 64px);">
         <!-- Modern Chat Sidebar -->
-        <div class="col-md-4 col-lg-3 chat-sidebar-modern h-100 p-0">
+        <div class="col-md-4 col-lg-3 chat-sidebar-modern p-0">
             <div class="d-flex flex-column h-100">
                 <!-- Gradient Header -->
                 <div class="chat-header-modern">
@@ -888,32 +890,39 @@
     66% { transform: translate(30px, -20px) rotate(-2deg); }
 }
 
-/* Modern Sidebar - Consistent with Header */
+/* Modern Sidebar - Gaming Theme */
 .chat-sidebar-modern {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(20px);
+    background: linear-gradient(180deg, #000814 0%, #000022 100%);
     border-radius: 0;
-    box-shadow: 0 0 60px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 0 60px rgba(0, 0, 0, 0.5);
     border: none;
-    border-right: 1px solid rgba(255, 255, 255, 0.2);
-    height: 100%;
-    position: sticky;
-    top: 0;
+    border-right: 1px solid rgba(0, 229, 255, 0.15);
+    min-height: calc(100vh - 64px);
+    height: auto;
+    position: relative;
     z-index: 10;
     overflow: hidden;
     display: flex;
     flex-direction: column;
 }
 
-/* Modern Header - Matching Navigation Style */
+/* Modern Header - Gaming Theme */
 .chat-header-modern {
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
+    background: linear-gradient(135deg, #0d1b2a 0%, #000022 100%);
     color: white;
-    padding: 2rem 1.5rem;
+    padding: 1.5rem;
     border-radius: 0;
     position: relative;
     overflow: hidden;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(0, 229, 255, 0.2);
+}
+
+.chat-header-modern::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #00E5FF, #8b5cf6, transparent);
 }
 
 .header-content {
@@ -922,11 +931,12 @@
 }
 
 .header-content h5 {
-    background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    font-family: 'Rajdhani', sans-serif;
+    color: #00E5FF;
     font-weight: 700;
+    font-size: 1.25rem;
+    -webkit-text-fill-color: #00E5FF;
+    text-shadow: 0 0 20px rgba(0, 229, 255, 0.3);
 }
 
 .header-content small {
@@ -942,63 +952,62 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(45deg, rgba(255, 255, 255, 0.1) 0%, transparent 100%);
+    background: linear-gradient(45deg, rgba(0, 229, 255, 0.05) 0%, transparent 100%);
     pointer-events: none;
 }
 
-/* Action Section - Consistent Styling */
+/* Action Section - Gaming Theme */
 .action-section {
-    padding: 2rem 1.5rem;
-    background: rgba(255, 255, 255, 0.95);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    padding: 1.5rem;
+    background: rgba(0, 0, 20, 0.5);
+    border-bottom: 1px solid rgba(0, 229, 255, 0.1);
 }
 
 .create-group-btn {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border: none;
-    border-radius: 15px;
-    padding: 1rem 1.5rem;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    border-radius: 12px;
+    padding: 0.875rem 1.25rem;
     color: white;
     font-weight: 600;
     display: flex;
     align-items: center;
     transition: all 0.3s ease;
-    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
 }
 
 .create-group-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 0 30px rgba(139, 92, 246, 0.5);
     color: white;
 }
 
-/* Search Container - Modern Design */
+/* Search Container - Gaming Theme */
 .search-container {
-    margin-top: 1.5rem;
+    margin-top: 1rem;
 }
 
 .search-input-wrapper {
     position: relative;
-    background: rgba(26, 26, 46, 0.05);
-    border-radius: 15px;
-    padding: 0.75rem;
-    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.05);
+    background: rgba(0, 0, 20, 0.6);
+    border-radius: 12px;
+    padding: 0.5rem;
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.3);
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    border: 2px solid transparent;
+    gap: 0.5rem;
+    border: 1px solid rgba(0, 229, 255, 0.2);
     transition: all 0.3s ease;
 }
 
 .search-input-wrapper:focus-within {
-    border-color: rgba(102, 126, 234, 0.3);
-    background: rgba(102, 126, 234, 0.05);
-    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+    border-color: #00E5FF;
+    box-shadow: 0 0 15px rgba(0, 229, 255, 0.2);
 }
 
 .search-icon {
     color: #64748b;
-    margin-left: 0.5rem;
+    margin-left: 0.75rem;
 }
 
 .search-input {
@@ -1006,79 +1015,97 @@
     background: transparent;
     flex: 1;
     padding: 0.5rem;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     outline: none;
-    color: #1e293b;
+    color: #FFFFFF;
 }
 
 .search-input::placeholder {
-    color: #94a3b8;
+    color: #64748b;
 }
 
 .search-btn {
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-    border: none;
-    border-radius: 12px;
-    width: 45px;
-    height: 45px;
+    background: linear-gradient(135deg, #000055 0%, #000077 100%);
+    border: 1px solid rgba(0, 229, 255, 0.3);
+    border-radius: 10px;
+    width: 40px;
+    height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
+    color: #00E5FF;
     transition: all 0.3s ease;
 }
 
 .search-btn:hover {
-    transform: scale(1.05);
-    box-shadow: 0 6px 20px rgba(26, 26, 46, 0.4);
+    background: rgba(0, 229, 255, 0.15);
+    box-shadow: 0 0 15px rgba(0, 229, 255, 0.3);
+    color: #FFFFFF;
 }
 
 .search-results {
-    background: white;
-    border-radius: 15px;
-    margin-top: 1rem;
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    background: #0d1b2a;
+    border: 1px solid rgba(0, 229, 255, 0.2);
+    border-radius: 12px;
+    margin-top: 0.75rem;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
     max-height: 300px;
     overflow-y: auto;
 }
 
-/* Conversations Container */
+.search-results .search-result-item {
+    background: transparent;
+    border-bottom: 1px solid rgba(0, 229, 255, 0.1);
+    color: #FFFFFF;
+    transition: all 0.3s ease;
+}
+
+.search-results .search-result-item:hover {
+    background: rgba(0, 229, 255, 0.1);
+}
+
+.search-results .search-result-item:last-child {
+    border-bottom: none;
+}
+
+/* Conversations Container - Gaming Theme */
 .conversations-container {
     flex: 1;
     display: flex;
     flex-direction: column;
-    background: white;
+    background: transparent;
     min-height: 0;
     overflow: hidden;
 }
 
 .conversations-header {
     padding: 1rem 1.5rem;
-    border-bottom: 1px solid #f1f5f9;
+    border-bottom: 1px solid rgba(0, 229, 255, 0.1);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    background: rgba(0, 0, 20, 0.3);
 }
 
 .section-title {
+    font-family: 'Rajdhani', sans-serif;
     font-weight: 600;
-    color: #1e293b;
-    font-size: 0.95rem;
+    color: #94a3b8;
+    font-size: 0.85rem;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.1em;
 }
 
 .conversation-count {
-    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-    color: white;
+    background: linear-gradient(135deg, #00E5FF 0%, #0099cc 100%);
+    color: #000814;
     padding: 0.25rem 0.75rem;
     border-radius: 15px;
-    font-size: 0.8rem;
-    font-weight: 600;
+    font-size: 0.75rem;
+    font-weight: 700;
 }
 
-/* Conversations List */
+/* Conversations List - Gaming Theme */
 .conversations-list {
     flex: 1;
     overflow-y: auto;
@@ -1090,79 +1117,80 @@
 }
 
 .conversations-list::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.05);
+    background: rgba(0, 229, 255, 0.05);
     border-radius: 10px;
 }
 
 .conversations-list::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    background: linear-gradient(135deg, #00E5FF, #0099cc);
     border-radius: 10px;
 }
 
-/* Conversation Items */
+/* Conversation Items - Gaming Theme */
 .conversation-item {
     display: flex;
     align-items: center;
-    padding: 1rem;
-    border-radius: 15px;
+    padding: 0.875rem;
+    border-radius: 12px;
     margin-bottom: 0.5rem;
     text-decoration: none;
-    color: inherit;
+    color: #FFFFFF;
     transition: all 0.3s ease;
     position: relative;
-    background: white;
-    border: 1px solid transparent;
+    background: rgba(0, 0, 20, 0.4);
+    border: 1px solid rgba(0, 229, 255, 0.1);
 }
 
 .conversation-item:hover {
-    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-    transform: translateX(5px);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-    color: inherit;
+    background: rgba(0, 229, 255, 0.1);
+    border-color: rgba(0, 229, 255, 0.3);
+    transform: translateX(3px);
+    box-shadow: 0 0 15px rgba(0, 229, 255, 0.1);
+    color: #FFFFFF;
     text-decoration: none;
 }
 
 .conversation-item.active {
-    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-    border-color: #3b82f6;
-    transform: translateX(5px);
-    box-shadow: 0 4px 20px rgba(59, 130, 246, 0.25);
+    background: rgba(0, 229, 255, 0.15);
+    border-color: #00E5FF;
+    box-shadow: 0 0 20px rgba(0, 229, 255, 0.2);
 }
 
 .conversation-avatar {
     position: relative;
-    margin-right: 1rem;
+    margin-right: 0.875rem;
 }
 
 .avatar-img {
-    width: 50px;
-    height: 50px;
-    border-radius: 15px;
-    border: 3px solid white;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    width: 45px;
+    height: 45px;
+    border-radius: 12px;
+    border: 2px solid rgba(0, 229, 255, 0.3);
+    box-shadow: 0 0 10px rgba(0, 229, 255, 0.1);
     transition: all 0.3s ease;
 }
 
 .conversation-item:hover .avatar-img {
-    transform: scale(1.05);
+    border-color: #00E5FF;
+    box-shadow: 0 0 15px rgba(0, 229, 255, 0.3);
 }
 
 .online-indicator {
     position: absolute;
-    bottom: 2px;
-    right: 2px;
+    bottom: 0;
+    right: 0;
     width: 12px;
     height: 12px;
-    background: #10b981;
-    border: 2px solid white;
+    background: #00E5FF;
+    border: 2px solid #000814;
     border-radius: 50%;
-    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
-    animation: pulse-green 2s infinite;
+    box-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
+    animation: pulse-cyan 2s infinite;
 }
 
-@keyframes pulse-green {
-    0%, 100% { box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2); }
-    50% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0.1); }
+@keyframes pulse-cyan {
+    0%, 100% { box-shadow: 0 0 5px rgba(0, 229, 255, 0.5); }
+    50% { box-shadow: 0 0 15px rgba(0, 229, 255, 0.8); }
 }
 
 .conversation-content {
@@ -1180,75 +1208,83 @@
 .conversation-name {
     margin: 0;
     font-weight: 600;
-    color: #1e293b;
-    font-size: 1rem;
+    color: #FFFFFF;
+    font-size: 0.95rem;
 }
 
 .conversation-time {
     color: #64748b;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     font-weight: 500;
 }
 
 .conversation-preview {
     margin: 0;
-    color: #64748b;
-    font-size: 0.85rem;
+    color: #94a3b8;
+    font-size: 0.8rem;
     line-height: 1.3;
     display: -webkit-box;
-    -webkit-line-clamp: 2;
+    -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
 
 .unread-badge {
-    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-    color: white;
-    padding: 0.25rem 0.5rem;
-    border-radius: 15px;
-    font-size: 0.75rem;
-    font-weight: 600;
+    background: linear-gradient(135deg, #00E5FF 0%, #0099cc 100%);
+    color: #000814;
+    padding: 0.2rem 0.5rem;
+    border-radius: 10px;
+    font-size: 0.7rem;
+    font-weight: 700;
     margin-left: 0.5rem;
-    min-width: 20px;
+    min-width: 18px;
     text-align: center;
-    animation: bounce 1s infinite;
+    box-shadow: 0 0 10px rgba(0, 229, 255, 0.4);
 }
 
-@keyframes bounce {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-}
-
-/* Empty State */
+/* Empty State - Gaming Theme */
 .empty-state {
     text-align: center;
-    padding: 3rem 2rem;
-    color: #64748b;
-}
-
-.empty-icon {
-    width: 80px;
-    height: 80px;
-    margin: 0 auto 1.5rem;
-    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-    border-radius: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2rem;
+    padding: 2.5rem 1.5rem;
     color: #94a3b8;
 }
 
+.empty-icon {
+    width: 70px;
+    height: 70px;
+    margin: 0 auto 1.25rem;
+    background: linear-gradient(135deg, rgba(0, 229, 255, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+    border: 1px solid rgba(0, 229, 255, 0.2);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    color: #00E5FF;
+}
+
 .empty-title {
-    color: #1e293b;
+    font-family: 'Rajdhani', sans-serif;
+    color: #FFFFFF;
     margin-bottom: 0.5rem;
     font-weight: 600;
+    font-size: 1rem;
 }
 
 .empty-description {
-    margin-bottom: 1.5rem;
-    font-size: 0.9rem;
-    line-height: 1.5;
+    margin-bottom: 1.25rem;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    color: #64748b;
+}
+
+.empty-state .btn-primary {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    border: none;
+    border-radius: 10px;
+    padding: 0.6rem 1rem;
+    font-size: 0.85rem;
+    box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
 }
 
 /* Sidebar Footer - Consistent with Main Footer */
@@ -1304,11 +1340,11 @@
     font-weight: 500;
 }
 
-/* Main Content Area - Consistent with Footer Design */
+/* Main Content Area - Gaming Theme */
 .main-content-area {
+    min-height: calc(100vh - 64px);
     height: 100%;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(20px);
+    background: linear-gradient(135deg, #000814 0%, #000022 50%, #0d1b2a 100%);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1318,45 +1354,45 @@
     margin-top: 0;
     box-shadow: none;
     border: none;
-    border-left: 1px solid rgba(0, 0, 0, 0.1);
+    border-left: 1px solid rgba(0, 229, 255, 0.1);
 }
 
 .welcome-container {
     text-align: center;
     z-index: 2;
     position: relative;
-    max-width: 600px;
-    padding: 3rem;
+    max-width: 500px;
+    padding: 2rem;
 }
 
 .welcome-icon {
-    margin-bottom: 3rem;
+    margin-bottom: 2rem;
 }
 
 .icon-wrapper {
-    width: 150px;
-    height: 150px;
+    width: 120px;
+    height: 120px;
     margin: 0 auto;
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
-    border-radius: 30px;
+    background: linear-gradient(135deg, #0d1b2a 0%, #000022 100%);
+    border: 2px solid rgba(0, 229, 255, 0.3);
+    border-radius: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 4rem;
-    color: white;
+    font-size: 3rem;
+    color: #00E5FF;
     position: relative;
-    box-shadow: 0 30px 80px rgba(26, 26, 46, 0.4);
-    border: 3px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 40px rgba(0, 229, 255, 0.2);
 }
 
 .icon-pulse {
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 150px;
-    height: 150px;
-    border: 3px solid #667eea;
-    border-radius: 30px;
+    width: 120px;
+    height: 120px;
+    border: 2px solid #00E5FF;
+    border-radius: 24px;
     transform: translate(-50%, -50%);
     animation: pulse-icon 3s infinite;
     opacity: 0.4;
@@ -1364,80 +1400,78 @@
 
 @keyframes pulse-icon {
     0% { transform: translate(-50%, -50%) scale(1); opacity: 0.4; }
-    100% { transform: translate(-50%, -50%) scale(1.3); opacity: 0; }
+    100% { transform: translate(-50%, -50%) scale(1.4); opacity: 0; }
 }
 
 .welcome-title {
-    color: #1a1a2e;
-    font-size: 3rem;
+    font-family: 'Rajdhani', sans-serif;
+    color: #00E5FF;
+    font-size: 2rem;
     font-weight: 700;
-    margin-bottom: 1.5rem;
-    background: linear-gradient(135deg, #1a1a2e 0%, #667eea 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    margin-bottom: 1rem;
+    text-shadow: 0 0 30px rgba(0, 229, 255, 0.3);
 }
 
 .welcome-description {
-    color: #64748b;
-    font-size: 1.2rem;
-    line-height: 1.6;
-    margin-bottom: 3rem;
+    color: #94a3b8;
+    font-size: 1rem;
+    line-height: 1.5;
+    margin-bottom: 2rem;
 }
 
-/* Action Buttons - Consistent with Header Style */
+/* Action Buttons - Gaming Theme */
 .welcome-actions {
     display: flex;
-    gap: 1.5rem;
+    gap: 1rem;
     justify-content: center;
     flex-wrap: wrap;
 }
 
 .action-btn {
-    padding: 1rem 2rem;
-    border-radius: 15px;
+    padding: 0.875rem 1.5rem;
+    border-radius: 12px;
     border: none;
     font-weight: 600;
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 0.5rem;
     transition: all 0.3s ease;
     text-decoration: none;
-    min-width: 180px;
+    min-width: 160px;
     justify-content: center;
-    font-size: 1rem;
+    font-size: 0.9rem;
+    cursor: pointer;
 }
 
 .action-btn.primary {
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
     color: white;
-    box-shadow: 0 8px 25px rgba(26, 26, 46, 0.3);
-    border: 2px solid transparent;
+    box-shadow: 0 0 25px rgba(139, 92, 246, 0.4);
+    border: 1px solid rgba(139, 92, 246, 0.3);
 }
 
 .action-btn.primary:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 15px 40px rgba(26, 26, 46, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 0 35px rgba(139, 92, 246, 0.5);
     color: white;
-    border-color: rgba(102, 126, 234, 0.3);
 }
 
 .action-btn.secondary {
-    background: rgba(255, 255, 255, 0.8);
-    color: #1a1a2e;
-    border: 2px solid rgba(26, 26, 46, 0.2);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    background: linear-gradient(135deg, #000055 0%, #000077 100%);
+    color: #00E5FF;
+    border: 1px solid rgba(0, 229, 255, 0.3);
+    box-shadow: 0 0 15px rgba(0, 229, 255, 0.1);
 }
 
 .action-btn.secondary:hover {
-    background: rgba(26, 26, 46, 0.05);
-    border-color: #667eea;
-    transform: translateY(-3px);
-    color: #1a1a2e;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    background: rgba(0, 229, 255, 0.15);
+    border-color: #00E5FF;
+    transform: translateY(-2px);
+    color: #FFFFFF;
+    box-shadow: 0 0 25px rgba(0, 229, 255, 0.3);
 }
 
-/* Background Animation - Consistent with Footer */
+/* Background Animation - Gaming Theme */
 .background-animation {
     position: absolute;
     top: 0;
@@ -1446,14 +1480,15 @@
     bottom: 0;
     overflow: hidden;
     pointer-events: none;
-    opacity: 0.6;
+    opacity: 0.4;
 }
 
 .floating-bubble {
     position: absolute;
-    background: linear-gradient(135deg, rgba(26, 26, 46, 0.1) 0%, rgba(102, 126, 234, 0.1) 100%);
+    background: linear-gradient(135deg, rgba(0, 229, 255, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+    border: 1px solid rgba(0, 229, 255, 0.1);
     border-radius: 50%;
-    animation: float 15s infinite linear;
+    animation: float 20s infinite linear;
     animation-delay: var(--delay);
     width: var(--size);
     height: var(--size);
@@ -1476,16 +1511,18 @@
     }
 }
 
-/* Modern Group Creation Modal Styles */
+/* Modern Group Creation Modal - Gaming Theme */
+.modal.fade:not(.show) {
+    display: none !important;
+}
+
 .modern-modal {
-    background: linear-gradient(135deg, rgba(26, 26, 46, 0.98) 0%, rgba(22, 33, 62, 0.98) 50%, rgba(15, 15, 35, 0.98) 100%);
-    border-radius: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    background: linear-gradient(135deg, #0d1b2a 0%, #000022 50%, #000814 100%);
+    border-radius: 16px;
+    border: 1px solid rgba(0, 229, 255, 0.2);
     box-shadow: 
-        0 25px 50px -12px rgba(0, 0, 0, 0.7),
-        0 0 0 1px rgba(255, 255, 255, 0.05),
+        0 25px 50px -12px rgba(0, 0, 0, 0.8),
+        0 0 40px rgba(0, 229, 255, 0.1),
         inset 0 1px 0 rgba(255, 255, 255, 0.1);
     overflow: hidden;
 }

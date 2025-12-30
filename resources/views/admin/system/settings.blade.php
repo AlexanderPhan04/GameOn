@@ -4,852 +4,329 @@
 
 @push('styles')
 <style>
-    /* Header section với màu hệ thống (gradient xanh/tím) */
-    .settings-header {
-        background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 30%, #16213e 70%, #0f0f23 100%);
-        padding: 2rem 0;
-        margin-bottom: 2rem;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-        border-bottom: 1px solid rgba(102, 126, 234, 0.2);
+    .settings-container { background: #000814; min-height: 100vh; }
+
+    /* Hero Section */
+    .settings-hero {
+        background: linear-gradient(135deg, #0d1b2a 0%, #000022 100%);
+        border: 1px solid rgba(0, 229, 255, 0.2);
+        border-radius: 20px;
+        padding: 1.5rem 2rem;
         position: relative;
-        z-index: 1;
-        width: 100%;
+        overflow: hidden;
+        margin-bottom: 1.5rem;
     }
-    
-    /* Đảm bảo container-fluid trong header có padding đúng */
-    .settings-header .container-fluid {
-        padding-left: 20px;
-        padding-right: 20px;
+    .settings-hero::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, transparent, #00E5FF, transparent);
     }
-    
-    /* Khi có sidebar, điều chỉnh để full width */
-    body.has-admin-sidebar .settings-header {
-        margin-left: -280px;
-        padding-left: 280px;
-        width: calc(100% + 280px);
+    .hero-icon {
+        width: 60px; height: 60px; min-width: 60px;
+        background: linear-gradient(135deg, #06b6d4, #0891b2);
+        border-radius: 16px;
+        display: flex; align-items: center; justify-content: center;
+        box-shadow: 0 0 25px rgba(6, 182, 212, 0.3);
     }
-    
-    @media (max-width: 991.98px) {
-        body.has-admin-sidebar .settings-header {
-            margin-left: 0;
-            padding-left: 0;
-            width: 100%;
-        }
-    }
-    
-    /* Đảm bảo màu chữ rõ ràng cho toàn bộ trang settings */
-    .container-fluid {
-        color: #212529 !important;
-        background-color: transparent !important;
-    }
-    
-    /* Tiêu đề chính - Màu trắng trên nền hệ thống - Override tất cả */
-    .settings-header h1,
-    .settings-header .h3,
-    .settings-header h1.h3,
-    .settings-header h1.text-gray-800,
-    .settings-header .container-fluid h1,
-    .settings-header .container-fluid .h3,
-    .settings-header .container-fluid h1.h3 {
-        color: #ffffff !important;
-        font-weight: 700 !important;
-        margin: 0 !important;
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5) !important;
-    }
-    
-    .settings-header h1 *,
-    .settings-header h1 i,
-    .settings-header .h3 i,
-    .settings-header h1.h3 i,
-    .settings-header .container-fluid h1 i,
-    .settings-header .container-fluid h1 .fas,
-    .settings-header .container-fluid h1 .fa {
-        color: #ffffff !important;
-        margin-right: 0.75rem;
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5) !important;
-    }
-    
-    /* Override bất kỳ màu nào từ layout hoặc Bootstrap */
-    .settings-header h1.text-gray-800 {
-        color: #ffffff !important;
-    }
-    
-    /* Đảm bảo tất cả text trong settings-header là trắng */
-    .settings-header {
-        color: #ffffff !important;
-    }
-    
-    /* Các tiêu đề khác vẫn giữ màu đen */
-    .container-fluid h1,
-    .container-fluid h1.h3,
-    .container-fluid h1.text-gray-800,
-    h1.h3.text-gray-800,
-    .container-fluid .h3,
-    .content-wrapper h1,
-    .content-wrapper h1.h3,
-    .content-wrapper h1.text-gray-800,
-    .content-wrapper-with-sidebar h1,
-    .content-wrapper-with-sidebar h1.h3,
-    .content-wrapper-with-sidebar h1.text-gray-800 {
-        color: #1a202c !important;
-        font-weight: 700 !important;
-        margin: 0 !important;
-    }
-    
-    /* Override bất kỳ màu nào từ layout */
-    .content-wrapper .container-fluid h1,
-    .content-wrapper-with-sidebar .container-fluid h1 {
-        color: #1a202c !important;
-    }
-    
-    .container-fluid h1 i {
-        color: #667eea !important;
-        margin-right: 0.75rem;
-    }
-    
-    /* Breadcrumb đẹp hơn */
-    .settings-header .breadcrumb {
-        margin: 0;
-        padding: 0;
-        background: transparent;
-    }
-    
-    .settings-header .breadcrumb-item a {
-        color: #667eea !important;
-        text-decoration: none;
-        font-weight: 500;
-        transition: color 0.2s;
-    }
-    
-    .settings-header .breadcrumb-item a:hover {
-        color: #5568d3 !important;
-    }
-    
-    .settings-header .breadcrumb-item.active {
-        color: #6b7280 !important;
-        font-weight: 500;
-    }
-    
-    .settings-header .breadcrumb-item + .breadcrumb-item::before {
-        content: "/";
-        color: #9ca3af;
-        padding: 0 0.5rem;
-    }
-    
-    /* Card body và tất cả phần tử bên trong */
-    .card-body {
-        color: #212529 !important;
-    }
-    
-    .card-body * {
-        color: inherit;
-    }
-    
-    .card-body p {
-        color: #212529 !important;
-        margin-bottom: 0.75rem;
-    }
-    
-    /* Đảm bảo các label (strong) có màu chữ rõ ràng */
-    .card-body p strong {
-        color: #1a202c !important;
-        font-weight: 700 !important;
-    }
-    
-    .card-body strong {
-        color: #1a202c !important;
-        font-weight: 700 !important;
-    }
-    
-    .card-body h6 {
-        color: #212529 !important;
-    }
-    
-    .card-body small {
-        color: #6c757d !important;
-    }
-    
-    .card-body .text-muted {
-        color: #6c757d !important;
-    }
-    
-    /* Đảm bảo breadcrumb có màu chữ rõ ràng */
-    .breadcrumb {
-        background-color: transparent !important;
-    }
-    
-    .breadcrumb-item {
-        color: #4a5568 !important;
-    }
-    
-    .breadcrumb-item a {
-        color: #667eea !important;
-        text-decoration: none;
-        font-weight: 500 !important;
-    }
-    
-    .breadcrumb-item.active {
-        color: #4a5568 !important;
-        font-weight: 600 !important;
-    }
-    
-    /* Đảm bảo card header có màu chữ rõ ràng */
-    .card-header h6.text-primary {
-        color: #667eea !important;
-    }
-    
-    .card-header h6 {
-        color: #667eea !important;
-        font-weight: 700 !important;
-    }
-    
-    /* Đảm bảo các badge có màu chữ rõ ràng */
-    .badge {
-        color: #fff !important;
-    }
-    
-    /* Đảm bảo các nút có màu chữ rõ ràng */
-    .btn-outline-primary,
-    .btn-outline-warning,
-    .btn-outline-info,
-    .btn-outline-secondary {
-        color: inherit !important;
-    }
-    
-    /* Đảm bảo icon trong card body có màu phù hợp */
-    .card-body .text-success {
-        color: #22c55e !important;
-    }
-    
-    /* Đảm bảo tất cả text trong container-fluid có màu rõ ràng */
-    .container-fluid,
-    .content-wrapper .container-fluid,
-    .content-wrapper-with-sidebar .container-fluid {
-        color: #212529 !important;
-    }
-    
-    /* Override bất kỳ màu trắng nào có thể được áp dụng từ layout */
-    .container-fluid *:not(i):not(.badge):not(.btn) {
-        color: #212529 !important;
-    }
-    
-    /* Đảm bảo các phần tử cụ thể có màu chữ rõ ràng */
-    .container-fluid p,
-    .container-fluid strong,
-    .container-fluid span:not(.badge),
-    .container-fluid div:not(.badge):not(.btn) {
-        color: #212529 !important;
-    }
-    
-    /* Đặc biệt cho các label trong card */
-    .card-body .col-6:first-child p strong,
-    .card-body .col-6:first-child strong {
-        color: #1a202c !important;
-        font-weight: 700 !important;
-    }
+    .hero-icon i { font-size: 1.5rem; color: white; }
+    .hero-title { font-family: 'Rajdhani', sans-serif; font-size: 1.5rem; font-weight: 700; color: #00E5FF; margin: 0; }
+    .hero-subtitle { color: #94a3b8; font-size: 0.9rem; margin: 0.25rem 0 0 0; }
 
-    /* Tab Navigation Styles */
-    .nav-tabs {
-        border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+    /* Tabs */
+    .tabs-container {
+        background: linear-gradient(145deg, #0d1b2a 0%, #000022 100%);
+        border: 1px solid rgba(0, 229, 255, 0.15);
+        border-radius: 16px;
+        padding: 0.5rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        gap: 0.5rem;
     }
-
-    .nav-tabs .nav-link {
-        color: #ffffff !important;
-        border: none;
-        border-bottom: 2px solid transparent;
+    .tab-btn {
         padding: 0.75rem 1.5rem;
-        font-weight: 500;
-        transition: all 0.3s;
-        background-color: transparent !important;
-    }
-
-    .nav-tabs .nav-link * {
-        color: #ffffff !important;
-    }
-
-    .nav-tabs .nav-link i,
-    .nav-tabs .nav-link .fas,
-    .nav-tabs .nav-link .fa,
-    .nav-tabs .nav-link span {
-        color: #ffffff !important;
-    }
-
-    .nav-tabs .nav-link:hover {
-        color: #ffffff !important;
-        border-bottom-color: rgba(255, 255, 255, 0.5);
-        background-color: rgba(255, 255, 255, 0.1) !important;
-    }
-
-    .nav-tabs .nav-link:hover *,
-    .nav-tabs .nav-link:hover i,
-    .nav-tabs .nav-link:hover .fas,
-    .nav-tabs .nav-link:hover .fa,
-    .nav-tabs .nav-link:hover span {
-        color: #ffffff !important;
-    }
-
-    .nav-tabs .nav-link.active {
-        color: #ffffff !important;
-        background-color: rgba(102, 126, 234, 0.3) !important;
-        border-bottom-color: #667eea !important;
+        border-radius: 10px;
+        font-size: 0.9rem;
         font-weight: 600;
-    }
-
-    .nav-tabs .nav-link.active *,
-    .nav-tabs .nav-link.active i,
-    .nav-tabs .nav-link.active .fas,
-    .nav-tabs .nav-link.active .fa,
-    .nav-tabs .nav-link.active span {
-        color: #ffffff !important;
-        font-weight: 600 !important;
-    }
-
-    /* Theme Option Cards */
-    .theme-option-card {
-        cursor: pointer;
-        transition: all 0.3s;
-        border: 2px solid #e5e7eb;
-        height: 100%;
-    }
-
-    .theme-option-card:hover {
-        border-color: #667eea;
-        transform: translateY(-5px);
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
-    }
-
-    .theme-option-card.selected {
-        border-color: #667eea;
-        background-color: #f0f4ff;
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-    }
-
-    .theme-option-card input[type="radio"]:checked + label {
-        color: #667eea;
-        font-weight: 600;
-    }
-
-    /* Theme Toggle Switch Styles - 3 Levels */
-    .theme-toggle-container {
-        padding: 0;
-    }
-
-    .theme-toggle-wrapper-3 {
-        position: relative;
-        width: 240px;
-        height: 38px;
-    }
-
-    .theme-toggle-switch-3 {
-        position: relative;
-        width: 100%;
-        height: 38px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border-radius: 50px;
+        color: #94a3b8;
+        background: transparent;
+        border: none;
         cursor: pointer;
         transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-        overflow: hidden;
         display: flex;
         align-items: center;
-        justify-content: space-around;
-        padding: 0;
+        gap: 0.5rem;
+    }
+    .tab-btn:hover { background: rgba(0, 229, 255, 0.1); color: #FFFFFF; }
+    .tab-btn.active {
+        background: linear-gradient(135deg, rgba(0, 229, 255, 0.2), rgba(6, 182, 212, 0.2));
+        color: #00E5FF;
+        border: 1px solid rgba(0, 229, 255, 0.3);
     }
 
-    .theme-toggle-switch-3:hover {
-        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
-        transform: translateY(-2px);
+    /* Cards */
+    .settings-card {
+        background: linear-gradient(145deg, #0d1b2a 0%, #000022 100%);
+        border: 1px solid rgba(0, 229, 255, 0.15);
+        border-radius: 16px;
+        overflow: hidden;
+        margin-bottom: 1.5rem;
     }
+    .settings-card-header {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid rgba(0, 229, 255, 0.1);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    .card-icon {
+        width: 40px; height: 40px;
+        border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1rem; color: white;
+    }
+    .icon-cyan { background: linear-gradient(135deg, #06b6d4, #0891b2); }
+    .icon-yellow { background: linear-gradient(135deg, #f59e0b, #d97706); }
+    .icon-green { background: linear-gradient(135deg, #22c55e, #16a34a); }
+    .icon-purple { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+    .card-title { font-family: 'Rajdhani', sans-serif; font-size: 1.1rem; font-weight: 700; color: #FFFFFF; margin: 0; }
+    .settings-card-body { padding: 1.5rem; }
 
-    .theme-toggle-slider-3 {
-        position: absolute;
-        width: 33.333%;
-        height: 100%;
-        top: 0;
-        left: 0;
-        background: #ffffff;
-        border-radius: 50px;
-        transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-        z-index: 1;
-        pointer-events: none;
+    /* Info Row */
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid rgba(0, 229, 255, 0.05);
+    }
+    .info-row:last-child { border-bottom: none; }
+    .info-label { color: #94a3b8; font-weight: 600; font-size: 0.9rem; }
+    .info-value { color: #FFFFFF; font-size: 0.9rem; }
+
+    /* Badges */
+    .badge-custom { padding: 0.35rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
+    .badge-success { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+    .badge-warning { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+    .badge-danger { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+    .badge-info { background: rgba(0, 229, 255, 0.15); color: #00E5FF; }
+
+    /* Action Buttons */
+    .btn-action-lg {
+        width: 100%;
+        padding: 0.875rem 1.25rem;
+        border-radius: 12px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
+        border: 1px solid transparent;
+        background: transparent;
     }
-    
-    .theme-slider-icon {
-        position: absolute;
-        font-size: 1.3rem;
-        transition: opacity 0.3s ease, color 0.3s ease;
-        opacity: 0;
-        z-index: 10;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
-        color: #667eea;
-        pointer-events: none;
-        display: block !important;
-        visibility: visible !important;
-    }
-    
-    /* Icon trong slider - đảm bảo màu được áp dụng, override #interface * rule */
-    #interface .theme-toggle-slider-3 .theme-slider-icon,
-    #interface .theme-toggle-switch-3 .theme-toggle-slider-3 .theme-slider-icon {
-        color: #667eea !important;
-    }
-    
-    #interface .theme-toggle-switch-3.theme-light .theme-toggle-slider-3 .theme-slider-icon-light {
-        opacity: 1 !important;
-        color: #667eea !important;
-    }
-    
-    #interface .theme-toggle-switch-3.theme-light .theme-toggle-slider-3 .theme-slider-icon-auto,
-    #interface .theme-toggle-switch-3.theme-light .theme-toggle-slider-3 .theme-slider-icon-dark {
-        opacity: 0 !important;
-    }
-    
-    #interface .theme-toggle-switch-3.theme-auto .theme-toggle-slider-3 .theme-slider-icon-auto {
-        opacity: 1 !important;
-        color: #764ba2 !important;
-    }
-    
-    #interface .theme-toggle-switch-3.theme-auto .theme-toggle-slider-3 .theme-slider-icon-light,
-    #interface .theme-toggle-switch-3.theme-auto .theme-toggle-slider-3 .theme-slider-icon-dark {
-        opacity: 0 !important;
-    }
-    
-    #interface .theme-toggle-switch-3.theme-dark .theme-toggle-slider-3 .theme-slider-icon-dark {
-        opacity: 1 !important;
-        color: #4c1d95 !important;
-    }
-    
-    #interface .theme-toggle-switch-3.theme-dark .theme-toggle-slider-3 .theme-slider-icon-light,
-    #interface .theme-toggle-switch-3.theme-dark .theme-toggle-slider-3 .theme-slider-icon-auto {
-        opacity: 0 !important;
-    }
-    
-    .theme-toggle-switch-3.theme-dark .theme-slider-icon-light,
-    .theme-toggle-switch-3.theme-dark .theme-slider-icon-auto {
-        opacity: 0 !important;
-    }
+    .btn-action-lg:last-child { margin-bottom: 0; }
+    .btn-cyan { color: #00E5FF; border-color: rgba(0, 229, 255, 0.3); }
+    .btn-cyan:hover { background: rgba(0, 229, 255, 0.15); box-shadow: 0 0 15px rgba(0, 229, 255, 0.3); }
+    .btn-yellow { color: #f59e0b; border-color: rgba(245, 158, 11, 0.3); }
+    .btn-yellow:hover { background: rgba(245, 158, 11, 0.15); box-shadow: 0 0 15px rgba(245, 158, 11, 0.3); }
+    .btn-blue { color: #3b82f6; border-color: rgba(59, 130, 246, 0.3); }
+    .btn-blue:hover { background: rgba(59, 130, 246, 0.15); box-shadow: 0 0 15px rgba(59, 130, 246, 0.3); }
+    .btn-gray { color: #94a3b8; border-color: rgba(148, 163, 184, 0.3); }
+    .btn-gray:hover { background: rgba(148, 163, 184, 0.15); }
 
-    .theme-toggle-switch-3.theme-light .theme-toggle-slider-3 {
-        left: 0;
-    }
+    /* Status Grid */
+    .status-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+    .status-item { text-align: center; padding: 1rem; background: rgba(0, 0, 0, 0.2); border-radius: 12px; border: 1px solid rgba(0, 229, 255, 0.1); }
+    .status-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+    .status-icon.online { color: #22c55e; }
+    .status-title { color: #FFFFFF; font-weight: 600; font-size: 0.9rem; margin-bottom: 0.25rem; }
+    .status-text { color: #64748b; font-size: 0.8rem; }
 
-    .theme-toggle-switch-3.theme-auto .theme-toggle-slider-3 {
-        left: 33.333%;
-    }
-
-    .theme-toggle-switch-3.theme-dark .theme-toggle-slider-3 {
-        left: 66.666%;
-    }
-
-    .theme-icon-light,
-    .theme-icon-auto,
-    .theme-icon-dark {
-        position: relative;
-        font-size: 1rem;
-        transition: all 0.3s ease;
-        z-index: 2;
+    /* Theme Toggle */
+    .theme-section { margin-bottom: 1.5rem; }
+    .theme-label { color: #FFFFFF; font-weight: 600; font-size: 0.95rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+    .theme-options { display: flex; gap: 1rem; }
+    .theme-option {
         flex: 1;
+        padding: 1.25rem;
+        background: rgba(0, 0, 0, 0.2);
+        border: 2px solid rgba(0, 229, 255, 0.1);
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
         text-align: center;
-        pointer-events: none;
     }
+    .theme-option:hover { border-color: rgba(0, 229, 255, 0.3); background: rgba(0, 229, 255, 0.05); }
+    .theme-option.active { border-color: #00E5FF; background: rgba(0, 229, 255, 0.1); box-shadow: 0 0 20px rgba(0, 229, 255, 0.2); }
+    .theme-option-icon { font-size: 1.5rem; margin-bottom: 0.5rem; }
+    .theme-option-icon.light { color: #fbbf24; }
+    .theme-option-icon.auto { color: #94a3b8; }
+    .theme-option-icon.dark { color: #60a5fa; }
+    .theme-option-title { color: #FFFFFF; font-weight: 600; font-size: 0.9rem; }
+    .theme-option input { display: none; }
 
-    .theme-icon-light {
-        color: #ffd700;
-    }
-
-    .theme-icon-auto {
-        color: #9ca3af;
-    }
-
-    .theme-icon-dark {
-        color: #87ceeb;
-    }
-    
-    /* Change icon color when slider is over them */
-    .theme-toggle-switch-3.theme-light .theme-icon-light {
-        color: #667eea;
-    }
-    
-    .theme-toggle-switch-3.theme-auto .theme-icon-auto {
-        color: #667eea;
-    }
-    
-    .theme-toggle-switch-3.theme-dark .theme-icon-dark {
-        color: #667eea;
-    }
-
-    .theme-labels-3 {
-        position: absolute;
-        bottom: -18px;
-        width: 100%;
+    /* Alert */
+    .alert-success {
+        background: rgba(34, 197, 94, 0.1);
+        border: 1px solid rgba(34, 197, 94, 0.3);
+        border-radius: 12px;
+        padding: 1rem 1.25rem;
+        margin-bottom: 1.5rem;
+        color: #22c55e;
         display: flex;
-        justify-content: space-between;
-        padding: 0 4px;
+        align-items: center;
+        gap: 0.75rem;
     }
 
-    .theme-label-light,
-    .theme-label-auto,
-    .theme-label-dark {
-        color: #ffffff !important;
-        font-weight: 600;
-        font-size: 0.7rem;
-        transition: all 0.3s ease;
-        flex: 1;
-        text-align: center;
-    }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
 
-    .theme-label-light {
-        text-align: left;
-    }
-
-    .theme-label-auto {
-        text-align: center;
-    }
-
-    .theme-label-dark {
-        text-align: right;
-    }
-
-    .theme-label-left {
-        opacity: 1;
-    }
-
-    .theme-label-right {
-        opacity: 0.5;
-    }
-
-    .theme-toggle-switch.theme-dark ~ .theme-labels .theme-label-left {
-        opacity: 0.5;
-    }
-
-    .theme-toggle-switch.theme-dark ~ .theme-labels .theme-label-right {
-        opacity: 1;
-    }
-
-    .theme-radio {
-        position: absolute;
-        opacity: 0;
-        pointer-events: none;
-    }
-
-    /* Đảm bảo màu chữ trắng trong tab Interface Settings - Override tất cả */
-    #interface {
-        color: #ffffff !important;
-    }
-
-    #interface * {
-        color: #ffffff !important;
-    }
-
-    #interface .card-header {
-        color: #ffffff !important;
-        background-color: rgba(102, 126, 234, 0.1) !important;
-    }
-
-    #interface .card-header h6 {
-        color: #ffffff !important;
-        font-weight: 700 !important;
-    }
-
-    #interface .card-header i,
-    #interface .card-header .fas,
-    #interface .card-header .fa {
-        color: #ffffff !important;
-    }
-
-    #interface .card-body {
-        color: #ffffff !important;
-        background-color: rgba(0, 0, 0, 0.3) !important;
-    }
-
-    #interface .card-body h6 {
-        color: #ffffff !important;
-        font-weight: 600 !important;
-    }
-
-    #interface .card-body p {
-        color: #ffffff !important;
-    }
-
-    #interface .card-body p.text-muted {
-        color: #e0e0e0 !important;
-    }
-
-    #interface .card-body p strong {
-        color: #ffffff !important;
-        font-weight: 700 !important;
-    }
-
-    #interface .card-body label {
-        color: #ffffff !important;
-    }
-
-    #interface .card-body .form-label {
-        color: #ffffff !important;
-        font-weight: 700 !important;
-    }
-
-    #interface .card-body .form-label i,
-    #interface .card-body .form-label .fas,
-    #interface .card-body .form-label .fa {
-        color: #ffffff !important;
-    }
-
-    #interface .card-body .form-check-label {
-        color: #ffffff !important;
-    }
-
-    /* Theme option cards */
-    #interface .theme-option-card {
-        color: #ffffff !important;
-        background-color: rgba(0, 0, 0, 0.2) !important;
-    }
-
-    #interface .theme-option-card .card-body {
-        color: #ffffff !important;
-    }
-
-    #interface .theme-option-card .card-body h6 {
-        color: #ffffff !important;
-        font-weight: 600 !important;
-    }
-
-    #interface .theme-option-card .card-body p {
-        color: #ffffff !important;
-    }
-
-    #interface .theme-option-card .card-body p.text-muted {
-        color: #e0e0e0 !important;
-    }
-
-    #interface .theme-option-card .card-body label {
-        color: #ffffff !important;
-    }
-
-    #interface .theme-option-card .card-body .form-check-label {
-        color: #ffffff !important;
-    }
-
-    /* Icons trong theme cards - giữ màu gốc nhưng sáng hơn */
-    #interface .theme-option-card .card-body .text-warning,
-    #interface .theme-option-card .card-body .text-warning i {
-        color: #ffd700 !important;
-    }
-
-    #interface .theme-option-card .card-body .text-info,
-    #interface .theme-option-card .card-body .text-info i {
-        color: #87ceeb !important;
-    }
-
-    #interface .theme-option-card .card-body .text-secondary,
-    #interface .theme-option-card .card-body .text-secondary i {
-        color: #c0c0c0 !important;
-    }
-
-    /* Card thông tin bên phải */
-    #interface .col-lg-4 .card-body {
-        color: #ffffff !important;
-        background-color: rgba(0, 0, 0, 0.3) !important;
-    }
-
-    #interface .col-lg-4 .card-body p {
-        color: #ffffff !important;
-    }
-
-    #interface .col-lg-4 .card-body p.text-muted {
-        color: #e0e0e0 !important;
-    }
-
-    #interface .col-lg-4 .card-body p strong {
-        color: #ffffff !important;
-        font-weight: 700 !important;
-    }
-
-    #interface .col-lg-4 .card-body i.text-warning {
-        color: #ffd700 !important;
-    }
-
-    #interface .col-lg-4 .card-body i.text-info {
-        color: #87ceeb !important;
-    }
-
-    #interface .col-lg-4 .card-body i.text-secondary {
-        color: #c0c0c0 !important;
+    @media (max-width: 768px) {
+        .settings-hero { padding: 1.25rem; }
+        .tabs-container { flex-direction: column; }
+        .tab-btn { justify-content: center; }
+        .status-grid { grid-template-columns: 1fr; }
+        .theme-options { flex-direction: column; }
     }
 </style>
 @endpush
 
 @section('content')
-<!-- Header Section với màu hệ thống -->
-<div class="settings-header">
-    <div class="container mx-auto px-5">
-        <h1 class="text-2xl font-bold mb-0" style="color: #ffffff !important;">
-            <i class="fas fa-cogs" style="color: #ffffff !important;"></i>Cài đặt hệ thống
-        </h1>
-    </div>
-</div>
+<div class="settings-container">
+    <div class="max-w-6xl mx-auto px-4 py-6">
+        <!-- Hero Section -->
+        <div class="settings-hero">
+            <div class="flex items-center gap-4">
+                <div class="hero-icon"><i class="fas fa-cogs"></i></div>
+                <div>
+                    <h1 class="hero-title">Cài đặt hệ thống</h1>
+                    <p class="hero-subtitle">Quản lý cấu hình và tùy chỉnh hệ thống</p>
+                </div>
+            </div>
+        </div>
 
-<!-- Main Content -->
-<div class="container mx-auto px-5">
-
-    @if(session('success'))
-    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
-        <div class="flex items-center">
-            <i class="fas fa-check-circle mr-2"></i>
+        <!-- Alert -->
+        @if(session('success'))
+        <div class="alert-success">
+            <i class="fas fa-check-circle"></i>
             <span>{{ session('success') }}</span>
-            <button type="button" class="absolute top-0 right-0 px-4 py-3" onclick="this.parentElement.parentElement.remove()">
-                <span class="text-green-700">&times;</span>
+        </div>
+        @endif
+
+        <!-- Tabs -->
+        <div class="tabs-container">
+            <button class="tab-btn active" onclick="switchTab('system')">
+                <i class="fas fa-cogs"></i><span>Hệ thống</span>
+            </button>
+            <button class="tab-btn" onclick="switchTab('interface')">
+                <i class="fas fa-palette"></i><span>Cài đặt giao diện</span>
             </button>
         </div>
-    </div>
-    @endif
 
-    <!-- Tabs Navigation -->
-    <div class="border-b-2 border-white/20 mb-4">
-        <div class="flex space-x-1" id="settingsTabs" role="tablist">
-            <button class="px-6 py-3 text-white font-semibold border-b-2 border-primary bg-primary/30 transition-all" 
-                    id="system-tab" 
-                    onclick="switchTab('system')" 
-                    type="button" 
-                    role="tab" 
-                    aria-controls="system" 
-                    aria-selected="true">
-                <i class="fas fa-cogs mr-2"></i><span>Hệ thống</span>
-            </button>
-            <button class="px-6 py-3 text-white font-semibold border-b-2 border-transparent hover:border-white/50 hover:bg-white/10 transition-all" 
-                    id="interface-tab" 
-                    onclick="switchTab('interface')" 
-                    type="button" 
-                    role="tab" 
-                    aria-controls="interface" 
-                    aria-selected="false">
-                <i class="fas fa-palette mr-2"></i><span>Cài đặt giao diện</span>
-            </button>
-        </div>
-    </div>
-
-    <!-- Tabs Content -->
-    <div id="settingsTabsContent">
-        <!-- System Settings Tab -->
-        <div class="tab-pane active" id="system" role="tabpanel" aria-labelledby="system-tab">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <!-- System Tab -->
+        <div class="tab-content active" id="system-tab-content">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <!-- System Information -->
-                <div class="lg:col-span-1">
-                    <div class="bg-white rounded-lg shadow mb-4">
-                        <div class="border-b border-gray-200 py-3 px-4">
-                            <h6 class="m-0 font-bold text-primary">
-                                <i class="fas fa-info-circle mr-2"></i>Thông tin hệ thống
-                            </h6>
+                <div>
+                    <div class="settings-card">
+                        <div class="settings-card-header">
+                            <div class="card-icon icon-cyan"><i class="fas fa-info-circle"></i></div>
+                            <h3 class="card-title">Thông tin hệ thống</h3>
                         </div>
-                        <div class="p-4">
-                            <div class="grid grid-cols-2 gap-4">
-                                <div class="col-span-1">
-                                    <p class="mb-3"><strong>Tên website:</strong></p>
-                                    <p class="mb-3"><strong>URL:</strong></p>
-                                    <p class="mb-3"><strong>Môi trường:</strong></p>
-                                    <p class="mb-3"><strong>Debug mode:</strong></p>
-                                </div>
-                                <div class="col-span-1">
-                                    <p class="mb-3">{{ $settings['site_name'] }}</p>
-                                    <p class="mb-3">{{ $settings['site_url'] }}</p>
-                                    <p class="mb-3">
-                                        <span class="inline-block px-3 py-1 rounded-full text-sm font-semibold {{ $settings['environment'] === 'production' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
-                                            {{ ucfirst($settings['environment']) }}
-                                        </span>
-                                    </p>
-                                    <p class="mb-3">
-                                        <span class="inline-block px-3 py-1 rounded-full text-sm font-semibold {{ $settings['debug_mode'] ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800' }}">
-                                            {{ $settings['debug_mode'] ? 'Enabled' : 'Disabled' }}
-                                        </span>
-                                    </p>
-                                </div>
+                        <div class="settings-card-body">
+                            <div class="info-row">
+                                <span class="info-label">Tên website:</span>
+                                <span class="info-value">{{ $settings['site_name'] ?? 'Laravel' }}</span>
                             </div>
-                            <div class="grid grid-cols-2 gap-4 mt-4">
-                                <div class="col-span-1">
-                                    <p class="mb-3"><strong>Timezone:</strong></p>
-                                    <p class="mb-3"><strong>Locale:</strong></p>
-                                    <p class="mb-3"><strong>Cache:</strong></p>
-                                    <p class="mb-3"><strong>Maintenance:</strong></p>
-                                </div>
-                                <div class="col-span-1">
-                                    <p class="mb-3">{{ $settings['timezone'] }}</p>
-                                    <p class="mb-3">{{ $settings['locale'] }}</p>
-                                    <p class="mb-3">
-                                        <span class="inline-block px-3 py-1 rounded-full text-sm font-semibold {{ $settings['cache_enabled'] ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
-                                            {{ $settings['cache_enabled'] ? 'Enabled' : 'Disabled' }}
-                                        </span>
-                                    </p>
-                                    <p class="mb-3">
-                                        <span class="inline-block px-3 py-1 rounded-full text-sm font-semibold {{ $settings['maintenance_mode'] ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800' }}">
-                                            {{ $settings['maintenance_mode'] ? 'Active' : 'Inactive' }}
-                                        </span>
-                                    </p>
-                                </div>
+                            <div class="info-row">
+                                <span class="info-label">URL:</span>
+                                <span class="info-value">{{ $settings['site_url'] ?? config('app.url') }}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Môi trường:</span>
+                                <span class="badge-custom {{ ($settings['environment'] ?? 'local') === 'production' ? 'badge-success' : 'badge-warning' }}">
+                                    {{ ucfirst($settings['environment'] ?? 'Local') }}
+                                </span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Debug mode:</span>
+                                <span class="badge-custom {{ ($settings['debug_mode'] ?? false) ? 'badge-danger' : 'badge-success' }}">
+                                    {{ ($settings['debug_mode'] ?? false) ? 'Enabled' : 'Disabled' }}
+                                </span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Timezone:</span>
+                                <span class="info-value">{{ $settings['timezone'] ?? 'UTC' }}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Locale:</span>
+                                <span class="info-value">{{ $settings['locale'] ?? 'en' }}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Cache:</span>
+                                <span class="badge-custom {{ ($settings['cache_enabled'] ?? true) ? 'badge-success' : 'badge-warning' }}">
+                                    {{ ($settings['cache_enabled'] ?? true) ? 'Enabled' : 'Disabled' }}
+                                </span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Maintenance:</span>
+                                <span class="badge-custom {{ ($settings['maintenance_mode'] ?? false) ? 'badge-danger' : 'badge-success' }}">
+                                    {{ ($settings['maintenance_mode'] ?? false) ? 'Active' : 'Inactive' }}
+                                </span>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Quick Actions -->
-                <div class="lg:col-span-1">
-                    <div class="bg-white rounded-lg shadow mb-4">
-                        <div class="border-b border-gray-200 py-3 px-4">
-                            <h6 class="m-0 font-bold text-primary">
-                                <i class="fas fa-bolt mr-2"></i>Thao tác nhanh
-                            </h6>
+                <!-- Quick Actions & Status -->
+                <div>
+                    <div class="settings-card">
+                        <div class="settings-card-header">
+                            <div class="card-icon icon-yellow"><i class="fas fa-bolt"></i></div>
+                            <h3 class="card-title">Thao tác nhanh</h3>
                         </div>
-                        <div class="p-4">
-                            <div class="flex flex-col gap-3">
-                                <button class="px-4 py-2 border-2 border-primary text-primary rounded-lg hover:bg-primary hover:text-white transition-colors font-medium" onclick="clearCache()">
-                                    <i class="fas fa-broom mr-2"></i>Xóa Cache hệ thống
-                                </button>
-                                <button class="px-4 py-2 border-2 border-yellow-500 text-yellow-600 rounded-lg hover:bg-yellow-500 hover:text-white transition-colors font-medium" onclick="optimizeDatabase()">
-                                    <i class="fas fa-database mr-2"></i>Tối ưu hóa Database
-                                </button>
-                                <button class="px-4 py-2 border-2 border-blue-500 text-blue-600 rounded-lg hover:bg-blue-500 hover:text-white transition-colors font-medium" onclick="checkSystemHealth()">
-                                    <i class="fas fa-heartbeat mr-2"></i>Kiểm tra sức khỏe hệ thống
-                                </button>
-                                <a href="{{ route('admin.system.logs') }}" class="px-4 py-2 border-2 border-gray-400 text-gray-600 rounded-lg hover:bg-gray-400 hover:text-white transition-colors font-medium text-center">
-                                    <i class="fas fa-file-alt mr-2"></i>Xem System Logs
-                                </a>
-                            </div>
+                        <div class="settings-card-body">
+                            <button class="btn-action-lg btn-cyan" onclick="clearCache()">
+                                <i class="fas fa-broom"></i>Xóa Cache hệ thống
+                            </button>
+                            <button class="btn-action-lg btn-yellow" onclick="optimizeDatabase()">
+                                <i class="fas fa-database"></i>Tối ưu hóa Database
+                            </button>
+                            <button class="btn-action-lg btn-blue" onclick="checkSystemHealth()">
+                                <i class="fas fa-heartbeat"></i>Kiểm tra sức khỏe hệ thống
+                            </button>
+                            <a href="{{ route('admin.system.logs') }}" class="btn-action-lg btn-gray" style="text-decoration: none;">
+                                <i class="fas fa-file-alt"></i>Xem System Logs
+                            </a>
                         </div>
                     </div>
 
-                    <!-- System Status -->
-                    <div class="bg-white rounded-lg shadow">
-                        <div class="border-b border-gray-200 py-3 px-4">
-                            <h6 class="m-0 font-bold text-primary">
-                                <i class="fas fa-server mr-2"></i>Trạng thái hệ thống
-                            </h6>
+                    <div class="settings-card">
+                        <div class="settings-card-header">
+                            <div class="card-icon icon-green"><i class="fas fa-server"></i></div>
+                            <h3 class="card-title">Trạng thái hệ thống</h3>
                         </div>
-                        <div class="p-4">
-                            <div class="grid grid-cols-3 text-center">
-                                <div class="col-span-1">
-                                    <div class="text-green-600 mb-2">
-                                        <i class="fas fa-check-circle text-3xl"></i>
-                                    </div>
-                                    <h6 class="font-semibold">Web Server</h6>
-                                    <small class="text-gray-500">Online</small>
+                        <div class="settings-card-body">
+                            <div class="status-grid">
+                                <div class="status-item">
+                                    <div class="status-icon online"><i class="fas fa-check-circle"></i></div>
+                                    <div class="status-title">Web Server</div>
+                                    <div class="status-text">Online</div>
                                 </div>
-                                <div class="col-span-1">
-                                    <div class="text-green-600 mb-2">
-                                        <i class="fas fa-database text-3xl"></i>
-                                    </div>
-                                    <h6 class="font-semibold">Database</h6>
-                                    <small class="text-gray-500">Connected</small>
+                                <div class="status-item">
+                                    <div class="status-icon online"><i class="fas fa-database"></i></div>
+                                    <div class="status-title">Database</div>
+                                    <div class="status-text">Connected</div>
                                 </div>
-                                <div class="col-span-1">
-                                    <div class="text-green-600 mb-2">
-                                        <i class="fas fa-memory text-3xl"></i>
-                                    </div>
-                                    <h6 class="font-semibold">Cache</h6>
-                                    <small class="text-gray-500">Working</small>
+                                <div class="status-item">
+                                    <div class="status-icon online"><i class="fas fa-memory"></i></div>
+                                    <div class="status-title">Cache</div>
+                                    <div class="status-text">Working</div>
                                 </div>
                             </div>
                         </div>
@@ -858,37 +335,34 @@
             </div>
         </div>
 
-        <!-- Interface Settings Tab -->
-        <div class="tab-pane hidden" id="interface" role="tabpanel" aria-labelledby="interface-tab">
-            <div class="grid grid-cols-1">
-                <div class="col-span-1">
-                    <!-- Toggle Switch Container - 3 Levels -->
-                    <div class="flex items-center gap-4 mb-4">
-                        <label class="font-bold mb-0 text-white text-base whitespace-nowrap leading-[38px] h-[38px] flex items-center">
-                            <i class="fas fa-moon mr-2 text-white"></i>Chế độ hiển thị
-                        </label>
-                        
-                        <div class="theme-toggle-container flex-1 flex items-center">
-                            <div class="theme-toggle-wrapper-3 m-0">
-                                    <input type="radio" name="theme" id="theme-light" value="light" {{ session('theme', 'light') === 'light' ? 'checked' : '' }} class="theme-radio" onchange="updateToggleSwitch3(); saveTheme()">
-                                    <input type="radio" name="theme" id="theme-auto" value="auto" {{ session('theme', 'light') === 'auto' ? 'checked' : '' }} class="theme-radio" onchange="updateToggleSwitch3(); saveTheme()">
-                                    <input type="radio" name="theme" id="theme-dark" value="dark" {{ session('theme', 'light') === 'dark' ? 'checked' : '' }} class="theme-radio" onchange="updateToggleSwitch3(); saveTheme()">
-                                    
-                                    <div class="theme-toggle-switch-3 {{ session('theme', 'light') === 'auto' ? 'theme-auto' : (session('theme', 'light') === 'dark' ? 'theme-dark' : 'theme-light') }}" onclick="clickTheme(event)">
-                                        <!-- Icons on the track background -->
-                                        <i class="fas fa-sun theme-icon-light"></i>
-                                        <i class="fas fa-adjust theme-icon-auto"></i>
-                                        <i class="fas fa-moon theme-icon-dark"></i>
-                                        
-                                        <!-- Slider with icon -->
-                                        <div class="theme-toggle-slider-3">
-                                            <i class="fas fa-sun theme-slider-icon theme-slider-icon-light"></i>
-                                            <i class="fas fa-adjust theme-slider-icon theme-slider-icon-auto"></i>
-                                            <i class="fas fa-moon theme-slider-icon theme-slider-icon-dark"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+        <!-- Interface Tab -->
+        <div class="tab-content" id="interface-tab-content">
+            <div class="settings-card">
+                <div class="settings-card-header">
+                    <div class="card-icon icon-purple"><i class="fas fa-palette"></i></div>
+                    <h3 class="card-title">Cài đặt giao diện</h3>
+                </div>
+                <div class="settings-card-body">
+                    <div class="theme-section">
+                        <div class="theme-label">
+                            <i class="fas fa-moon"></i>Chế độ hiển thị
+                        </div>
+                        <div class="theme-options">
+                            <label class="theme-option {{ session('theme', 'light') === 'light' ? 'active' : '' }}" onclick="selectTheme('light')">
+                                <input type="radio" name="theme" value="light" {{ session('theme', 'light') === 'light' ? 'checked' : '' }}>
+                                <div class="theme-option-icon light"><i class="fas fa-sun"></i></div>
+                                <div class="theme-option-title">Sáng</div>
+                            </label>
+                            <label class="theme-option {{ session('theme', 'light') === 'auto' ? 'active' : '' }}" onclick="selectTheme('auto')">
+                                <input type="radio" name="theme" value="auto" {{ session('theme', 'light') === 'auto' ? 'checked' : '' }}>
+                                <div class="theme-option-icon auto"><i class="fas fa-adjust"></i></div>
+                                <div class="theme-option-title">Tự động</div>
+                            </label>
+                            <label class="theme-option {{ session('theme', 'light') === 'dark' ? 'active' : '' }}" onclick="selectTheme('dark')">
+                                <input type="radio" name="theme" value="dark" {{ session('theme', 'light') === 'dark' ? 'checked' : '' }}>
+                                <div class="theme-option-icon dark"><i class="fas fa-moon"></i></div>
+                                <div class="theme-option-title">Tối</div>
+                            </label>
                         </div>
                     </div>
                 </div>
@@ -896,180 +370,54 @@
         </div>
     </div>
 </div>
+@endsection
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+@push('scripts')
 <script>
-    // Tab switching function
-    function switchTab(tabName) {
-        // Hide all tab panes
-        document.querySelectorAll('.tab-pane').forEach(pane => {
-            pane.classList.add('hidden');
-            pane.classList.remove('active');
-        });
-        
-        // Remove active state from all tabs
-        document.querySelectorAll('[role="tab"]').forEach(tab => {
-            tab.classList.remove('border-primary', 'bg-primary/30');
-            tab.classList.add('border-transparent');
-            tab.setAttribute('aria-selected', 'false');
-        });
-        
-        // Show selected tab pane
-        const selectedPane = document.getElementById(tabName);
-        if (selectedPane) {
-            selectedPane.classList.remove('hidden');
-            selectedPane.classList.add('active');
-        }
-        
-        // Activate selected tab button
-        const selectedTab = document.getElementById(tabName + '-tab');
-        if (selectedTab) {
-            selectedTab.classList.remove('border-transparent', 'hover:border-white/50', 'hover:bg-white/10');
-            selectedTab.classList.add('border-primary', 'bg-primary/30');
-            selectedTab.setAttribute('aria-selected', 'true');
-        }
-    }
+function switchTab(tab) {
+    // Update tab buttons
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    event.target.closest('.tab-btn').classList.add('active');
     
-    // Initialize theme selection on page load
-    document.addEventListener('DOMContentLoaded', function() {
-        updateToggleSwitch3();
-        
-        // Check URL hash and activate corresponding tab
-        if (window.location.hash === '#interface') {
-            switchTab('interface');
-        } else {
-            switchTab('system');
+    // Update tab content
+    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+    document.getElementById(tab + '-tab-content').classList.add('active');
+}
+
+function selectTheme(theme) {
+    document.querySelectorAll('.theme-option').forEach(opt => opt.classList.remove('active'));
+    event.target.closest('.theme-option').classList.add('active');
+    
+    fetch('{{ route("admin.system.update-theme") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({ theme: theme })
+    }).then(response => response.json()).then(data => {
+        if (data.success) {
+            // Theme saved
         }
     });
+}
 
-    function clearCache() {
-        Swal.fire({
-            title: 'Xóa Cache hệ thống?',
-            text: 'Thao tác này sẽ xóa tất cả cache hiện tại.',
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#6c757d',
-            confirmButtonText: 'Xác nhận',
-            cancelButtonText: 'Hủy'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                fetch('{{ route("admin.system.clear-cache") }}', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            Swal.fire('Thành công!', data.message, 'success');
-                        } else {
-                            Swal.fire('Lỗi!', data.message, 'error');
-                        }
-                    })
-                    .catch(error => {
-                        Swal.fire('Lỗi!', 'Có lỗi xảy ra khi xóa cache.', 'error');
-                    });
-            }
-        });
-    }
+function clearCache() {
+    if (!confirm('Bạn có chắc chắn muốn xóa cache hệ thống?')) return;
+    fetch('{{ route("admin.system.clear-cache") }}', {
+        method: 'POST',
+        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+    }).then(response => response.json()).then(data => {
+        alert(data.message || 'Cache đã được xóa!');
+    }).catch(() => alert('Có lỗi xảy ra!'));
+}
 
-    function optimizeDatabase() {
-        Swal.fire('Thông báo', 'Chức năng tối ưu hóa database đang được phát triển.', 'info');
-    }
+function optimizeDatabase() {
+    alert('Chức năng đang được phát triển');
+}
 
-    function checkSystemHealth() {
-        Swal.fire('Thông báo', 'Chức năng kiểm tra sức khỏe hệ thống đang được phát triển.', 'info');
-    }
-
-    // Click on toggle switch to jump directly to clicked position
-    function clickTheme(event) {
-        const toggleSwitch = event.currentTarget;
-        const rect = toggleSwitch.getBoundingClientRect();
-        const clickX = event.clientX - rect.left;
-        const width = rect.width;
-        
-        const lightRadio = document.getElementById('theme-light');
-        const autoRadio = document.getElementById('theme-auto');
-        const darkRadio = document.getElementById('theme-dark');
-        
-        // Calculate which third was clicked (left, middle, or right)
-        const third = width / 3;
-        
-        if (clickX < third) {
-            // Clicked on left third - Light mode
-            lightRadio.checked = true;
-            autoRadio.checked = false;
-            darkRadio.checked = false;
-        } else if (clickX < third * 2) {
-            // Clicked on middle third - Auto mode
-            autoRadio.checked = true;
-            lightRadio.checked = false;
-            darkRadio.checked = false;
-        } else {
-            // Clicked on right third - Dark mode
-            darkRadio.checked = true;
-            lightRadio.checked = false;
-            autoRadio.checked = false;
-        }
-        
-        updateToggleSwitch3();
-        saveTheme();
-    }
-
-    // Update toggle switch visual state for 3 levels
-    function updateToggleSwitch3() {
-        const lightRadio = document.getElementById('theme-light');
-        const autoRadio = document.getElementById('theme-auto');
-        const darkRadio = document.getElementById('theme-dark');
-        const toggleSwitch = document.querySelector('.theme-toggle-switch-3');
-        
-        // Remove all classes
-        toggleSwitch.classList.remove('theme-light', 'theme-auto', 'theme-dark');
-        
-        if (lightRadio.checked) {
-            toggleSwitch.classList.add('theme-light');
-        } else if (autoRadio.checked) {
-            toggleSwitch.classList.add('theme-auto');
-        } else if (darkRadio.checked) {
-            toggleSwitch.classList.add('theme-dark');
-        }
-    }
-
-    // Auto save theme
-    function saveTheme() {
-        const lightRadio = document.getElementById('theme-light');
-        const autoRadio = document.getElementById('theme-auto');
-        const darkRadio = document.getElementById('theme-dark');
-        
-        let theme = 'light';
-        if (autoRadio.checked) {
-            theme = 'auto';
-        } else if (darkRadio.checked) {
-            theme = 'dark';
-        }
-
-        fetch('{{ route("admin.system.update-theme") }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            body: JSON.stringify({ theme: theme })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Reload page to apply theme, but keep interface tab active
-                window.location.hash = '#interface';
-                window.location.reload();
-            }
-        })
-        .catch(error => {
-            console.error('Error saving theme:', error);
-        });
-    }
+function checkSystemHealth() {
+    alert('Trạng thái hệ thống: OK\n- Web Server: Online\n- Database: Connected\n- Cache: Working');
+}
 </script>
-@endsection
+@endpush

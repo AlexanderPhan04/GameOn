@@ -2482,21 +2482,29 @@
                 </div>
                 <div class="language-switcher-sidebar">
                     <div class="relative">
-                        <button class="w-full px-3 py-1.5 text-sm border border-white/30 rounded text-white/90 hover:bg-white/10 hover:border-white/50 transition-all flex items-center justify-center gap-2" type="button" id="sidebarLanguageToggle" title="{{ strtoupper(app()->getLocale()) }}">
-                            <i class="fas fa-globe mr-2"></i><span>{{ strtoupper(app()->getLocale()) }}</span>
+                        <button class="w-full px-3 py-2 text-sm border border-[rgba(0,229,255,0.3)] rounded-lg text-white/90 hover:bg-[rgba(0,229,255,0.1)] hover:border-[#00E5FF] transition-all flex items-center justify-center gap-2" type="button" id="sidebarLanguageToggle" title="{{ strtoupper(app()->getLocale()) }}">
+                            <i class="fas fa-globe text-[#00E5FF]"></i>
+                            <span>{{ strtoupper(app()->getLocale()) }}</span>
+                            <i class="fas fa-chevron-up text-xs ml-auto opacity-60"></i>
                         </button>
-                        <ul class="absolute bottom-full left-0 right-0 mb-2 hidden bg-[#0d1b2a] border border-[rgba(0,229,255,0.2)] rounded-lg py-2 shadow-lg" id="sidebarLanguageMenu">
-                            <li class="list-none">
-                                <a class="language-switch flex items-center gap-2 px-4 py-2 text-white no-underline hover:bg-[rgba(0,229,255,0.15)] transition-all" href="#" data-locale="en">
-                                    <i class="fas fa-flag-usa mr-2 text-[#00E5FF]"></i>English
+                        <div class="absolute bottom-full left-0 right-0 mb-2 hidden z-50" id="sidebarLanguageMenu">
+                            <div class="bg-[#0d1b2a] border border-[rgba(0,229,255,0.3)] rounded-lg overflow-hidden" style="box-shadow: 0 -10px 40px rgba(0,0,0,0.5), 0 0 15px rgba(0,229,255,0.1);">
+                                <a class="language-switch flex items-center gap-3 px-4 py-3 text-white no-underline hover:bg-[rgba(0,229,255,0.15)] transition-all {{ app()->getLocale() === 'en' ? 'bg-[rgba(0,229,255,0.1)] text-[#00E5FF]' : '' }}" href="#" data-locale="en">
+                                    <span class="w-7 h-5 rounded overflow-hidden flex items-center justify-center bg-white text-[10px] font-bold text-blue-600">EN</span>
+                                    <span class="flex-1 text-sm font-medium">English</span>
+                                    @if(app()->getLocale() === 'en')
+                                        <i class="fas fa-check text-[#00E5FF] text-sm"></i>
+                                    @endif
                                 </a>
-                            </li>
-                            <li class="list-none">
-                                <a class="language-switch flex items-center gap-2 px-4 py-2 text-white no-underline hover:bg-[rgba(0,229,255,0.15)] transition-all" href="#" data-locale="vi">
-                                    <i class="fas fa-flag mr-2 text-[#00E5FF]"></i>Tiếng Việt
+                                <a class="language-switch flex items-center gap-3 px-4 py-3 text-white no-underline hover:bg-[rgba(0,229,255,0.15)] transition-all {{ app()->getLocale() === 'vi' ? 'bg-[rgba(0,229,255,0.1)] text-[#00E5FF]' : '' }}" href="#" data-locale="vi">
+                                    <span class="w-7 h-5 rounded overflow-hidden flex items-center justify-center bg-red-600 text-[10px] font-bold text-yellow-300">VI</span>
+                                    <span class="flex-1 text-sm font-medium">Tiếng Việt</span>
+                                    @if(app()->getLocale() === 'vi')
+                                        <i class="fas fa-check text-[#00E5FF] text-sm"></i>
+                                    @endif
                                 </a>
-                            </li>
-                        </ul>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -2585,29 +2593,28 @@
                 <div class="gameon-user-menu">
                     <!-- Language Dropdown -->
                     <div class="relative" id="languageDropdown">
-                        <button type="button" class="gameon-nav-link" id="languageDropdownToggle" aria-expanded="false" aria-haspopup="true" title="{{ strtoupper(app()->getLocale()) }}" style="border: none; background: none; cursor: pointer; text-decoration: none; padding: 0.5rem 1rem;">
+                        <button type="button" class="gameon-nav-link flex items-center gap-2" id="languageDropdownToggle" aria-expanded="false" aria-haspopup="true" title="{{ strtoupper(app()->getLocale()) }}" style="border: none; background: none; cursor: pointer; text-decoration: none; padding: 0.5rem 1rem;">
                             <i class="fas fa-globe"></i>
+                            <span class="text-sm">{{ strtoupper(app()->getLocale()) }}</span>
                         </button>
-                        <ul class="absolute right-0 top-full mt-1 hidden bg-[#0d1b2a] border border-[rgba(0,229,255,0.2)] rounded-lg py-2 min-w-[180px] z-[10000] shadow-lg" id="languageDropdownMenu" aria-labelledby="languageDropdownToggle">
-                            <li class="list-none">
-                                <a class="language-switch flex items-center gap-3 px-5 py-3 text-white no-underline transition-all hover:bg-[rgba(0,229,255,0.15)] hover:text-[#00E5FF]" href="#" data-locale="en">
-                                    <i class="fas fa-flag-usa text-[#00E5FF]"></i>
-                                    <span>English</span>
+                        <div class="absolute right-0 top-full mt-2 hidden z-[10000]" id="languageDropdownMenu" aria-labelledby="languageDropdownToggle" style="min-width: 150px;">
+                            <div class="bg-[#0d1b2a] border border-[rgba(0,229,255,0.3)] rounded-lg overflow-hidden" style="box-shadow: 0 10px 40px rgba(0,0,0,0.5), 0 0 15px rgba(0,229,255,0.1);">
+                                <a class="language-switch flex items-center gap-3 px-4 py-3 text-white no-underline transition-all hover:bg-[rgba(0,229,255,0.15)] {{ app()->getLocale() === 'en' ? 'bg-[rgba(0,229,255,0.1)] text-[#00E5FF]' : '' }}" href="#" data-locale="en">
+                                    <span class="w-7 h-5 rounded overflow-hidden flex items-center justify-center bg-white text-[10px] font-bold text-blue-600">EN</span>
+                                    <span class="flex-1 text-sm font-medium">English</span>
                                     @if(app()->getLocale() === 'en')
-                                        <i class="fas fa-check ml-auto text-[#00E5FF]"></i>
+                                        <i class="fas fa-check text-[#00E5FF] text-sm"></i>
                                     @endif
                                 </a>
-                            </li>
-                            <li class="list-none">
-                                <a class="language-switch flex items-center gap-3 px-5 py-3 text-white no-underline transition-all hover:bg-[rgba(0,229,255,0.15)] hover:text-[#00E5FF]" href="#" data-locale="vi">
-                                    <i class="fas fa-flag text-[#00E5FF]"></i>
-                                    <span>Tiếng Việt</span>
+                                <a class="language-switch flex items-center gap-3 px-4 py-3 text-white no-underline transition-all hover:bg-[rgba(0,229,255,0.15)] {{ app()->getLocale() === 'vi' ? 'bg-[rgba(0,229,255,0.1)] text-[#00E5FF]' : '' }}" href="#" data-locale="vi">
+                                    <span class="w-7 h-5 rounded overflow-hidden flex items-center justify-center bg-red-600 text-[10px] font-bold text-yellow-300">VI</span>
+                                    <span class="flex-1 text-sm font-medium">Tiếng Việt</span>
                                     @if(app()->getLocale() === 'vi')
-                                        <i class="fas fa-check ml-auto text-[#00E5FF]"></i>
+                                        <i class="fas fa-check text-[#00E5FF] text-sm"></i>
                                     @endif
                                 </a>
-                            </li>
-                        </ul>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Search -->

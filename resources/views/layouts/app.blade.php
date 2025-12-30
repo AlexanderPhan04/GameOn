@@ -728,6 +728,12 @@
             gap: 0.5rem;
         }
 
+        /* Language Dropdown Styles - using Tailwind, minimal custom CSS */
+        #languageDropdownMenu.show,
+        #languageDropdownMobileMenu.show {
+            display: block !important;
+        }
+
         .gameon-user-avatar {
             width: 36px;
             height: 36px;
@@ -1144,15 +1150,9 @@
             padding-top: 64px;
         }
 
-        /* Mobile menu */
+        /* Mobile menu - using Tailwind classes */
         #mobileNav {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease;
-        }
-
-        #mobileNav.show {
-            max-height: 500px;
+            transition: all 0.3s ease;
         }
         
         /* Remove padding-top on welcome page */
@@ -1309,12 +1309,8 @@
             padding: 1rem 0.5rem;
         }
 
-        /* Ẩn text và arrow trong language switcher khi collapsed */
-        .admin-sidebar.collapsed .language-switcher-sidebar .dropdown-toggle::after {
-            display: none;
-        }
-
-        .admin-sidebar.collapsed .language-switcher-sidebar .btn {
+        /* Ẩn text trong language switcher khi collapsed */
+        .admin-sidebar.collapsed .language-switcher-sidebar button {
             padding: 0.5rem !important;
             width: 40px !important;
             height: 40px !important;
@@ -1324,33 +1320,27 @@
             border-radius: 50% !important;
         }
 
-        .admin-sidebar.collapsed .language-switcher-sidebar .btn span,
-        .admin-sidebar.collapsed .language-switcher-sidebar .btn-text {
+        .admin-sidebar.collapsed .language-switcher-sidebar button span {
             display: none;
         }
 
-        .admin-sidebar.collapsed .language-switcher-sidebar .btn i {
+        .admin-sidebar.collapsed .language-switcher-sidebar button i {
             margin: 0 !important;
         }
 
         /* Hiện lại khi hover */
-        .admin-sidebar.collapsed:hover .language-switcher-sidebar .dropdown-toggle::after {
-            display: inline-block;
-        }
-
-        .admin-sidebar.collapsed:hover .language-switcher-sidebar .btn {
+        .admin-sidebar.collapsed:hover .language-switcher-sidebar button {
             padding: 0.375rem 0.75rem !important;
             width: 100% !important;
             height: auto !important;
             border-radius: 0.25rem !important;
         }
 
-        .admin-sidebar.collapsed:hover .language-switcher-sidebar .btn span,
-        .admin-sidebar.collapsed:hover .language-switcher-sidebar .btn-text {
+        .admin-sidebar.collapsed:hover .language-switcher-sidebar button span {
             display: inline;
         }
 
-        .admin-sidebar.collapsed:hover .language-switcher-sidebar .btn i {
+        .admin-sidebar.collapsed:hover .language-switcher-sidebar button i {
             margin-right: 0.5rem !important;
         }
 
@@ -1989,7 +1979,7 @@
                         <small class="brand-tagline">{{ __('app.tagline') }}</small>
                     </div>
                 </a>
-                <button class="sidebar-toggle d-lg-none" id="sidebarToggle">
+                <button class="sidebar-toggle lg:hidden" id="sidebarToggle">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
@@ -2093,17 +2083,21 @@
                     </div>
                 </div>
                 <div class="language-switcher-sidebar">
-                    <div class="dropdown">
-                        <button class="btn btn-sm btn-outline-light w-100 dropdown-toggle" type="button" data-bs-toggle="dropdown" title="{{ strtoupper(app()->getLocale()) }}">
-                            <i class="fas fa-globe me-2"></i><span class="btn-text">{{ strtoupper(app()->getLocale()) }}</span>
+                    <div class="relative">
+                        <button class="w-full px-3 py-1.5 text-sm border border-white/30 rounded text-white/90 hover:bg-white/10 hover:border-white/50 transition-all flex items-center justify-center gap-2" type="button" id="sidebarLanguageToggle" title="{{ strtoupper(app()->getLocale()) }}">
+                            <i class="fas fa-globe mr-2"></i><span>{{ strtoupper(app()->getLocale()) }}</span>
                         </button>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item language-switch" href="#" data-locale="en">
-                                <i class="fas fa-flag-usa me-2"></i>English
-                            </a></li>
-                            <li><a class="dropdown-item language-switch" href="#" data-locale="vi">
-                                <i class="fas fa-flag me-2"></i>Tiếng Việt
-                            </a></li>
+                        <ul class="absolute bottom-full left-0 right-0 mb-2 hidden bg-[#0d1b2a] border border-[rgba(0,229,255,0.2)] rounded-lg py-2 shadow-lg" id="sidebarLanguageMenu">
+                            <li class="list-none">
+                                <a class="language-switch flex items-center gap-2 px-4 py-2 text-white no-underline hover:bg-[rgba(0,229,255,0.15)] transition-all" href="#" data-locale="en">
+                                    <i class="fas fa-flag-usa mr-2 text-[#00E5FF]"></i>English
+                                </a>
+                            </li>
+                            <li class="list-none">
+                                <a class="language-switch flex items-center gap-2 px-4 py-2 text-white no-underline hover:bg-[rgba(0,229,255,0.15)] transition-all" href="#" data-locale="vi">
+                                    <i class="fas fa-flag mr-2 text-[#00E5FF]"></i>Tiếng Việt
+                                </a>
+                            </li>
                         </ul>
                     </div>
                 </div>
@@ -2112,27 +2106,27 @@
 
         <!-- Admin Top Bar (Compact) -->
         <div class="admin-topbar">
-            <button class="sidebar-toggle-mobile d-lg-none" id="sidebarToggleMobile">
+            <button class="sidebar-toggle-mobile lg:hidden" id="sidebarToggleMobile">
                 <i class="fas fa-bars"></i>
             </button>
             <div class="topbar-search">
                 @auth
-                <div id="header-search" class="position-relative">
-                    <button type="button" class="btn btn-light btn-sm" id="searchToggle" title="{{ __('app.search.search') }}" aria-expanded="false">
+                <div id="header-search" class="relative">
+                    <button type="button" class="px-3 py-1.5 text-sm bg-white text-gray-800 rounded hover:bg-gray-100 transition-colors" id="searchToggle" title="{{ __('app.search.search') }}" aria-expanded="false">
                         <i class="fas fa-magnifying-glass"></i>
                     </button>
-                    <div id="searchBox" class="position-absolute end-0 mt-2" style="display:none; z-index: 100000;">
+                    <div id="searchBox" class="absolute right-0 top-full mt-2" style="display:none; z-index: 100000;">
                         <div class="search-panel">
                             <div class="search-input-wrap">
-                                <i class="fas fa-magnifying-glass text-secondary"></i>
+                                <i class="fas fa-magnifying-glass text-gray-500"></i>
                                 <input id="searchInput" class="search-input" placeholder="{{ __('app.search.search_users_teams_tournaments_games') }}" />
                                 <div id="searchLoading" class="search-loading"></div>
                                 <button id="searchClear" class="search-clear" title="{{ __('app.search.clear') }}"><i class="fas fa-xmark"></i></button>
-                                <span class="ms-2 d-none d-md-inline text-secondary" title="{{ __('app.search.shortcut') }}"><span class="search-kbd">/</span> <span class="search-kbd">Enter</span></span>
+                                <span class="ml-2 hidden md:inline text-gray-500" title="{{ __('app.search.shortcut') }}"><span class="search-kbd">/</span> <span class="search-kbd">Enter</span></span>
                             </div>
                             <div id="searchResults" class="search-results"></div>
                             <div class="p-2 border-top" id="searchFooter" style="display:none;">
-                                <a id="searchSeeAll" class="btn btn-sm btn-outline-primary w-100">{{ __('app.search.see_all_results') }}</a>
+                                <a id="searchSeeAll" class="block w-full px-3 py-1.5 text-sm border border-blue-500 text-blue-500 rounded hover:bg-blue-500 hover:text-white transition-colors text-center">{{ __('app.search.see_all_results') }}</a>
                             </div>
                         </div>
                     </div>
@@ -2156,7 +2150,7 @@
                 </a>
 
                 <!-- Desktop: Nav Links -->
-                <div class="gameon-nav-links d-none d-lg-flex">
+                <div class="gameon-nav-links hidden lg:flex">
                     @auth
                         @if(!Request::is('dashboard*'))
                         <a href="{{ route('dashboard') }}" class="gameon-nav-link">
@@ -2191,24 +2185,43 @@
 
                 <!-- Right Side: Language, Search, User -->
                 <div class="gameon-user-menu">
-                    <!-- Language -->
-                    <a href="#" class="gameon-nav-link language-switch d-none d-lg-flex" data-locale="en" title="English">
-                        <i class="fas fa-flag-usa"></i>
-                    </a>
-                    <a href="#" class="gameon-nav-link language-switch d-none d-lg-flex" data-locale="vi" title="Tiếng Việt">
-                        <i class="fas fa-flag"></i>
-                    </a>
+                    <!-- Language Dropdown -->
+                    <div class="relative hidden lg:block" id="languageDropdown">
+                        <button type="button" class="gameon-nav-link" id="languageDropdownToggle" aria-expanded="false" aria-haspopup="true" title="{{ strtoupper(app()->getLocale()) }}" style="border: none; background: none; cursor: pointer; text-decoration: none; padding: 0.5rem 1rem;">
+                            <i class="fas fa-globe"></i>
+                        </button>
+                        <ul class="absolute right-0 top-full mt-1 hidden bg-[#0d1b2a] border border-[rgba(0,229,255,0.2)] rounded-lg py-2 min-w-[180px] z-[10000] shadow-lg" id="languageDropdownMenu" aria-labelledby="languageDropdownToggle">
+                            <li class="list-none">
+                                <a class="language-switch flex items-center gap-3 px-5 py-3 text-white no-underline transition-all hover:bg-[rgba(0,229,255,0.15)] hover:text-[#00E5FF]" href="#" data-locale="en">
+                                    <i class="fas fa-flag-usa text-[#00E5FF]"></i>
+                                    <span>English</span>
+                                    @if(app()->getLocale() === 'en')
+                                        <i class="fas fa-check ml-auto text-[#00E5FF]"></i>
+                                    @endif
+                                </a>
+                            </li>
+                            <li class="list-none">
+                                <a class="language-switch flex items-center gap-3 px-5 py-3 text-white no-underline transition-all hover:bg-[rgba(0,229,255,0.15)] hover:text-[#00E5FF]" href="#" data-locale="vi">
+                                    <i class="fas fa-flag text-[#00E5FF]"></i>
+                                    <span>Tiếng Việt</span>
+                                    @if(app()->getLocale() === 'vi')
+                                        <i class="fas fa-check ml-auto text-[#00E5FF]"></i>
+                                    @endif
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
 
                     <!-- Search -->
                     @auth
-                    <div class="position-relative d-none d-md-block">
+                    <div class="relative hidden md:block">
                         <button type="button" class="gameon-nav-link" id="searchToggle" style="border: none; background: none; cursor: pointer;">
                             <i class="fas fa-magnifying-glass"></i>
                         </button>
-                        <div id="searchBox" class="position-absolute end-0 mt-2" style="display:none; z-index: 100000;">
+                        <div id="searchBox" class="absolute right-0 top-full mt-2" style="display:none; z-index: 100000;">
                             <div class="search-panel">
                                 <div class="search-input-wrap">
-                                    <i class="fas fa-magnifying-glass text-secondary"></i>
+                                    <i class="fas fa-magnifying-glass text-gray-500"></i>
                                     <input id="searchInput" class="search-input" placeholder="{{ __('app.search.search_users_teams_tournaments_games') }}" />
                                     <div id="searchLoading" class="search-loading"></div>
                                     <button id="searchClear" class="search-clear" title="{{ __('app.search.clear') }}"><i class="fas fa-xmark"></i></button>
@@ -2221,47 +2234,59 @@
 
                     <!-- User Menu -->
                     @auth
-                    <div class="dropdown">
-                        <a href="#" class="gameon-nav-link dropdown-toggle" data-bs-toggle="dropdown" style="text-decoration: none;">
+                    <div class="relative" id="userMenuDropdown">
+                        <a href="#" class="gameon-nav-link" id="userMenuToggle" style="text-decoration: none;">
                             <div class="gameon-user-avatar">
                                 <i class="fas fa-user"></i>
                             </div>
-                            <div class="gameon-user-info d-none d-lg-block">
+                            <div class="gameon-user-info hidden lg:block">
                                 <div class="gameon-user-name">{{ Auth::user()->name ?? 'User' }}</div>
                                 <div class="gameon-user-role">{{ ucfirst(str_replace('_', ' ', Auth::user()->user_role ?? 'user')) }}</div>
                             </div>
                             <i class="fas fa-chevron-down"></i>
                         </a>
-                        <ul class="dropdown-menu gameon-dropdown">
+                        <ul class="absolute right-0 top-full mt-2 hidden bg-[#0d1b2a] border border-[rgba(0,229,255,0.2)] rounded-lg py-2 min-w-[200px] z-[10000] shadow-lg" id="userMenuDropdownMenu">
                             @if(Auth::user()->user_role === 'player')
-                            <li><a href="{{ route('teams.index') }}" class="gameon-dropdown-item">
-                                <i class="fas fa-users"></i>
-                                <span>{{ __('app.nav.my_teams') }}</span>
-                            </a></li>
+                            <li class="list-none">
+                                <a href="{{ route('teams.index') }}" class="gameon-dropdown-item">
+                                    <i class="fas fa-users"></i>
+                                    <span>{{ __('app.nav.my_teams') }}</span>
+                                </a>
+                            </li>
                             @endif
                             @if(Auth::user()->user_role === 'admin' || Auth::user()->user_role === 'super_admin')
-                            <li><a href="{{ route('admin.games.index') }}" class="gameon-dropdown-item">
-                                <i class="fas fa-gamepad"></i>
-                                <span>{{ __('app.profile.manage_games') }}</span>
-                            </a></li>
-                            <li><a href="{{ route('admin.tournaments.index') }}" class="gameon-dropdown-item">
-                                <i class="fas fa-trophy"></i>
-                                <span>{{ __('app.profile.manage_tournaments') }}</span>
-                            </a></li>
-                            <li><a href="{{ route('admin.teams.index') }}" class="gameon-dropdown-item">
-                                <i class="fas fa-users-gear"></i>
-                                <span>{{ __('app.profile.manage_teams') }}</span>
-                            </a></li>
-                            <li><a href="{{ route('admin.users.index') }}" class="gameon-dropdown-item">
-                                <i class="fas fa-users"></i>
-                                <span>{{ __('app.profile.manage_users') }}</span>
-                            </a></li>
+                            <li class="list-none">
+                                <a href="{{ route('admin.games.index') }}" class="gameon-dropdown-item">
+                                    <i class="fas fa-gamepad"></i>
+                                    <span>{{ __('app.profile.manage_games') }}</span>
+                                </a>
+                            </li>
+                            <li class="list-none">
+                                <a href="{{ route('admin.tournaments.index') }}" class="gameon-dropdown-item">
+                                    <i class="fas fa-trophy"></i>
+                                    <span>{{ __('app.profile.manage_tournaments') }}</span>
+                                </a>
+                            </li>
+                            <li class="list-none">
+                                <a href="{{ route('admin.teams.index') }}" class="gameon-dropdown-item">
+                                    <i class="fas fa-users-gear"></i>
+                                    <span>{{ __('app.profile.manage_teams') }}</span>
+                                </a>
+                            </li>
+                            <li class="list-none">
+                                <a href="{{ route('admin.users.index') }}" class="gameon-dropdown-item">
+                                    <i class="fas fa-users"></i>
+                                    <span>{{ __('app.profile.manage_users') }}</span>
+                                </a>
+                            </li>
                             @endif
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
+                            <li class="list-none">
+                                <hr class="border-t border-[rgba(0,229,255,0.2)] my-2">
+                            </li>
+                            <li class="list-none">
                                 <form method="POST" action="{{ route('auth.logout') }}">
                                     @csrf
-                                    <button type="submit" class="gameon-dropdown-item" style="width: 100%; border: none; background: none; text-align: left;">
+                                    <button type="submit" class="gameon-dropdown-item w-full text-left">
                                         <i class="fas fa-right-from-bracket"></i>
                                         <span>{{ __('app.auth.logout') }}</span>
                                     </button>
@@ -2281,37 +2306,66 @@
                     @endauth
 
                     <!-- Mobile Menu Toggle -->
-                    <button class="gameon-nav-link d-lg-none" type="button" data-bs-toggle="collapse" data-bs-target="#mobileNav" style="border: none; background: none; cursor: pointer;">
+                    <button class="gameon-nav-link lg:hidden" type="button" id="mobileMenuToggle" aria-expanded="false" aria-controls="mobileNav" style="border: none; background: none; cursor: pointer;">
                         <i class="fas fa-bars"></i>
                     </button>
                 </div>
             </div>
 
             <!-- Mobile Menu -->
-            <div class="collapse d-lg-none" id="mobileNav">
-                <div style="background: #0d1b2a; border-top: 1px solid rgba(0, 229, 255, 0.2); padding: 1rem;">
+            <div class="hidden lg:hidden" id="mobileNav">
+                <div class="bg-[#0d1b2a] border-t border-[rgba(0,229,255,0.2)] p-4">
                     @auth
-                    <a href="{{ route('dashboard') }}" class="gameon-dropdown-item" style="display: block; margin-bottom: 0.5rem;">
+                    <a href="{{ route('dashboard') }}" class="block mb-2 gameon-dropdown-item">
                         <i class="fas fa-gauge-high"></i>
                         <span>{{ __('app.nav.dashboard') }}</span>
                     </a>
-                    <a href="{{ route('chat.index') }}" class="gameon-dropdown-item" style="display: block; margin-bottom: 0.5rem;">
+                    <a href="{{ route('chat.index') }}" class="block mb-2 gameon-dropdown-item">
                         <i class="fas fa-comments"></i>
                         <span>{{ __('app.nav.chat') }}</span>
                     </a>
-                    <a href="{{ route('posts.index') }}" class="gameon-dropdown-item" style="display: block; margin-bottom: 0.5rem;">
+                    <a href="{{ route('posts.index') }}" class="block mb-2 gameon-dropdown-item">
                         <i class="fas fa-newspaper"></i>
                         <span>{{ __('app.nav.posts') }}</span>
                     </a>
-                    <a href="{{ route('marketplace.index') }}" class="gameon-dropdown-item" style="display: block; margin-bottom: 0.5rem;">
+                    <a href="{{ route('marketplace.index') }}" class="block mb-2 gameon-dropdown-item">
                         <i class="fas fa-store"></i>
                         <span>Marketplace</span>
                     </a>
-                    <a href="{{ route('profile.show') }}" class="gameon-dropdown-item" style="display: block; margin-bottom: 0.5rem;">
+                    <a href="{{ route('profile.show') }}" class="block mb-2 gameon-dropdown-item">
                         <i class="fas fa-id-card"></i>
                         <span>{{ __('app.profile.personal_info') }}</span>
                     </a>
                     @endauth
+                    
+                    <!-- Language Dropdown for Mobile -->
+                    <div class="relative mt-2" id="languageDropdownMobile">
+                        <button class="w-full text-left flex items-center gap-2 border-none bg-transparent text-[#94a3b8] py-2" type="button" id="languageDropdownMobileToggle" aria-expanded="false">
+                            <i class="fas fa-globe"></i>
+                            <span>{{ strtoupper(app()->getLocale()) }}</span>
+                            <i class="fas fa-chevron-down ml-auto"></i>
+                        </button>
+                        <ul class="absolute left-0 top-full mt-1 hidden bg-[#0d1b2a] border border-[rgba(0,229,255,0.2)] rounded-lg py-2 min-w-[180px] z-[10000] shadow-lg w-full" id="languageDropdownMobileMenu" aria-labelledby="languageDropdownMobileToggle">
+                            <li class="list-none">
+                                <a class="language-switch flex items-center gap-3 px-5 py-3 text-white no-underline transition-all hover:bg-[rgba(0,229,255,0.15)] hover:text-[#00E5FF]" href="#" data-locale="en">
+                                    <i class="fas fa-flag-usa text-[#00E5FF]"></i>
+                                    <span>English</span>
+                                    @if(app()->getLocale() === 'en')
+                                        <i class="fas fa-check ml-auto text-[#00E5FF]"></i>
+                                    @endif
+                                </a>
+                            </li>
+                            <li class="list-none">
+                                <a class="language-switch flex items-center gap-3 px-5 py-3 text-white no-underline transition-all hover:bg-[rgba(0,229,255,0.15)] hover:text-[#00E5FF]" href="#" data-locale="vi">
+                                    <i class="fas fa-flag text-[#00E5FF]"></i>
+                                    <span>Tiếng Việt</span>
+                                    @if(app()->getLocale() === 'vi')
+                                        <i class="fas fa-check ml-auto text-[#00E5FF]"></i>
+                                    @endif
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </nav>
@@ -2320,19 +2374,23 @@
     <!-- Main Content -->
     <main class="content-wrapper {{ $showAdminSidebar ? 'content-wrapper-with-sidebar' : '' }}">
         @if(session('success'))
-        <div class="container">
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                {{ session('success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <div class="container mx-auto px-4">
+            <div class="bg-green-500/20 border border-green-500/50 text-green-400 px-4 py-3 rounded-lg flex items-center justify-between" role="alert">
+                <span>{{ session('success') }}</span>
+                <button type="button" class="text-green-400 hover:text-green-300 ml-4" onclick="this.parentElement.remove()">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
         </div>
         @endif
 
         @if(session('error'))
-        <div class="container">
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                {{ session('error') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <div class="container mx-auto px-4">
+            <div class="bg-red-500/20 border border-red-500/50 text-red-400 px-4 py-3 rounded-lg flex items-center justify-between" role="alert">
+                <span>{{ session('error') }}</span>
+                <button type="button" class="text-red-400 hover:text-red-300 ml-4" onclick="this.parentElement.remove()">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
         </div>
         @endif
@@ -3141,20 +3199,201 @@
             });
         });
         
+        // Mobile menu toggle functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            const mobileNav = document.getElementById('mobileNav');
+            
+            if (mobileMenuToggle && mobileNav) {
+                mobileMenuToggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // Toggle mobile menu using Tailwind classes
+                    mobileNav.classList.toggle('hidden');
+                    mobileNav.classList.toggle('block');
+                    
+                    // Update aria-expanded
+                    const isExpanded = !mobileNav.classList.contains('hidden');
+                    mobileMenuToggle.setAttribute('aria-expanded', isExpanded);
+                });
+                
+                // Close mobile menu when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!mobileNav.classList.contains('hidden') && 
+                        !mobileNav.contains(e.target) && 
+                        !mobileMenuToggle.contains(e.target)) {
+                        mobileNav.classList.add('hidden');
+                        mobileNav.classList.remove('block');
+                        mobileMenuToggle.setAttribute('aria-expanded', 'false');
+                    }
+                });
+            }
+        });
+        
+        // User Menu Dropdown functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const userMenuToggle = document.getElementById('userMenuToggle');
+            const userMenuDropdown = document.getElementById('userMenuDropdownMenu');
+            
+            if (userMenuToggle && userMenuDropdown) {
+                userMenuToggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const isOpen = userMenuDropdown.classList.contains('show');
+                    
+                    // Close all other dropdowns
+                    closeAllDropdowns();
+                    
+                    // Toggle user menu
+                    if (!isOpen) {
+                        userMenuDropdown.classList.remove('hidden');
+                        userMenuDropdown.classList.add('block', 'show');
+                        userMenuToggle.setAttribute('aria-expanded', 'true');
+                    } else {
+                        userMenuDropdown.classList.add('hidden');
+                        userMenuDropdown.classList.remove('block', 'show');
+                        userMenuToggle.setAttribute('aria-expanded', 'false');
+                    }
+                });
+            }
+            
+            // Sidebar Language Dropdown
+            const sidebarLanguageToggle = document.getElementById('sidebarLanguageToggle');
+            const sidebarLanguageMenu = document.getElementById('sidebarLanguageMenu');
+            
+            if (sidebarLanguageToggle && sidebarLanguageMenu) {
+                sidebarLanguageToggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const isOpen = sidebarLanguageMenu.classList.contains('show');
+                    
+                    // Close all other dropdowns
+                    closeAllDropdowns();
+                    
+                    // Toggle sidebar language menu
+                    if (!isOpen) {
+                        sidebarLanguageMenu.classList.remove('hidden');
+                        sidebarLanguageMenu.classList.add('block', 'show');
+                    } else {
+                        sidebarLanguageMenu.classList.add('hidden');
+                        sidebarLanguageMenu.classList.remove('block', 'show');
+                    }
+                });
+            }
+            
+            // Close all dropdowns function
+            function closeAllDropdowns() {
+                const allDropdowns = document.querySelectorAll('#languageDropdownMenu, #languageDropdownMobileMenu, #userMenuDropdownMenu, #sidebarLanguageMenu');
+                const allToggles = document.querySelectorAll('#languageDropdownToggle, #languageDropdownMobileToggle, #userMenuToggle, #sidebarLanguageToggle');
+                
+                allDropdowns.forEach(function(menu) {
+                    menu.classList.add('hidden');
+                    menu.classList.remove('block', 'show');
+                });
+                
+                allToggles.forEach(function(toggle) {
+                    toggle.setAttribute('aria-expanded', 'false');
+                });
+            }
+            
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', function(e) {
+                const languageDropdown = document.getElementById('languageDropdown');
+                const languageDropdownMobile = document.getElementById('languageDropdownMobile');
+                const userMenuDropdown = document.getElementById('userMenuDropdown');
+                const sidebarLanguageDropdown = document.querySelector('.language-switcher-sidebar');
+                
+                if ((languageDropdown && !languageDropdown.contains(e.target)) || 
+                    (languageDropdownMobile && !languageDropdownMobile.contains(e.target)) ||
+                    (userMenuDropdown && !userMenuDropdown.contains(e.target)) ||
+                    (sidebarLanguageDropdown && !sidebarLanguageDropdown.contains(e.target))) {
+                    closeAllDropdowns();
+                }
+            });
+        });
+        
         // Language switcher functionality
         document.addEventListener('DOMContentLoaded', function() {
+            const languageToggle = document.getElementById('languageDropdownToggle');
+            const languageToggleMobile = document.getElementById('languageDropdownMobileToggle');
+            const languageMenu = document.getElementById('languageDropdownMenu');
+            const languageMenuMobile = document.getElementById('languageDropdownMobileMenu');
+            
+            // Function to toggle dropdown using Tailwind classes
+            function toggleDropdown(menu, toggle) {
+                if (!menu || !toggle) return;
+                
+                const isOpen = menu.classList.contains('show');
+                
+                // Close all dropdowns first
+                closeLanguageDropdowns();
+                
+                // Toggle this dropdown using Tailwind classes
+                if (!isOpen) {
+                    menu.classList.remove('hidden');
+                    menu.classList.add('block', 'show');
+                    toggle.setAttribute('aria-expanded', 'true');
+                } else {
+                    menu.classList.add('hidden');
+                    menu.classList.remove('block', 'show');
+                    toggle.setAttribute('aria-expanded', 'false');
+                }
+            }
+            
+            // Function to close dropdown using Tailwind classes
+            function closeLanguageDropdowns() {
+                const dropdowns = document.querySelectorAll('#languageDropdownMenu, #languageDropdownMobileMenu');
+                const toggles = document.querySelectorAll('#languageDropdownToggle, #languageDropdownMobileToggle');
+                
+                dropdowns.forEach(function(menu) {
+                    menu.classList.add('hidden');
+                    menu.classList.remove('block', 'show');
+                });
+                
+                toggles.forEach(function(toggle) {
+                    toggle.setAttribute('aria-expanded', 'false');
+                });
+            }
+            
+            // Toggle dropdown when clicking button
+            if (languageToggle && languageMenu) {
+                languageToggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    toggleDropdown(languageMenu, languageToggle);
+                });
+            }
+            
+            if (languageToggleMobile && languageMenuMobile) {
+                languageToggleMobile.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    toggleDropdown(languageMenuMobile, languageToggleMobile);
+                });
+            }
+            
+            
+            // Note: Close dropdown when clicking outside is handled in user menu dropdown section above
+            
             const languageSwitches = document.querySelectorAll('.language-switch');
             
             languageSwitches.forEach(function(switchElement) {
                 switchElement.addEventListener('click', function(e) {
                     e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // Close dropdown before switching
+                    closeLanguageDropdowns();
                     
                     const locale = this.getAttribute('data-locale');
                     const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
                     
                     // Show loading state
                     const originalText = this.innerHTML;
-                    this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Switching...';
+                    this.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Switching...';
                     
                     fetch('{{ route("language.switch") }}', {
                         method: 'POST',

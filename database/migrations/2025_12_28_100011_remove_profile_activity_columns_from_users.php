@@ -13,46 +13,38 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            // Loại bỏ các cột profile (đã chuyển sang user_profiles)
-            $columnsToRemove = [
-                'full_name',
-                'avatar',
-                'bio',
-                'date_of_birth',
-                'phone',
-                'country',
-                'gaming_nickname',
-                'team_preference',
-                'id_app',
-                'description',
-                'upgraded_to_player_at',
-                'is_verified',
-                'verified_at',
-            ];
+        // Loại bỏ các cột profile (đã chuyển sang user_profiles)
+        $columnsToRemove = [
+            'full_name',
+            'avatar',
+            'bio',
+            'date_of_birth',
+            'phone',
+            'country',
+            'gaming_nickname',
+            'team_preference',
+            'id_app',
+            'description',
+            'upgraded_to_player_at',
+            'is_verified',
+            'verified_at',
+            // Activity columns
+            'last_login',
+            'last_seen_at',
+            'online_status',
+            'is_typing',
+            'typing_started_at',
+            'last_activity_at',
+        ];
 
-            foreach ($columnsToRemove as $column) {
-                if (Schema::hasColumn('users', $column)) {
+        // SQLite cần drop từng column riêng biệt
+        foreach ($columnsToRemove as $column) {
+            if (Schema::hasColumn('users', $column)) {
+                Schema::table('users', function (Blueprint $table) use ($column) {
                     $table->dropColumn($column);
-                }
+                });
             }
-
-            // Loại bỏ các cột activity (đã chuyển sang user_activities)
-            $activityColumns = [
-                'last_login',
-                'last_seen_at',
-                'online_status',
-                'is_typing',
-                'typing_started_at',
-                'last_activity_at',
-            ];
-
-            foreach ($activityColumns as $column) {
-                if (Schema::hasColumn('users', $column)) {
-                    $table->dropColumn($column);
-                }
-            }
-        });
+        }
     }
 
     /**

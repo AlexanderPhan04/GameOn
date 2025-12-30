@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Tournament;
-use App\Models\TournamentManagement;
 use Illuminate\Http\Request;
 
 class TournamentController extends Controller
@@ -13,7 +12,7 @@ class TournamentController extends Controller
      */
     public function index(Request $request)
     {
-        $query = TournamentManagement::with(['game', 'creator']);
+        $query = Tournament::with(['game', 'creator']);
 
         // Filter by status
         if ($request->filled('status')) {
@@ -37,10 +36,10 @@ class TournamentController extends Controller
             ->paginate(12);
 
         $stats = [
-            'total_tournaments' => TournamentManagement::count(),
-            'active_tournaments' => TournamentManagement::whereIn('status', ['registration_open', 'ongoing'])->count(),
-            'upcoming_tournaments' => TournamentManagement::where('status', 'registration_open')->count(),
-            'completed_tournaments' => TournamentManagement::where('status', 'completed')->count(),
+            'total_tournaments' => Tournament::count(),
+            'active_tournaments' => Tournament::whereIn('status', ['registration_open', 'ongoing'])->count(),
+            'upcoming_tournaments' => Tournament::where('status', 'registration_open')->count(),
+            'completed_tournaments' => Tournament::where('status', 'completed')->count(),
         ];
 
         return view('tournaments.index', compact('tournaments', 'stats'));
@@ -68,7 +67,7 @@ class TournamentController extends Controller
      */
     public function show(string $id)
     {
-        $tournament = TournamentManagement::with(['game', 'creator'])
+        $tournament = Tournament::with(['game', 'creator'])
             ->findOrFail($id);
 
         return view('tournaments.show', compact('tournament'));

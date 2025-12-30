@@ -142,22 +142,26 @@ return new class extends Migration
 
         // Migrate dữ liệu từ tournaments_management sang tournaments (nếu có)
         if (Schema::hasTable('tournaments_management')) {
-            DB::statement("
-                UPDATE tournaments t
-                INNER JOIN tournaments_management tm ON t.name = tm.name
-                SET 
-                    t.format = COALESCE(tm.tournament_format, 'single_elimination'),
-                    t.competition_type = COALESCE(tm.competition_type, 'team'),
-                    t.registration_deadline = tm.start_date,
-                    t.location_type = COALESCE(tm.location_type, 'online'),
-                    t.location_address = tm.location_address,
-                    t.prize_distribution = tm.prize_structure,
-                    t.rules = tm.rules_details,
-                    t.image_url = tm.banner,
-                    t.stream_link = tm.stream_link,
-                    t.created_by = tm.created_by
-                WHERE t.id IS NOT NULL
-            ");
+            $managementTournaments = DB::table('tournaments_management')->get();
+            
+            foreach ($managementTournaments as $tm) {
+                $existingTournament = DB::table('tournaments')->where('name', $tm->name)->first();
+                
+                if ($existingTournament) {
+                    DB::table('tournaments')->where('id', $existingTournament->id)->update([
+                        'format' => $tm->tournament_format ?? 'single_elimination',
+                        'competition_type' => $tm->competition_type ?? 'team',
+                        'registration_deadline' => $tm->start_date ?? null,
+                        'location_type' => $tm->location_type ?? 'online',
+                        'location_address' => $tm->location_address ?? null,
+                        'prize_distribution' => $tm->prize_structure ?? null,
+                        'rules' => $tm->rules_details ?? null,
+                        'image_url' => $tm->banner ?? null,
+                        'stream_link' => $tm->stream_link ?? null,
+                        'created_by' => $tm->created_by ?? null,
+                    ]);
+                }
+            }
         }
     }
 

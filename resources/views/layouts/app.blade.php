@@ -2564,7 +2564,7 @@
                             <span>{{ __('app.nav.dashboard') }}</span>
                         </a>
                         @endif
-                        @if(Auth::user()->user_role === 'player')
+                        @if(Auth::user()->user_role === 'participant' || Auth::user()->user_role === 'player')
                         <a href="{{ route('teams.index') }}" class="gameon-nav-link">
                             <i class="fas fa-users"></i>
                             <span>{{ __('app.nav.my_teams') }}</span>
@@ -2651,7 +2651,7 @@
                             <i class="fas fa-chevron-down"></i>
                         </a>
                         <ul class="absolute right-0 top-full mt-2 hidden bg-[#0d1b2a] border border-[rgba(0,229,255,0.2)] rounded-lg py-2 min-w-[200px] z-[10000] shadow-lg" id="userMenuDropdownMenu">
-                            @if(Auth::user()->user_role === 'player')
+                            @if(Auth::user()->user_role === 'participant' || Auth::user()->user_role === 'player')
                             <li class="list-none">
                                 <a href="{{ route('teams.index') }}" class="gameon-dropdown-item">
                                     <i class="fas fa-users"></i>
@@ -2776,7 +2776,7 @@
                         <span>{{ __('app.nav.tournaments') }}</span>
                     </a>
                     @endif
-                    @if(Auth::user()->user_role === 'player' && Route::has('teams.index'))
+                    @if((Auth::user()->user_role === 'participant' || Auth::user()->user_role === 'player') && Route::has('teams.index'))
                     <a href="{{ route('teams.index') }}" class="mobile-menu-item {{ Request::is('teams*') ? 'active' : '' }}">
                         <i class="fas fa-users"></i>
                         <span>{{ __('app.nav.my_teams') }}</span>

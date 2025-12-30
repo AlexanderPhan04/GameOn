@@ -212,11 +212,8 @@
                                                 <option value="admin" {{ old('user_role', $user->user_role) === 'admin' ? 'selected' : '' }}>
                                                     Admin
                                                 </option>
-                                                <option value="player" {{ old('user_role', $user->user_role) === 'player' ? 'selected' : '' }}>
-                                                    Player
-                                                </option>
-                                                <option value="viewer" {{ old('user_role', $user->user_role) === 'viewer' ? 'selected' : '' }}>
-                                                    Viewer
+                                                <option value="participant" {{ old('user_role', $user->user_role) === 'participant' || old('user_role', $user->user_role) === 'player' || old('user_role', $user->user_role) === 'viewer' ? 'selected' : '' }}>
+                                                    Participant
                                                 </option>
                                             </select>
                                             @error('user_role')

@@ -1,2 +1,10 @@
 User-agent: *
-Disallow:
+Allow: /
+
+# Disallow admin and private areas
+Disallow: /admin/
+Disallow: /api/
+Disallow: /storage/
+
+# Sitemap location
+Sitemap: https://gameon.alexstudio.id.vn/sitemap.xml

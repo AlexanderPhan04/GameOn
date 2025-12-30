@@ -477,7 +477,7 @@ class AuthController extends Controller
                         'google_id' => $googleId,
                         'google_email' => $googleEmail,
                         'password' => Hash::make(Str::random(32)), // Random secure password
-                        'user_role' => 'viewer', // Default role
+                        'user_role' => 'participant', // Default role (merged from player/viewer)
                         'id_app' => $idApp,
                         'email_verified_at' => now(), // Google account đã verified
                         'created_at' => now(),

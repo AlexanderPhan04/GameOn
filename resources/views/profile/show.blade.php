@@ -234,10 +234,16 @@
                     <div class="role-badge super-admin"><i class="fas fa-crown"></i><span>Super Administrator</span></div>
                     @elseif($user->user_role === 'admin')
                     <div class="role-badge admin"><i class="fas fa-shield-alt"></i><span>Administrator</span></div>
-                    @elseif($user->user_role === 'player')
-                    <div class="role-badge player"><i class="fas fa-gamepad"></i><span>Pro Player</span></div>
+                    @elseif($user->user_role === 'participant' || $user->user_role === 'player')
+                    <div class="role-badge player">
+                        <i class="fas fa-gamepad"></i>
+                        <span>Participant</span>
+                        @if($user->is_verified_gamer)
+                        <i class="fas fa-check-circle text-cyan-400 ml-1" title="Verified Gamer"></i>
+                        @endif
+                    </div>
                     @else
-                    <div class="role-badge viewer"><i class="fas fa-eye"></i><span>Viewer</span></div>
+                    <div class="role-badge viewer"><i class="fas fa-user"></i><span>Participant</span></div>
                     @endif
                     
                     <!-- Action Buttons -->
@@ -315,7 +321,7 @@
             </div>
         </div>
 
-        @if($user->user_role === 'player')
+        @if($user->user_role === 'participant' || $user->user_role === 'player')
         <!-- Teams Card -->
         <div class="profile-card">
             <div class="profile-card-header">

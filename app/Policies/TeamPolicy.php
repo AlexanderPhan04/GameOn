@@ -28,7 +28,7 @@ class TeamPolicy
      */
     public function create(User $user): bool
     {
-        return $user->user_role === 'player' || $user->user_role === 'admin' || $user->user_role === 'super_admin' || $user->user_role === 'manager';
+        return $user->user_role === 'participant' || $user->user_role === 'player' || $user->user_role === 'admin' || $user->user_role === 'super_admin' || $user->user_role === 'manager';
     }
 
     /**

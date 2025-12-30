@@ -1,11 +1,34 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', __('app.name')) - {{ __('app.tagline') }}</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="@yield('meta_description', 'GameOn - Nền tảng tổ chức giải đấu esport và kết nối gamer Việt Nam. Tạo giải đấu, lập team, tham gia tournament Liên Quân, Valorant, PUBG Mobile miễn phí.')">
+    <meta name="keywords" content="@yield('meta_keywords', 'giải đấu esport, tổ chức giải đấu game, nền tảng esport Việt Nam, tạo giải đấu online, quản lý tournament, đăng ký giải đấu game, tìm đội esport, tham gia tournament, lập team chơi game, kết nối gamer Việt Nam, giải đấu game online miễn phí, GameOn esport, giải đấu Liên Quân Mobile, tournament Valorant, giải PUBG Mobile, giải đấu Free Fire')">
+    <meta name="author" content="GameOn">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="{{ url()->current() }}">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:title" content="@yield('title', __('app.name')) - {{ __('app.tagline') }}">
+    <meta property="og:description" content="@yield('meta_description', 'GameOn - Nền tảng tổ chức giải đấu esport và kết nối gamer Việt Nam. Tạo giải đấu, lập team, tham gia tournament miễn phí.')">
+    <meta property="og:image" content="{{ asset('logo_remove_bg.png') }}">
+    <meta property="og:locale" content="vi_VN">
+    <meta property="og:site_name" content="GameOn">
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="{{ url()->current() }}">
+    <meta name="twitter:title" content="@yield('title', __('app.name')) - {{ __('app.tagline') }}">
+    <meta name="twitter:description" content="@yield('meta_description', 'GameOn - Nền tảng tổ chức giải đấu esport và kết nối gamer Việt Nam.')">
+    <meta name="twitter:image" content="{{ asset('logo_remove_bg.png') }}">
     
     <!-- Google Fonts - Rajdhani (Display) & Inter (Body) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">

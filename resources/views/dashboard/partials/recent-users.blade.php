@@ -1,144 +1,91 @@
-<div class="table-responsive flex-grow-1">
-    <table class="table table-hover align-middle">
-        <thead>
-            <tr style="border-bottom: 2px solid rgba(226, 232, 240, 0.5);">
-                <th class="border-0 text-muted fw-semibold">{{ __('app.dashboard.users') }}</th>
-                <th class="border-0 text-muted fw-semibold">{{ __('app.auth.email') }}</th>
-                <th class="border-0 text-muted fw-semibold">{{ __('app.auth.role') }}</th>
-                <th class="border-0 text-muted fw-semibold">{{ __('app.teams.status') }}</th>
-                <th class="border-0 text-muted fw-semibold">{{ __('app.dashboard.created_date') }}</th>
-                <th class="border-0 text-muted fw-semibold">{{ __('app.common.action') }}</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($recent_users as $user)
-            <tr class="user-row" style="transition: all 0.3s ease;" 
-                onmouseover="this.style.backgroundColor='rgba(102, 126, 234, 0.05)'"
-                onmouseout="this.style.backgroundColor='transparent'">
-                <td class="py-3">
-                    <div class="d-flex align-items-center">
-                        <div class="position-relative me-3">
-                            @if($user->avatar)
-                            <img src="{{ Storage::url($user->avatar) }}" 
-                                 class="rounded-circle" 
-                                 style="width: 45px; height: 45px; object-fit: cover;">
-                            @else
-                            <div class="rounded-circle d-flex align-items-center justify-content-center"
-                                style="background: linear-gradient(135deg, #667eea, #764ba2); width: 45px; height: 45px;">
-                                <span class="text-white fw-bold">{{ substr($user->display_name, 0, 1) }}</span>
-                            </div>
-                            @endif
-                            @if($user->online_status === 'online')
-                            <span class="position-absolute bottom-0 end-0 bg-success rounded-circle" 
-                                  style="width: 12px; height: 12px; border: 2px solid white;"></span>
-                            @endif
-                        </div>
-                        <div>
-                            <h6 class="mb-0 fw-semibold">{{ $user->display_name }}</h6>
-                            <small class="text-muted">{{ $user->name }}</small>
-                        </div>
-                    </div>
-                </td>
-                <td class="py-3">
-                    <span class="text-muted">{{ $user->email }}</span>
-                </td>
-                <td class="py-3">
+<div class="space-y-3">
+    @foreach($recent_users as $user)
+    <div class="user-card group">
+        <div class="flex items-center gap-4">
+            <!-- Avatar -->
+            <div class="relative flex-shrink-0">
+                @if($user->avatar)
+                <img src="{{ Storage::url($user->avatar) }}" class="w-12 h-12 rounded-xl object-cover border-2 border-[rgba(0,229,255,0.2)] group-hover:border-[#00E5FF] transition-all">
+                @else
+                <div class="w-12 h-12 rounded-xl flex items-center justify-center bg-gradient-to-br from-[#000055] to-[#006666] border-2 border-[rgba(0,229,255,0.2)] group-hover:border-[#00E5FF] transition-all">
+                    <span class="text-[#00E5FF] font-bold text-lg">{{ strtoupper(substr($user->display_name, 0, 1)) }}</span>
+                </div>
+                @endif
+                @if($user->online_status === 'online')
+                <span class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-[#0d1b2a] shadow-[0_0_10px_rgba(34,197,94,0.5)]"></span>
+                @endif
+            </div>
+            
+            <!-- User Info -->
+            <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 mb-1">
+                    <h4 class="text-white font-semibold text-sm truncate">{{ $user->display_name }}</h4>
                     @switch($user->user_role)
                     @case('super_admin')
-                    <span class="badge" style="background: linear-gradient(135deg, #ed8936, #dd6b20); color: white;">
-                        <i class="fas fa-crown me-1"></i>Super Admin
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-400 border border-amber-500/30">
+                        <i class="fas fa-crown text-[8px]"></i>SUPER
                     </span>
                     @break
                     @case('admin')
-                    <span class="badge" style="background: linear-gradient(135deg, #48bb78, #38a169); color: white;">
-                        <i class="fas fa-user-shield me-1"></i>Admin
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-gradient-to-r from-emerald-500/20 to-green-500/20 text-emerald-400 border border-emerald-500/30">
+                        <i class="fas fa-shield text-[8px]"></i>ADMIN
                     </span>
                     @break
                     @case('player')
-                    <span class="badge" style="background: linear-gradient(135deg, #4299e1, #3182ce); color: white;">
-                        <i class="fas fa-gamepad me-1"></i>Player
-                    </span>
-                    @break
-                    @case('viewer')
-                    <span class="badge" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white;">
-                        <i class="fas fa-eye me-1"></i>Viewer
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-gradient-to-r from-blue-500/20 to-indigo-500/20 text-blue-400 border border-blue-500/30">
+                        <i class="fas fa-gamepad text-[8px]"></i>PLAYER
                     </span>
                     @break
                     @default
-                    <span class="badge bg-light text-dark">{{ ucfirst($user->user_role) }}</span>
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-gradient-to-r from-cyan-500/20 to-teal-500/20 text-cyan-400 border border-cyan-500/30">
+                        <i class="fas fa-eye text-[8px]"></i>VIEWER
+                    </span>
                     @endswitch
-                </td>
-                <td class="py-3">
-                    @if($user->status === 'active')
-                    <span class="badge bg-success rounded-pill">
-                        <i class="fas fa-circle me-1" style="font-size: 0.6rem;"></i>{{ __('app.dashboard.active') }}
-                    </span>
-                    @elseif($user->status === 'suspended')
-                    <span class="badge bg-warning rounded-pill">
-                        <i class="fas fa-pause me-1"></i>{{ __('app.teams.suspended') }}
-                    </span>
-                    @elseif($user->status === 'banned')
-                    <span class="badge bg-danger rounded-pill">
-                        <i class="fas fa-ban me-1"></i>{{ __('app.teams.banned') }}
-                    </span>
-                    @else
-                    <span class="badge bg-secondary rounded-pill">
-                        <i class="fas fa-trash me-1"></i>{{ __('app.common.deleted') }}
-                    </span>
-                    @endif
-                </td>
-                <td class="py-3">
-                    <div>
-                        <div class="fw-semibold text-dark">{{ $user->created_at->format('d/m/Y') }}</div>
-                        <small class="text-muted">{{ $user->created_at->format('H:i') }}</small>
-                    </div>
-                </td>
-                <td class="py-3">
-                    <div class="dropdown">
-                        <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-cog"></i>
-                        </button>
-                        <div class="dropdown-menu dropdown-menu-end">
-                            <a class="dropdown-item view-user-btn" href="#" data-user-id="{{ $user->id }}">
-                                <i class="fas fa-eye me-2"></i>{{ __('app.dashboard.view_details') }}
-                            </a>
-                            @if($user->user_role !== 'super_admin')
-                            <a class="dropdown-item edit-user-btn" href="#" data-user-id="{{ $user->id }}">
-                                <i class="fas fa-edit me-2"></i>{{ __('app.common.edit') }}
-                            </a>
-                            <div class="dropdown-divider"></div>
-                            @if($user->status !== 'suspended')
-                            <a class="dropdown-item text-warning change-status-btn" href="#"
-                                data-user-id="{{ $user->id }}" data-status="suspended" data-action="{{ __('app.teams.suspended') }}">
-                                <i class="fas fa-pause me-2"></i>{{ __('app.teams.suspended') }}
-                            </a>
-                            @endif
-                            @if($user->status !== 'banned')
-                            <a class="dropdown-item text-danger change-status-btn" href="#"
-                                data-user-id="{{ $user->id }}" data-status="banned" data-action="{{ __('app.teams.banned') }}">
-                                <i class="fas fa-ban me-2"></i>{{ __('app.teams.banned') }}
-                            </a>
-                            @endif
-                            @if($user->status !== 'active')
-                            <a class="dropdown-item text-success change-status-btn" href="#"
-                                data-user-id="{{ $user->id }}" data-status="active" data-action="{{ __('app.dashboard.active') }}">
-                                <i class="fas fa-check-circle me-2"></i>{{ __('app.dashboard.active') }}
-                            </a>
-                            @endif
-                            @endif
-                        </div>
-                    </div>
-                </td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
-</div>
-@if($recent_users->hasPages())
-<div class="p-3 border-top">
-    <div class="d-flex justify-content-center">
-        {{ $recent_users->links('pagination::bootstrap-4') }}
+                </div>
+                <p class="text-[#94a3b8] text-xs truncate">{{ $user->email }}</p>
+            </div>
+
+            <!-- Status & Date -->
+            <div class="hidden sm:flex items-center gap-4">
+                <div class="text-right">
+                    <p class="text-white text-sm font-medium">{{ $user->created_at->format('d/m/Y') }}</p>
+                    <p class="text-[#94a3b8] text-xs">{{ $user->created_at->format('H:i') }}</p>
+                </div>
+                @if($user->status === 'active')
+                <div class="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]"></div>
+                @elseif($user->status === 'suspended')
+                <div class="w-2 h-2 rounded-full bg-yellow-500 shadow-[0_0_8px_rgba(234,179,8,0.6)]"></div>
+                @else
+                <div class="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)]"></div>
+                @endif
+            </div>
+            
+            <!-- Action -->
+            <a href="{{ route('admin.users.index') }}?search={{ $user->email }}" class="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center bg-[rgba(0,229,255,0.05)] border border-[rgba(0,229,255,0.2)] text-[#00E5FF] hover:bg-[rgba(0,229,255,0.15)] hover:border-[#00E5FF] hover:shadow-[0_0_15px_rgba(0,229,255,0.3)] transition-all">
+                <i class="fas fa-arrow-right text-sm"></i>
+            </a>
+        </div>
     </div>
+    @endforeach
+</div>
+
+<style>
+.user-card {
+    background: rgba(0, 229, 255, 0.02);
+    border: 1px solid rgba(0, 229, 255, 0.1);
+    border-radius: 16px;
+    padding: 1rem 1.25rem;
+    transition: all 0.3s ease;
+}
+.user-card:hover {
+    background: rgba(0, 229, 255, 0.06);
+    border-color: rgba(0, 229, 255, 0.25);
+    transform: translateX(5px);
+}
+</style>
+
+@if($recent_users->hasPages())
+<div class="pt-4 mt-4 border-t border-[rgba(0,229,255,0.1)]">
+    {{ $recent_users->links() }}
 </div>
 @endif
-

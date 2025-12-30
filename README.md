@@ -113,8 +113,8 @@
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/AlexanderPhan04/Market-Place.git
-cd Market-Place
+git clone https://github.com/AlexanderPhan04/GameOn.git
+cd GameOn
 ```
 
 ### 2. Install Dependencies

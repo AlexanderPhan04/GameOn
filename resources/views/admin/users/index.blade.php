@@ -2,632 +2,581 @@
 
 @section('title', __('app.profile.manage_users'))
 
+@push('styles')
+<style>
+    .users-container { background: #000814; min-height: 100vh; }
+
+    /* Hero Section */
+    .users-hero {
+        background: linear-gradient(135deg, #0d1b2a 0%, #000022 100%);
+        border: 1px solid rgba(0, 229, 255, 0.2);
+        border-radius: 20px;
+        padding: 1.5rem 2rem;
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+    .users-hero::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, transparent, #00E5FF, transparent);
+    }
+    .hero-icon {
+        width: 60px; height: 60px; min-width: 60px;
+        background: linear-gradient(135deg, #22c55e, #16a34a);
+        border-radius: 16px;
+        display: flex; align-items: center; justify-content: center;
+        box-shadow: 0 0 25px rgba(34, 197, 94, 0.3);
+    }
+    .hero-icon i { font-size: 1.5rem; color: white; }
+    .hero-title { font-family: 'Rajdhani', sans-serif; font-size: 1.5rem; font-weight: 700; color: #00E5FF; margin: 0; }
+    .hero-subtitle { color: #94a3b8; font-size: 0.9rem; margin: 0.25rem 0 0 0; }
+
+    .btn-neon {
+        background: linear-gradient(135deg, #000055, #000077);
+        color: #00E5FF;
+        border: 1px solid rgba(0, 229, 255, 0.4);
+        padding: 0.6rem 1.25rem;
+        border-radius: 10px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+    }
+    .btn-neon:hover {
+        background: rgba(0, 229, 255, 0.15);
+        box-shadow: 0 0 20px rgba(0, 229, 255, 0.4);
+        color: #FFFFFF;
+        transform: translateY(-2px);
+    }
+    .btn-neon-success {
+        background: linear-gradient(135deg, #065f46, #047857);
+        border-color: rgba(34, 197, 94, 0.4);
+        color: #22c55e;
+    }
+    .btn-neon-success:hover { box-shadow: 0 0 20px rgba(34, 197, 94, 0.4); }
+
+    /* Filter Card */
+    .filter-card {
+        background: linear-gradient(145deg, #0d1b2a 0%, #000022 100%);
+        border: 1px solid rgba(0, 229, 255, 0.15);
+        border-radius: 16px;
+        padding: 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+    .filter-label { color: #94a3b8; font-size: 0.8rem; font-weight: 600; margin-bottom: 0.4rem; display: block; }
+    .filter-input, .filter-select {
+        width: 100%;
+        padding: 0.6rem 1rem;
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(0, 229, 255, 0.2);
+        border-radius: 8px;
+        color: #FFFFFF;
+        font-size: 0.85rem;
+        transition: all 0.3s ease;
+    }
+    .filter-input:focus, .filter-select:focus {
+        outline: none;
+        border-color: #00E5FF;
+        box-shadow: 0 0 10px rgba(0, 229, 255, 0.2);
+    }
+    .filter-input::placeholder { color: #64748b; }
+    .filter-select option { background: #0d1b2a; color: #FFFFFF; }
+    .input-icon-wrapper { position: relative; }
+    .input-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #64748b; font-size: 0.85rem; }
+    .input-icon-wrapper .filter-input { padding-left: 2.5rem; }
+
+    /* Table Card */
+    .table-card {
+        background: linear-gradient(145deg, #0d1b2a 0%, #000022 100%);
+        border: 1px solid rgba(0, 229, 255, 0.15);
+        border-radius: 16px;
+        overflow: hidden;
+    }
+    .users-table { width: 100%; border-collapse: collapse; }
+    .users-table th {
+        background: rgba(0, 229, 255, 0.05);
+        color: #94a3b8;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid rgba(0, 229, 255, 0.1);
+    }
+    .users-table td {
+        padding: 1rem;
+        color: #e2e8f0;
+        font-size: 0.875rem;
+        border-bottom: 1px solid rgba(0, 229, 255, 0.05);
+        vertical-align: middle;
+    }
+    .users-table tbody tr { transition: all 0.3s ease; }
+    .users-table tbody tr:hover { background: rgba(0, 229, 255, 0.05); }
+
+    .user-avatar { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(0, 229, 255, 0.3); }
+    .user-avatar-fallback {
+        width: 45px; height: 45px; border-radius: 50%;
+        background: linear-gradient(135deg, #6366f1, #4f46e5);
+        display: flex; align-items: center; justify-content: center;
+        color: white; font-weight: 700; font-size: 1rem;
+    }
+    .user-name { font-weight: 600; color: #FFFFFF; }
+    .user-id { color: #64748b; font-size: 0.75rem; }
+    .user-email { color: #94a3b8; }
+
+    /* Role Badges */
+    .badge-role { padding: 0.35rem 0.75rem; border-radius: 20px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
+    .role-super_admin { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+    .role-admin { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+    .role-player { background: rgba(99, 102, 241, 0.2); color: #818cf8; }
+    .role-viewer { background: rgba(100, 116, 139, 0.2); color: #94a3b8; }
+
+    /* Status Badges */
+    .badge-status { padding: 0.35rem 0.75rem; border-radius: 20px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; cursor: pointer; }
+    .status-active { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+    .status-suspended { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+    .status-banned { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+    .status-deleted { background: rgba(100, 116, 139, 0.2); color: #94a3b8; }
+
+    /* Action Buttons */
+    .btn-action { padding: 0.4rem 0.6rem; border-radius: 8px; font-size: 0.8rem; transition: all 0.3s ease; cursor: pointer; border: 1px solid transparent; background: transparent; }
+    .btn-action-view { color: #00E5FF; border-color: rgba(0, 229, 255, 0.3); }
+    .btn-action-view:hover { background: rgba(0, 229, 255, 0.15); }
+    .btn-action-edit { color: #f59e0b; border-color: rgba(245, 158, 11, 0.3); }
+    .btn-action-edit:hover { background: rgba(245, 158, 11, 0.15); }
+    .btn-action-settings { color: #94a3b8; border-color: rgba(148, 163, 184, 0.3); }
+    .btn-action-settings:hover { background: rgba(148, 163, 184, 0.15); color: #FFFFFF; }
+    .btn-action-disabled { color: #475569; border-color: rgba(71, 85, 105, 0.3); cursor: not-allowed; }
+
+    /* Dropdown */
+    .dropdown-wrapper { position: relative; display: inline-block; }
+    .dropdown-menu-custom {
+        position: absolute; top: 100%; right: 0;
+        background: linear-gradient(145deg, #0d1b2a 0%, #000022 100%);
+        border: 1px solid rgba(0, 229, 255, 0.2);
+        border-radius: 10px; min-width: 160px; padding: 0.5rem 0;
+        z-index: 1000; display: none;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+    .dropdown-wrapper:hover .dropdown-menu-custom { display: block; }
+    .dropdown-item-custom {
+        display: flex; align-items: center; gap: 0.5rem;
+        padding: 0.5rem 1rem; color: #94a3b8; font-size: 0.85rem;
+        text-decoration: none; transition: all 0.2s ease;
+        cursor: pointer; border: none; background: none; width: 100%; text-align: left;
+    }
+    .dropdown-item-custom:hover { background: rgba(0, 229, 255, 0.1); color: #FFFFFF; }
+    .dropdown-item-custom.text-success { color: #22c55e; }
+    .dropdown-item-custom.text-warning { color: #f59e0b; }
+    .dropdown-item-custom.text-danger { color: #ef4444; }
+    .dropdown-divider { border-top: 1px solid rgba(0, 229, 255, 0.1); margin: 0.5rem 0; }
+
+    /* Empty State */
+    .empty-state { text-align: center; padding: 4rem 2rem; }
+    .empty-icon { width: 80px; height: 80px; background: rgba(0, 229, 255, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; }
+    .empty-icon i { font-size: 2rem; color: #64748b; }
+    .empty-title { color: #FFFFFF; font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem; }
+    .empty-text { color: #64748b; font-size: 0.9rem; }
+
+    .custom-checkbox { width: 18px; height: 18px; accent-color: #00E5FF; cursor: pointer; }
+    .pagination-wrapper { padding: 1rem 1.5rem; border-top: 1px solid rgba(0, 229, 255, 0.1); display: flex; justify-content: space-between; align-items: center; }
+    .pagination-info { color: #64748b; font-size: 0.85rem; }
+
+    /* Modal */
+    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(4px); z-index: 99999; display: none; align-items: center; justify-content: center; padding: 1rem; }
+    .modal-overlay.active { display: flex; }
+    .modal-content-custom { background: linear-gradient(145deg, #0d1b2a 0%, #000022 100%); border: 1px solid rgba(0, 229, 255, 0.3); border-radius: 20px; width: 100%; max-width: 450px; overflow: hidden; }
+    .modal-header-custom { padding: 1.25rem 1.5rem; border-bottom: 1px solid rgba(0, 229, 255, 0.1); display: flex; align-items: center; justify-content: space-between; }
+    .modal-title-custom { color: #FFFFFF; font-size: 1.1rem; font-weight: 600; }
+    .modal-body-custom { padding: 1.5rem; color: #94a3b8; }
+    .modal-footer-custom { padding: 1rem 1.5rem; border-top: 1px solid rgba(0, 229, 255, 0.1); display: flex; gap: 0.75rem; justify-content: flex-end; }
+    .btn-modal { padding: 0.6rem 1.25rem; border-radius: 10px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; }
+    .btn-modal-cancel { background: rgba(100, 116, 139, 0.2); color: #94a3b8; border: 1px solid rgba(100, 116, 139, 0.3); }
+    .btn-modal-cancel:hover { background: rgba(100, 116, 139, 0.3); color: #FFFFFF; }
+    .btn-modal-primary { background: linear-gradient(135deg, #6366f1, #4f46e5); color: #FFFFFF; border: none; }
+    .btn-modal-primary:hover { box-shadow: 0 0 20px rgba(99, 102, 241, 0.4); }
+    .btn-modal-danger { background: linear-gradient(135deg, #dc2626, #b91c1c); color: #FFFFFF; border: none; }
+    .btn-modal-danger:hover { box-shadow: 0 0 20px rgba(239, 68, 68, 0.4); }
+    .warning-box { background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 10px; padding: 0.75rem 1rem; margin-top: 1rem; display: flex; align-items: flex-start; gap: 10px; font-size: 0.85rem; color: #fbbf24; }
+    .warning-box i { color: #f59e0b; margin-top: 2px; }
+
+    /* Offcanvas */
+    .offcanvas-custom { position: fixed; top: 0; right: -400px; width: 400px; height: 100%; background: linear-gradient(145deg, #0d1b2a 0%, #000022 100%); border-left: 1px solid rgba(0, 229, 255, 0.2); z-index: 100000; transition: right 0.3s ease; overflow-y: auto; }
+    .offcanvas-custom.active { right: 0; }
+    .offcanvas-header-custom { padding: 1.25rem 1.5rem; border-bottom: 1px solid rgba(0, 229, 255, 0.1); display: flex; align-items: center; justify-content: space-between; }
+    .offcanvas-title-custom { color: #FFFFFF; font-size: 1.1rem; font-weight: 600; }
+    .offcanvas-body-custom { padding: 1.5rem; color: #94a3b8; }
+    .offcanvas-backdrop { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); z-index: 99999; display: none; }
+    .offcanvas-backdrop.active { display: block; }
+
+    @media (max-width: 768px) {
+        .users-hero { padding: 1.25rem; }
+        .hero-content { flex-direction: column; align-items: flex-start !important; gap: 1rem; }
+        .hero-buttons { width: 100%; flex-direction: column; }
+        .btn-neon { width: 100%; justify-content: center; }
+        .filter-grid { grid-template-columns: 1fr !important; }
+        .users-table { display: block; overflow-x: auto; }
+        .offcanvas-custom { width: 100%; right: -100%; }
+    }
+</style>
+@endpush
+
 @section('content')
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <!-- Hero -->
-            <div class="users-hero mb-4">
-                <div class="hero-inner d-flex justify-content-between align-items-center">
+<div class="users-container">
+    <div class="max-w-7xl mx-auto px-4 py-6">
+        <!-- Hero Section -->
+        <div class="users-hero">
+            <div class="hero-content flex items-center justify-between flex-wrap gap-4">
+                <div class="flex items-center gap-4">
+                    <div class="hero-icon"><i class="fas fa-users"></i></div>
                     <div>
-                        <h1 class="hero-title mb-1"><i class="fas fa-users me-2"></i>{{ __('app.profile.manage_users') }}</h1>
-                        <p class="hero-subtitle mb-0">{{ __('app.profile.manage_users_description') }}</p>
-                    </div>
-                    <div class="d-flex gap-2">
-                        <button type="button" class="btn btn-success" onclick="exportUsers()"><i class="fas fa-file-excel me-2"></i>{{ __('app.users.export_csv') }}</button>
-                        <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#bulkActionModal" disabled id="bulkActionBtn"><i class="fas fa-layer-group me-2"></i>{{ __('app.users.bulk_operations') }}</button>
+                        <h1 class="hero-title">{{ __('app.profile.manage_users') }}</h1>
+                        <p class="hero-subtitle">{{ __('app.profile.manage_users_description') }}</p>
                     </div>
                 </div>
+                <div class="hero-buttons flex gap-3">
+                    <button type="button" class="btn-neon btn-neon-success" onclick="exportUsers()">
+                        <i class="fas fa-file-excel"></i><span>{{ __('app.users.export_csv') }}</span>
+                    </button>
+                    <button type="button" class="btn-neon" id="bulkActionBtn" disabled onclick="openBulkModal()">
+                        <i class="fas fa-layer-group"></i><span>{{ __('app.users.bulk_operations') }}</span>
+                    </button>
+                </div>
             </div>
+        </div>
 
-            <div class="card">
-                <div class="card-header d-none"></div>
+        <!-- Filter Card -->
+        <div class="filter-card">
+            <form method="GET" action="{{ route('admin.users.index') }}" id="filterForm">
+                <div class="filter-grid grid grid-cols-1 md:grid-cols-5 gap-4">
+                    <div>
+                        <label class="filter-label">{{ __('app.search.search') }}</label>
+                        <div class="input-icon-wrapper">
+                            <i class="fas fa-search input-icon"></i>
+                            <input type="text" class="filter-input" name="search" value="{{ request('search') }}" placeholder="{{ __('app.users.search_placeholder') }}">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="filter-label">{{ __('app.users.role') }}</label>
+                        <select class="filter-select" name="role">
+                            <option value="">{{ __('app.users.all') }}</option>
+                            @if(Auth::user()->user_role === 'super_admin')
+                            <option value="super_admin" {{ request('role') === 'super_admin' ? 'selected' : '' }}>Super Admin</option>
+                            @endif
+                            <option value="admin" {{ request('role') === 'admin' ? 'selected' : '' }}>Admin</option>
+                            <option value="player" {{ request('role') === 'player' ? 'selected' : '' }}>Player</option>
+                            <option value="viewer" {{ request('role') === 'viewer' ? 'selected' : '' }}>Viewer</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="filter-label">{{ __('app.users.status') }}</label>
+                        <select class="filter-select" name="status">
+                            <option value="">{{ __('app.users.all') }}</option>
+                            <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>{{ __('app.users.active') }}</option>
+                            <option value="suspended" {{ request('status') === 'suspended' ? 'selected' : '' }}>{{ __('app.users.suspended') }}</option>
+                            <option value="banned" {{ request('status') === 'banned' ? 'selected' : '' }}>{{ __('app.users.banned') }}</option>
+                            <option value="deleted" {{ request('status') === 'deleted' ? 'selected' : '' }}>{{ __('app.users.deleted') }}</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="filter-label">{{ __('app.users.sort_by') }}</label>
+                        <select class="filter-select" name="sort">
+                            <option value="created_at" {{ request('sort') === 'created_at' ? 'selected' : '' }}>{{ __('app.users.creation_date') }}</option>
+                            <option value="last_login" {{ request('sort') === 'last_login' ? 'selected' : '' }}>{{ __('app.users.last_login') }}</option>
+                            <option value="name" {{ request('sort') === 'name' ? 'selected' : '' }}>{{ __('app.users.name_az') }}</option>
+                            <option value="email" {{ request('sort') === 'email' ? 'selected' : '' }}>{{ __('app.users.email_az') }}</option>
+                        </select>
+                    </div>
+                    <div class="flex items-end gap-2">
+                        <button type="submit" class="btn-neon flex-1"><i class="fas fa-filter"></i><span>{{ __('app.search.filter') }}</span></button>
+                        <a href="{{ route('admin.users.index') }}" class="btn-neon"><i class="fas fa-times"></i></a>
+                    </div>
+                </div>
+            </form>
+        </div>
 
-                <!-- Toolbar -->
-                <div class="card-body border-bottom filter-card">
-                    <form method="GET" action="{{ route('admin.users.index') }}" id="filterForm">
-                        <div class="row g-3">
-                            <div class="col-md-4">
-                                <label class="form-label">{{ __('app.search.search') }}</label>
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="fas fa-search"></i></span>
-                                    <input type="text" class="form-control" name="search" value="{{ request('search') }}" placeholder="{{ __('app.users.search_placeholder') }}">
+        <!-- Users Table -->
+        <div class="table-card">
+            <div class="overflow-x-auto">
+                <table class="users-table">
+                    <thead>
+                        <tr>
+                            <th class="w-12"><input type="checkbox" id="selectAll" class="custom-checkbox"></th>
+                            <th class="w-16">Avatar</th>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>{{ __('app.users.role') }}</th>
+                            <th>{{ __('app.users.status') }}</th>
+                            <th>{{ __('app.users.registration_date') }}</th>
+                            <th>{{ __('app.users.last_login') }}</th>
+                            <th class="w-32">{{ __('app.common.actions') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($users as $user)
+                        <tr>
+                            <td><input type="checkbox" class="custom-checkbox user-checkbox" value="{{ $user->id }}" data-role="{{ $user->user_role }}"></td>
+                            <td>
+                                @if($user->avatar)
+                                <img src="{{ get_avatar_url($user->avatar) }}" class="user-avatar" alt="Avatar">
+                                @else
+                                <div class="user-avatar-fallback">{{ strtoupper(substr($user->name, 0, 1)) }}</div>
+                                @endif
+                            </td>
+                            <td>
+                                <div class="user-name">{{ $user->name }}</div>
+                                <div class="user-id">ID: {{ $user->id }}</div>
+                            </td>
+                            <td><span class="user-email">{{ $user->email }}</span></td>
+                            <td>
+                                <span class="badge-role role-{{ $user->user_role }}">
+                                    @if($user->user_role === 'super_admin') Super Admin
+                                    @elseif($user->user_role === 'admin') Admin
+                                    @elseif($user->user_role === 'player') Player
+                                    @else Viewer @endif
+                                </span>
+                            </td>
+                            <td>
+                                <div class="dropdown-wrapper">
+                                    <span class="badge-status status-{{ $user->status }}" id="status-badge-{{ $user->id }}">
+                                        @if($user->status === 'active') {{ __('app.users.active') }}
+                                        @elseif($user->status === 'suspended') {{ __('app.users.suspended') }}
+                                        @elseif($user->status === 'banned') {{ __('app.users.banned') }}
+                                        @else {{ __('app.users.deleted') }} @endif
+                                    </span>
+                                    <div class="dropdown-menu-custom">
+                                        @if($user->status !== 'active')<button class="dropdown-item-custom text-success" onclick="changeStatus({{ $user->id }}, 'active')"><i class="fas fa-check"></i> {{ __('app.users.activate') }}</button>@endif
+                                        @if($user->status !== 'suspended')<button class="dropdown-item-custom text-warning" onclick="changeStatus({{ $user->id }}, 'suspended')"><i class="fas fa-pause"></i> {{ __('app.users.suspend') }}</button>@endif
+                                        @if($user->status !== 'banned')<button class="dropdown-item-custom text-danger" onclick="changeStatus({{ $user->id }}, 'banned')"><i class="fas fa-ban"></i> {{ __('app.users.ban') }}</button>@endif
+                                        @if($user->status !== 'deleted')<div class="dropdown-divider"></div><button class="dropdown-item-custom text-danger" onclick="changeStatus({{ $user->id }}, 'deleted')"><i class="fas fa-trash"></i> {{ __('app.common.delete') }}</button>@endif
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="col-md-2">
-                                <label class="form-label small">{{ __('app.users.role') }}</label>
-                                <select class="form-select" name="role">
-                                    <option value="">{{ __('app.users.all') }}</option>
-                                    @if(Auth::user()->user_role === 'super_admin')
-                                    <option value="super_admin" {{ request('role') === 'super_admin' ? 'selected' : '' }}>Super Admin</option>
+                            </td>
+                            <td>{{ $user->created_at->format('d/m/Y') }}</td>
+                            <td>{{ $user->last_login ? $user->last_login->format('d/m/Y H:i') : __('app.users.never_logged_in') }}</td>
+                            <td>
+                                <div class="flex gap-2">
+                                    <button type="button" class="btn-action btn-action-view" onclick="viewUser({{ $user->id }})" title="{{ __('app.dashboard.view_details') }}"><i class="fas fa-eye"></i></button>
+                                    @php
+                                    $currentUser = Auth::user();
+                                    $canEditUser = false;
+                                    if ($currentUser->user_role === 'super_admin') {
+                                        $canEditUser = $user->id !== $currentUser->id;
+                                    } elseif ($currentUser->user_role === 'admin') {
+                                        $canEditUser = $user->id !== $currentUser->id && !in_array($user->user_role, ['super_admin', 'admin']);
+                                    }
+                                    @endphp
+                                    @if($canEditUser)
+                                    <button type="button" class="btn-action btn-action-edit" onclick="editUser({{ $user->id }})" title="{{ __('app.common.edit') }}"><i class="fas fa-edit"></i></button>
+                                    <div class="dropdown-wrapper">
+                                        <button type="button" class="btn-action btn-action-settings" title="{{ __('app.users.change_status') }}"><i class="fas fa-cog"></i></button>
+                                        <div class="dropdown-menu-custom">
+                                            @if($user->status !== 'active')<button class="dropdown-item-custom text-success" onclick="changeStatus({{ $user->id }}, 'active')"><i class="fas fa-check"></i> {{ __('app.users.activate') }}</button>@endif
+                                            @if($user->status !== 'suspended')<button class="dropdown-item-custom text-warning" onclick="changeStatus({{ $user->id }}, 'suspended')"><i class="fas fa-pause"></i> {{ __('app.users.suspend') }}</button>@endif
+                                            @if($user->status !== 'banned')<button class="dropdown-item-custom text-danger" onclick="changeStatus({{ $user->id }}, 'banned')"><i class="fas fa-ban"></i> {{ __('app.users.ban') }}</button>@endif
+                                            @if($user->status !== 'deleted')<div class="dropdown-divider"></div><button class="dropdown-item-custom text-danger" onclick="changeStatus({{ $user->id }}, 'deleted')"><i class="fas fa-trash"></i> {{ __('app.common.delete') }}</button>@endif
+                                        </div>
+                                    </div>
+                                    @else
+                                    <button type="button" class="btn-action btn-action-disabled" disabled title="{{ __('app.users.no_permission_to_edit') }}"><i class="fas fa-lock"></i></button>
                                     @endif
-                                    <option value="admin" {{ request('role') === 'admin' ? 'selected' : '' }}>Admin</option>
-                                    <option value="player" {{ request('role') === 'player' ? 'selected' : '' }}>Player</option>
-                                    <option value="viewer" {{ request('role') === 'viewer' ? 'selected' : '' }}>Viewer</option>
-                                </select>
-                            </div>
-                            <div class="col-md-2">
-                                <label class="form-label small">{{ __('app.users.status') }}</label>
-                                <select class="form-select" name="status">
-                                    <option value="">{{ __('app.users.all') }}</option>
-                                    <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>{{ __('app.users.active') }}</option>
-                                    <option value="suspended" {{ request('status') === 'suspended' ? 'selected' : '' }}>{{ __('app.users.suspended') }}</option>
-                                    <option value="banned" {{ request('status') === 'banned' ? 'selected' : '' }}>{{ __('app.users.banned') }}</option>
-                                    <option value="deleted" {{ request('status') === 'deleted' ? 'selected' : '' }}>{{ __('app.users.deleted') }}</option>
-                                </select>
-                            </div>
-                            <div class="col-md-2">
-                                <label class="form-label small">{{ __('app.users.sort_by') }}</label>
-                                <select class="form-select" name="sort">
-                                    <option value="created_at" {{ request('sort') === 'created_at' ? 'selected' : '' }}>{{ __('app.users.creation_date') }}</option>
-                                    <option value="last_login" {{ request('sort') === 'last_login' ? 'selected' : '' }}>{{ __('app.users.last_login') }}</option>
-                                    <option value="name" {{ request('sort') === 'name' ? 'selected' : '' }}>{{ __('app.users.name_az') }}</option>
-                                    <option value="email" {{ request('sort') === 'email' ? 'selected' : '' }}>{{ __('app.users.email_az') }}</option>
-                                </select>
-                            </div>
-                            <div class="col-md-2 d-flex align-items-end gap-2">
-                                <button type="submit" class="btn btn-primary"><i class="fas fa-filter me-1"></i>{{ __('app.search.filter') }}</button>
-                                <a href="{{ route('admin.users.index') }}" class="btn btn-outline-secondary"><i class="fas fa-times me-1"></i>{{ __('app.common.reset') }}</a>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-
-                <!-- Users Table -->
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th width="50">
-                                        <input type="checkbox" id="selectAll" class="form-check-input">
-                                    </th>
-                                    <th width="60">Avatar</th>
-                                    <th>Username</th>
-                                    <th>Email</th>
-                                    <th>{{ __('app.users.role') }}</th>
-                                    <th>{{ __('app.users.status') }}</th>
-                                    <th>{{ __('app.users.registration_date') }}</th>
-                                    <th>{{ __('app.users.last_login') }}</th>
-                                    <th width="200">{{ __('app.common.actions') }}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse($users as $user)
-                                <tr>
-                                    <td>
-                                        <input type="checkbox"
-                                            class="form-check-input user-checkbox"
-                                            value="{{ $user->id }}"
-                                            data-role="{{ $user->user_role }}">
-                                    </td>
-                                    <td>
-                                        @if($user->avatar)
-                                        <img src="{{ get_avatar_url($user->avatar) }}"
-                                            class="rounded-circle"
-                                            width="40"
-                                            height="40"
-                                            alt="Avatar">
-                                        @else
-                                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center"
-                                            style="width: 40px; height: 40px;">
-                                            {{ strtoupper(substr($user->name, 0, 1)) }}
-                                        </div>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        <div>
-                                            <strong>{{ $user->name }}</strong>
-                                            @if($user->name && $user->email)
-                                            <br><small class="text-muted">ID: {{ $user->id }}</small>
-                                            @endif
-                                        </div>
-                                    </td>
-                                    <td>{{ $user->email }}</td>
-                                    <td>
-                                        <span class="badge 
-                                            @if($user->user_role === 'super_admin') bg-danger
-                                            @elseif($user->user_role === 'admin') bg-warning
-                                            @elseif($user->user_role === 'player') bg-primary
-                                            @else bg-secondary
-                                            @endif">
-                                            @if($user->user_role === 'super_admin') Super Admin
-                                            @elseif($user->user_role === 'admin') Admin
-                                            @elseif($user->user_role === 'player') Player
-                                            @else Viewer
-                                            @endif
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <div class="dropdown d-inline">
-                                            <span class="badge 
-                                                @if($user->status === 'active') bg-success
-                                                @elseif($user->status === 'suspended') bg-warning
-                                                @elseif($user->status === 'banned') bg-danger
-                                                @else bg-secondary
-                                                @endif" 
-                                                id="status-badge-{{ $user->id }}"
-                                                data-bs-toggle="dropdown"
-                                                role="button"
-                                                aria-expanded="false"
-                                                title="{{ __('app.users.click_to_change_status') }}">
-                                                @if($user->status === 'active') {{ __('app.users.active') }}
-                                                @elseif($user->status === 'suspended') {{ __('app.users.suspended') }}
-                                                @elseif($user->status === 'banned') {{ __('app.users.banned') }}
-                                                @else {{ __('app.users.deleted') }}
-                                                @endif
-                                            </span>
-                                            <ul class="dropdown-menu">
-                                                @if($user->status !== 'active')
-                                                <li><a class="dropdown-item change-status-btn" href="#" data-user-id="{{ $user->id }}" data-status="active" data-action="{{ __('app.users.activate') }}"><i class="fas fa-check me-2 text-success"></i>{{ __('app.users.activate') }}</a></li>
-                                                @endif
-                                                @if($user->status !== 'suspended')
-                                                <li><a class="dropdown-item change-status-btn" href="#" data-user-id="{{ $user->id }}" data-status="suspended" data-action="{{ __('app.users.suspend') }}"><i class="fas fa-pause me-2 text-warning"></i>{{ __('app.users.suspend') }}</a></li>
-                                                @endif
-                                                @if($user->status !== 'banned')
-                                                <li><a class="dropdown-item change-status-btn" href="#" data-user-id="{{ $user->id }}" data-status="banned" data-action="{{ __('app.users.ban') }}"><i class="fas fa-ban me-2 text-danger"></i>{{ __('app.users.ban') }}</a></li>
-                                                @endif
-                                                @if($user->status !== 'deleted')
-                                                <li><hr class="dropdown-divider"></li>
-                                                <li><a class="dropdown-item change-status-btn" href="#" data-user-id="{{ $user->id }}" data-status="deleted" data-action="{{ __('app.common.delete') }}"><i class="fas fa-trash me-2 text-danger"></i>{{ __('app.common.delete') }}</a></li>
-                                                @endif
-                                            </ul>
-                                        </div>
-                                    </td>
-                                    <td>{{ $user->created_at->format('d/m/Y') }}</td>
-                                    <td>
-                                        {{ $user->last_login ? $user->last_login->format('d/m/Y H:i') : __('app.users.never_logged_in') }}
-                                    </td>
-                                    <td>
-                                        <div class="btn-group btn-group-sm" role="group">
-                                            <button type="button" class="btn btn-outline-primary view-user-btn" data-bs-toggle="offcanvas" data-bs-target="#userDetails" aria-controls="userDetails"
-                                                data-user-id="{{ $user->id }}"
-                                                title="{{ __('app.dashboard.view_details') }}" data-bs-toggle2="tooltip">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
-
-                                            @php
-                                            $currentUser = Auth::user();
-                                            $canEditUser = false;
-
-                                            if ($currentUser->user_role === 'super_admin') {
-                                            // Super Admin có thể edit tất cả, trừ chính mình
-                                            $canEditUser = $user->id !== $currentUser->id;
-                                            } elseif ($currentUser->user_role === 'admin') {
-                                            // Admin chỉ có thể edit Player và Viewer
-                                            $canEditUser = $user->id !== $currentUser->id &&
-                                            !in_array($user->user_role, ['super_admin', 'admin']);
-                                            }
-                                            @endphp
-
-                                            @if($canEditUser)
-                                            <button type="button" class="btn btn-outline-warning edit-user-btn" data-user-id="{{ $user->id }}" title="{{ __('app.common.edit') }}" data-bs-toggle="tooltip">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-
-                                            <div class="btn-group btn-group-sm">
-                                                <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle2="tooltip" title="{{ __('app.users.change_status') }}"
-                                                    data-bs-toggle="dropdown" title="{{ __('app.users.change_status') }}">
-                                                    <i class="fas fa-cog"></i>
-                                                </button>
-                                                <ul class="dropdown-menu" id="dropdown-menu-{{ $user->id }}">
-                                                    @if($user->status !== 'active')
-                                                    <li>
-                                                        <a class="dropdown-item text-success change-status-btn"
-                                                            href="#" data-user-id="{{ $user->id }}" data-status="active" data-action="{{ __('app.users.activate') }}">
-                                                            <i class="fas fa-check me-2"></i>{{ __('app.users.activate') }}
-                                                        </a>
-                                                    </li>
-                                                    @endif
-                                                    @if($user->status !== 'suspended')
-                                                    <li>
-                                                        <a class="dropdown-item text-warning change-status-btn"
-                                                            href="#" data-user-id="{{ $user->id }}" data-status="suspended" data-action="{{ __('app.users.suspend') }}">
-                                                            <i class="fas fa-pause me-2"></i>{{ __('app.users.suspend') }}
-                                                        </a>
-                                                    </li>
-                                                    @endif
-                                                    @if($user->status !== 'banned')
-                                                    <li>
-                                                        <a class="dropdown-item text-danger change-status-btn"
-                                                            href="#" data-user-id="{{ $user->id }}" data-status="banned" data-action="{{ __('app.users.ban') }}">
-                                                            <i class="fas fa-ban me-2"></i>{{ __('app.users.ban') }}
-                                                        </a>
-                                                    </li>
-                                                    @endif
-                                                    @if($user->status !== 'deleted')
-                                                    <li>
-                                                        <hr class="dropdown-divider">
-                                                    </li>
-                                                    <li>
-                                                        <a class="dropdown-item text-danger change-status-btn"
-                                                            href="#" data-user-id="{{ $user->id }}" data-status="deleted" data-action="{{ __('app.common.delete') }}">
-                                                            <i class="fas fa-trash me-2"></i>{{ __('app.common.delete') }}
-                                                        </a>
-                                                    </li>
-                                                    @endif
-                                                </ul>
-                                            </div>
-                                            @else
-                                            <button type="button" class="btn btn-outline-secondary" disabled title="{{ __('app.users.no_permission_to_edit') }}">
-                                                <i class="fas fa-lock"></i>
-                                            </button>
-                                            @endif
-                                        </div>
-                                    </td>
-                                </tr>
-                                @empty
-                                <tr>
-                                    <td colspan="9" class="text-center py-4">
-                                        <i class="fas fa-users fa-3x text-muted mb-3"></i>
-                                        <p class="text-muted">{{ __('app.users.no_users_found') }}</p>
-                                    </td>
-                                </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- Pagination -->
-                @if($users->hasPages())
-                <div class="card-footer">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="text-muted small">
-                            {{ __('app.users.showing') }} {{ $users->firstItem() }} - {{ $users->lastItem() }}
-                            {{ __('app.users.in_total') }} {{ $users->total() }} {{ __('app.users.users') }}
-                        </div>
-                        {{ $users->links() }}
-                    </div>
-                </div>
-                @endif
+                                </div>
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="9">
+                                <div class="empty-state">
+                                    <div class="empty-icon"><i class="fas fa-users"></i></div>
+                                    <h3 class="empty-title">{{ __('app.users.no_users_found') }}</h3>
+                                    <p class="empty-text">Không tìm thấy người dùng nào phù hợp với bộ lọc</p>
+                                </div>
+                            </td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
+            @if($users->hasPages())
+            <div class="pagination-wrapper">
+                <div class="pagination-info">{{ __('app.users.showing') }} {{ $users->firstItem() }} - {{ $users->lastItem() }} {{ __('app.users.in_total') }} {{ $users->total() }} {{ __('app.users.users') }}</div>
+                {{ $users->links() }}
+            </div>
+            @endif
         </div>
     </div>
 </div>
 
 <!-- Bulk Action Modal -->
-<div class="modal fade" id="bulkActionModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">{{ __('app.users.bulk_operations') }}</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+<div class="modal-overlay" id="bulkActionModal">
+    <div class="modal-content-custom">
+        <div class="modal-header-custom">
+            <h5 class="modal-title-custom"><i class="fas fa-layer-group mr-2"></i>{{ __('app.users.bulk_operations') }}</h5>
+            <button type="button" class="btn-action" onclick="closeBulkModal()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body-custom">
+            <p>{{ __('app.users.selected_count') }} <span id="selectedCount" style="color: #00E5FF; font-weight: bold;">0</span> {{ __('app.users.users') }}</p>
+            <div style="margin-top: 1rem;">
+                <label class="filter-label">{{ __('app.users.select_action') }}:</label>
+                <select class="filter-select" id="bulkAction">
+                    <option value="">{{ __('app.users.select_action') }}</option>
+                    <option value="activate">{{ __('app.users.activate') }}</option>
+                    <option value="suspend">{{ __('app.users.suspend') }}</option>
+                    <option value="ban">{{ __('app.users.ban') }}</option>
+                    <option value="delete">{{ __('app.common.delete') }}</option>
+                </select>
             </div>
-            <div class="modal-body">
-                <p>{{ __('app.users.selected_count') }} <span id="selectedCount">0</span> {{ __('app.users.users') }}</p>
-                <div class="mb-3">
-                    <label class="form-label">{{ __('app.users.select_action') }}:</label>
-                    <select class="form-select" id="bulkAction">
-                        <option value="">{{ __('app.users.select_action') }}</option>
-                        <option value="activate">{{ __('app.users.activate') }}</option>
-                        <option value="suspend">{{ __('app.users.suspend') }}</option>
-                        <option value="ban">{{ __('app.users.ban') }}</option>
-                        <option value="delete">{{ __('app.common.delete') }}</option>
-                    </select>
-                </div>
-                <div class="alert alert-warning">
-                    <i class="fas fa-exclamation-triangle me-2"></i>
-                    {{ __('app.users.bulk_action_warning') }}
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('app.common.cancel') }}</button>
-                <button type="button" class="btn btn-primary" onclick="executeBulkAction()">{{ __('app.users.execute') }}</button>
-            </div>
+            <div class="warning-box"><i class="fas fa-exclamation-triangle"></i><span>{{ __('app.users.bulk_action_warning') }}</span></div>
+        </div>
+        <div class="modal-footer-custom">
+            <button type="button" class="btn-modal btn-modal-cancel" onclick="closeBulkModal()">{{ __('app.common.cancel') }}</button>
+            <button type="button" class="btn-modal btn-modal-primary" onclick="executeBulkAction()">{{ __('app.users.execute') }}</button>
         </div>
     </div>
-</div>
-
-<!-- Offcanvas: User Details -->
-<div class="offcanvas offcanvas-end" tabindex="-1" id="userDetails" aria-labelledby="userDetailsLabel">
-    <div class="offcanvas-header">
-        <h5 class="offcanvas-title" id="userDetailsLabel">{{ __('app.users.user_info') }}</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-    </div>
-    <div class="offcanvas-body">
-        <div id="userDetailsContent" class="text-muted">{{ __('app.users.select_user_to_view_details') }}</div>
-    </div>
-    <div class="offcanvas-footer p-3 border-top">
-        <button class="btn btn-outline-secondary w-100" data-bs-dismiss="offcanvas">{{ __('app.common.close') }}</button>
-    </div>
-    
 </div>
 
 <!-- Confirmation Modal -->
-<div class="modal fade" id="confirmationModal" tabindex="-1">
-    <div class="modal-dialog modal-sm">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="confirmationModalTitle">{{ __('app.users.confirm_action') }}</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body" id="confirmationModalBody">
-                {{ __('app.users.confirm_action_message') }}
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('app.common.cancel') }}</button>
-                <button type="button" class="btn btn-danger" id="confirmActionBtn">{{ __('app.common.confirm') }}</button>
-            </div>
+<div class="modal-overlay" id="confirmModal">
+    <div class="modal-content-custom" style="max-width: 380px;">
+        <div class="modal-header-custom">
+            <h5 class="modal-title-custom" id="confirmModalTitle">{{ __('app.users.confirm_action') }}</h5>
+            <button type="button" class="btn-action" onclick="closeConfirmModal()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body-custom" id="confirmModalBody">{{ __('app.users.confirm_action_message') }}</div>
+        <div class="modal-footer-custom">
+            <button type="button" class="btn-modal btn-modal-cancel" onclick="closeConfirmModal()">{{ __('app.common.cancel') }}</button>
+            <button type="button" class="btn-modal btn-modal-danger" id="confirmActionBtn">{{ __('app.common.confirm') }}</button>
         </div>
     </div>
 </div>
 
-<!-- Notification Container -->
-<div id="notification-container" class="position-fixed top-0 end-0 p-3" style="z-index: 1055"></div>
+<!-- User Details Offcanvas -->
+<div class="offcanvas-backdrop" id="offcanvasBackdrop" onclick="closeOffcanvas()"></div>
+<div class="offcanvas-custom" id="userDetailsOffcanvas">
+    <div class="offcanvas-header-custom">
+        <h5 class="offcanvas-title-custom">{{ __('app.users.user_info') }}</h5>
+        <button type="button" class="btn-action" onclick="closeOffcanvas()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="offcanvas-body-custom" id="userDetailsContent">
+        <div style="text-align: center; padding: 2rem; color: #64748b;">{{ __('app.users.select_user_to_view_details') }}</div>
+    </div>
+</div>
 @endsection
-
-@push('styles')
-<style>
-    /* Hero */
-    .users-hero{position:relative;border-radius:16px;overflow:hidden;background:linear-gradient(135deg,#22c55e,#3b82f6);color:#fff}
-    .users-hero .hero-inner{padding:1.75rem}
-    .hero-title{font-weight:700;font-size:1.6rem;text-shadow:0 2px 4px rgba(0,0,0,.2)}
-    .hero-subtitle{opacity:.9}
-
-    /* Filter */
-    .filter-card .form-label{font-weight:600;color:#495057}
-    .filter-card .form-control,.filter-card .form-select{border:2px solid #e9ecef;border-radius:10px;padding:.6rem .9rem}
-    .filter-card .input-group-text{background:#f8f9fa;border:2px solid #e9ecef;border-right:none;border-radius:10px 0 0 10px}
-
-    /* Table improvements */
-    .table th {font-weight:600;font-size:.875rem;text-transform:uppercase;letter-spacing:.025em}
-    tr.selected-row {background-color:#f3f6ff !important}
-    .avatar-fallback{width:40px;height:40px;border-radius:50%;background:#6366f1;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700}
-    .badge{font-weight:600}
-    /* Offcanvas adjustments */
-    #userDetails .offcanvas-body{padding:0}
-    #userDetails #user-detail-root{padding:1rem}
-    #userDetails .breadcrumb{display:none}
-    #userDetails .card{border-radius:12px;box-shadow:none}
-    #userDetails .card .card-header{padding:.5rem .75rem}
-    #userDetails .card .card-body{padding:.75rem}
-    #userDetails .rounded-circle{box-shadow:0 4px 12px rgba(0,0,0,.08)}
-    /* Constrain avatar size inside offcanvas user details */
-    #userDetails .card-body img.rounded-circle{width:72px!important;height:72px!important;object-fit:cover}
-    #userDetails .card-body .rounded-circle.bg-primary{width:72px!important;height:72px!important;font-size:28px!important}
-    /* Compact header inside offcanvas */
-    #userDetails #user-detail-root .d-flex.justify-content-between.align-items-center{margin-bottom:.75rem !important}
-    #userDetails #user-detail-root h3{font-size:1.1rem;font-weight:700;margin:0}
-    #userDetails #user-detail-root .btn{padding:.35rem .6rem;font-size:.85rem;border-radius:8px}
-    #userDetails #user-detail-root .btn.btn-secondary{display:none}
-    /* Pills */
-    #userDetails .badge{border-radius:999px;padding:.35rem .6rem}
-
-    .table th {
-        font-weight: 600;
-        font-size: 0.875rem;
-        text-transform: uppercase;
-        letter-spacing: 0.025em;
-    }
-
-    tr.selected-row {
-        background-color: #e9ecef !important;
-    }
-
-    .btn-group-sm>.btn {
-        padding: 0.25rem 0.5rem;
-    }
-</style>
-@endpush
 
 @push('scripts')
 <script>
-    $(document).ready(function() {
-
-        // Enable tooltips globally
-        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"], [data-bs-toggle2="tooltip"]'))
-        tooltipTriggerList.map(function (tooltipTriggerEl) { return new bootstrap.Tooltip(tooltipTriggerEl) })
-
-        // Select all functionality
-        $('#selectAll').change(function() {
-            $('.user-checkbox').prop('checked', this.checked).trigger('change');
-        });
-
-        $('.user-checkbox').change(function() {
-            updateBulkActionButton();
-
-            if ($(this).is(':checked')) {
-                $(this).closest('tr').addClass('selected-row');
-            } else {
-                $(this).closest('tr').removeClass('selected-row');
-            }
-
-            // Update select all checkbox
-            const total = $('.user-checkbox').length;
-            const checked = $('.user-checkbox:checked').length;
-            $('#selectAll').prop('indeterminate', checked > 0 && checked < total);
-            $('#selectAll').prop('checked', checked > 0 && checked === total);
-        });
-
-        // Filter form auto-submit on change
-        $('#filterForm .form-select').change(function() {
-            $('#filterForm').submit();
-        });
-
-        // Event listeners cho buttons
-        $(document).on('click', '.view-user-btn', function() {
-            const userId = $(this).data('user-id');
-            loadUserDetails(userId);
-        });
-
-        $(document).on('click', '.edit-user-btn', function() {
-            const userId = $(this).data('user-id');
-            console.log('Edit user clicked:', userId);
-            editUser(userId);
-        });
-
-        $(document).on('click', '.change-status-btn', function(e) {
-            e.preventDefault();
-            const userId = $(this).data('user-id');
-            const status = $(this).data('status');
-            const action = $(this).data('action');
-
-            console.log('Change status clicked:', {
-                userId,
-                status,
-                action
-            });
-
-            // Close the dropdown
-            $(this).closest('.dropdown-menu').siblings('.dropdown-toggle').dropdown('hide');
-
-            promptChangeStatus(userId, status, action);
-        });
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('selectAll').addEventListener('change', function() {
+        document.querySelectorAll('.user-checkbox').forEach(cb => cb.checked = this.checked);
+        updateBulkActionButton();
     });
+    document.querySelectorAll('.user-checkbox').forEach(cb => cb.addEventListener('change', updateBulkActionButton));
+    document.querySelectorAll('.filter-select').forEach(select => {
+        select.addEventListener('change', function() { document.getElementById('filterForm').submit(); });
+    });
+});
 
-    function updateBulkActionButton() {
-        const checked = $('.user-checkbox:checked').length;
-        $('#bulkActionBtn').prop('disabled', checked === 0);
-        $('#selectedCount').text(checked);
-    }
+function updateBulkActionButton() {
+    const checked = document.querySelectorAll('.user-checkbox:checked').length;
+    document.getElementById('bulkActionBtn').disabled = checked === 0;
+    document.getElementById('selectedCount').textContent = checked;
+}
 
-    function viewUser(id) {
-        const url = `{{ route('admin.users.show', ['user' => '__ID__']) }}`.replace('__ID__', id);
-        window.open(url, '_blank');
-    }
-
-    // Load user details into offcanvas
-    function loadUserDetails(id) {
-        $('#userDetailsContent').html('<div class="text-center text-muted py-4"><div class="spinner-border" role="status"></div><div class="mt-2">{{ __("app.users.loading") }}</div></div>');
-        $.get(`{{ route('admin.users.show', ['user' => '__ID__']) }}`.replace('__ID__', id), { partial: true })
-            .done(function(html) {
-                $('#userDetailsContent').html(html);
-            })
-            .fail(function() {
-                $('#userDetailsContent').html('<div class="text-danger">{{ __("app.users.cannot_load_user_info") }}</div>');
-            });
-    }
-
-    function editUser(id) {
-        const url = `{{ route('admin.users.edit', ['user' => '__ID__']) }}`.replace('__ID__', id);
-        console.log('Navigating to edit user URL:', url);
-        window.location.href = url;
-    }
-
-    // Mở modal xác nhận trước khi thay đổi trạng thái
-    function promptChangeStatus(userId, status, actionText) {
-        confirmDialog('Xác nhận ' + actionText, `Bạn có chắc chắn muốn ${actionText.toLowerCase()} người dùng này?`)
-            .then(function(ok){ if (ok) changeStatus(userId, status); });
-    }
-
-    // Hàm này sẽ xây dựng lại HTML cho dropdown menu dựa trên trạng thái mới
-    function updateActionDropdown(userId, newStatus) {
-        const dropdownMenu = $(`#dropdown-menu-${userId}`);
-        dropdownMenu.empty(); // Xóa các mục cũ
-
-        let newItemsHtml = '';
-
-        if (newStatus !== 'active') {
-            newItemsHtml += `<li><a class="dropdown-item text-success change-status-btn" href="#" data-user-id="${userId}" data-status="active" data-action="{{ __("app.users.activate") }}"><i class="fas fa-check me-2"></i>{{ __("app.users.activate") }}</a></li>`;
-        }
-        if (newStatus !== 'suspended') {
-            newItemsHtml += `<li><a class="dropdown-item text-warning change-status-btn" href="#" data-user-id="${userId}" data-status="suspended" data-action="{{ __("app.users.suspend") }}"><i class="fas fa-pause me-2"></i>{{ __("app.users.suspend") }}</a></li>`;
-        }
-        if (newStatus !== 'banned') {
-            newItemsHtml += `<li><a class="dropdown-item text-danger change-status-btn" href="#" data-user-id="${userId}" data-status="banned" data-action="{{ __("app.users.ban") }}"><i class="fas fa-ban me-2"></i>{{ __("app.users.ban") }}</a></li>`;
-        }
-        if (newStatus !== 'deleted') {
-            newItemsHtml += `<li><hr class="dropdown-divider"></li>`;
-            newItemsHtml += `<li><a class="dropdown-item text-danger change-status-btn" href="#" data-user-id="${userId}" data-status="deleted" data-action="{{ __("app.common.delete") }}"><i class="fas fa-trash me-2"></i>{{ __("app.common.delete") }}</a></li>`;
-        }
-
-        dropdownMenu.html(newItemsHtml);
-    }
-
-    // Hàm thực hiện thay đổi trạng thái sau khi xác nhận
-    function changeStatus(userId, status) {
-        console.log('changeStatus called:', userId, status);
-
-        $.ajax({
-            url: `{{ route('admin.users.update-status', ['user' => '__USER_ID__']) }}`.replace('__USER_ID__', userId),
-            method: 'PATCH',
-            data: {
-                status: status,
-                _token: '{{ csrf_token() }}'
-            },
-            success: function(response) {
-                console.log('AJAX Success:', response);
-                if (response.success) {
-                    // Cập nhật badge
-                    const badge = $(`#status-badge-${userId}`);
-                    console.log('Badge element:', badge.length);
-                    badge.removeClass().addClass(`badge ${response.badge_class}`);
-                    badge.text(response.status_display);
-
-                    showNotification('success', response.message);
-
-                    // Cập nhật lại dropdown action một cách an toàn
-                    updateActionDropdown(userId, status);
-
-                } else {
-                    showNotification('error', response.message || 'Có lỗi xảy ra khi cập nhật trạng thái');
-                }
-            },
-            error: function(xhr, status, error) {
-                console.log('AJAX Error:', xhr, status, error);
-                console.log('Response Text:', xhr.responseText);
-
-                let errorMessage = 'Có lỗi xảy ra, vui lòng thử lại.';
-                if (xhr.responseJSON && xhr.responseJSON.message) {
-                    errorMessage = xhr.responseJSON.message;
-                } else if (xhr.status === 403) {
-                    errorMessage = 'Bạn không có quyền thực hiện hành động này.';
-                } else if (xhr.status === 404) {
-                    errorMessage = 'Không tìm thấy người dùng.';
-                } else if (xhr.status === 422) {
-                    errorMessage = 'Dữ liệu không hợp lệ.';
-                }
-
-                showNotification('error', errorMessage);
-            }
+function viewUser(id) {
+    document.getElementById('offcanvasBackdrop').classList.add('active');
+    document.getElementById('userDetailsOffcanvas').classList.add('active');
+    document.getElementById('userDetailsContent').innerHTML = '<div style="text-align: center; padding: 2rem;"><i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #00E5FF;"></i><p style="margin-top: 1rem; color: #94a3b8;">Đang tải...</p></div>';
+    
+    fetch(`{{ url('admin/users') }}/${id}`)
+        .then(r => r.text())
+        .then(html => {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const content = doc.querySelector('#user-detail-root') || doc.querySelector('.container-fluid');
+            document.getElementById('userDetailsContent').innerHTML = content ? content.innerHTML : html;
+        })
+        .catch(() => {
+            document.getElementById('userDetailsContent').innerHTML = '<div style="text-align: center; padding: 2rem; color: #ef4444;">Không thể tải thông tin người dùng</div>';
         });
-    }
+}
 
-    function executeBulkAction() {
-        const selectedIds = $('.user-checkbox:checked').map(function() {
-            return this.value;
-        }).get();
+function closeOffcanvas() {
+    document.getElementById('offcanvasBackdrop').classList.remove('active');
+    document.getElementById('userDetailsOffcanvas').classList.remove('active');
+}
 
-        const action = $('#bulkAction').val();
+function editUser(id) {
+    window.location.href = `{{ url('admin/users') }}/${id}/edit`;
+}
 
-        if (!action) {
-            // Thay thế alert() bằng notification
-            showNotification('error', 'Vui lòng chọn một hành động để thực hiện.');
-            return;
-        }
+let pendingStatusChange = null;
+function changeStatus(userId, status) {
+    pendingStatusChange = { userId, status };
+    const statusText = {
+        'active': '{{ __("app.users.activate") }}',
+        'suspended': '{{ __("app.users.suspend") }}',
+        'banned': '{{ __("app.users.ban") }}',
+        'deleted': '{{ __("app.common.delete") }}'
+    };
+    document.getElementById('confirmModalBody').innerHTML = `Bạn có chắc chắn muốn <strong style="color: #00E5FF;">${statusText[status]}</strong> người dùng này?`;
+    document.getElementById('confirmModal').classList.add('active');
+}
 
-        $.ajax({
-            url: '{{ route("admin.users.bulk-update") }}',
-            method: 'POST',
-            data: {
-                user_ids: selectedIds,
-                action: action,
-                _token: '{{ csrf_token() }}'
-            },
-            success: function(response) {
-                if (response.success) {
-                    showNotification('success', response.message);
-                    // Đợi 2 giây để user đọc thông báo rồi tải lại trang
-                    setTimeout(() => location.reload(), 2000);
-                } else {
-                    showNotification('error', response.message);
-                }
-            },
-            error: function() {
-                showNotification('error', 'Có lỗi xảy ra khi thực hiện thao tác hàng loạt.');
-            }
-        });
+function closeConfirmModal() {
+    document.getElementById('confirmModal').classList.remove('active');
+    pendingStatusChange = null;
+}
 
-        $('#bulkActionModal').modal('hide');
-    }
+document.getElementById('confirmActionBtn').addEventListener('click', function() {
+    if (!pendingStatusChange) return;
+    const { userId, status } = pendingStatusChange;
+    
+    fetch(`{{ url('admin/users') }}/${userId}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+        body: JSON.stringify({ status: status })
+    }).then(r => r.json()).then(data => {
+        if (data.success) location.reload();
+        else alert(data.message || 'Error');
+    }).catch(() => alert('Error'));
+    
+    closeConfirmModal();
+});
 
-    function exportUsers() {
-        const params = new URLSearchParams(window.location.search);
-        window.open(`{{ route('admin.users.export') }}?${params.toString()}`);
-    }
+function openBulkModal() { document.getElementById('bulkActionModal').classList.add('active'); }
+function closeBulkModal() { document.getElementById('bulkActionModal').classList.remove('active'); }
 
-    // Chuẩn hóa thông báo: sử dụng notify() toàn cục
-    function showNotification(type, message) { try { window.notify(type, message); } catch(e) { console.log(type.toUpperCase()+':', message); } }
+function executeBulkAction() {
+    const selectedIds = Array.from(document.querySelectorAll('.user-checkbox:checked')).map(cb => cb.value);
+    const action = document.getElementById('bulkAction').value;
+    if (!action) { alert('{{ __("app.users.please_select_action") }}'); return; }
+    
+    fetch('{{ route("admin.users.bulk-update") }}', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+        body: JSON.stringify({ user_ids: selectedIds, action: action })
+    }).then(r => r.json()).then(data => {
+        if (data.success) location.reload();
+        else alert(data.message);
+    }).catch(() => alert('Error'));
+    closeBulkModal();
+}
+
+function exportUsers() {
+    window.open(`{{ route('admin.users.export') }}?${new URLSearchParams(window.location.search).toString()}`);
+}
+
+// Close modals on overlay click
+document.getElementById('bulkActionModal').addEventListener('click', function(e) { if (e.target === this) closeBulkModal(); });
+document.getElementById('confirmModal').addEventListener('click', function(e) { if (e.target === this) closeConfirmModal(); });
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') { closeBulkModal(); closeConfirmModal(); closeOffcanvas(); } });
 </script>
 @endpush

@@ -10,7 +10,7 @@ class TournamentManagement extends Model
 {
     use HasFactory;
 
-    protected $table = 'tournaments_management';
+    protected $table = 'tournaments';
 
     protected $fillable = [
         // Thông tin cơ bản

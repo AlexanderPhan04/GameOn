@@ -451,9 +451,13 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function getDisplayAvatar()
     {
-        return $this->profile?->avatar
-            ? asset('storage/'.$this->profile->avatar)
-            : asset('images/default-avatar.png');
+        if ($this->profile?->avatar) {
+            return asset('storage/'.$this->profile->avatar);
+        }
+        
+        // Generate avatar using UI Avatars API with user's initials
+        $name = urlencode($this->name ?? 'User');
+        return "https://ui-avatars.com/api/?name={$name}&size=128&background=667eea&color=ffffff&bold=true&format=svg";
     }
 
     /**
@@ -516,12 +520,9 @@ class User extends Authenticatable implements MustVerifyEmail
         }
 
         return $search->where('status', 'active')
-            ->with('activity')
-            ->get()
-            ->sortByDesc(function ($user) {
-                return $user->activity?->online_status === 'online' ? 1 : 0;
-            })
+            ->with('profile')
+            ->orderBy('name')
             ->take(50)
-            ->values();
+            ->get();
     }
 }

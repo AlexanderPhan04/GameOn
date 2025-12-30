@@ -182,7 +182,6 @@ class ChatController extends Controller
                     'name' => $user->name,
                     'email' => $user->email,
                     'avatar' => $user->getDisplayAvatar(),
-                    'online_status' => $user->online_status,
                     'user_role' => $user->user_role,
                 ];
             }),

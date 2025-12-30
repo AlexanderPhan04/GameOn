@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Storage;
 
 class GameManagement extends Model
 {
-    protected $table = 'games_management';
+    protected $table = 'games';
 
     protected $fillable = [
         'name',

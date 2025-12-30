@@ -254,28 +254,50 @@
 
     <section class="py-16 bg-void">
         <div class="container mx-auto px-4">
-            <div class="text-center mb-12">
+            <div class="text-center mb-20">
                 <div class="max-w-3xl mx-auto">
-                    <h2 class="text-4xl lg:text-5xl font-bold mb-4 font-display neon-text">{{ __('app.home.featured_features') }}</h2>
+                    <h2 class="text-4xl lg:text-5xl font-bold mb-6 font-display neon-text">{{ __('app.home.featured_features') }}</h2>
                     <p class="text-text-muted text-xl mb-0 font-body">{{ __('app.home.discover_powerful_features') }}</p>
                 </div>
             </div>
-            <div class="flex flex-wrap justify-center items-stretch gap-6 lg:gap-8">
-                <div class="flex-1 min-w-[280px] max-w-[350px]">
+            <div class="features-container">
+                <style>
+                .features-container {
+                    display: grid;
+                    grid-template-columns: 1fr;
+                    gap: 2rem;
+                    justify-items: center;
+                    max-width: 72rem;
+                    margin: 0 auto;
+                }
+                
+                @media (min-width: 768px) {
+                    .features-container {
+                        grid-template-columns: repeat(3, 1fr);
+                        gap: 2rem;
+                    }
+                }
+                
+                .feature-item {
+                    width: 100%;
+                    max-width: 320px;
+                }
+                </style>
+                <div class="feature-item">
                     <div class="feature-card h-full text-center p-8">
                         <i class="fas fa-users text-neon mb-4 text-5xl" style="filter: drop-shadow(0 0 10px rgba(0, 229, 255, 0.5));"></i>
                         <h5 class="text-xl font-semibold mb-3 font-display text-text-main">{{ __('app.home.team_management') }}</h5>
                         <p class="text-text-muted font-body">{{ __('app.home.create_manage_teams') }}</p>
                     </div>
                 </div>
-                <div class="flex-1 min-w-[280px] max-w-[350px]">
+                <div class="feature-item">
                     <div class="feature-card h-full text-center p-8">
                         <i class="fas fa-trophy text-neon mb-4 text-5xl" style="filter: drop-shadow(0 0 10px rgba(0, 229, 255, 0.5));"></i>
                         <h5 class="text-xl font-semibold mb-3 font-display text-text-main">{{ __('app.home.tournament_organization') }}</h5>
                         <p class="text-text-muted font-body">{{ __('app.home.organize_tournaments') }}</p>
                     </div>
                 </div>
-                <div class="flex-1 min-w-[280px] max-w-[350px]">
+                <div class="feature-item">
                     <div class="feature-card h-full text-center p-8">
                         <i class="fas fa-chart-line text-neon mb-4 text-5xl" style="filter: drop-shadow(0 0 10px rgba(0, 229, 255, 0.5));"></i>
                         <h5 class="text-xl font-semibold mb-3 font-display text-text-main">{{ __('app.home.detailed_statistics') }}</h5>
@@ -388,16 +410,132 @@
     <section class="pt-20 pb-32 bg-surface mb-16">
         <div class="container mx-auto px-4 md:px-6 lg:px-8 xl:px-12">
             <div class="text-center mb-12">
-                <h2 class="font-display font-bold text-4xl md:text-5xl uppercase tracking-wider mb-2">
+                <h2 class="font-display font-bold text-2xl sm:text-4xl md:text-5xl uppercase tracking-wider mb-2">
                     Đội Ngũ <span class="text-neon">Phát Triển</span>
                 </h2>
                 <div class="h-1 w-24 bg-gradient-to-r from-transparent via-brand to-transparent mx-auto"></div>
-                <p class="text-text-muted mt-4 max-w-lg mx-auto font-body">
+                <p class="text-text-muted mt-4 max-w-lg mx-auto font-body text-sm sm:text-base px-4">
                     Những người đứng sau sự thành công của hệ thống Game On.
                 </p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8 max-w-7xl mx-auto">
+            <!-- Team Grid - Responsive -->
+            <div class="team-grid">
+                <style>
+                    .team-grid {
+                        display: grid;
+                        grid-template-columns: repeat(2, 1fr);
+                        gap: 12px;
+                        max-width: 1200px;
+                        margin: 0 auto;
+                        padding: 0 8px;
+                    }
+                    
+                    @media (min-width: 640px) {
+                        .team-grid {
+                            grid-template-columns: repeat(2, 1fr);
+                            gap: 20px;
+                            padding: 0 16px;
+                        }
+                    }
+                    
+                    @media (min-width: 1024px) {
+                        .team-grid {
+                            grid-template-columns: repeat(4, 1fr);
+                            gap: 24px;
+                        }
+                    }
+                    
+                    .team-card {
+                        background: linear-gradient(135deg, rgba(30, 41, 59, 0.4), rgba(15, 23, 42, 0.6), rgba(2, 6, 23, 0.8));
+                        backdrop-filter: blur(8px);
+                        border: 1px solid rgba(71, 85, 105, 0.3);
+                        border-radius: 16px;
+                        padding: 16px;
+                        transition: all 0.3s ease;
+                    }
+                    
+                    @media (min-width: 640px) {
+                        .team-card {
+                            border-radius: 24px;
+                            padding: 24px;
+                        }
+                    }
+                    
+                    .team-card:hover {
+                        transform: translateY(-4px);
+                        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+                    }
+                    
+                    .team-avatar {
+                        width: 60px;
+                        height: 60px;
+                    }
+                    
+                    @media (min-width: 640px) {
+                        .team-avatar {
+                            width: 80px;
+                            height: 80px;
+                        }
+                    }
+                    
+                    .team-name {
+                        font-size: 14px;
+                    }
+                    
+                    @media (min-width: 640px) {
+                        .team-name {
+                            font-size: 18px;
+                        }
+                    }
+                    
+                    .team-position {
+                        font-size: 11px;
+                    }
+                    
+                    @media (min-width: 640px) {
+                        .team-position {
+                            font-size: 14px;
+                        }
+                    }
+                    
+                    .team-role-badge {
+                        font-size: 9px;
+                        padding: 4px 8px;
+                    }
+                    
+                    @media (min-width: 640px) {
+                        .team-role-badge {
+                            font-size: 11px;
+                            padding: 6px 12px;
+                        }
+                    }
+                    
+                    .team-social {
+                        width: 32px;
+                        height: 32px;
+                    }
+                    
+                    @media (min-width: 640px) {
+                        .team-social {
+                            width: 40px;
+                            height: 40px;
+                        }
+                    }
+                    
+                    .team-social svg {
+                        width: 14px;
+                        height: 14px;
+                    }
+                    
+                    @media (min-width: 640px) {
+                        .team-social svg {
+                            width: 18px;
+                            height: 18px;
+                        }
+                    }
+                </style>
+                
                 @php
                     $teamMembers = [
                         [
@@ -407,12 +545,6 @@
                             'image' => 'AlexanderPhan.jpg',
                             'hover_color' => '#00E5FF',
                             'hover_shadow' => 'rgba(0, 229, 255, 0.15)',
-                            'gradient_to' => '#00E5FF',
-                            'gradient_bg' => 'rgba(0, 229, 255, 0.05)',
-                            'role_bg' => '#000055',
-                            'role_text' => '#00E5FF',
-                            'role_border' => '#1a237e',
-                            'text_hover' => '#00E5FF',
                         ],
                         [
                             'name' => 'Đỗ Thế An',
@@ -421,12 +553,6 @@
                             'image' => 'DoTheAn.jpg',
                             'hover_color' => '#a855f7',
                             'hover_shadow' => 'rgba(168, 85, 247, 0.15)',
-                            'gradient_to' => '#a855f7',
-                            'gradient_bg' => 'rgba(168, 85, 247, 0.05)',
-                            'role_bg' => '#2d0a4e',
-                            'role_text' => '#a78bfa',
-                            'role_border' => '#581c87',
-                            'text_hover' => '#a78bfa',
                         ],
                         [
                             'name' => 'Lê Khánh An',
@@ -435,12 +561,6 @@
                             'image' => 'LeKhanhAn.jpg',
                             'hover_color' => '#eab308',
                             'hover_shadow' => 'rgba(234, 179, 8, 0.15)',
-                            'gradient_to' => '#eab308',
-                            'gradient_bg' => 'rgba(234, 179, 8, 0.05)',
-                            'role_bg' => '#422006',
-                            'role_text' => '#facc15',
-                            'role_border' => '#854d0e',
-                            'text_hover' => '#facc15',
                         ],
                         [
                             'name' => 'Nguyễn Phương Anh',
@@ -449,12 +569,6 @@
                             'image' => 'NguyenPhuongAnh.png',
                             'hover_color' => '#ec4899',
                             'hover_shadow' => 'rgba(236, 72, 153, 0.15)',
-                            'gradient_to' => '#ec4899',
-                            'gradient_bg' => 'rgba(236, 72, 153, 0.05)',
-                            'role_bg' => '#500724',
-                            'role_text' => '#f9a8d4',
-                            'role_border' => '#831843',
-                            'text_hover' => '#f9a8d4',
                         ],
                     ];
                 @endphp
@@ -464,74 +578,48 @@
                     $imagePath = asset('contributors/' . $member['image']);
                     $imageExists = file_exists(public_path('contributors/' . $member['image']));
                 @endphp
-                <div class="group relative bg-surface border border-border rounded-2xl p-6 transition-all duration-300 hover:-translate-y-2 {{ $index === 0 ? 'hover:border-neon' : ($index === 1 ? 'hover:border-purple-500' : ($index === 2 ? 'hover:border-yellow-500' : 'hover:border-pink-500')) }} hover:shadow-[0_0_30px_{{ str_replace(['rgba(', ')', ' '], ['', '', '_'], $member['hover_shadow']) }}]"
-                     style="border-color: #1a237e;"
-                     onmouseover="this.style.borderColor='{{ $member['hover_color'] }}'; this.style.boxShadow='0 0 30px {{ $member['hover_shadow'] }}';"
-                     onmouseout="this.style.borderColor='#1a237e'; this.style.boxShadow='none';">
-                    <div class="absolute inset-0 bg-gradient-to-b opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl" 
-                         style="background: linear-gradient(to bottom, {{ $member['gradient_bg'] }}, transparent);"></div>
-                    
-                    <div class="relative z-10 flex flex-col items-center text-center">
-                        <div class="relative mb-4">
-                            <div class="w-24 h-24 rounded-full p-1 overflow-hidden" style="background: linear-gradient(to top right, #1a237e, {{ $member['gradient_to'] }}); width: 96px; height: 96px; min-width: 96px; min-height: 96px; max-width: 96px; max-height: 96px;">
+                <div class="team-card">
+                    <div class="flex flex-col items-center text-center">
+                        <!-- Avatar Section -->
+                        <div class="relative mb-3 sm:mb-4">
+                            <div class="team-avatar relative" style="border-radius: 50%; padding: 2px; background: linear-gradient(135deg, {{ $member['hover_color'] }}, transparent, {{ $member['hover_color'] }});">
                                 @if($imageExists)
                                     <img src="{{ $imagePath }}" alt="{{ $member['name'] }}" 
-                                        class="rounded-full object-cover border-4 border-surface"
-                                        style="width: 100%; height: 100%; object-fit: cover;">
+                                        style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; background: #1e293b;">
                                 @else
-                                    <div class="w-full h-full rounded-full bg-void flex items-center justify-center border-4 border-surface">
-                                        <i class="fas fa-user text-4xl" style="color: {{ $member['gradient_to'] }};"></i>
+                                    <div style="width: 100%; height: 100%; border-radius: 50%; background: #1e293b; display: flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-user text-lg sm:text-2xl" style="color: {{ $member['hover_color'] }};"></i>
                                     </div>
                                 @endif
                             </div>
-                            <div class="absolute -bottom-2 left-1/2 transform -translate-x-1/2 text-xs font-bold px-2 py-0.5 rounded border font-display uppercase tracking-widest whitespace-nowrap" 
-                                 style="background-color: {{ $member['role_bg'] }}; color: {{ $member['role_text'] }}; border-color: {{ $member['role_border'] }};">
-                                {{ $member['role'] }}
+                            
+                            <!-- Role Badge -->
+                            <div class="absolute -bottom-1 sm:-bottom-2 left-1/2 transform -translate-x-1/2">
+                                <div class="team-role-badge rounded-md sm:rounded-lg font-bold uppercase tracking-wider shadow-lg"
+                                     style="background: {{ $member['hover_color'] }}; color: #000; box-shadow: 0 0 15px {{ $member['hover_shadow'] }};">
+                                    {{ $member['role'] }}
+                                </div>
                             </div>
                         </div>
 
-                        <h3 class="font-display font-bold text-xl text-white transition-colors mb-1 {{ $index === 0 ? 'group-hover:text-neon' : ($index === 1 ? 'group-hover:text-purple-400' : ($index === 2 ? 'group-hover:text-yellow-400' : 'group-hover:text-pink-400')) }}" 
-                            style="color: white;"
-                            onmouseover="this.style.color='{{ $member['text_hover'] }}';"
-                            onmouseout="this.style.color='white';">
-                            {{ $member['name'] }}
+                        <!-- Name -->
+                        <h3 class="team-name font-display font-bold text-white mb-1 sm:mb-2">
+                            {{ $member['name'] === 'Alexander Phan' ? 'Phan Nhật Quân' : $member['name'] }}
                         </h3>
-                        <p class="text-sm text-text-muted mb-4 font-body">
+                        
+                        <!-- Position -->
+                        <p class="team-position text-slate-400 mb-2 sm:mb-4 font-body">
                             {{ $member['position'] }}
                         </p>
                         
                         <!-- Social Links -->
-                        <div class="flex gap-6">
-                            @if($index === 0)
-                                <!-- Leader: GitHub & Facebook -->
-                                <a href="#" class="w-8 h-8 flex items-center justify-center rounded-full bg-void border border-border text-slate-400 hover:text-white hover:border-neon hover:bg-brand transition-all" style="border-radius: 50% !important;">
-                                    <i class="fab fa-github"></i>
-                                </a>
-                                <a href="#" class="w-8 h-8 flex items-center justify-center rounded-full bg-void border border-border text-slate-400 hover:text-blue-500 hover:border-blue-500 hover:bg-void transition-all" style="border-radius: 50% !important;">
-                                    <i class="fab fa-facebook-f"></i>
-                                </a>
-                            @elseif($index === 1)
-                                <!-- Backend Dev: GitHub & LinkedIn -->
-                                <a href="#" class="w-8 h-8 flex items-center justify-center rounded-full bg-void border border-border hover:bg-purple-900 hover:text-white transition-all" style="border-radius: 50% !important;">
-                                    <i class="fab fa-github"></i>
-                                </a>
-                                <a href="#" class="w-8 h-8 flex items-center justify-center rounded-full bg-void border border-border hover:bg-blue-600 hover:text-white transition-all" style="border-radius: 50% !important;">
-                                    <i class="fab fa-linkedin-in"></i>
-                                </a>
-                            @elseif($index === 2)
-                                <!-- Frontend Dev: GitHub & Instagram -->
-                                <a href="#" class="w-8 h-8 flex items-center justify-center rounded-full bg-void border border-border hover:bg-yellow-900 hover:text-white transition-all" style="border-radius: 50% !important;">
-                                    <i class="fab fa-github"></i>
-                                </a>
-                                <a href="#" class="w-8 h-8 flex items-center justify-center rounded-full bg-void border border-border hover:bg-pink-600 hover:text-white transition-all" style="border-radius: 50% !important;">
-                                    <i class="fab fa-instagram"></i>
-                                </a>
-                            @else
-                                <!-- UI/UX: Email -->
-                                <a href="#" class="w-8 h-8 flex items-center justify-center rounded-full bg-void border border-border hover:bg-pink-900 hover:text-white transition-all" style="border-radius: 50% !important;">
-                                    <i class="fas fa-envelope"></i>
-                                </a>
-                            @endif
+                        <div class="flex gap-2 sm:gap-3">
+                            <a href="#" class="team-social flex items-center justify-center rounded-lg sm:rounded-xl bg-slate-800/30 border border-slate-600/30 text-slate-400 hover:text-white transition-all duration-300" style="--hover-color: {{ $member['hover_color'] }};">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                            </a>
+                            <a href="#" class="team-social flex items-center justify-center rounded-lg sm:rounded-xl bg-slate-800/30 border border-slate-600/30 text-slate-400 hover:text-white transition-all duration-300">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z"/></svg>
+                            </a>
                         </div>
                     </div>
                 </div>

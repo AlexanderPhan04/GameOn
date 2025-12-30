@@ -38,6 +38,7 @@
         .content-wrapper {
             opacity: 0;
             transition: opacity 0.3s ease-in-out;
+            margin-bottom: 3rem;
         }
         
         .content-wrapper.loaded {
@@ -60,7 +61,6 @@
         }
         
         /* Profile specific critical styles */
-        @if(Request::is('profile*'))
         .modern-profile-container {
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
             position: relative;
@@ -563,7 +563,6 @@
                 padding-right: 15px;
             }
         }
-        @endif
         
         /* Loading screen to prevent FOUC */
         .loading-screen {
@@ -727,6 +726,12 @@
             gap: 0.5rem;
         }
 
+        /* Language Dropdown Styles - using Tailwind, minimal custom CSS */
+        #languageDropdownMenu.show,
+        #languageDropdownMobileMenu.show {
+            display: block !important;
+        }
+
         .gameon-user-avatar {
             width: 36px;
             height: 36px;
@@ -804,11 +809,374 @@
                 display: none;
             }
         }
+        
+        /* ===== MOBILE SLIDE MENU ===== */
+        .mobile-menu-toggle {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 44px;
+            height: 44px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            gap: 5px;
+            border-radius: 8px;
+            transition: background 0.3s ease;
+        }
+        
+        .mobile-menu-toggle:hover {
+            background: rgba(0, 229, 255, 0.1);
+        }
+        
+        .mobile-menu-toggle .hamburger-line {
+            width: 24px;
+            height: 2px;
+            background: #00E5FF;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+        
+        .mobile-menu-toggle.active .hamburger-line:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+        
+        .mobile-menu-toggle.active .hamburger-line:nth-child(2) {
+            opacity: 0;
+        }
+        
+        .mobile-menu-toggle.active .hamburger-line:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -5px);
+        }
+        
+        @media (max-width: 1023px) {
+            .mobile-menu-toggle {
+                display: flex;
+            }
+        }
+        
+        /* Overlay */
+        .mobile-menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 10000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .mobile-menu-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        /* Slide Menu */
+        .mobile-slide-menu {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 300px;
+            max-width: 85vw;
+            height: 100vh;
+            background: linear-gradient(180deg, #000814 0%, #000022 50%, #0d1b2a 100%);
+            z-index: 10001;
+            transform: translateX(100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
+            border-left: 1px solid rgba(0, 229, 255, 0.2);
+        }
+        
+        .mobile-slide-menu.active {
+            transform: translateX(0);
+        }
+        
+        /* Menu Header */
+        .mobile-menu-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            border-bottom: 1px solid rgba(0, 229, 255, 0.2);
+            background: rgba(0, 0, 85, 0.3);
+        }
+        
+        .mobile-menu-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .mobile-menu-brand img {
+            width: 40px;
+            height: 40px;
+            max-width: 40px;
+            max-height: 40px;
+            object-fit: contain;
+            flex-shrink: 0;
+        }
+        
+        .mobile-menu-close {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .mobile-menu-close:hover {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: rgba(239, 68, 68, 0.5);
+            color: #ef4444;
+        }
+        
+        /* Menu Content */
+        .mobile-menu-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 0;
+        }
+        
+        /* User Info */
+        .mobile-user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            margin-bottom: 8px;
+        }
+        
+        .mobile-user-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00E5FF, #0099cc);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000;
+            font-size: 18px;
+            overflow: hidden;
+            border: 2px solid rgba(0, 229, 255, 0.3);
+        }
+        
+        .mobile-user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .mobile-user-name {
+            color: white;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        .mobile-user-role {
+            color: #00E5FF;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Menu Divider */
+        .mobile-menu-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(0, 229, 255, 0.3), transparent);
+            margin: 12px 20px;
+        }
+        
+        /* Section Title */
+        .mobile-menu-section-title {
+            color: #64748b;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 8px 20px;
+        }
+        
+        /* Menu Nav */
+        .mobile-menu-nav {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .mobile-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 20px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+        
+        .mobile-menu-item:hover {
+            background: rgba(0, 229, 255, 0.1);
+            color: #00E5FF;
+            border-left-color: #00E5FF;
+        }
+        
+        .mobile-menu-item.active {
+            background: rgba(0, 229, 255, 0.15);
+            color: #00E5FF;
+            border-left-color: #00E5FF;
+        }
+        
+        .mobile-menu-item i {
+            width: 20px;
+            text-align: center;
+            font-size: 16px;
+        }
+        
+        .mobile-menu-item span {
+            font-size: 15px;
+            font-weight: 500;
+        }
+        
+        /* Language Switcher */
+        .mobile-language-switcher {
+            display: flex;
+            gap: 10px;
+            padding: 8px 20px;
+        }
+        
+        .mobile-lang-btn {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .mobile-lang-btn:hover {
+            background: rgba(0, 229, 255, 0.1);
+            border-color: rgba(0, 229, 255, 0.3);
+            color: #00E5FF;
+        }
+        
+        .mobile-lang-btn.active {
+            background: rgba(0, 229, 255, 0.2);
+            border-color: #00E5FF;
+            color: #00E5FF;
+        }
+        
+        /* Auth Buttons */
+        .mobile-auth-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 8px 20px;
+        }
+        
+        .mobile-auth-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 14px 20px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .mobile-login-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+        
+        .mobile-login-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+        
+        .mobile-register-btn {
+            background: linear-gradient(135deg, #00E5FF, #0099cc);
+            border: none;
+            color: #000;
+        }
+        
+        .mobile-register-btn:hover {
+            box-shadow: 0 0 20px rgba(0, 229, 255, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        /* Logout */
+        .mobile-logout-form {
+            padding: 0;
+        }
+        
+        .mobile-logout-btn {
+            width: 100%;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            color: rgba(239, 68, 68, 0.8);
+        }
+        
+        .mobile-logout-btn:hover {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            border-left-color: #ef4444;
+        }
+        
+        /* Hide desktop elements on mobile */
+        @media (max-width: 1023px) {
+            .gameon-user-menu > .gameon-nav-link:not(.mobile-menu-toggle),
+            .gameon-user-menu > #userMenuDropdown,
+            .gameon-user-menu > #languageDropdown,
+            .gameon-user-menu > .relative:not(:last-child) {
+                display: none;
+            }
+        }
 
         /* Footer Styles - Comprehensive CSS to ensure proper display */
         footer {
             position: relative !important;
             overflow: hidden !important;
+        }
+        
+        /* Remove underline from all footer links */
+        footer a {
+            text-decoration: none !important;
+        }
+        
+        /* Remove bullet points from footer lists */
+        footer ul {
+            list-style: none !important;
+            padding-left: 0 !important;
+        }
+        
+        footer li {
+            list-style: none !important;
         }
         
         footer.bg-midnight,
@@ -1128,17 +1496,6 @@
             padding-top: 64px;
         }
 
-        /* Mobile menu */
-        #mobileNav {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease;
-        }
-
-        #mobileNav.show {
-            max-height: 500px;
-        }
-        
         /* Remove padding-top on welcome page */
         body.welcome-page {
             padding-top: 0;
@@ -1293,12 +1650,8 @@
             padding: 1rem 0.5rem;
         }
 
-        /* Ẩn text và arrow trong language switcher khi collapsed */
-        .admin-sidebar.collapsed .language-switcher-sidebar .dropdown-toggle::after {
-            display: none;
-        }
-
-        .admin-sidebar.collapsed .language-switcher-sidebar .btn {
+        /* Ẩn text trong language switcher khi collapsed */
+        .admin-sidebar.collapsed .language-switcher-sidebar button {
             padding: 0.5rem !important;
             width: 40px !important;
             height: 40px !important;
@@ -1308,33 +1661,27 @@
             border-radius: 50% !important;
         }
 
-        .admin-sidebar.collapsed .language-switcher-sidebar .btn span,
-        .admin-sidebar.collapsed .language-switcher-sidebar .btn-text {
+        .admin-sidebar.collapsed .language-switcher-sidebar button span {
             display: none;
         }
 
-        .admin-sidebar.collapsed .language-switcher-sidebar .btn i {
+        .admin-sidebar.collapsed .language-switcher-sidebar button i {
             margin: 0 !important;
         }
 
         /* Hiện lại khi hover */
-        .admin-sidebar.collapsed:hover .language-switcher-sidebar .dropdown-toggle::after {
-            display: inline-block;
-        }
-
-        .admin-sidebar.collapsed:hover .language-switcher-sidebar .btn {
+        .admin-sidebar.collapsed:hover .language-switcher-sidebar button {
             padding: 0.375rem 0.75rem !important;
             width: 100% !important;
             height: auto !important;
             border-radius: 0.25rem !important;
         }
 
-        .admin-sidebar.collapsed:hover .language-switcher-sidebar .btn span,
-        .admin-sidebar.collapsed:hover .language-switcher-sidebar .btn-text {
+        .admin-sidebar.collapsed:hover .language-switcher-sidebar button span {
             display: inline;
         }
 
-        .admin-sidebar.collapsed:hover .language-switcher-sidebar .btn i {
+        .admin-sidebar.collapsed:hover .language-switcher-sidebar button i {
             margin-right: 0.5rem !important;
         }
 
@@ -1973,7 +2320,7 @@
                         <small class="brand-tagline">{{ __('app.tagline') }}</small>
                     </div>
                 </a>
-                <button class="sidebar-toggle d-lg-none" id="sidebarToggle">
+                <button class="sidebar-toggle lg:hidden" id="sidebarToggle">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
@@ -2077,17 +2424,21 @@
                     </div>
                 </div>
                 <div class="language-switcher-sidebar">
-                    <div class="dropdown">
-                        <button class="btn btn-sm btn-outline-light w-100 dropdown-toggle" type="button" data-bs-toggle="dropdown" title="{{ strtoupper(app()->getLocale()) }}">
-                            <i class="fas fa-globe me-2"></i><span class="btn-text">{{ strtoupper(app()->getLocale()) }}</span>
+                    <div class="relative">
+                        <button class="w-full px-3 py-1.5 text-sm border border-white/30 rounded text-white/90 hover:bg-white/10 hover:border-white/50 transition-all flex items-center justify-center gap-2" type="button" id="sidebarLanguageToggle" title="{{ strtoupper(app()->getLocale()) }}">
+                            <i class="fas fa-globe mr-2"></i><span>{{ strtoupper(app()->getLocale()) }}</span>
                         </button>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item language-switch" href="#" data-locale="en">
-                                <i class="fas fa-flag-usa me-2"></i>English
-                            </a></li>
-                            <li><a class="dropdown-item language-switch" href="#" data-locale="vi">
-                                <i class="fas fa-flag me-2"></i>Tiếng Việt
-                            </a></li>
+                        <ul class="absolute bottom-full left-0 right-0 mb-2 hidden bg-[#0d1b2a] border border-[rgba(0,229,255,0.2)] rounded-lg py-2 shadow-lg" id="sidebarLanguageMenu">
+                            <li class="list-none">
+                                <a class="language-switch flex items-center gap-2 px-4 py-2 text-white no-underline hover:bg-[rgba(0,229,255,0.15)] transition-all" href="#" data-locale="en">
+                                    <i class="fas fa-flag-usa mr-2 text-[#00E5FF]"></i>English
+                                </a>
+                            </li>
+                            <li class="list-none">
+                                <a class="language-switch flex items-center gap-2 px-4 py-2 text-white no-underline hover:bg-[rgba(0,229,255,0.15)] transition-all" href="#" data-locale="vi">
+                                    <i class="fas fa-flag mr-2 text-[#00E5FF]"></i>Tiếng Việt
+                                </a>
+                            </li>
                         </ul>
                     </div>
                 </div>
@@ -2096,27 +2447,27 @@
 
         <!-- Admin Top Bar (Compact) -->
         <div class="admin-topbar">
-            <button class="sidebar-toggle-mobile d-lg-none" id="sidebarToggleMobile">
+            <button class="sidebar-toggle-mobile lg:hidden" id="sidebarToggleMobile">
                 <i class="fas fa-bars"></i>
             </button>
             <div class="topbar-search">
                 @auth
-                <div id="header-search" class="position-relative">
-                    <button type="button" class="btn btn-light btn-sm" id="searchToggle" title="{{ __('app.search.search') }}" aria-expanded="false">
+                <div id="header-search" class="relative">
+                    <button type="button" class="px-3 py-1.5 text-sm bg-white text-gray-800 rounded hover:bg-gray-100 transition-colors" id="searchToggle" title="{{ __('app.search.search') }}" aria-expanded="false">
                         <i class="fas fa-magnifying-glass"></i>
                     </button>
-                    <div id="searchBox" class="position-absolute end-0 mt-2" style="display:none; z-index: 100000;">
+                    <div id="searchBox" class="absolute right-0 top-full mt-2" style="display:none; z-index: 100000;">
                         <div class="search-panel">
                             <div class="search-input-wrap">
-                                <i class="fas fa-magnifying-glass text-secondary"></i>
+                                <i class="fas fa-magnifying-glass text-gray-500"></i>
                                 <input id="searchInput" class="search-input" placeholder="{{ __('app.search.search_users_teams_tournaments_games') }}" />
                                 <div id="searchLoading" class="search-loading"></div>
                                 <button id="searchClear" class="search-clear" title="{{ __('app.search.clear') }}"><i class="fas fa-xmark"></i></button>
-                                <span class="ms-2 d-none d-md-inline text-secondary" title="{{ __('app.search.shortcut') }}"><span class="search-kbd">/</span> <span class="search-kbd">Enter</span></span>
+                                <span class="ml-2 hidden md:inline text-gray-500" title="{{ __('app.search.shortcut') }}"><span class="search-kbd">/</span> <span class="search-kbd">Enter</span></span>
                             </div>
                             <div id="searchResults" class="search-results"></div>
                             <div class="p-2 border-top" id="searchFooter" style="display:none;">
-                                <a id="searchSeeAll" class="btn btn-sm btn-outline-primary w-100">{{ __('app.search.see_all_results') }}</a>
+                                <a id="searchSeeAll" class="block w-full px-3 py-1.5 text-sm border border-blue-500 text-blue-500 rounded hover:bg-blue-500 hover:text-white transition-colors text-center">{{ __('app.search.see_all_results') }}</a>
                             </div>
                         </div>
                     </div>
@@ -2140,7 +2491,7 @@
                 </a>
 
                 <!-- Desktop: Nav Links -->
-                <div class="gameon-nav-links d-none d-lg-flex">
+                <div class="gameon-nav-links hidden lg:flex">
                     @auth
                         @if(!Request::is('dashboard*'))
                         <a href="{{ route('dashboard') }}" class="gameon-nav-link">
@@ -2175,24 +2526,43 @@
 
                 <!-- Right Side: Language, Search, User -->
                 <div class="gameon-user-menu">
-                    <!-- Language -->
-                    <a href="#" class="gameon-nav-link language-switch d-none d-lg-flex" data-locale="en" title="English">
-                        <i class="fas fa-flag-usa"></i>
-                    </a>
-                    <a href="#" class="gameon-nav-link language-switch d-none d-lg-flex" data-locale="vi" title="Tiếng Việt">
-                        <i class="fas fa-flag"></i>
-                    </a>
+                    <!-- Language Dropdown -->
+                    <div class="relative" id="languageDropdown">
+                        <button type="button" class="gameon-nav-link" id="languageDropdownToggle" aria-expanded="false" aria-haspopup="true" title="{{ strtoupper(app()->getLocale()) }}" style="border: none; background: none; cursor: pointer; text-decoration: none; padding: 0.5rem 1rem;">
+                            <i class="fas fa-globe"></i>
+                        </button>
+                        <ul class="absolute right-0 top-full mt-1 hidden bg-[#0d1b2a] border border-[rgba(0,229,255,0.2)] rounded-lg py-2 min-w-[180px] z-[10000] shadow-lg" id="languageDropdownMenu" aria-labelledby="languageDropdownToggle">
+                            <li class="list-none">
+                                <a class="language-switch flex items-center gap-3 px-5 py-3 text-white no-underline transition-all hover:bg-[rgba(0,229,255,0.15)] hover:text-[#00E5FF]" href="#" data-locale="en">
+                                    <i class="fas fa-flag-usa text-[#00E5FF]"></i>
+                                    <span>English</span>
+                                    @if(app()->getLocale() === 'en')
+                                        <i class="fas fa-check ml-auto text-[#00E5FF]"></i>
+                                    @endif
+                                </a>
+                            </li>
+                            <li class="list-none">
+                                <a class="language-switch flex items-center gap-3 px-5 py-3 text-white no-underline transition-all hover:bg-[rgba(0,229,255,0.15)] hover:text-[#00E5FF]" href="#" data-locale="vi">
+                                    <i class="fas fa-flag text-[#00E5FF]"></i>
+                                    <span>Tiếng Việt</span>
+                                    @if(app()->getLocale() === 'vi')
+                                        <i class="fas fa-check ml-auto text-[#00E5FF]"></i>
+                                    @endif
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
 
                     <!-- Search -->
                     @auth
-                    <div class="position-relative d-none d-md-block">
+                    <div class="relative hidden md:block">
                         <button type="button" class="gameon-nav-link" id="searchToggle" style="border: none; background: none; cursor: pointer;">
                             <i class="fas fa-magnifying-glass"></i>
                         </button>
-                        <div id="searchBox" class="position-absolute end-0 mt-2" style="display:none; z-index: 100000;">
+                        <div id="searchBox" class="absolute right-0 top-full mt-2" style="display:none; z-index: 100000;">
                             <div class="search-panel">
                                 <div class="search-input-wrap">
-                                    <i class="fas fa-magnifying-glass text-secondary"></i>
+                                    <i class="fas fa-magnifying-glass text-gray-500"></i>
                                     <input id="searchInput" class="search-input" placeholder="{{ __('app.search.search_users_teams_tournaments_games') }}" />
                                     <div id="searchLoading" class="search-loading"></div>
                                     <button id="searchClear" class="search-clear" title="{{ __('app.search.clear') }}"><i class="fas fa-xmark"></i></button>
@@ -2205,47 +2575,59 @@
 
                     <!-- User Menu -->
                     @auth
-                    <div class="dropdown">
-                        <a href="#" class="gameon-nav-link dropdown-toggle" data-bs-toggle="dropdown" style="text-decoration: none;">
+                    <div class="relative" id="userMenuDropdown">
+                        <a href="#" class="gameon-nav-link" id="userMenuToggle" style="text-decoration: none;">
                             <div class="gameon-user-avatar">
                                 <i class="fas fa-user"></i>
                             </div>
-                            <div class="gameon-user-info d-none d-lg-block">
+                            <div class="gameon-user-info hidden lg:block">
                                 <div class="gameon-user-name">{{ Auth::user()->name ?? 'User' }}</div>
                                 <div class="gameon-user-role">{{ ucfirst(str_replace('_', ' ', Auth::user()->user_role ?? 'user')) }}</div>
                             </div>
                             <i class="fas fa-chevron-down"></i>
                         </a>
-                        <ul class="dropdown-menu gameon-dropdown">
+                        <ul class="absolute right-0 top-full mt-2 hidden bg-[#0d1b2a] border border-[rgba(0,229,255,0.2)] rounded-lg py-2 min-w-[200px] z-[10000] shadow-lg" id="userMenuDropdownMenu">
                             @if(Auth::user()->user_role === 'player')
-                            <li><a href="{{ route('teams.index') }}" class="gameon-dropdown-item">
-                                <i class="fas fa-users"></i>
-                                <span>{{ __('app.nav.my_teams') }}</span>
-                            </a></li>
+                            <li class="list-none">
+                                <a href="{{ route('teams.index') }}" class="gameon-dropdown-item">
+                                    <i class="fas fa-users"></i>
+                                    <span>{{ __('app.nav.my_teams') }}</span>
+                                </a>
+                            </li>
                             @endif
                             @if(Auth::user()->user_role === 'admin' || Auth::user()->user_role === 'super_admin')
-                            <li><a href="{{ route('admin.games.index') }}" class="gameon-dropdown-item">
-                                <i class="fas fa-gamepad"></i>
-                                <span>{{ __('app.profile.manage_games') }}</span>
-                            </a></li>
-                            <li><a href="{{ route('admin.tournaments.index') }}" class="gameon-dropdown-item">
-                                <i class="fas fa-trophy"></i>
-                                <span>{{ __('app.profile.manage_tournaments') }}</span>
-                            </a></li>
-                            <li><a href="{{ route('admin.teams.index') }}" class="gameon-dropdown-item">
-                                <i class="fas fa-users-gear"></i>
-                                <span>{{ __('app.profile.manage_teams') }}</span>
-                            </a></li>
-                            <li><a href="{{ route('admin.users.index') }}" class="gameon-dropdown-item">
-                                <i class="fas fa-users"></i>
-                                <span>{{ __('app.profile.manage_users') }}</span>
-                            </a></li>
+                            <li class="list-none">
+                                <a href="{{ route('admin.games.index') }}" class="gameon-dropdown-item">
+                                    <i class="fas fa-gamepad"></i>
+                                    <span>{{ __('app.profile.manage_games') }}</span>
+                                </a>
+                            </li>
+                            <li class="list-none">
+                                <a href="{{ route('admin.tournaments.index') }}" class="gameon-dropdown-item">
+                                    <i class="fas fa-trophy"></i>
+                                    <span>{{ __('app.profile.manage_tournaments') }}</span>
+                                </a>
+                            </li>
+                            <li class="list-none">
+                                <a href="{{ route('admin.teams.index') }}" class="gameon-dropdown-item">
+                                    <i class="fas fa-users-gear"></i>
+                                    <span>{{ __('app.profile.manage_teams') }}</span>
+                                </a>
+                            </li>
+                            <li class="list-none">
+                                <a href="{{ route('admin.users.index') }}" class="gameon-dropdown-item">
+                                    <i class="fas fa-users"></i>
+                                    <span>{{ __('app.profile.manage_users') }}</span>
+                                </a>
+                            </li>
                             @endif
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
+                            <li class="list-none">
+                                <hr class="border-t border-[rgba(0,229,255,0.2)] my-2">
+                            </li>
+                            <li class="list-none">
                                 <form method="POST" action="{{ route('auth.logout') }}">
                                     @csrf
-                                    <button type="submit" class="gameon-dropdown-item" style="width: 100%; border: none; background: none; text-align: left;">
+                                    <button type="submit" class="gameon-dropdown-item w-full text-left">
                                         <i class="fas fa-right-from-bracket"></i>
                                         <span>{{ __('app.auth.logout') }}</span>
                                     </button>
@@ -2254,69 +2636,237 @@
                         </ul>
                     </div>
                     @else
-                    <a href="{{ route('auth.login') }}" class="gameon-nav-link">
+                    <!-- Desktop: Login/Register buttons -->
+                    <a href="{{ route('auth.login') }}" class="gameon-nav-link hidden lg:flex">
                         <i class="fas fa-sign-in-alt"></i>
                         <span>{{ __('app.auth.login') }}</span>
                     </a>
-                    <a href="{{ route('auth.register') }}" class="gameon-nav-link" style="background: rgba(0, 229, 255, 0.1); border: 1px solid rgba(0, 229, 255, 0.3);">
+                    <a href="{{ route('auth.register') }}" class="gameon-nav-link hidden lg:flex" style="background: rgba(0, 229, 255, 0.1); border: 1px solid rgba(0, 229, 255, 0.3);">
                         <i class="fas fa-user-plus"></i>
                         <span>{{ __('app.auth.register') }}</span>
                     </a>
                     @endauth
-
-                    <!-- Mobile Menu Toggle -->
-                    <button class="gameon-nav-link d-lg-none" type="button" data-bs-toggle="collapse" data-bs-target="#mobileNav" style="border: none; background: none; cursor: pointer;">
-                        <i class="fas fa-bars"></i>
+                    
+                    <!-- Mobile: Hamburger Menu Button -->
+                    <button class="mobile-menu-toggle lg:hidden" id="mobileMenuToggle" aria-label="Toggle menu">
+                        <span class="hamburger-line"></span>
+                        <span class="hamburger-line"></span>
+                        <span class="hamburger-line"></span>
                     </button>
                 </div>
             </div>
+        </nav>
 
-            <!-- Mobile Menu -->
-            <div class="collapse d-lg-none" id="mobileNav">
-                <div style="background: #0d1b2a; border-top: 1px solid rgba(0, 229, 255, 0.2); padding: 1rem;">
-                    @auth
-                    <a href="{{ route('dashboard') }}" class="gameon-dropdown-item" style="display: block; margin-bottom: 0.5rem;">
+        <!-- Mobile Slide Menu Overlay -->
+        <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
+        
+        <!-- Mobile Slide Menu -->
+        <div class="mobile-slide-menu" id="mobileSlideMenu">
+            <!-- Menu Header -->
+            <div class="mobile-menu-header">
+                <div class="mobile-menu-brand">
+                    <img src="{{ asset('logo_remove_bg.png') }}" alt="{{ __('app.name') }}" class="w-10 h-10 object-contain">
+                    <div>
+                        <div class="text-white font-bold text-lg">{{ __('app.name') }}</div>
+                        <div class="text-slate-400 text-xs">{{ __('app.tagline') }}</div>
+                    </div>
+                </div>
+                <button class="mobile-menu-close" id="mobileMenuClose" aria-label="Close menu">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <!-- Menu Content -->
+            <div class="mobile-menu-content">
+                @auth
+                <!-- User Info -->
+                <div class="mobile-user-info">
+                    <div class="mobile-user-avatar">
+                        @if(Auth::user()->avatar)
+                            <img src="{{ get_avatar_url(Auth::user()->avatar) }}" alt="Avatar">
+                        @else
+                            <i class="fas fa-user"></i>
+                        @endif
+                    </div>
+                    <div class="mobile-user-details">
+                        <div class="mobile-user-name">{{ Auth::user()->name ?? 'User' }}</div>
+                        <div class="mobile-user-role">{{ ucfirst(str_replace('_', ' ', Auth::user()->user_role ?? 'user')) }}</div>
+                    </div>
+                </div>
+                
+                <div class="mobile-menu-divider"></div>
+                
+                <!-- Navigation Links -->
+                <nav class="mobile-menu-nav">
+                    <a href="{{ route('home') }}" class="mobile-menu-item {{ Request::is('/') || Request::is('home') ? 'active' : '' }}">
+                        <i class="fas fa-home"></i>
+                        <span>Trang chủ</span>
+                    </a>
+                    <a href="{{ route('dashboard') }}" class="mobile-menu-item {{ Request::is('dashboard*') ? 'active' : '' }}">
                         <i class="fas fa-gauge-high"></i>
                         <span>{{ __('app.nav.dashboard') }}</span>
                     </a>
-                    <a href="{{ route('chat.index') }}" class="gameon-dropdown-item" style="display: block; margin-bottom: 0.5rem;">
+                    @if(Route::has('tournaments.index'))
+                    <a href="{{ route('tournaments.index') }}" class="mobile-menu-item {{ Request::is('tournaments*') ? 'active' : '' }}">
+                        <i class="fas fa-trophy"></i>
+                        <span>{{ __('app.nav.tournaments') }}</span>
+                    </a>
+                    @endif
+                    @if(Auth::user()->user_role === 'player' && Route::has('teams.index'))
+                    <a href="{{ route('teams.index') }}" class="mobile-menu-item {{ Request::is('teams*') ? 'active' : '' }}">
+                        <i class="fas fa-users"></i>
+                        <span>{{ __('app.nav.my_teams') }}</span>
+                    </a>
+                    @endif
+                    @if(Route::has('chat.index'))
+                    <a href="{{ route('chat.index') }}" class="mobile-menu-item {{ Request::is('chat*') ? 'active' : '' }}">
                         <i class="fas fa-comments"></i>
                         <span>{{ __('app.nav.chat') }}</span>
                     </a>
-                    <a href="{{ route('posts.index') }}" class="gameon-dropdown-item" style="display: block; margin-bottom: 0.5rem;">
+                    @endif
+                    @if(Route::has('posts.index'))
+                    <a href="{{ route('posts.index') }}" class="mobile-menu-item {{ Request::is('posts*') ? 'active' : '' }}">
                         <i class="fas fa-newspaper"></i>
                         <span>{{ __('app.nav.posts') }}</span>
                     </a>
-                    <a href="{{ route('marketplace.index') }}" class="gameon-dropdown-item" style="display: block; margin-bottom: 0.5rem;">
+                    @endif
+                    @if(Route::has('marketplace.index'))
+                    <a href="{{ route('marketplace.index') }}" class="mobile-menu-item {{ Request::is('marketplace*') ? 'active' : '' }}">
                         <i class="fas fa-store"></i>
                         <span>Marketplace</span>
                     </a>
-                    <a href="{{ route('profile.show') }}" class="gameon-dropdown-item" style="display: block; margin-bottom: 0.5rem;">
+                    @endif
+                    @if(Route::has('profile.show'))
+                    <a href="{{ route('profile.show') }}" class="mobile-menu-item {{ Request::is('profile*') ? 'active' : '' }}">
                         <i class="fas fa-id-card"></i>
                         <span>{{ __('app.profile.personal_info') }}</span>
                     </a>
-                    @endauth
+                    @endif
+                </nav>
+                
+                @if(Auth::user()->user_role === 'admin' || Auth::user()->user_role === 'super_admin')
+                <div class="mobile-menu-divider"></div>
+                <div class="mobile-menu-section-title">Quản trị</div>
+                <nav class="mobile-menu-nav">
+                    <a href="{{ route('admin.games.index') }}" class="mobile-menu-item">
+                        <i class="fas fa-gamepad"></i>
+                        <span>{{ __('app.profile.manage_games') }}</span>
+                    </a>
+                    <a href="{{ route('admin.tournaments.index') }}" class="mobile-menu-item">
+                        <i class="fas fa-trophy"></i>
+                        <span>{{ __('app.profile.manage_tournaments') }}</span>
+                    </a>
+                    <a href="{{ route('admin.teams.index') }}" class="mobile-menu-item">
+                        <i class="fas fa-users-gear"></i>
+                        <span>{{ __('app.profile.manage_teams') }}</span>
+                    </a>
+                    <a href="{{ route('admin.users.index') }}" class="mobile-menu-item">
+                        <i class="fas fa-users"></i>
+                        <span>{{ __('app.profile.manage_users') }}</span>
+                    </a>
+                </nav>
+                @endif
+                
+                <div class="mobile-menu-divider"></div>
+                
+                <!-- Language Switcher -->
+                <div class="mobile-menu-section-title">Ngôn ngữ</div>
+                <div class="mobile-language-switcher">
+                    <a href="#" class="mobile-lang-btn language-switch {{ app()->getLocale() === 'vi' ? 'active' : '' }}" data-locale="vi">
+                        <i class="fas fa-flag"></i> VI
+                    </a>
+                    <a href="#" class="mobile-lang-btn language-switch {{ app()->getLocale() === 'en' ? 'active' : '' }}" data-locale="en">
+                        <i class="fas fa-flag-usa"></i> EN
+                    </a>
                 </div>
+                
+                <div class="mobile-menu-divider"></div>
+                
+                <!-- Logout -->
+                <form method="POST" action="{{ route('auth.logout') }}" class="mobile-logout-form">
+                    @csrf
+                    <button type="submit" class="mobile-menu-item mobile-logout-btn">
+                        <i class="fas fa-right-from-bracket"></i>
+                        <span>{{ __('app.auth.logout') }}</span>
+                    </button>
+                </form>
+                
+                @else
+                <!-- Guest Menu -->
+                <nav class="mobile-menu-nav">
+                    <a href="/" class="mobile-menu-item {{ Request::is('/') ? 'active' : '' }}">
+                        <i class="fas fa-home"></i>
+                        <span>Trang chủ</span>
+                    </a>
+                    @if(Route::has('tournaments.index'))
+                    <a href="{{ route('tournaments.index') }}" class="mobile-menu-item {{ Request::is('tournaments*') ? 'active' : '' }}">
+                        <i class="fas fa-trophy"></i>
+                        <span>{{ __('app.nav.tournaments') }}</span>
+                    </a>
+                    @endif
+                    @if(Route::has('players.index'))
+                    <a href="{{ route('players.index') }}" class="mobile-menu-item {{ Request::is('players*') ? 'active' : '' }}">
+                        <i class="fas fa-gamepad"></i>
+                        <span>{{ __('app.nav.players') }}</span>
+                    </a>
+                    @endif
+                </nav>
+                
+                <div class="mobile-menu-divider"></div>
+                
+                <!-- Language Switcher -->
+                <div class="mobile-menu-section-title">Ngôn ngữ</div>
+                <div class="mobile-language-switcher">
+                    <a href="#" class="mobile-lang-btn language-switch {{ app()->getLocale() === 'vi' ? 'active' : '' }}" data-locale="vi">
+                        <i class="fas fa-flag"></i> VI
+                    </a>
+                    <a href="#" class="mobile-lang-btn language-switch {{ app()->getLocale() === 'en' ? 'active' : '' }}" data-locale="en">
+                        <i class="fas fa-flag-usa"></i> EN
+                    </a>
+                </div>
+                
+                <div class="mobile-menu-divider"></div>
+                
+                <!-- Auth Buttons -->
+                <div class="mobile-auth-buttons">
+                    @if(Route::has('auth.login'))
+                    <a href="{{ route('auth.login') }}" class="mobile-auth-btn mobile-login-btn">
+                        <i class="fas fa-sign-in-alt"></i>
+                        <span>{{ __('app.auth.login') }}</span>
+                    </a>
+                    @endif
+                    @if(Route::has('auth.register'))
+                    <a href="{{ route('auth.register') }}" class="mobile-auth-btn mobile-register-btn">
+                        <i class="fas fa-user-plus"></i>
+                        <span>{{ __('app.auth.register') }}</span>
+                    </a>
+                    @endif
+                </div>
+                @endauth
             </div>
-        </nav>
+        </div>
     @endif
 
     <!-- Main Content -->
     <main class="content-wrapper {{ $showAdminSidebar ? 'content-wrapper-with-sidebar' : '' }}">
         @if(session('success'))
-        <div class="container">
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                {{ session('success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <div class="container mx-auto px-4">
+            <div class="bg-green-500/20 border border-green-500/50 text-green-400 px-4 py-3 rounded-lg flex items-center justify-between" role="alert">
+                <span>{{ session('success') }}</span>
+                <button type="button" class="text-green-400 hover:text-green-300 ml-4" onclick="this.parentElement.remove()">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
         </div>
         @endif
 
         @if(session('error'))
-        <div class="container">
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                {{ session('error') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <div class="container mx-auto px-4">
+            <div class="bg-red-500/20 border border-red-500/50 text-red-400 px-4 py-3 rounded-lg flex items-center justify-between" role="alert">
+                <span>{{ session('error') }}</span>
+                <button type="button" class="text-red-400 hover:text-red-300 ml-4" onclick="this.parentElement.remove()">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
         </div>
         @endif
@@ -2331,64 +2881,64 @@
 
     <!-- Modern Footer - Only show for guests or on welcome page -->
     @guest
-        <footer class="bg-midnight border-t border-border pt-16 pb-8 text-slate-400 font-body relative overflow-hidden">
-            <!-- Background Blur Effect -->
-            <div class="absolute top-0 left-1/4 w-96 h-96 bg-brand/20 rounded-full blur-[100px] pointer-events-none"></div>
+        <footer style="background: linear-gradient(180deg, #000814 0%, #000022 100%); border-top: 1px solid rgba(0, 229, 255, 0.2); padding: 60px 0 30px 0; position: relative; overflow: hidden;">
+            <!-- Background Glow Effects -->
+            <div style="position: absolute; top: -100px; left: 10%; width: 300px; height: 300px; background: radial-gradient(circle, rgba(0, 229, 255, 0.1) 0%, transparent 70%); pointer-events: none;"></div>
+            <div style="position: absolute; bottom: -100px; right: 10%; width: 400px; height: 400px; background: radial-gradient(circle, rgba(0, 0, 85, 0.3) 0%, transparent 70%); pointer-events: none;"></div>
             
-            <div class="container mx-auto px-6 relative z-10">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+            <div style="max-width: 1200px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 10;">
+                <!-- Main Footer Content -->
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 48px; margin-bottom: 48px;">
+                    
                     <!-- Brand Section -->
-                    <div class="space-y-6">
-                        <div class="flex items-center gap-3">
-                            <img src="{{ asset('logo_remove_bg.png') }}" alt="{{ __('app.name') }}" class="w-10 h-10 object-contain">
-                            <span class="font-display font-bold text-3xl text-white tracking-wider">
-                                GAME <span class="text-neon">ON</span>
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
+                            <img src="{{ asset('logo_remove_bg.png') }}" alt="{{ __('app.name') }}" style="width: 48px; height: 48px; object-fit: contain;">
+                            <span style="font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 28px; color: white;">
+                                GAME <span style="color: #00E5FF;">ON</span>
                             </span>
-                            </div>
-                        <p class="text-sm leading-relaxed text-white">
+                        </div>
+                        <p style="color: #94a3b8; font-size: 14px; line-height: 1.6; margin-bottom: 24px;">
                             {{ __('app.footer.professional_esports_management_platform') }}
                         </p>
-                        <div class="flex gap-4">
-                            <a href="#" class="w-10 h-10 rounded-lg bg-void border border-border flex items-center justify-center hover:bg-brand hover:text-white hover:border-neon transition-all duration-300 group">
-                                <i class="fab fa-facebook-f text-white group-hover:scale-110 transition-transform"></i>
+                        <!-- Social Icons -->
+                        <div style="display: flex; gap: 12px;">
+                            <a href="#" style="width: 44px; height: 44px; border-radius: 12px; background: rgba(0, 229, 255, 0.1); border: 1px solid rgba(0, 229, 255, 0.3); display: flex; align-items: center; justify-content: center; color: #00E5FF; text-decoration: none; transition: all 0.3s ease;">
+                                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z"/></svg>
                             </a>
-                            <a href="#" class="w-10 h-10 rounded-lg bg-void border border-border flex items-center justify-center hover:bg-[#5865F2] hover:text-white hover:border-[#5865F2] transition-all duration-300 group">
-                                <i class="fab fa-discord text-white group-hover:scale-110 transition-transform"></i>
+                            <a href="#" style="width: 44px; height: 44px; border-radius: 12px; background: rgba(88, 101, 242, 0.1); border: 1px solid rgba(88, 101, 242, 0.3); display: flex; align-items: center; justify-content: center; color: #5865F2; text-decoration: none; transition: all 0.3s ease;">
+                                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/></svg>
                             </a>
-                            <a href="#" class="w-10 h-10 rounded-lg bg-void border border-border flex items-center justify-center hover:bg-red-600 hover:text-white hover:border-red-600 transition-all duration-300 group">
-                                <i class="fab fa-youtube text-white group-hover:scale-110 transition-transform"></i>
+                            <a href="#" style="width: 44px; height: 44px; border-radius: 12px; background: rgba(255, 0, 0, 0.1); border: 1px solid rgba(255, 0, 0, 0.3); display: flex; align-items: center; justify-content: center; color: #FF0000; text-decoration: none; transition: all 0.3s ease;">
+                                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
                             </a>
                         </div>
                     </div>
                     
                     <!-- Features Section -->
                     <div>
-                        <h3 class="font-display font-bold text-white text-lg uppercase tracking-wider mb-6 border-l-4 border-neon pl-3">
+                        <h3 style="font-family: 'Rajdhani', sans-serif; font-weight: 700; color: white; font-size: 18px; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 24px; padding-left: 16px; border-left: 3px solid #00E5FF;">
                             {{ __('app.footer.features') }}
                         </h3>
-                        <ul class="space-y-3">
-                            <li>
-                                <a href="{{ route('tournaments.index') }}" class="text-white hover:text-neon transition-colors flex items-center gap-2">
-                                    <i class="fas fa-angle-right text-xs text-slate-400"></i>
-                                    {{ __('app.nav.tournaments') }}
+                        <ul style="list-style: none; padding: 0; margin: 0;">
+                            <li style="margin-bottom: 12px;">
+                                <a href="{{ route('tournaments.index') }}" style="color: #94a3b8; text-decoration: none; font-size: 14px; transition: color 0.3s ease; display: flex; align-items: center; gap: 8px;">
+                                    <span style="color: #00E5FF;">›</span> {{ __('app.nav.tournaments') }}
                                 </a>
                             </li>
-                            <li>
-                                <a href="{{ route('teams.index') }}" class="text-white hover:text-neon transition-colors flex items-center gap-2">
-                                    <i class="fas fa-angle-right text-xs text-slate-400"></i>
-                                    {{ __('app.nav.my_teams') }}
+                            <li style="margin-bottom: 12px;">
+                                <a href="{{ route('teams.index') }}" style="color: #94a3b8; text-decoration: none; font-size: 14px; transition: color 0.3s ease; display: flex; align-items: center; gap: 8px;">
+                                    <span style="color: #00E5FF;">›</span> {{ __('app.nav.my_teams') }}
                                 </a>
                             </li>
-                            <li>
-                                <a href="{{ route('players.index') }}" class="text-white hover:text-neon transition-colors flex items-center gap-2">
-                                    <i class="fas fa-angle-right text-xs text-slate-400"></i>
-                                    {{ __('app.nav.players') }}
+                            <li style="margin-bottom: 12px;">
+                                <a href="{{ route('players.index') }}" style="color: #94a3b8; text-decoration: none; font-size: 14px; transition: color 0.3s ease; display: flex; align-items: center; gap: 8px;">
+                                    <span style="color: #00E5FF;">›</span> {{ __('app.nav.players') }}
                                 </a>
                             </li>
-                            <li>
-                                <a href="{{ route('chat.index') }}" class="text-white hover:text-neon transition-colors flex items-center gap-2">
-                                    <i class="fas fa-angle-right text-xs text-slate-400"></i>
-                                    {{ __('app.nav.chat') }}
+                            <li style="margin-bottom: 12px;">
+                                <a href="{{ route('chat.index') }}" style="color: #94a3b8; text-decoration: none; font-size: 14px; transition: color 0.3s ease; display: flex; align-items: center; gap: 8px;">
+                                    <span style="color: #00E5FF;">›</span> {{ __('app.nav.chat') }}
                                 </a>
                             </li>
                         </ul>
@@ -2396,90 +2946,110 @@
                     
                     <!-- Support Section -->
                     <div>
-                        <h3 class="font-display font-bold text-white text-lg uppercase tracking-wider mb-6 border-l-4 border-neon pl-3">
+                        <h3 style="font-family: 'Rajdhani', sans-serif; font-weight: 700; color: white; font-size: 18px; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 24px; padding-left: 16px; border-left: 3px solid #00E5FF;">
                             {{ __('app.footer.support') }}
                         </h3>
-                        <ul class="space-y-3">
-                            <li>
-                                <a href="#" class="text-white hover:text-neon transition-colors">
-                                    {{ __('app.footer.help_center') }}
+                        <ul style="list-style: none; padding: 0; margin: 0;">
+                            <li style="margin-bottom: 12px;">
+                                <a href="#" style="color: #94a3b8; text-decoration: none; font-size: 14px; transition: color 0.3s ease; display: flex; align-items: center; gap: 8px;">
+                                    <span style="color: #00E5FF;">›</span> {{ __('app.footer.help_center') }}
                                 </a>
                             </li>
-                            <li>
-                                <a href="#" class="text-white hover:text-neon transition-colors">
-                                    {{ __('app.footer.contact') }}
+                            <li style="margin-bottom: 12px;">
+                                <a href="#" style="color: #94a3b8; text-decoration: none; font-size: 14px; transition: color 0.3s ease; display: flex; align-items: center; gap: 8px;">
+                                    <span style="color: #00E5FF;">›</span> {{ __('app.footer.contact') }}
                                 </a>
                             </li>
-                            <li>
-                                <a href="#" class="text-white hover:text-neon transition-colors">
-                                    {{ __('app.footer.bug_report') }}
+                            <li style="margin-bottom: 12px;">
+                                <a href="#" style="color: #94a3b8; text-decoration: none; font-size: 14px; transition: color 0.3s ease; display: flex; align-items: center; gap: 8px;">
+                                    <span style="color: #00E5FF;">›</span> {{ __('app.footer.bug_report') }}
                                 </a>
                             </li>
-                            <li>
-                                <a href="#" class="text-white hover:text-neon transition-colors">
-                                    {{ __('app.footer.faq') }}
+                            <li style="margin-bottom: 12px;">
+                                <a href="#" style="color: #94a3b8; text-decoration: none; font-size: 14px; transition: color 0.3s ease; display: flex; align-items: center; gap: 8px;">
+                                    <span style="color: #00E5FF;">›</span> {{ __('app.footer.faq') }}
                                 </a>
                             </li>
                         </ul>
-                        </div>
+                    </div>
                     
                     <!-- Newsletter Section -->
                     <div>
-                        <h3 class="font-display font-bold text-white text-lg uppercase tracking-wider mb-6 border-l-4 border-neon pl-3">
+                        <h3 style="font-family: 'Rajdhani', sans-serif; font-weight: 700; color: white; font-size: 18px; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 24px; padding-left: 16px; border-left: 3px solid #00E5FF;">
                             {{ __('app.footer.connect') }}
                         </h3>
-                        <p class="text-sm mb-4 text-white">{{ __('app.footer.subscribe_newsletter') }}</p>
+                        <p style="color: #94a3b8; font-size: 14px; margin-bottom: 16px;">{{ __('app.footer.subscribe_newsletter') }}</p>
                         
-                        <div class="relative mb-6">
-                            <form>
-                                <input type="email" placeholder="{{ __('app.footer.your_email') }}" 
-                                    class="w-full bg-void border border-border rounded-lg py-3 px-4 text-white placeholder:text-slate-400 focus:outline-none focus:border-neon transition-colors text-sm pr-20">
-                                <button type="submit" class="absolute right-1 top-1 bottom-1 bg-brand hover:bg-[#1a237e] text-white px-4 rounded-md font-display font-bold uppercase text-xs tracking-wide transition-colors">
-                                    {{ __('app.footer.send') }}
-                                </button>
-                            </form>
-                            </div>
-                        
-                        <!-- App Download Buttons -->
-                        <div class="flex gap-3">
-                            <button class="flex-1 bg-void border border-border hover:border-white rounded p-2 flex items-center justify-center gap-2 transition-colors">
-                                <i class="fab fa-apple text-xl text-white"></i>
-                                <div class="text-left leading-none">
-                                    <div class="text-[10px] text-white">Download on</div>
-                                    <div class="text-xs font-bold text-white">App Store</div>
-                        </div>
+                        <form style="display: flex; gap: 8px; margin-bottom: 20px;">
+                            <input type="email" placeholder="{{ __('app.footer.your_email') }}" 
+                                style="flex: 1; background: rgba(0, 8, 20, 0.8); border: 1px solid rgba(0, 229, 255, 0.2); border-radius: 10px; padding: 12px 16px; color: white; font-size: 14px; outline: none;">
+                            <button type="submit" style="background: linear-gradient(135deg, #00E5FF, #0099cc); border: none; border-radius: 10px; padding: 12px 20px; color: #000; font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 14px; text-transform: uppercase; cursor: pointer; transition: all 0.3s ease;">
+                                {{ __('app.footer.send') }}
                             </button>
-                            <button class="flex-1 bg-void border border-border hover:border-white rounded p-2 flex items-center justify-center gap-2 transition-colors">
-                                <i class="fab fa-google-play text-lg text-white"></i>
-                                <div class="text-left leading-none">
-                                    <div class="text-[10px] text-white">Get it on</div>
-                                    <div class="text-xs font-bold text-white">Google Play</div>
+                        </form>
                     </div>
-                            </button>
                 </div>
-                        </div>
-                            </div>
                 
                 <!-- Footer Bottom -->
-                <div class="border-t border-border pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-white">
-                    <div>
-                        &copy; {{ date('Y') }} <span class="font-bold">Game On</span>. All rights reserved.
-                        </div>
-                    <div class="flex gap-6">
-                        <a href="#" class="hover:text-white transition-colors">{{ __('app.footer.terms_of_service') }}</a>
-                        <a href="#" class="hover:text-white transition-colors">{{ __('app.footer.privacy_policy') }}</a>
-                        <a href="#" class="hover:text-white transition-colors">{{ __('app.footer.cookie_policy') }}</a>
+                <div style="border-top: 1px solid rgba(0, 229, 255, 0.1); padding-top: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+                    <div style="color: #64748b; font-size: 13px;">
+                        &copy; {{ date('Y') }} <span style="color: white; font-weight: 600;">Game On</span>. All rights reserved.
                     </div>
-                    <div class="flex items-center gap-1">
-                        Made with <i class="fas fa-heart text-red-500 animate-pulse"></i> by <span class="text-neon font-bold">GameOn Team</span>
+                    <div style="display: flex; gap: 24px;">
+                        <a href="#" style="color: #64748b; text-decoration: none; font-size: 13px; transition: color 0.3s ease;">{{ __('app.footer.terms_of_service') }}</a>
+                        <a href="#" style="color: #64748b; text-decoration: none; font-size: 13px; transition: color 0.3s ease;">{{ __('app.footer.privacy_policy') }}</a>
+                        <a href="#" style="color: #64748b; text-decoration: none; font-size: 13px; transition: color 0.3s ease;">{{ __('app.footer.cookie_policy') }}</a>
+                    </div>
+                    <div style="color: #64748b; font-size: 13px; display: flex; align-items: center; gap: 6px;">
+                        Made with <span style="color: #ef4444;">❤</span> by <span style="color: #00E5FF; font-weight: 600;">GameOn Team</span>
                     </div>
                 </div>
             </div>
+            
+            <!-- Responsive Styles -->
+            <style>
+                /* Footer mobile responsive - 2 columns layout */
+                @media (max-width: 1024px) {
+                    footer > div > div:first-of-type {
+                        grid-template-columns: repeat(2, 1fr) !important;
+                        gap: 24px !important;
+                    }
+                }
+                @media (max-width: 640px) {
+                    /* Keep 2 columns for Features and Support on mobile */
+                    footer > div > div:first-of-type {
+                        grid-template-columns: repeat(2, 1fr) !important;
+                        gap: 16px !important;
+                    }
+                    /* Hide Brand and Newsletter sections on mobile */
+                    footer > div > div:first-of-type > div:first-child,
+                    footer > div > div:first-of-type > div:last-child {
+                        display: none !important;
+                    }
+                    /* Adjust footer bottom */
+                    footer > div > div:last-of-type {
+                        flex-direction: column !important;
+                        text-align: center !important;
+                        gap: 12px !important;
+                    }
+                    /* Smaller text on mobile */
+                    footer h3 {
+                        font-size: 14px !important;
+                        margin-bottom: 16px !important;
+                    }
+                    footer ul li {
+                        margin-bottom: 8px !important;
+                    }
+                    footer ul li a {
+                        font-size: 13px !important;
+                    }
+                }
+            </style>
         </footer>
     @else
         {{-- Show footer only on welcome page for authenticated users --}}
         @if(Request::is('/') || Request::is('welcome'))
-            <footer class="bg-midnight border-t border-border pt-16 pb-8 text-slate-400 font-body relative overflow-hidden">
+            <footer class="bg-midnight border-t border-border pt-24 pb-16 text-slate-400 font-body relative overflow-hidden">
                 <!-- Background Blur Effect -->
                 <div class="absolute top-0 left-1/4 w-96 h-96 bg-brand/20 rounded-full blur-[100px] pointer-events-none"></div>
                 
@@ -2609,7 +3179,7 @@
                                 </div>
                     
                     <!-- Footer Bottom -->
-                    <div class="border-t border-border pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-white">
+                    <div class="border-t border-border pt-8 pb-8 flex flex-row flex-wrap justify-between items-center gap-4 text-xs text-white">
                         <div>
                             &copy; {{ date('Y') }} <span class="font-bold">Game On</span>. All rights reserved.
                             </div>
@@ -3129,20 +3699,201 @@
             });
         });
         
+        // Mobile menu toggle functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            const mobileNav = document.getElementById('mobileNav');
+            
+            if (mobileMenuToggle && mobileNav) {
+                mobileMenuToggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // Toggle mobile menu using Tailwind classes
+                    mobileNav.classList.toggle('hidden');
+                    mobileNav.classList.toggle('block');
+                    
+                    // Update aria-expanded
+                    const isExpanded = !mobileNav.classList.contains('hidden');
+                    mobileMenuToggle.setAttribute('aria-expanded', isExpanded);
+                });
+                
+                // Close mobile menu when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!mobileNav.classList.contains('hidden') && 
+                        !mobileNav.contains(e.target) && 
+                        !mobileMenuToggle.contains(e.target)) {
+                        mobileNav.classList.add('hidden');
+                        mobileNav.classList.remove('block');
+                        mobileMenuToggle.setAttribute('aria-expanded', 'false');
+                    }
+                });
+            }
+        });
+        
+        // User Menu Dropdown functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const userMenuToggle = document.getElementById('userMenuToggle');
+            const userMenuDropdown = document.getElementById('userMenuDropdownMenu');
+            
+            if (userMenuToggle && userMenuDropdown) {
+                userMenuToggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const isOpen = userMenuDropdown.classList.contains('show');
+                    
+                    // Close all other dropdowns
+                    closeAllDropdowns();
+                    
+                    // Toggle user menu
+                    if (!isOpen) {
+                        userMenuDropdown.classList.remove('hidden');
+                        userMenuDropdown.classList.add('block', 'show');
+                        userMenuToggle.setAttribute('aria-expanded', 'true');
+                    } else {
+                        userMenuDropdown.classList.add('hidden');
+                        userMenuDropdown.classList.remove('block', 'show');
+                        userMenuToggle.setAttribute('aria-expanded', 'false');
+                    }
+                });
+            }
+            
+            // Sidebar Language Dropdown
+            const sidebarLanguageToggle = document.getElementById('sidebarLanguageToggle');
+            const sidebarLanguageMenu = document.getElementById('sidebarLanguageMenu');
+            
+            if (sidebarLanguageToggle && sidebarLanguageMenu) {
+                sidebarLanguageToggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const isOpen = sidebarLanguageMenu.classList.contains('show');
+                    
+                    // Close all other dropdowns
+                    closeAllDropdowns();
+                    
+                    // Toggle sidebar language menu
+                    if (!isOpen) {
+                        sidebarLanguageMenu.classList.remove('hidden');
+                        sidebarLanguageMenu.classList.add('block', 'show');
+                    } else {
+                        sidebarLanguageMenu.classList.add('hidden');
+                        sidebarLanguageMenu.classList.remove('block', 'show');
+                    }
+                });
+            }
+            
+            // Close all dropdowns function
+            function closeAllDropdowns() {
+                const allDropdowns = document.querySelectorAll('#languageDropdownMenu, #languageDropdownMobileMenu, #userMenuDropdownMenu, #sidebarLanguageMenu');
+                const allToggles = document.querySelectorAll('#languageDropdownToggle, #languageDropdownMobileToggle, #userMenuToggle, #sidebarLanguageToggle');
+                
+                allDropdowns.forEach(function(menu) {
+                    menu.classList.add('hidden');
+                    menu.classList.remove('block', 'show');
+                });
+                
+                allToggles.forEach(function(toggle) {
+                    toggle.setAttribute('aria-expanded', 'false');
+                });
+            }
+            
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', function(e) {
+                const languageDropdown = document.getElementById('languageDropdown');
+                const languageDropdownMobile = document.getElementById('languageDropdownMobile');
+                const userMenuDropdown = document.getElementById('userMenuDropdown');
+                const sidebarLanguageDropdown = document.querySelector('.language-switcher-sidebar');
+                
+                if ((languageDropdown && !languageDropdown.contains(e.target)) || 
+                    (languageDropdownMobile && !languageDropdownMobile.contains(e.target)) ||
+                    (userMenuDropdown && !userMenuDropdown.contains(e.target)) ||
+                    (sidebarLanguageDropdown && !sidebarLanguageDropdown.contains(e.target))) {
+                    closeAllDropdowns();
+                }
+            });
+        });
+        
         // Language switcher functionality
         document.addEventListener('DOMContentLoaded', function() {
+            const languageToggle = document.getElementById('languageDropdownToggle');
+            const languageToggleMobile = document.getElementById('languageDropdownMobileToggle');
+            const languageMenu = document.getElementById('languageDropdownMenu');
+            const languageMenuMobile = document.getElementById('languageDropdownMobileMenu');
+            
+            // Function to toggle dropdown using Tailwind classes
+            function toggleDropdown(menu, toggle) {
+                if (!menu || !toggle) return;
+                
+                const isOpen = menu.classList.contains('show');
+                
+                // Close all dropdowns first
+                closeLanguageDropdowns();
+                
+                // Toggle this dropdown using Tailwind classes
+                if (!isOpen) {
+                    menu.classList.remove('hidden');
+                    menu.classList.add('block', 'show');
+                    toggle.setAttribute('aria-expanded', 'true');
+                } else {
+                    menu.classList.add('hidden');
+                    menu.classList.remove('block', 'show');
+                    toggle.setAttribute('aria-expanded', 'false');
+                }
+            }
+            
+            // Function to close dropdown using Tailwind classes
+            function closeLanguageDropdowns() {
+                const dropdowns = document.querySelectorAll('#languageDropdownMenu, #languageDropdownMobileMenu');
+                const toggles = document.querySelectorAll('#languageDropdownToggle, #languageDropdownMobileToggle');
+                
+                dropdowns.forEach(function(menu) {
+                    menu.classList.add('hidden');
+                    menu.classList.remove('block', 'show');
+                });
+                
+                toggles.forEach(function(toggle) {
+                    toggle.setAttribute('aria-expanded', 'false');
+                });
+            }
+            
+            // Toggle dropdown when clicking button
+            if (languageToggle && languageMenu) {
+                languageToggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    toggleDropdown(languageMenu, languageToggle);
+                });
+            }
+            
+            if (languageToggleMobile && languageMenuMobile) {
+                languageToggleMobile.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    toggleDropdown(languageMenuMobile, languageToggleMobile);
+                });
+            }
+            
+            
+            // Note: Close dropdown when clicking outside is handled in user menu dropdown section above
+            
             const languageSwitches = document.querySelectorAll('.language-switch');
             
             languageSwitches.forEach(function(switchElement) {
                 switchElement.addEventListener('click', function(e) {
                     e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // Close dropdown before switching
+                    closeLanguageDropdowns();
                     
                     const locale = this.getAttribute('data-locale');
                     const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
                     
                     // Show loading state
                     const originalText = this.innerHTML;
-                    this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Switching...';
+                    this.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Switching...';
                     
                     fetch('{{ route("language.switch") }}', {
                         method: 'POST',
@@ -3186,6 +3937,82 @@
                     });
                 });
             });
+        });
+    </script>
+
+    <!-- Mobile Slide Menu JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
+            const mobileSlideMenu = document.getElementById('mobileSlideMenu');
+            const mobileMenuClose = document.getElementById('mobileMenuClose');
+            
+            if (!mobileMenuToggle || !mobileSlideMenu) return;
+            
+            function openMobileMenu() {
+                mobileMenuToggle.classList.add('active');
+                mobileMenuOverlay.classList.add('active');
+                mobileSlideMenu.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+            
+            function closeMobileMenu() {
+                mobileMenuToggle.classList.remove('active');
+                mobileMenuOverlay.classList.remove('active');
+                mobileSlideMenu.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+            
+            // Toggle menu
+            mobileMenuToggle.addEventListener('click', function(e) {
+                e.stopPropagation();
+                if (mobileSlideMenu.classList.contains('active')) {
+                    closeMobileMenu();
+                } else {
+                    openMobileMenu();
+                }
+            });
+            
+            // Close button
+            if (mobileMenuClose) {
+                mobileMenuClose.addEventListener('click', closeMobileMenu);
+            }
+            
+            // Close on overlay click
+            if (mobileMenuOverlay) {
+                mobileMenuOverlay.addEventListener('click', closeMobileMenu);
+            }
+            
+            // Close on escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && mobileSlideMenu.classList.contains('active')) {
+                    closeMobileMenu();
+                }
+            });
+            
+            // Close menu when clicking a link
+            const menuLinks = mobileSlideMenu.querySelectorAll('a:not(.language-switch)');
+            menuLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    closeMobileMenu();
+                });
+            });
+            
+            // Handle swipe to close
+            let touchStartX = 0;
+            let touchEndX = 0;
+            
+            mobileSlideMenu.addEventListener('touchstart', function(e) {
+                touchStartX = e.changedTouches[0].screenX;
+            }, { passive: true });
+            
+            mobileSlideMenu.addEventListener('touchend', function(e) {
+                touchEndX = e.changedTouches[0].screenX;
+                if (touchEndX - touchStartX > 50) {
+                    closeMobileMenu();
+                }
+            }, { passive: true });
         });
     </script>
 

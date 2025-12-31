@@ -1,11 +1,40 @@
-@import 'tailwindcss';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
-@source '../**/*.blade.php';
-@source '../**/*.js';
+/* Custom styles theo prompt */
+@layer base {
+    :root {
+        --font-display: "Rajdhani", ui-sans-serif, system-ui, sans-serif;
+        --font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
+    }
 
-@theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    body {
+        font-family: var(--font-body);
+        background-color: #000814; /* Void */
+        color: #ffffff; /* Text Main */
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        font-family: var(--font-display);
+        font-weight: 700;
+    }
+}
+
+@layer components {
+    /* Neon glow effect */
+    .neon-glow {
+        box-shadow: 0 0 10px rgba(0, 229, 255, 0.5),
+            0 0 20px rgba(0, 229, 255, 0.3);
+    }
+
+    .neon-glow-lg {
+        box-shadow: 0 0 20px rgba(0, 229, 255, 0.6),
+            0 0 40px rgba(0, 229, 255, 0.4);
+    }
 }

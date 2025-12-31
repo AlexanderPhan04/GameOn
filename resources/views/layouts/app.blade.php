@@ -2198,14 +2198,24 @@
 
         /* Mobile Responsive */
         @media (max-width: 991.98px) {
-            .admin-sidebar {
-                transform: translateX(-100%);
-                z-index: 1000;
-                width: 280px;
+            .admin-sidebar,
+            .admin-sidebar.collapsed,
+            aside.admin-sidebar,
+            body.has-admin-sidebar .admin-sidebar {
+                display: none !important;
+                visibility: hidden !important;
+                width: 0 !important;
+                opacity: 0 !important;
             }
 
-            .admin-sidebar.show {
+            .admin-sidebar.show,
+            body.has-admin-sidebar .admin-sidebar.show {
+                display: flex !important;
+                visibility: visible !important;
+                width: 280px !important;
+                opacity: 1 !important;
                 transform: translateX(0);
+                z-index: 10000;
             }
 
             .admin-topbar {
@@ -3786,37 +3796,7 @@
             });
         });
         
-        // Mobile menu toggle functionality
-        document.addEventListener('DOMContentLoaded', function() {
-            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
-            const mobileNav = document.getElementById('mobileNav');
-            
-            if (mobileMenuToggle && mobileNav) {
-                mobileMenuToggle.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    
-                    // Toggle mobile menu using Tailwind classes
-                    mobileNav.classList.toggle('hidden');
-                    mobileNav.classList.toggle('block');
-                    
-                    // Update aria-expanded
-                    const isExpanded = !mobileNav.classList.contains('hidden');
-                    mobileMenuToggle.setAttribute('aria-expanded', isExpanded);
-                });
-                
-                // Close mobile menu when clicking outside
-                document.addEventListener('click', function(e) {
-                    if (!mobileNav.classList.contains('hidden') && 
-                        !mobileNav.contains(e.target) && 
-                        !mobileMenuToggle.contains(e.target)) {
-                        mobileNav.classList.add('hidden');
-                        mobileNav.classList.remove('block');
-                        mobileMenuToggle.setAttribute('aria-expanded', 'false');
-                    }
-                });
-            }
-        });
+        // Mobile menu toggle functionality - REMOVED OLD CODE, using new slide menu instead
         
         // User Menu Dropdown functionality
         document.addEventListener('DOMContentLoaded', function() {

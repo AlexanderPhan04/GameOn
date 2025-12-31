@@ -37,16 +37,24 @@ return new class extends Migration
             'last_activity_at',
         ];
 
-        // SQLite cần drop từng column riêng biệt, wrap trong try-catch
-        foreach ($columnsToRemove as $column) {
+        // Get existing columns
+        $existingColumns = Schema::getColumnListing('users');
+        $columnsToDrop = array_intersect($columnsToRemove, $existingColumns);
+        
+        // Skip if no columns to drop
+        if (empty($columnsToDrop)) {
+            return;
+        }
+
+        // For SQLite, drop columns one by one with error handling
+        foreach ($columnsToDrop as $column) {
             try {
-                if (Schema::hasColumn('users', $column)) {
-                    Schema::table('users', function (Blueprint $table) use ($column) {
-                        $table->dropColumn($column);
-                    });
-                }
+                Schema::table('users', function (Blueprint $table) use ($column) {
+                    $table->dropColumn($column);
+                });
             } catch (\Exception $e) {
-                // Column không tồn tại hoặc đã bị xóa, bỏ qua
+                // Column không tồn tại, có index conflict, hoặc đã bị xóa - bỏ qua
+                continue;
             }
         }
     }

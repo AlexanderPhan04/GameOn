@@ -201,22 +201,32 @@ class AuthController extends Controller
             // Tạo token xác nhận email
             $emailVerificationToken = Str::random(60);
 
-            // Chỉ cho phép đăng ký role viewer (mặc định)
-            $userRole = 'viewer';
+            // Default role for new users is participant
+            $userRole = 'participant';
 
+            // 1. Create user
             $user = User::create([
                 'name' => $request->full_name,
-                'full_name' => $request->full_name,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
-                'user_role' => $userRole, // Sử dụng user_role thay vì role
+                'user_role' => $userRole,
+                'status' => 'active',
                 'email_verification_token' => $emailVerificationToken,
-                'email_verified_at' => null, // Chưa xác nhận
-                'id_app' => 'USR'.str_pad(User::count() + 1, 6, '0', STR_PAD_LEFT),
+                'email_verified_at' => null,
+            ]);
+
+            // 2. Create user_profile
+            $idApp = 'USR' . str_pad($user->id, 6, '0', STR_PAD_LEFT);
+            DB::table('user_profiles')->insert([
+                'user_id' => $user->id,
+                'full_name' => $request->full_name,
+                'id_app' => $idApp,
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
 
             // Tạo URL xác nhận
-            $verificationUrl = url('/auth/verify-email/'.$emailVerificationToken);
+            $verificationUrl = url('/auth/verify-email/' . $emailVerificationToken);
 
             // Gửi email xác nhận
             Mail::to($user->email)->send(new VerifyEmail($user, $verificationUrl));
@@ -225,6 +235,7 @@ class AuthController extends Controller
                 'user_id' => $user->id,
                 'email' => $user->email,
                 'role' => $user->user_role,
+                'id_app' => $idApp,
             ]);
 
             return response()->json([
@@ -232,7 +243,7 @@ class AuthController extends Controller
                 'message' => 'Đăng ký thành công! Vui lòng kiểm tra email để xác nhận tài khoản.',
             ]);
         } catch (\Exception $e) {
-            Log::error('Registration error: '.$e->getMessage());
+            Log::error('Registration error: ' . $e->getMessage());
 
             return response()->json([
                 'success' => false,
@@ -267,7 +278,7 @@ class AuthController extends Controller
 
             return redirect('/auth/login')->with('success', 'Email đã được xác nhận thành công! Bạn có thể đăng nhập ngay.');
         } catch (\Exception $e) {
-            Log::error('Email verification error: '.$e->getMessage());
+            Log::error('Email verification error: ' . $e->getMessage());
 
             return redirect('/auth/register')->with('error', 'Có lỗi xảy ra khi xác nhận email.');
         }
@@ -300,7 +311,7 @@ class AuthController extends Controller
             $user->save();
 
             // Tạo URL xác nhận mới
-            $verificationUrl = url('/auth/verify-email/'.$emailVerificationToken);
+            $verificationUrl = url('/auth/verify-email/' . $emailVerificationToken);
 
             // Gửi email
             Mail::to($user->email)->send(new VerifyEmail($user, $verificationUrl));
@@ -310,7 +321,7 @@ class AuthController extends Controller
                 'message' => 'Email xác nhận đã được gửi lại.',
             ]);
         } catch (\Exception $e) {
-            Log::error('Resend verification email error: '.$e->getMessage());
+            Log::error('Resend verification email error: ' . $e->getMessage());
 
             return response()->json([
                 'success' => false,
@@ -421,7 +432,7 @@ class AuthController extends Controller
                     Session::put('username', $conflictCheck['existing_user']->name);
                     Session::put('role', $conflictCheck['existing_user']->user_role);
 
-                    return redirect()->route('dashboard');
+                    return redirect($this->getRedirectUrlByRole($conflictCheck['existing_user']->user_role));
                 } else {
                     // Nếu Google email trùng lặp
                     Log::warning('Google email conflict detected', [
@@ -452,6 +463,7 @@ class AuthController extends Controller
                 $googleName = $googleUser->getName();
                 $googleEmail = $googleUser->getEmail();
                 $googleId = $googleUser->getId();
+                $googleAvatar = $googleUser->getAvatar();
 
                 // Validate dữ liệu Google
                 if (empty($googleName) || empty($googleEmail) || empty($googleId)) {
@@ -465,30 +477,41 @@ class AuthController extends Controller
                         ->with('error', 'Thông tin tài khoản Google không đầy đủ. Vui lòng thử lại.');
                 }
 
-                // Tạo id_app unique
-                $idApp = 'GGL'.str_pad(User::count() + 1, 6, '0', STR_PAD_LEFT);
-
                 try {
-                    // Create new user using DB::table with validation
-                    DB::table('users')->insert([
+                    // 1. Create new user
+                    $userId = DB::table('users')->insertGetId([
                         'name' => $googleName,
-                        'full_name' => $googleName, // Thêm full_name
                         'email' => $googleEmail,
                         'google_id' => $googleId,
                         'google_email' => $googleEmail,
-                        'password' => Hash::make(Str::random(32)), // Random secure password
-                        'user_role' => 'participant', // Default role (merged from player/viewer)
+                        'password' => Hash::make(Str::random(32)),
+                        'user_role' => 'participant', // Default role for new users
+                        'status' => 'active',
+                        'email_verified_at' => now(), // Google account is verified
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+
+                    // 2. Create user_profile with full_name and avatar
+                    $idApp = 'GGL' . str_pad($userId, 6, '0', STR_PAD_LEFT);
+                    DB::table('user_profiles')->insert([
+                        'user_id' => $userId,
+                        'full_name' => $googleName,
+                        'avatar' => $googleAvatar,
                         'id_app' => $idApp,
-                        'email_verified_at' => now(), // Google account đã verified
                         'created_at' => now(),
                         'updated_at' => now(),
                     ]);
 
                     Log::info('New Google user created', [
+                        'user_id' => $userId,
                         'email' => $googleEmail,
                         'google_id' => $googleId,
                         'id_app' => $idApp,
                     ]);
+
+                    // Get the created user
+                    $user = User::find($userId);
                 } catch (\Exception $e) {
                     Log::error('Failed to create Google user', [
                         'error' => $e->getMessage(),
@@ -499,9 +522,6 @@ class AuthController extends Controller
                     return redirect()->route('auth.login')
                         ->with('error', 'Không thể tạo tài khoản từ Google. Vui lòng thử lại.');
                 }
-
-                // Get the created user
-                $user = User::where('email', $googleEmail)->first();
 
                 if (! $user) {
                     Log::error('User not found after creation', ['email' => $googleEmail]);
@@ -518,9 +538,9 @@ class AuthController extends Controller
             Session::put('username', $user->name);
             Session::put('role', $user->user_role);
 
-            return redirect()->route('dashboard');
+            return redirect($this->getRedirectUrlByRole($user->user_role));
         } catch (\Exception $e) {
-            Log::error('Google OAuth error: '.$e->getMessage());
+            Log::error('Google OAuth error: ' . $e->getMessage());
 
             return redirect()->route('auth.login')->with('error', 'Đăng nhập với Google thất bại');
         }
@@ -599,9 +619,10 @@ class AuthController extends Controller
         return match ($role) {
             'super_admin' => '/dashboard',
             'admin' => '/dashboard',
-            'player' => '/dashboard',
-            'viewer' => '/dashboard',
-            default => '/dashboard'
+            'participant' => '/posts',  // Participant -> bảng tin posts
+            'player' => '/posts',       // Legacy: chuyển đến posts
+            'viewer' => '/posts',       // Legacy: chuyển đến posts
+            default => '/posts'         // Default -> posts
         };
     }
 
@@ -655,14 +676,14 @@ class AuthController extends Controller
             ]);
 
             // Tạo URL reset password
-            $resetUrl = url('/auth/reset-password?token='.$token.'&email='.urlencode($request->email));
+            $resetUrl = url('/auth/reset-password?token=' . $token . '&email=' . urlencode($request->email));
 
             // Gửi email
             Mail::to($user->email)->send(new ForgotPasswordEmail($user, $resetUrl, $token));
 
             Log::info('Password reset email sent', [
                 'email' => $user->email,
-                'token' => substr($token, 0, 10).'...',
+                'token' => substr($token, 0, 10) . '...',
             ]);
 
             return response()->json([
@@ -670,7 +691,7 @@ class AuthController extends Controller
                 'message' => 'Link đặt lại mật khẩu đã được gửi đến email của bạn. Vui lòng kiểm tra hộp thư.',
             ]);
         } catch (\Exception $e) {
-            Log::error('Forgot password error: '.$e->getMessage(), [
+            Log::error('Forgot password error: ' . $e->getMessage(), [
                 'email' => $request->email ?? 'N/A',
             ]);
 
@@ -775,7 +796,7 @@ class AuthController extends Controller
                 'message' => 'Mật khẩu đã được đặt lại thành công. Bạn có thể đăng nhập với mật khẩu mới.',
             ]);
         } catch (\Exception $e) {
-            Log::error('Reset password error: '.$e->getMessage(), [
+            Log::error('Reset password error: ' . $e->getMessage(), [
                 'email' => $request->email ?? 'N/A',
             ]);
 
@@ -870,7 +891,7 @@ class AuthController extends Controller
             return redirect()->route('profile.edit')
                 ->with('success', 'Liên kết tài khoản Google thành công!');
         } catch (\Exception $e) {
-            Log::error('Google link error: '.$e->getMessage());
+            Log::error('Google link error: ' . $e->getMessage());
 
             return redirect()->route('profile.edit')
                 ->with('error', 'Có lỗi xảy ra khi liên kết tài khoản Google.');
@@ -916,7 +937,7 @@ class AuthController extends Controller
             return redirect()->route('profile.edit')
                 ->with('success', 'Hủy liên kết tài khoản Google thành công!');
         } catch (\Exception $e) {
-            Log::error('Google unlink error: '.$e->getMessage());
+            Log::error('Google unlink error: ' . $e->getMessage());
 
             return redirect()->route('profile.edit')
                 ->with('error', 'Có lỗi xảy ra khi hủy liên kết tài khoản Google.');

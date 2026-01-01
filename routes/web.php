@@ -99,10 +99,8 @@ Route::middleware(['auth.session'])->group(function () {
     Route::get('/dashboard', [HomeController::class, 'dashboard'])->name('dashboard');
     Route::get('/dashboard/recent-users', [HomeController::class, 'getRecentUsers'])->name('dashboard.recent-users');
 
-    // Legacy routes for backwards compatibility
+    // Admin dashboard routes
     Route::get('/admin/dashboard', [HomeController::class, 'dashboard'])->name('admin.dashboard');
-    Route::get('/player/dashboard', [HomeController::class, 'dashboard'])->name('player.dashboard');
-    Route::get('/viewer/dashboard', [HomeController::class, 'dashboard'])->name('viewer.dashboard');
 
     // Teams routes - only for players and admins
     Route::middleware(['check.player.role'])->group(function () {
@@ -283,13 +281,13 @@ Route::prefix('admin/marketplace')->name('admin.marketplace.')->middleware(['aut
 Route::prefix('payment')->name('payment.')->group(function () {
     // Tạo đơn hàng và chuyển hướng đến VNPay
     Route::post('/vnpay/create', [PaymentController::class, 'createPayment'])->name('vnpay.create');
-    
+
     // Callback từ VNPay sau khi thanh toán
     Route::get('/vnpay/return', [PaymentController::class, 'vnpayReturn'])->name('vnpay.return');
-    
+
     // IPN (Instant Payment Notification) từ VNPay
     Route::post('/vnpay/ipn', [PaymentController::class, 'vnpayIpn'])->name('vnpay.ipn');
-    
+
     // Query transaction từ VNPay
     Route::post('/vnpay/query', [PaymentController::class, 'queryTransaction'])->name('vnpay.query');
 });

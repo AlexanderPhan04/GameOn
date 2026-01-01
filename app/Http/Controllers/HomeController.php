@@ -22,22 +22,22 @@ class HomeController extends Controller
             $stats = [
                 'total_users' => User::count(),
                 'total_teams' => Schema::hasTable('teams') ? Team::count() : 0,
-                'active_tournaments' => Schema::hasTable('tournaments') 
-                    ? Tournament::where('status', 'active')->count() 
+                'active_tournaments' => Schema::hasTable('tournaments')
+                    ? Tournament::where('status', 'active')->count()
                     : 0,
                 'featured_tournaments' => Schema::hasTable('tournaments')
                     ? Tournament::with(['game', 'creator'])
-                        ->where('status', 'active')
-                        ->orderBy('start_date', 'desc')
-                        ->take(3)
-                        ->get()
+                    ->where('status', 'active')
+                    ->orderBy('start_date', 'desc')
+                    ->take(3)
+                    ->get()
                     : collect(),
-                'top_teams' => Schema::hasTable('teams') 
+                'top_teams' => Schema::hasTable('teams')
                     ? Team::withCount('activeMembers')
-                        ->where('status', 'active')
-                        ->orderBy('active_members_count', 'desc')
-                        ->take(4)
-                        ->get()
+                    ->where('status', 'active')
+                    ->orderBy('active_members_count', 'desc')
+                    ->take(4)
+                    ->get()
                     : collect(),
             ];
         } catch (\Exception $e) {
@@ -66,12 +66,17 @@ class HomeController extends Controller
                 return $this->superAdminDashboard();
             case 'admin':
                 return $this->adminDashboard();
+            case 'participant':
+                // Participant không có dashboard, chuyển đến posts
+                return redirect('/posts');
             case 'player':
-                return $this->playerDashboard();
+                // Legacy: chuyển đến posts
+                return redirect('/posts');
             case 'viewer':
-                return $this->viewerDashboard();
+                // Legacy: chuyển đến posts
+                return redirect('/posts');
             default:
-                return $this->viewerDashboard();
+                return redirect('/posts');
         }
     }
 
@@ -152,43 +157,5 @@ class HomeController extends Controller
         ];
 
         return view('dashboard.admin', compact('stats'));
-    }
-
-    /**
-     * Player Dashboard
-     */
-    private function playerDashboard()
-    {
-        $user = User::with(['teams.captain', 'teams.activeMembers', 'captainTeams.activeMembers'])
-            ->find(Auth::id());
-
-        $data = [
-            'user' => $user,
-            'my_teams' => $user->teams ?? collect(),
-            'captain_teams' => $user->captainTeams ?? collect(),
-            'team_invitations' => [], // TODO: Implement team invitations
-            'recent_tournaments' => [], // TODO: Get recent tournaments
-        ];
-
-        return view('dashboard.player', $data);
-    }
-
-    /**
-     * Viewer Dashboard
-     */
-    private function viewerDashboard()
-    {
-        $data = [
-            'featured_tournaments' => [], // TODO: Get featured tournaments
-            'popular_teams' => Schema::hasTable('teams')
-                ? Team::withCount('activeMembers')
-                    ->orderBy('active_members_count', 'desc')
-                    ->take(6)
-                    ->get()
-                : collect(),
-            'recent_matches' => [], // TODO: Get recent matches
-        ];
-
-        return view('dashboard.viewer', $data);
     }
 }

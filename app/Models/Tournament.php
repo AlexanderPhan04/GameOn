@@ -68,14 +68,78 @@ class Tournament extends Model
     }
 
     /**
+     * Get all registrations for this tournament
+     */
+    public function registrations()
+    {
+        return $this->hasMany(TournamentRegistration::class);
+    }
+
+    /**
+     * Get all matches for this tournament
+     */
+    public function matches()
+    {
+        return $this->hasMany(TournamentMatch::class);
+    }
+
+    /**
+     * Get approved registrations
+     */
+    public function approvedRegistrations()
+    {
+        return $this->hasMany(TournamentRegistration::class)->where('status', 'approved');
+    }
+
+    /**
+     * Get checked-in participants
+     */
+    public function checkedInParticipants()
+    {
+        return $this->hasMany(TournamentRegistration::class)->where('status', 'checked_in');
+    }
+
+    /**
+     * Get upcoming matches
+     */
+    public function upcomingMatches()
+    {
+        return $this->hasMany(TournamentMatch::class)
+            ->where('status', 'scheduled')
+            ->orderBy('scheduled_at');
+    }
+
+    /**
+     * Get live matches
+     */
+    public function liveMatches()
+    {
+        return $this->hasMany(TournamentMatch::class)->where('status', 'live');
+    }
+
+    /**
+     * Get participant count
+     */
+    public function getParticipantCountAttribute(): int
+    {
+        return $this->registrations()->whereIn('status', ['approved', 'checked_in'])->count();
+    }
+
+    /**
+     * Check if registration is open
+     */
+    public function isRegistrationOpen(): bool
+    {
+        return $this->status === 'registration' &&
+            $this->registration_deadline >= now();
+    }
+
+    /**
      * Scope for active tournaments
      */
     public function scopeActive($query)
     {
-        return $query->where(function ($q) {
-            $q->where('is_active', true)
-              ->orWhere('status', '!=', 'cancelled');
-        });
+        return $query->where('status', '!=', 'cancelled');
     }
 
     /**

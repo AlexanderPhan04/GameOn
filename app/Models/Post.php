@@ -12,7 +12,17 @@ class Post extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id', 'content', 'media_path', 'shared_post_id', 'root_post_id', 'likes_count', 'comments_count', 'shares_count', 'visibility', 'visibility_include_ids', 'visibility_exclude_ids',
+        'user_id',
+        'content',
+        'media_path',
+        'shared_post_id',
+        'root_post_id',
+        'likes_count',
+        'comments_count',
+        'shares_count',
+        'visibility',
+        'visibility_include_ids',
+        'visibility_exclude_ids',
     ];
 
     public function user(): BelongsTo
@@ -53,5 +63,50 @@ class Post extends Model
     public function reactions(): HasMany
     {
         return $this->hasMany(PostReaction::class);
+    }
+
+    /**
+     * Get visibility users for this post (new normalized approach)
+     */
+    public function visibilityUsers(): HasMany
+    {
+        return $this->hasMany(PostVisibilityUser::class);
+    }
+
+    /**
+     * Get included users
+     */
+    public function includedUsers(): HasMany
+    {
+        return $this->hasMany(PostVisibilityUser::class)->where('type', 'include');
+    }
+
+    /**
+     * Get excluded users
+     */
+    public function excludedUsers(): HasMany
+    {
+        return $this->hasMany(PostVisibilityUser::class)->where('type', 'exclude');
+    }
+
+    /**
+     * Check if user can view this post
+     */
+    public function canBeViewedBy(int $userId): bool
+    {
+        // Author can always view
+        if ($this->user_id === $userId) {
+            return true;
+        }
+
+        return PostVisibilityUser::canUserViewPost($this->id, $userId, $this->visibility);
+    }
+
+    /**
+     * Set visibility list for this post
+     */
+    public function setVisibilityList(array $includeIds, array $excludeIds = []): void
+    {
+        PostVisibilityUser::setVisibilityList($this->id, $includeIds, $excludeIds);
     }
 }

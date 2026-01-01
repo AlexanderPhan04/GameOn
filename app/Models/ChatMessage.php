@@ -27,14 +27,46 @@ class ChatMessage extends Model
     ];
 
     protected $casts = [
-        'reactions' => 'array',
-        'is_edited' => 'boolean',
+        'reactions' => 'array', // Deprecated: use messageReactions() relationship instead
+        'is_edited' => 'boolean', // Deprecated: use edited_at instead
         'edited_at' => 'datetime',
-        'is_deleted' => 'boolean',
+        'is_deleted' => 'boolean', // Deprecated: use deleted_at instead
         'deleted_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
+
+    /**
+     * Get reactions for this message (new normalized approach)
+     */
+    public function messageReactions()
+    {
+        return $this->hasMany(ChatMessageReaction::class, 'message_id');
+    }
+
+    /**
+     * Get reaction counts grouped by type
+     */
+    public function getReactionCountsAttribute(): array
+    {
+        return ChatMessageReaction::getReactionCounts($this->id);
+    }
+
+    /**
+     * Check if message is edited (using edited_at)
+     */
+    public function getIsEditedAttribute(): bool
+    {
+        return $this->edited_at !== null;
+    }
+
+    /**
+     * Check if message is deleted (using deleted_at)
+     */
+    public function getIsDeletedAttribute(): bool
+    {
+        return $this->deleted_at !== null;
+    }
 
     /**
      * Get the conversation this message belongs to
@@ -76,7 +108,7 @@ class ChatMessage extends Model
             $size /= 1024;
         }
 
-        return round($size, 2).' '.$units[$i];
+        return round($size, 2) . ' ' . $units[$i];
     }
 
     /**
@@ -88,7 +120,7 @@ class ChatMessage extends Model
             return null;
         }
 
-        return asset('storage/'.$this->attachment_path);
+        return asset('storage/' . $this->attachment_path);
     }
 
     /**

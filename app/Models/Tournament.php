@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Tournament extends Model
 {
@@ -14,6 +15,10 @@ class Tournament extends Model
         'description',
         'game_id',
         'created_by',
+        'status',
+        'image_url',
+        'stream_link',
+        // Legacy fields (sẽ bị remove sau khi tách hoàn tất)
         'start_date',
         'end_date',
         'registration_deadline',
@@ -22,14 +27,11 @@ class Tournament extends Model
         'entry_fee',
         'prize_pool',
         'prize_distribution',
-        'status',
         'format',
         'competition_type',
         'rules',
         'location_type',
         'location_address',
-        'image_url',
-        'stream_link',
         'organizer_id',
         'is_active',
     ];
@@ -44,6 +46,26 @@ class Tournament extends Model
         'rules' => 'array',
         'is_active' => 'boolean',
     ];
+
+    // ========== RELATIONSHIPS (NEW TABLES) ==========
+
+    /**
+     * Tournament settings (format, prize, rules...)
+     */
+    public function settings(): HasOne
+    {
+        return $this->hasOne(TournamentSettings::class);
+    }
+
+    /**
+     * Tournament schedule (dates, location...)
+     */
+    public function schedule(): HasOne
+    {
+        return $this->hasOne(TournamentSchedule::class);
+    }
+
+    // ========== EXISTING RELATIONSHIPS ==========
 
     public function game()
     {
@@ -149,5 +171,56 @@ class Tournament extends Model
     {
         return $query->where('status', 'registration')
             ->where('start_date', '>=', now());
+    }
+
+    // ========== HELPER ACCESSORS (delegate to new tables) ==========
+
+    /**
+     * Get prize pool (từ settings hoặc legacy field)
+     */
+    public function getPrizePoolValueAttribute()
+    {
+        return $this->settings?->prize_pool ?? $this->prize_pool ?? 0;
+    }
+
+    /**
+     * Get format (từ settings hoặc legacy field)
+     */
+    public function getFormatValueAttribute()
+    {
+        return $this->settings?->format ?? $this->format ?? 'single_elimination';
+    }
+
+    /**
+     * Get start date (từ schedule hoặc legacy field)
+     */
+    public function getStartDateValueAttribute()
+    {
+        return $this->schedule?->start_date ?? $this->start_date;
+    }
+
+    /**
+     * Get registration deadline (từ schedule hoặc legacy field)
+     */
+    public function getRegistrationDeadlineValueAttribute()
+    {
+        return $this->schedule?->registration_deadline ?? $this->registration_deadline;
+    }
+
+    /**
+     * Check if registration is open (delegate to schedule)
+     */
+    public function isRegistrationOpenNew(): bool
+    {
+        if ($this->status !== 'registration') {
+            return false;
+        }
+
+        if ($this->schedule) {
+            return $this->schedule->isRegistrationOpen();
+        }
+
+        // Fallback to legacy field
+        return $this->registration_deadline >= now();
     }
 }

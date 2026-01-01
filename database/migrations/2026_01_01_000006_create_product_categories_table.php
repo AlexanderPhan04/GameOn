@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * Migration 6: Tạo bảng product_categories
- * 
+ *
  * Vấn đề: marketplace_products.category là ENUM cứng với 8 giá trị
  * Giải pháp: Tách thành bảng riêng để dễ mở rộng
  */
@@ -15,8 +15,11 @@ return new class extends Migration
 {
     public function up(): void
     {
+        $isSqlite = config('database.default') === 'sqlite' ||
+            (config('database.connections.' . config('database.default') . '.driver') === 'sqlite');
+
         // Step 1: Tạo bảng categories
-        Schema::create('product_categories', function (Blueprint $table) {
+        Schema::create('product_categories', function (Blueprint $table) use ($isSqlite) {
             $table->id();
             $table->string('name', 100)->unique();
             $table->string('slug', 100)->unique();
@@ -27,26 +30,29 @@ return new class extends Migration
             $table->boolean('is_active')->default(true);
             $table->timestamps();
 
-            $table->foreign('parent_id')
-                ->references('id')
-                ->on('product_categories')
-                ->onDelete('set null');
+            if (! $isSqlite) {
+                $table->foreign('parent_id')
+                    ->references('id')
+                    ->on('product_categories')
+                    ->onDelete('set null');
+            }
             $table->index(['is_active', 'sort_order']);
         });
 
         // Step 2: Insert các category từ ENUM hiện tại
+        $now = now();
         DB::table('product_categories')->insert([
-            ['name' => 'UI Theme', 'slug' => 'ui_theme', 'sort_order' => 1, 'created_at' => now(), 'updated_at' => now()],
-            ['name' => 'Avatar Frame', 'slug' => 'avatar_frame', 'sort_order' => 2, 'created_at' => now(), 'updated_at' => now()],
-            ['name' => 'Sticker Pack', 'slug' => 'sticker_pack', 'sort_order' => 3, 'created_at' => now(), 'updated_at' => now()],
-            ['name' => 'Emote', 'slug' => 'emote', 'sort_order' => 4, 'created_at' => now(), 'updated_at' => now()],
-            ['name' => 'Weapon Skin', 'slug' => 'weapon_skin', 'sort_order' => 5, 'created_at' => now(), 'updated_at' => now()],
-            ['name' => 'Character Skin', 'slug' => 'character_skin', 'sort_order' => 6, 'created_at' => now(), 'updated_at' => now()],
-            ['name' => 'Currency', 'slug' => 'currency', 'sort_order' => 7, 'created_at' => now(), 'updated_at' => now()],
-            ['name' => 'Other', 'slug' => 'other', 'sort_order' => 99, 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'UI Theme', 'slug' => 'ui_theme', 'sort_order' => 1, 'created_at' => $now, 'updated_at' => $now],
+            ['name' => 'Avatar Frame', 'slug' => 'avatar_frame', 'sort_order' => 2, 'created_at' => $now, 'updated_at' => $now],
+            ['name' => 'Sticker Pack', 'slug' => 'sticker_pack', 'sort_order' => 3, 'created_at' => $now, 'updated_at' => $now],
+            ['name' => 'Emote', 'slug' => 'emote', 'sort_order' => 4, 'created_at' => $now, 'updated_at' => $now],
+            ['name' => 'Weapon Skin', 'slug' => 'weapon_skin', 'sort_order' => 5, 'created_at' => $now, 'updated_at' => $now],
+            ['name' => 'Character Skin', 'slug' => 'character_skin', 'sort_order' => 6, 'created_at' => $now, 'updated_at' => $now],
+            ['name' => 'Currency', 'slug' => 'currency', 'sort_order' => 7, 'created_at' => $now, 'updated_at' => $now],
+            ['name' => 'Other', 'slug' => 'other', 'sort_order' => 99, 'created_at' => $now, 'updated_at' => $now],
             // Thêm các category mới
-            ['name' => 'Subscription', 'slug' => 'subscription', 'sort_order' => 8, 'created_at' => now(), 'updated_at' => now()],
-            ['name' => 'Badge', 'slug' => 'badge', 'sort_order' => 9, 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Subscription', 'slug' => 'subscription', 'sort_order' => 8, 'created_at' => $now, 'updated_at' => $now],
+            ['name' => 'Badge', 'slug' => 'badge', 'sort_order' => 9, 'created_at' => $now, 'updated_at' => $now],
         ]);
 
         // Step 3: Thêm column category_id vào marketplace_products
@@ -54,23 +60,29 @@ return new class extends Migration
             $table->unsignedBigInteger('category_id')->nullable()->after('category');
         });
 
-        // Step 4: Migrate data từ ENUM sang FK
-        DB::statement('
-            UPDATE marketplace_products mp
-            SET category_id = (
-                SELECT pc.id FROM product_categories pc 
-                WHERE pc.slug = mp.category
-                LIMIT 1
-            )
-            WHERE mp.category IS NOT NULL
-        ');
+        // Step 4: Migrate data từ ENUM sang FK (dùng PHP thay vì raw SQL)
+        $categories = DB::table('product_categories')->get()->keyBy('slug');
+        $products = DB::table('marketplace_products')->whereNotNull('category')->get(['id', 'category']);
 
-        // Step 5: Thêm FK constraint
+        foreach ($products as $product) {
+            if (isset($categories[$product->category])) {
+                DB::table('marketplace_products')
+                    ->where('id', $product->id)
+                    ->update(['category_id' => $categories[$product->category]->id]);
+            }
+        }
+
+        // Step 5: Thêm FK constraint (chỉ cho MySQL)
+        if (! $isSqlite) {
+            Schema::table('marketplace_products', function (Blueprint $table) {
+                $table->foreign('category_id')
+                    ->references('id')
+                    ->on('product_categories')
+                    ->onDelete('set null');
+            });
+        }
+
         Schema::table('marketplace_products', function (Blueprint $table) {
-            $table->foreign('category_id')
-                ->references('id')
-                ->on('product_categories')
-                ->onDelete('set null');
             $table->index('category_id');
         });
 
@@ -80,8 +92,16 @@ return new class extends Migration
 
     public function down(): void
     {
+        $isSqlite = config('database.default') === 'sqlite' ||
+            (config('database.connections.' . config('database.default') . '.driver') === 'sqlite');
+
+        if (! $isSqlite) {
+            Schema::table('marketplace_products', function (Blueprint $table) {
+                $table->dropForeign(['category_id']);
+            });
+        }
+
         Schema::table('marketplace_products', function (Blueprint $table) {
-            $table->dropForeign(['category_id']);
             $table->dropIndex(['category_id']);
             $table->dropColumn('category_id');
         });

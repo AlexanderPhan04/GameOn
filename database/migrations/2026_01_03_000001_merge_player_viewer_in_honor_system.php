@@ -25,9 +25,10 @@ return new class extends Migration
         });
 
         // Migrate data - lấy giá trị cao nhất giữa player và viewer
+        // Sử dụng CASE WHEN để tương thích với cả MySQL và SQLite
         DB::table('honor_events')->update([
-            'allow_participant_vote' => DB::raw('GREATEST(allow_player_vote, allow_viewer_vote)'),
-            'participant_weight' => DB::raw('GREATEST(player_weight, viewer_weight)'),
+            'allow_participant_vote' => DB::raw('CASE WHEN allow_player_vote > allow_viewer_vote THEN allow_player_vote ELSE allow_viewer_vote END'),
+            'participant_weight' => DB::raw('CASE WHEN player_weight > viewer_weight THEN player_weight ELSE viewer_weight END'),
         ]);
 
         // Update target_type từ 'player' thành 'user'

@@ -106,13 +106,8 @@
                                 <div class="card-body text-center">
                                     <h6 class="text-primary">Quyền vote</h6>
                                     <div class="mb-2">
-                                        <span class="badge badge-{{ $honorEvent->allow_viewer_vote ? 'success' : 'secondary' }}">
-                                            Viewer {{ $honorEvent->allow_viewer_vote ? '✓' : '✗' }}
-                                        </span>
-                                    </div>
-                                    <div class="mb-2">
-                                        <span class="badge badge-{{ $honorEvent->allow_player_vote ? 'success' : 'secondary' }}">
-                                            Player {{ $honorEvent->allow_player_vote ? '✓' : '✗' }}
+                                        <span class="badge badge-{{ $honorEvent->allow_participant_vote ? 'success' : 'secondary' }}">
+                                            Participant {{ $honorEvent->allow_participant_vote ? '✓' : '✗' }}
                                         </span>
                                     </div>
                                     <div class="mb-2">
@@ -128,10 +123,7 @@
                                 <div class="card-body text-center">
                                     <h6 class="text-primary">Trọng số</h6>
                                     <div class="mb-2">
-                                        <strong>Viewer:</strong> {{ $honorEvent->viewer_weight }}x
-                                    </div>
-                                    <div class="mb-2">
-                                        <strong>Player:</strong> {{ $honorEvent->player_weight }}x
+                                        <strong>Participant:</strong> {{ $honorEvent->participant_weight }}x
                                     </div>
                                     <div class="mb-2">
                                         <strong>Admin:</strong> {{ $honorEvent->admin_weight }}x
@@ -220,7 +212,7 @@
                                                     <td>{{ $rank }}</td>
                                                     <td>
                                                         <div class="d-flex align-items-center">
-                                                            @if($honorEvent->target_type === 'player')
+                                                            @if($honorEvent->target_type === 'user')
                                                                 <img src="{{ get_avatar_url($item['item']->avatar) }}" 
                                                                      class="rounded-circle me-3" width="40" height="40" alt="Avatar">
                                                             @elseif($honorEvent->target_type === 'team')

@@ -62,7 +62,7 @@ class ProfileController extends Controller
                 ])->withInput();
             }
 
-            $validationRules['user_role'] = ['required', 'string', Rule::in(['viewer', 'player', 'admin', 'super_admin'])];
+            $validationRules['user_role'] = ['required', 'string', Rule::in(['participant', 'admin', 'super_admin'])];
         }
 
         $request->validate($validationRules);
@@ -145,9 +145,9 @@ class ProfileController extends Controller
             return response()->json([]);
         }
 
-        $users = \App\Models\User::where('id_app', 'like', '%'.$search.'%')
-            ->orWhere('name', 'like', '%'.$search.'%')
-            ->orWhere('full_name', 'like', '%'.$search.'%')
+        $users = \App\Models\User::where('id_app', 'like', '%' . $search . '%')
+            ->orWhere('name', 'like', '%' . $search . '%')
+            ->orWhere('full_name', 'like', '%' . $search . '%')
             ->select('id', 'name', 'full_name', 'id_app', 'avatar')
             ->limit(10)
             ->get();

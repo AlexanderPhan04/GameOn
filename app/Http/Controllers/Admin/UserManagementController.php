@@ -130,9 +130,9 @@ class UserManagementController extends Controller
         }
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,'.$user->id,
+            'email' => 'required|email|unique:users,email,' . $user->id,
             'full_name' => 'nullable|string|max:255',
-            'user_role' => 'required|in:super_admin,admin,player,viewer',
+            'user_role' => 'required|in:super_admin,admin,participant',
             'status' => 'required|in:active,suspended,banned,deleted',
             'bio' => 'nullable|string',
             'phone' => 'nullable|string|max:20',
@@ -280,11 +280,11 @@ class UserManagementController extends Controller
 
         $users = $query->get();
 
-        $filename = 'users_export_'.date('Y-m-d_H-i-s').'.csv';
+        $filename = 'users_export_' . date('Y-m-d_H-i-s') . '.csv';
 
         $headers = [
             'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
         ];
 
         $callback = function () use ($users) {

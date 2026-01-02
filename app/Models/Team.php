@@ -17,18 +17,17 @@ class Team extends Model
         'captain_id',
         'logo_url',
         'max_members',
-        'is_active',
         'status',
     ];
 
     protected $casts = [
-        'is_active' => 'boolean',
+        //
     ];
 
     // Accessors
     public function getLogoAttribute()
     {
-        return $this->logo_url ? asset('storage/'.$this->logo_url) : null;
+        return $this->logo_url ? asset('storage/' . $this->logo_url) : null;
     }
 
     // Relationships
@@ -75,6 +74,6 @@ class Team extends Model
 
     public function getLogoUrlAttribute($value)
     {
-        return $value ? asset('storage/'.$value) : null;
+        return $value ? asset('storage/' . $value) : null;
     }
 }

@@ -85,9 +85,8 @@ class AuthenticationResult
         }
 
         return match ($this->role) {
-            'Admin' => 'Quản trị viên',
-            'Player' => 'Người chơi',
-            'Viewer' => 'Người xem',
+            'Admin', 'admin', 'super_admin' => 'Quản trị viên',
+            'Participant', 'participant' => 'Người tham gia',
             default => 'Không xác định'
         };
     }

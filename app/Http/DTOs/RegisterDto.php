@@ -32,7 +32,7 @@ class RegisterDto
         string $password = '',
         string $confirmPassword = '',
         string $fullName = '',
-        string $role = EsportsUser::ROLE_VIEWER,
+        string $role = EsportsUser::ROLE_PARTICIPANT,
         string $securityQuestion = '',
         string $securityAnswer = ''
     ) {
@@ -57,7 +57,7 @@ class RegisterDto
             $data['password'] ?? '',
             $data['confirm_password'] ?? '',
             $data['full_name'] ?? '',
-            $data['role'] ?? EsportsUser::ROLE_VIEWER,
+            $data['role'] ?? EsportsUser::ROLE_PARTICIPANT,
             $data['security_question'] ?? '',
             $data['security_answer'] ?? ''
         );
@@ -110,7 +110,7 @@ class RegisterDto
         }
 
         // Role validation
-        $validRoles = [EsportsUser::ROLE_PLAYER, EsportsUser::ROLE_VIEWER];
+        $validRoles = [EsportsUser::ROLE_PARTICIPANT];
         if (! in_array($this->role, $validRoles)) {
             $errors[] = 'Vai trò không hợp lệ';
         }

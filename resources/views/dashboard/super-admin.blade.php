@@ -116,29 +116,16 @@
                 </div>
             </div>
 
-            <!-- Players -->
+            <!-- Participants -->
             <div class="stat-card">
                 <div class="flex items-start justify-between mb-3">
-                    <div class="stat-icon blue"><i class="fas fa-gamepad text-white text-xl"></i></div>
+                    <div class="stat-icon blue"><i class="fas fa-users text-white text-xl"></i></div>
                     <span class="stat-badge active"><i class="fas fa-trophy"></i> {{ __('app.dashboard.competing') }}</span>
                 </div>
-                <p class="stat-label"><i class="fas fa-gamepad text-xs"></i> {{ __('app.dashboard.players') }}</p>
-                <h2 class="stat-number">{{ number_format($stats['total_players']) }}</h2>
+                <p class="stat-label"><i class="fas fa-users text-xs"></i> {{ __('app.dashboard.participants') }}</p>
+                <h2 class="stat-number">{{ number_format($stats['total_participants']) }}</h2>
                 <div class="mt-4 pt-3 border-t border-[rgba(0,229,255,0.1)]">
-                    <a href="{{ route('admin.users.index') }}?role=player" class="stat-link">{{ __('app.dashboard.view_details') }} <i class="fas fa-arrow-right text-xs"></i></a>
-                </div>
-            </div>
-
-            <!-- Viewers -->
-            <div class="stat-card">
-                <div class="flex items-start justify-between mb-3">
-                    <div class="stat-icon orange"><i class="fas fa-eye text-white text-xl"></i></div>
-                    <span class="stat-badge active"><i class="fas fa-broadcast-tower"></i> Online</span>
-                </div>
-                <p class="stat-label"><i class="fas fa-eye text-xs"></i> Viewers</p>
-                <h2 class="stat-number">{{ number_format($stats['total_viewers']) }}</h2>
-                <div class="mt-4 pt-3 border-t border-[rgba(0,229,255,0.1)]">
-                    <a href="{{ route('admin.users.index') }}?role=viewer" class="stat-link">{{ __('app.dashboard.view_details') }} <i class="fas fa-arrow-right text-xs"></i></a>
+                    <a href="{{ route('admin.users.index') }}?role=participant" class="stat-link">{{ __('app.dashboard.view_details') }} <i class="fas fa-arrow-right text-xs"></i></a>
                 </div>
             </div>
         </div>
@@ -196,8 +183,8 @@
                     @if($role->user_role !== 'super_admin')
                     <div class="role-card">
                         <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-xl flex items-center justify-center {{ $role->user_role === 'admin' ? 'bg-gradient-to-br from-[#004d40] to-[#00796b]' : ($role->user_role === 'player' ? 'bg-gradient-to-br from-[#1a237e] to-[#3949ab]' : 'bg-gradient-to-br from-[#000055] to-[#006666]') }}">
-                                <i class="fas {{ $role->user_role === 'admin' ? 'fa-user-shield' : ($role->user_role === 'player' ? 'fa-gamepad' : 'fa-eye') }} text-white text-sm"></i>
+                            <div class="w-10 h-10 rounded-xl flex items-center justify-center {{ $role->user_role === 'admin' ? 'bg-gradient-to-br from-[#004d40] to-[#00796b]' : ($role->user_role === 'participant' ? 'bg-gradient-to-br from-[#1a237e] to-[#3949ab]' : 'bg-gradient-to-br from-[#000055] to-[#006666]') }}">
+                                <i class="fas {{ $role->user_role === 'admin' ? 'fa-user-shield' : ($role->user_role === 'participant' ? 'fa-gamepad' : 'fa-users') }} text-white text-sm"></i>
                             </div>
                             <div class="flex-1 min-w-0">
                                 <div class="flex items-center justify-between mb-1">

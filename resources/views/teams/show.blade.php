@@ -123,7 +123,7 @@
             </div>
 
             @auth
-            @if(Auth::user()->user_role === 'participant' || Auth::user()->user_role === 'player')
+            @if(Auth::user()->user_role === 'participant')
             <div class="card shadow mt-3">
                 <div class="card-body text-center">
                     @php

@@ -2,1082 +2,1411 @@
 
 @section('title','Bài viết')
 
+@push('styles')
+<style>
+    .posts-page {
+        background: linear-gradient(180deg, #000814 0%, #0d1b2a 100%);
+        min-height: 100vh;
+    }
+    .feed-container {
+        max-width: 680px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+    .page-title {
+        font-family: 'Rajdhani', sans-serif;
+        font-size: 2rem;
+        font-weight: 700;
+        color: #fff;
+        text-align: center;
+        margin-bottom: 1.5rem;
+        text-shadow: 0 0 20px rgba(0, 229, 255, 0.3);
+    }
+    
+    /* Composer Card */
+    .composer-card {
+        background: linear-gradient(135deg, #0d1b2a 0%, #000022 100%);
+        border: 1px solid rgba(0, 229, 255, 0.15);
+        border-radius: 20px;
+        padding: 1.25rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+    .composer-inner {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    .composer-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        border: 2px solid rgba(0, 229, 255, 0.3);
+        background-size: cover;
+        background-position: center;
+        flex-shrink: 0;
+        box-shadow: 0 0 15px rgba(0, 229, 255, 0.2);
+    }
+    .composer-trigger {
+        flex: 1;
+        background: rgba(0, 0, 85, 0.3);
+        border: 1px solid rgba(0, 229, 255, 0.1);
+        border-radius: 25px;
+        padding: 0.875rem 1.25rem;
+        color: #94a3b8;
+        font-family: 'Inter', sans-serif;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-align: left;
+    }
+    .composer-trigger:hover {
+        background: rgba(0, 229, 255, 0.08);
+        border-color: rgba(0, 229, 255, 0.3);
+        color: #00E5FF;
+    }
+
+    /* Empty State */
+    .empty-state {
+        background: linear-gradient(135deg, #0d1b2a 0%, #000022 100%);
+        border: 1px solid rgba(0, 229, 255, 0.15);
+        border-radius: 20px;
+        padding: 3rem 2rem;
+        text-align: center;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+    .empty-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        filter: grayscale(0.3);
+    }
+    .empty-title {
+        font-family: 'Rajdhani', sans-serif;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 0.5rem;
+    }
+    .empty-desc {
+        color: #94a3b8;
+        font-family: 'Inter', sans-serif;
+        margin-bottom: 1.5rem;
+    }
+    .empty-actions {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+    
+    /* Buttons */
+    .btn-primary-glow {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        background: linear-gradient(135deg, #000055 0%, rgba(0, 229, 255, 0.2) 100%);
+        border: 1px solid rgba(0, 229, 255, 0.4);
+        border-radius: 12px;
+        color: #00E5FF;
+        font-family: 'Rajdhani', sans-serif;
+        font-weight: 600;
+        font-size: 0.95rem;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0, 229, 255, 0.15);
+    }
+    .btn-primary-glow:hover {
+        background: linear-gradient(135deg, rgba(0, 229, 255, 0.2) 0%, #000055 100%);
+        box-shadow: 0 6px 25px rgba(0, 229, 255, 0.3);
+        transform: translateY(-2px);
+        color: #00E5FF;
+    }
+    .btn-secondary-outline {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        background: transparent;
+        border: 1px solid rgba(148, 163, 184, 0.3);
+        border-radius: 12px;
+        color: #94a3b8;
+        font-family: 'Rajdhani', sans-serif;
+        font-weight: 600;
+        font-size: 0.95rem;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+    .btn-secondary-outline:hover {
+        border-color: rgba(0, 229, 255, 0.4);
+        color: #00E5FF;
+        background: rgba(0, 229, 255, 0.05);
+    }
+
+    /* Post Card */
+    .post-card {
+        background: linear-gradient(135deg, #0d1b2a 0%, #000022 100%);
+        border: 1px solid rgba(0, 229, 255, 0.12);
+        border-radius: 20px;
+        margin-bottom: 1.5rem;
+        overflow: hidden;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+        transition: all 0.3s ease;
+    }
+    .post-card:hover {
+        border-color: rgba(0, 229, 255, 0.25);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35), 0 0 20px rgba(0, 229, 255, 0.05);
+    }
+    .post-body {
+        padding: 1.25rem;
+    }
+    
+    /* Post Header */
+    .post-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+    }
+    .post-author {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    .post-avatar {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        border: 2px solid rgba(0, 229, 255, 0.25);
+        background-size: cover;
+        background-position: center;
+        transition: all 0.3s ease;
+    }
+    .post-avatar:hover {
+        border-color: #00E5FF;
+        box-shadow: 0 0 15px rgba(0, 229, 255, 0.4);
+    }
+    .post-author-info {
+        display: flex;
+        flex-direction: column;
+    }
+    .post-author-name {
+        color: #fff;
+        font-family: 'Rajdhani', sans-serif;
+        font-weight: 600;
+        font-size: 1rem;
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+    .post-author-name:hover {
+        color: #00E5FF;
+    }
+    .post-time {
+        color: #64748b;
+        font-size: 0.8rem;
+        cursor: pointer;
+    }
+    .post-time:hover {
+        text-decoration: underline;
+        color: #94a3b8;
+    }
+    
+    /* Post Menu */
+    .post-menu-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: transparent;
+        border: none;
+        color: #64748b;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+    }
+    .post-menu-btn:hover {
+        background: rgba(255, 255, 255, 0.08);
+        color: #fff;
+    }
+    .post-dropdown {
+        position: absolute;
+        right: 0;
+        top: 100%;
+        margin-top: 0.5rem;
+        background: #0d1b2a;
+        border: 1px solid rgba(0, 229, 255, 0.2);
+        border-radius: 12px;
+        padding: 0.5rem;
+        min-width: 180px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        z-index: 100;
+        display: none;
+    }
+    .post-dropdown.show {
+        display: block;
+    }
+    .post-dropdown-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.625rem 0.875rem;
+        border-radius: 8px;
+        color: #94a3b8;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: none;
+        background: none;
+        width: 100%;
+        text-align: left;
+    }
+    .post-dropdown-item:hover {
+        background: rgba(0, 229, 255, 0.1);
+        color: #00E5FF;
+    }
+    .post-dropdown-item.danger {
+        color: #f87171;
+    }
+    .post-dropdown-item.danger:hover {
+        background: rgba(248, 113, 113, 0.1);
+        color: #f87171;
+    }
+    .post-dropdown-divider {
+        height: 1px;
+        background: rgba(0, 229, 255, 0.1);
+        margin: 0.375rem 0;
+    }
+
+    /* Post Content */
+    .post-content {
+        color: #e2e8f0;
+        font-family: 'Inter', sans-serif;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        white-space: pre-wrap;
+        word-break: break-word;
+        margin-bottom: 0.75rem;
+    }
+    
+    /* Post Media */
+    .post-media-single {
+        width: 100%;
+        border-radius: 12px;
+        margin-top: 0.75rem;
+    }
+    .post-media-grid {
+        display: grid;
+        gap: 4px;
+        margin-top: 0.75rem;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    .post-media-grid.cols-2 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .post-media-grid.cols-3 {
+        grid-template-columns: 2fr 1fr;
+        grid-template-rows: repeat(2, 1fr);
+    }
+    .post-media-grid .media-item {
+        position: relative;
+        aspect-ratio: 1;
+        overflow: hidden;
+    }
+    .post-media-grid.cols-3 .media-item:first-child {
+        grid-row: span 2;
+        aspect-ratio: auto;
+    }
+    .post-media-grid .media-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .media-more-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.6);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-family: 'Rajdhani', sans-serif;
+        font-size: 1.75rem;
+        font-weight: 700;
+    }
+    
+    /* Shared Post */
+    .shared-post {
+        background: rgba(0, 0, 85, 0.2);
+        border: 1px solid rgba(0, 229, 255, 0.1);
+        border-radius: 12px;
+        padding: 0.875rem;
+        margin-top: 0.75rem;
+    }
+    .shared-author {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 0.75rem;
+    }
+    .shared-avatar {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 1px solid rgba(0, 229, 255, 0.2);
+    }
+    .shared-name {
+        color: #fff;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+    .shared-time {
+        color: #64748b;
+        font-size: 0.75rem;
+    }
+    .shared-content {
+        color: #94a3b8;
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+    }
+
+    /* Stats Bar */
+    .post-stats {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.625rem 0;
+        margin-top: 0.5rem;
+        border-bottom: 1px solid rgba(0, 229, 255, 0.08);
+        font-size: 0.85rem;
+        color: #64748b;
+    }
+    .stats-reactions {
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+    }
+    .reaction-icons {
+        display: flex;
+    }
+    .reaction-icon {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.6rem;
+        color: #fff;
+        margin-left: -4px;
+        border: 2px solid #0d1b2a;
+    }
+    .reaction-icon:first-child {
+        margin-left: 0;
+    }
+    .reaction-icon.like { background: #3b82f6; }
+    .reaction-icon.love { background: #ef4444; }
+    .reaction-icon.haha { background: #f59e0b; }
+    .reaction-icon.wow { background: #06b6d4; }
+    .reaction-icon.sad { background: #64748b; }
+    .reaction-icon.angry { background: #f97316; }
+    .stats-count {
+        cursor: pointer;
+    }
+    .stats-count:hover {
+        text-decoration: underline;
+        color: #94a3b8;
+    }
+    .stats-right {
+        display: flex;
+        gap: 1rem;
+    }
+    
+    /* Action Buttons */
+    .post-actions {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.5rem;
+        padding-top: 0.75rem;
+    }
+    .action-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.625rem;
+        background: rgba(0, 0, 85, 0.25);
+        border: 1px solid rgba(0, 229, 255, 0.08);
+        border-radius: 10px;
+        color: #94a3b8;
+        font-family: 'Inter', sans-serif;
+        font-size: 0.875rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    .action-btn:hover {
+        background: rgba(0, 229, 255, 0.1);
+        border-color: rgba(0, 229, 255, 0.2);
+        color: #00E5FF;
+    }
+    .action-btn.active {
+        color: #00E5FF;
+    }
+    .action-btn.reacted-like { color: #3b82f6; }
+    .action-btn.reacted-love { color: #ef4444; }
+    .action-btn.reacted-haha { color: #f59e0b; }
+    .action-btn.reacted-wow { color: #06b6d4; }
+    .action-btn.reacted-sad { color: #64748b; }
+    .action-btn.reacted-angry { color: #f97316; }
+    
+    /* Reactions Popover */
+    .like-wrapper {
+        position: relative;
+    }
+    .reactions-popover {
+        position: absolute;
+        bottom: calc(100% + 8px);
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(135deg, #0d1b2a 0%, #000022 100%);
+        border: 1px solid rgba(0, 229, 255, 0.25);
+        border-radius: 30px;
+        padding: 0.5rem 0.625rem;
+        display: none;
+        gap: 0.25rem;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 229, 255, 0.1);
+        z-index: 50;
+    }
+    .reactions-popover.show {
+        display: flex;
+    }
+    .reactions-popover .reaction {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        color: #fff;
+        font-size: 0.95rem;
+    }
+    .reactions-popover .reaction:hover {
+        transform: scale(1.2) translateY(-4px);
+    }
+    .reactions-popover .reaction.like { background: #3b82f6; }
+    .reactions-popover .reaction.love { background: #ef4444; }
+    .reactions-popover .reaction.haha { background: #f59e0b; }
+    .reactions-popover .reaction.wow { background: #06b6d4; }
+    .reactions-popover .reaction.sad { background: #64748b; }
+    .reactions-popover .reaction.angry { background: #f97316; }
+
+    /* Comments Section */
+    .comments-section {
+        padding-top: 1rem;
+        display: none;
+    }
+    .comments-section.show {
+        display: block;
+    }
+    .comment-form {
+        display: flex;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+    }
+    .comment-input {
+        flex: 1;
+        background: rgba(0, 0, 85, 0.3);
+        border: 1px solid rgba(0, 229, 255, 0.15);
+        border-radius: 20px;
+        padding: 0.625rem 1rem;
+        color: #fff;
+        font-family: 'Inter', sans-serif;
+        font-size: 0.9rem;
+        outline: none;
+        transition: all 0.2s;
+    }
+    .comment-input::placeholder {
+        color: #64748b;
+    }
+    .comment-input:focus {
+        border-color: rgba(0, 229, 255, 0.4);
+        box-shadow: 0 0 0 3px rgba(0, 229, 255, 0.1);
+    }
+    .comment-submit {
+        padding: 0.625rem 1.25rem;
+        background: linear-gradient(135deg, #000055 0%, rgba(0, 229, 255, 0.15) 100%);
+        border: 1px solid rgba(0, 229, 255, 0.3);
+        border-radius: 20px;
+        color: #00E5FF;
+        font-family: 'Rajdhani', sans-serif;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .comment-submit:hover {
+        background: rgba(0, 229, 255, 0.15);
+        box-shadow: 0 0 15px rgba(0, 229, 255, 0.2);
+    }
+    
+    /* Comment Item */
+    .comment-item {
+        display: flex;
+        gap: 0.625rem;
+        margin-bottom: 0.875rem;
+    }
+    .comment-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        flex-shrink: 0;
+    }
+    .comment-bubble {
+        background: rgba(0, 0, 85, 0.35);
+        border: 1px solid rgba(0, 229, 255, 0.1);
+        border-radius: 16px;
+        padding: 0.625rem 0.875rem;
+        max-width: calc(100% - 50px);
+    }
+    .comment-author {
+        color: #fff;
+        font-weight: 600;
+        font-size: 0.875rem;
+        margin-bottom: 0.125rem;
+    }
+    .comment-text {
+        color: #cbd5e1;
+        font-size: 0.875rem;
+        line-height: 1.4;
+        white-space: pre-wrap;
+    }
+    .comment-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.875rem;
+        margin-top: 0.375rem;
+        padding-left: 0.25rem;
+        font-size: 0.75rem;
+        color: #64748b;
+    }
+    .comment-action {
+        cursor: pointer;
+        transition: color 0.2s;
+    }
+    .comment-action:hover {
+        color: #00E5FF;
+    }
+    .comment-action.active {
+        color: #3b82f6;
+    }
+
+    /* Modal */
+    .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(4px);
+        z-index: 10000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+    }
+    .modal-overlay.show {
+        display: flex;
+    }
+    .modal-content {
+        background: linear-gradient(135deg, #0d1b2a 0%, #000022 100%);
+        border: 1px solid rgba(0, 229, 255, 0.2);
+        border-radius: 20px;
+        width: 100%;
+        max-width: 520px;
+        max-height: 90vh;
+        overflow: hidden;
+        box-shadow: 0 25px 80px rgba(0, 0, 0, 0.6), 0 0 40px rgba(0, 229, 255, 0.1);
+        animation: modalIn 0.25s ease;
+    }
+    @keyframes modalIn {
+        from { opacity: 0; transform: scale(0.95) translateY(10px); }
+        to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid rgba(0, 229, 255, 0.1);
+    }
+    .modal-title {
+        font-family: 'Rajdhani', sans-serif;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #fff;
+    }
+    .modal-close {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.08);
+        border: none;
+        color: #94a3b8;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+    }
+    .modal-close:hover {
+        background: rgba(239, 68, 68, 0.2);
+        color: #f87171;
+    }
+    .modal-body {
+        padding: 1.25rem;
+        overflow-y: auto;
+        max-height: calc(90vh - 140px);
+    }
+    .modal-footer {
+        padding: 1rem 1.25rem;
+        border-top: 1px solid rgba(0, 229, 255, 0.1);
+    }
+    
+    /* Composer Modal */
+    .composer-textarea {
+        width: 100%;
+        background: transparent;
+        border: none;
+        color: #fff;
+        font-family: 'Inter', sans-serif;
+        font-size: 1.1rem;
+        line-height: 1.5;
+        resize: none;
+        outline: none;
+    }
+    .composer-textarea::placeholder {
+        color: #64748b;
+    }
+    .composer-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.875rem;
+        background: rgba(0, 0, 85, 0.2);
+        border: 1px solid rgba(0, 229, 255, 0.1);
+        border-radius: 12px;
+        margin-top: 1rem;
+    }
+    .toolbar-left {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    .toolbar-right {
+        display: flex;
+        gap: 0.5rem;
+    }
+    .toolbar-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        background: rgba(0, 0, 85, 0.4);
+        border: 1px dashed rgba(0, 229, 255, 0.2);
+        color: #94a3b8;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+    }
+    .toolbar-btn:hover {
+        background: rgba(0, 229, 255, 0.1);
+        border-color: rgba(0, 229, 255, 0.4);
+        color: #00E5FF;
+    }
+    .toolbar-btn.green { color: #4ade80; }
+    .toolbar-btn.blue { color: #60a5fa; }
+    .toolbar-btn.yellow { color: #fbbf24; }
+    
+    .visibility-btn {
+        padding: 0.5rem 0.875rem;
+        background: rgba(0, 0, 85, 0.5);
+        border: 1px solid rgba(0, 229, 255, 0.25);
+        border-radius: 8px;
+        color: #00E5FF;
+        font-size: 0.85rem;
+        font-weight: 500;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+    }
+    .visibility-btn:hover {
+        background: rgba(0, 229, 255, 0.1);
+    }
+    .visibility-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        margin-top: 0.5rem;
+        background: #0d1b2a;
+        border: 1px solid rgba(0, 229, 255, 0.2);
+        border-radius: 12px;
+        padding: 0.5rem;
+        min-width: 180px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        z-index: 100;
+        display: none;
+    }
+    .visibility-dropdown.show {
+        display: block;
+    }
+    .visibility-option {
+        display: block;
+        padding: 0.5rem 0.75rem;
+        border-radius: 8px;
+        color: #94a3b8;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .visibility-option:hover {
+        background: rgba(0, 229, 255, 0.1);
+        color: #00E5FF;
+    }
+    
+    .submit-btn {
+        width: 100%;
+        padding: 0.875rem;
+        background: linear-gradient(135deg, #000055 0%, rgba(0, 229, 255, 0.2) 100%);
+        border: 1px solid rgba(0, 229, 255, 0.4);
+        border-radius: 12px;
+        color: #00E5FF;
+        font-family: 'Rajdhani', sans-serif;
+        font-size: 1.1rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    .submit-btn:hover {
+        box-shadow: 0 0 25px rgba(0, 229, 255, 0.3);
+    }
+    
+    /* Media Preview */
+    .media-preview {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+    .media-preview-item {
+        aspect-ratio: 1;
+        border-radius: 8px;
+        overflow: hidden;
+        background: rgba(0, 0, 85, 0.3);
+    }
+    .media-preview-item img,
+    .media-preview-item video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    /* Confirm Modal */
+    .confirm-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: rgba(239, 68, 68, 0.15);
+        color: #f87171;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        flex-shrink: 0;
+    }
+    .confirm-actions {
+        display: flex;
+        gap: 0.75rem;
+    }
+    .confirm-actions button {
+        flex: 1;
+        padding: 0.75rem;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .btn-cancel {
+        background: rgba(0, 0, 85, 0.3);
+        border: 1px solid rgba(148, 163, 184, 0.2);
+        color: #94a3b8;
+    }
+    .btn-cancel:hover {
+        background: rgba(148, 163, 184, 0.1);
+        color: #fff;
+    }
+    .btn-danger {
+        background: rgba(239, 68, 68, 0.2);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        color: #f87171;
+    }
+    .btn-danger:hover {
+        background: rgba(239, 68, 68, 0.3);
+    }
+</style>
+@endpush
+
 @section('content')
-<div class="container py-4">
-    <style>
-        .composer-card{backdrop-filter:blur(12px);background:rgba(255,255,255,.85);border:1px solid rgba(148,163,184,.25);border-radius:18px;box-shadow:0 18px 60px rgba(2,6,23,.12)}
-        .feed-wrap{max-width:720px;margin:0 auto}
-        .composer-trigger{border-radius:20px;background:#f1f5f9;border:1px solid #e2e8f0;padding:.75rem 1rem;color:#475569}
-        .composer-trigger:hover{background:#e2e8f0}
-        .modern-modal .modal-content{border-radius:20px;border:1px solid rgba(148,163,184,.25);box-shadow:0 30px 80px rgba(2,6,23,.25)}
-        .modern-toolbar .btn{border-radius:12px;border:1px dashed #e2e8f0}
-        .modern-toolbar .btn i{font-size:1.2rem}
-        .post-card{border-radius:12px;border:1px solid #e2e8f0}
-        .post-header{display:flex;justify-content:space-between;align-items:center}
-        .post-header .left{display:flex;align-items:center;gap:.75rem}
-        .avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#667eea,#764ba2)}
-        .avatar-link{display:inline-block;cursor:pointer}
-        .post-name{font-weight:600}
-        .post-time{color:#64748b;font-size:.85rem}
-        .media-grid img,.media-grid video{border-radius:8px}
-        /* Post media auto-fit by orientation */
-        .post-media{display:block;max-width:100%;height:auto;border-radius:8px;margin:0 auto}
-        .post-media-video{width:100%;height:auto;border-radius:8px}
-        /* Gallery grid */
-        .post-gallery{display:grid;gap:6px}
-        .post-gallery.cols-2{grid-template-columns:repeat(2,1fr)}
-        .post-gallery.cols-3{grid-template-columns:repeat(3,1fr)}
-        .post-gallery.cols-4{grid-template-columns:repeat(4,1fr)}
-        .post-gallery.cols-5{grid-template-columns:repeat(5,1fr)}
-        .gallery-tile{position:relative;border-radius:8px;overflow:hidden;aspect-ratio:1/1}
-        .gallery-tile img{width:100%;height:100%;object-fit:cover;display:block}
-        .gallery-tile.more:before{content:"";position:absolute;inset:0;background:rgba(0,0,0,.35)}
-        .gallery-tile.more span{position:absolute;inset:auto 0 0 0;margin:auto;color:#fff;font-weight:700;text-align:center;font-size:1.25rem}
-        /* Vertical collage layout */
-        .post-collage-split{display:grid;grid-template-columns:2fr 1fr;gap:6px;height:360px}
-        .collage-left,.collage-right{border-radius:8px;overflow:hidden}
-        .collage-left img{width:100%;height:100%;object-fit:cover;display:block}
-        .collage-right{display:grid;gap:6px}
-        .collage-right.cols-1{grid-template-rows:repeat(1,1fr)}
-        .collage-right.cols-2{grid-template-rows:repeat(2,1fr)}
-        .collage-right.cols-3{grid-template-rows:repeat(3,1fr)}
-        .collage-right.cols-4{grid-template-rows:repeat(4,1fr)}
-        .collage-right .tile{position:relative;border-radius:8px;overflow:hidden}
-        .collage-right .tile img{width:100%;height:100%;object-fit:cover;display:block}
-        .collage-right .tile.more:before{content:"";position:absolute;inset:0;background:rgba(0,0,0,.35)}
-        .collage-right .tile.more span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:1.5rem}
-        .stats-line{display:flex;justify-content:space-between;align-items:center;color:#64748b;font-size:.9rem}
-        .counts-bar{display:flex;align-items:center;color:#64748b;font-size:.9rem;padding:.25rem 0;border-bottom:1px solid #e2e8f0;margin-top:.25rem}
-        .counts-right{margin-left:auto}
-        .stats-line .left{display:flex;align-items:center;gap:.25rem}
-        .icon-like{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;background:#3b82f6;color:#fff;border-radius:50%;font-size:.7rem}
-        .counts-icons{display:inline-flex;align-items:center}
-        .counts-icons .icon-like{margin-right:0;box-shadow:0 0 0 2px #fff}
-        .counts-icons .icon-like + .icon-like{margin-left:-6px}
-        .icon-like-like{background:#3b82f6}
-        .icon-like-love{background:#ef4444}
-        .icon-like-haha{background:#f59e0b}
-        .icon-like-wow{background:#06b6d4}
-        .icon-like-sad{background:#64748b}
-        .icon-like-angry{background:#f97316}
-        .post-actions{display:flex;gap:.5rem}
-        .post-actions > *{flex:1}
-        .action-col{display:flex;flex-direction:column;gap:4px;align-items:center}
-        .btn-action{display:flex;align-items:center;justify-content:center;gap:.5rem;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:.5rem 0;color:#334155;width:100%}
-        .btn-action:hover{background:#eef2ff}
-        .btn-action.active{background:#eef2ff;border-color:#c7d2fe;color:#1e3a8a;font-weight:600}
-        /* Active reaction color accents */
-        .btn-action.reacted-like{color:#2563eb}
-        .btn-action.reacted-love{color:#ef4444}
-        .btn-action.reacted-haha{color:#f59e0b}
-        .btn-action.reacted-wow{color:#06b6d4}
-        .btn-action.reacted-sad{color:#64748b}
-        .btn-action.reacted-angry{color:#f97316}
-        .reaction-menu .btn{border:none;font-size:1.2rem}
-        /* Reactions popover */
-        .reactions-popover{position:absolute;bottom:115%;left:0;right:0;display:none;justify-content:center;gap:.35rem;background:#fff;padding:.4rem .5rem;border:1px solid #e2e8f0;border-radius:999px;box-shadow:0 12px 30px rgba(2,6,23,.15);z-index:5}
-        .reactions-popover .reaction{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .12s ease}
-        .reactions-popover .reaction:hover{transform:translateY(-3px) scale(1.05)}
-        .reaction-like{background:#3b82f6;color:#fff}
-        .reaction-love{background:#ef4444;color:#fff}
-        .reaction-haha{background:#f59e0b;color:#fff}
-        .reaction-wow{background:#06b6d4;color:#fff}
-        .reaction-sad{background:#64748b;color:#fff}
-        .reaction-angry{background:#f97316;color:#fff}
-        .like-wrapper{position:relative}
-        .likes-count-link{color:inherit;text-decoration:none;border-bottom:1px solid transparent}
-        .likes-count-link:hover{text-decoration:underline}
-        /* Ensure modals appear above fixed header */
-        .modal{z-index:100010}
-        .modal-backdrop{z-index:100005}
-        /* Reactions modal size */
-        .reactions-modal .modal-dialog{max-width:720px}
-        /* Comment bubble */
-        .comment-item{display:flex;align-items:flex-start;gap:.5rem}
-        .comment-bubble{background:#f1f5f9;border:1px solid #e2e8f0;border-radius:16px;padding:.5rem .75rem;max-width:100%}
-        .comment-author{font-weight:600;font-size:.92rem;color:#0f172a;margin-bottom:2px}
-        .comment-text{color:#1f2937;white-space:pre-wrap;word-break:break-word}
-        .comment-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#667eea,#764ba2);flex-shrink:0}
-        .comment-actions{display:flex;gap:12px;align-items:center;color:#64748b;font-size:.85rem;margin-top:4px}
-        .comment-action{cursor:pointer}
-        .comment-action:hover{color:#111827}
-        .c-react-pop{position:absolute;bottom:115%;left:0;display:none;gap:.35rem;background:#fff;padding:.35rem .45rem;border:1px solid #e2e8f0;border-radius:999px;box-shadow:0 10px 24px rgba(2,6,23,.15);z-index:5}
-        .c-react-pop .r{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff}
-        .r.like{background:#3b82f6}
-        .r.love{background:#ef4444}
-        .r.haha{background:#f59e0b}
-        .r.wow{background:#06b6d4}
-        .r.sad{background:#64748b}
-        .r.angry{background:#f97316}
-        .c-like-icon{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;color:#fff;margin-right:6px;font-size:.65rem}
-        .c-like-like{background:#3b82f6}
-        .c-like-love{background:#ef4444}
-        .c-like-haha{background:#f59e0b}
-        .c-like-wow{background:#06b6d4}
-        .c-like-sad{background:#64748b}
-        .c-like-angry{background:#f97316}
-        .comment-reaction-summary{display:inline-flex;align-items:center;gap:6px;margin-left:6px}
-        .comment-time{color:#94a3b8;font-size:.82rem;margin-right:4px}
-        .link-underline{cursor:pointer}
-        .link-underline:hover{text-decoration:underline}
-        @media (max-width:768px){.composer-trigger{padding:.6rem .9rem}}
-    </style>
-    <h3 class="mb-3 text-center">{{ __('app.nav.posts') }}</h3>
+<div class="posts-page">
+    <div class="feed-container">
+        <h1 class="page-title">{{ __('app.nav.posts') }}</h1>
 
-    <!-- Composer card (open modal) -->
-    <div class="feed-wrap">
-    <div class="card mb-3 composer-card">
-        <div class="card-body d-flex gap-3 align-items-center">
-            @auth
-            @php $me = auth()->user(); $meAvatar = get_avatar_url($me?->avatar); @endphp
-            <a href="{{ route('profile.show') }}" class="avatar-link" title="{{ __('app.nav.profile') }}">
-                <div class="rounded-circle" style="width:42px;height:42px;background:#ddd url('{{ $meAvatar }}') center/cover no-repeat"></div>
-            </a>
-            @else
-            <div class="rounded-circle" style="width:42px;height:42px;background:linear-gradient(135deg,#667eea,#764ba2)"></div>
-            @endauth
-            <button class="form-control text-start composer-trigger" data-bs-toggle="modal" data-bs-target="#postComposerModal">{{ __('app.feed.whats_on_your_mind') }}</button>
-        </div>
-        </div>
-    </div>
-
-    <!-- Composer Modal -->
-    <div class="modal fade" id="postComposerModal" tabindex="-1" aria-hidden="true">
-      <div class="modal-dialog modal-lg modal-dialog-centered modern-modal">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">{{ __('app.feed.create_post') }}</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-          </div>
-          <form method="POST" action="{{ route('posts.store') }}" enctype="multipart/form-data" id="postComposerForm">
-            @csrf
-            <div class="modal-body">
-              <textarea class="form-control border-0" name="content" rows="4" placeholder="{{ __('app.feed.whats_on_your_mind') }}" style="font-size:1.15rem"></textarea>
-              <div id="mediaPreview" class="row g-2 mt-2 media-grid"></div>
-
-              <div class="d-flex justify-content-between align-items-center modern-toolbar border rounded p-2 mt-3">
-                <div class="d-flex align-items-center gap-2">
-                  <div class="dropdown">
-                    <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="visibilityBtn">Công khai</button>
-                    <ul class="dropdown-menu">
-                      <li><a class="dropdown-item" href="#" data-vis="public">Công khai</a></li>
-                      <li><a class="dropdown-item" href="#" data-vis="friends">Bạn bè</a></li>
-                      <li><a class="dropdown-item" href="#" data-vis="friends_except">Bạn bè ngoại trừ…</a></li>
-                      <li><a class="dropdown-item" href="#" data-vis="specific_friends">Bạn bè cụ thể…</a></li>
-                      <li><a class="dropdown-item" href="#" data-vis="only_me">Chỉ mình tôi</a></li>
-                      <li><a class="dropdown-item" href="#" data-vis="custom">Tùy chỉnh…</a></li>
-                    </ul>
-                  </div>
-                  <span class="text-muted">Thêm vào bài viết của bạn</span>
-                </div>
-                <div class="d-flex gap-2">
-                  <label class="btn btn-sm btn-light" title="Ảnh/Video">
-                    <i class="fas fa-photo-video text-success"></i>
-                    <input type="file" name="files[]" multiple class="d-none" id="composerFiles">
-                  </label>
-                  <button type="button" class="btn btn-sm btn-light" id="tagBtn" title="Gắn thẻ bạn bè"><i class="fas fa-user-tag text-primary"></i></button>
-                  <button type="button" class="btn btn-sm btn-light" id="feelingBtn" title="Cảm xúc/Hoạt động"><i class="fas fa-smile text-warning"></i></button>
-                </div>
-              </div>
-
-              <div id="tagContainer" class="mt-2" style="display:none;">
-                <label class="form-label small">Gắn thẻ</label>
-                <input type="text" id="tagInput" class="form-control" placeholder="Nhập tên để gắn thẻ...">
-                <div id="tagResults" class="list-group"></div>
-                <div class="mt-1 small" id="taggedList"></div>
-              </div>
-
-              <input type="hidden" name="mentions" id="mentionsField">
-              <input type="hidden" name="visibility" id="visibilityField" value="public">
-              <input type="hidden" name="visibility_include_ids" id="visibilityIncludeField">
-              <input type="hidden" name="visibility_exclude_ids" id="visibilityExcludeField">
-            </div>
-            <div class="modal-footer">
-              <button class="btn btn-primary w-100">Đăng</button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-
-    @if($posts->isEmpty())
-    <div class="feed-wrap">
-      <div class="card composer-card p-4 mb-4 text-center">
-        <div class="mb-2" style="font-size:2.25rem">📰</div>
-        <h5 class="fw-semibold mb-2">Bảng tin của bạn còn trống</h5>
-        <p class="text-muted mb-3">Hãy kết bạn để xem thêm bài viết mới từ mọi người.</p>
-        <div class="d-flex justify-content-center gap-2 flex-wrap">
-          <a href="{{ route('search.view') }}" class="btn btn-primary"><i class="fas fa-user-plus me-1"></i> Tìm bạn bè</a>
-          <a href="{{ route('players.index') }}" class="btn btn-outline-secondary"><i class="fas fa-users me-1"></i> Khám phá cộng đồng</a>
-        </div>
-      </div>
-      <div style="height:40vh"></div>
-    </div>
-    @endif
-
-    @foreach($posts as $post)
-    <div class="feed-wrap">
-    <div class="card mb-3 post-card" data-post-card="{{ $post->id }}">
-        <div class="card-body">
-            <div class="post-header">
-                <div class="left">
-                    <a href="{{ (auth()->id() === $post->user_id) ? route('profile.show') : route('profile.show-user', $post->user_id) }}" class="avatar-link" title="Xem trang cá nhân">
-                        @php $avatarUrl = get_avatar_url($post->user?->avatar); @endphp
-                        <div class="avatar" style="background:#ddd url('{{ $avatarUrl }}') center/cover no-repeat"></div>
-                    </a>
-                    <div>
-                        <div class="post-name"><a href="{{ (auth()->id() === $post->user_id) ? route('profile.show') : route('profile.show-user', $post->user_id) }}" class="text-decoration-none">{{ $post->user->name ?? 'User' }}</a></div>
-                        <div class="post-time link-underline" data-open-post-modal="{{ $post->id }}" data-timestamp="{{ $post->created_at->toIso8601String() }}">{{ $post->created_at->diffForHumans() }}</div>
-                    </div>
-                </div>
+        <!-- Composer Card -->
+        <div class="composer-card">
+            <div class="composer-inner">
                 @auth
-                @php $canDelete = (auth()->id() === $post->user_id) || (in_array(auth()->user()->user_role,['admin','super_admin'])); @endphp
-                <div class="d-flex gap-2">
-                @if($canDelete)
-                    <div class="dropdown">
-                        <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                @php $me = auth()->user(); $meAvatar = get_avatar_url($me?->avatar); @endphp
+                <a href="{{ route('profile.show') }}" title="{{ __('app.nav.profile') }}">
+                    <div class="composer-avatar" style="background-image: url('{{ $meAvatar }}')"></div>
+                </a>
+                @else
+                <div class="composer-avatar" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)"></div>
+                @endauth
+                <button class="composer-trigger" onclick="openComposerModal()">
+                    {{ __('app.feed.whats_on_your_mind') }}
+                </button>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        @if($posts->isEmpty())
+        <div class="empty-state">
+            <div class="empty-icon">📰</div>
+            <h2 class="empty-title">Bảng tin của bạn còn trống</h2>
+            <p class="empty-desc">Hãy kết bạn để xem thêm bài viết mới từ mọi người.</p>
+            <div class="empty-actions">
+                <a href="{{ route('search.view') }}" class="btn-primary-glow">
+                    <i class="fas fa-user-plus"></i> Tìm bạn bè
+                </a>
+                <a href="{{ route('search.view') }}" class="btn-secondary-outline">
+                    <i class="fas fa-users"></i> Khám phá cộng đồng
+                </a>
+            </div>
+        </div>
+        @endif
+
+        <!-- Posts List -->
+        @foreach($posts as $post)
+        <div class="post-card" data-post-card="{{ $post->id }}">
+            <div class="post-body">
+                <!-- Header -->
+                <div class="post-header">
+                    <div class="post-author">
+                        <a href="{{ (auth()->id() === $post->user_id) ? route('profile.show') : route('profile.show-user', $post->user_id) }}">
+                            @php $avatarUrl = get_avatar_url($post->user?->avatar); @endphp
+                            <div class="post-avatar" style="background-image: url('{{ $avatarUrl }}')"></div>
+                        </a>
+                        <div class="post-author-info">
+                            <a href="{{ (auth()->id() === $post->user_id) ? route('profile.show') : route('profile.show-user', $post->user_id) }}" class="post-author-name">
+                                {{ $post->user->name ?? 'User' }}
+                            </a>
+                            <span class="post-time" data-timestamp="{{ $post->created_at->toIso8601String() }}">
+                                {{ $post->created_at->diffForHumans() }}
+                            </span>
+                        </div>
+                    </div>
+                    @auth
+                    @php $canDelete = (auth()->id() === $post->user_id) || (in_array(auth()->user()->user_role,['admin','super_admin'])); @endphp
+                    @if($canDelete)
+                    <div style="position: relative;">
+                        <button class="post-menu-btn" onclick="toggleDropdown('postMenu{{ $post->id }}')">
                             <i class="fas fa-ellipsis-h"></i>
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li>
-                                <button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#editPostModal{{ $post->id }}">
-                                    <i class="fas fa-pen me-2"></i>Chỉnh sửa bài viết
+                        <div class="post-dropdown" id="postMenu{{ $post->id }}">
+                            <button class="post-dropdown-item" onclick="openEditModal({{ $post->id }})">
+                                <i class="fas fa-pen"></i> Chỉnh sửa
+                            </button>
+                            <div class="post-dropdown-divider"></div>
+                            <form method="POST" action="{{ route('posts.destroy', $post) }}" class="delete-post-form" data-post-id="{{ $post->id }}">
+                                @csrf @method('DELETE')
+                                <button type="submit" class="post-dropdown-item danger">
+                                    <i class="fas fa-trash"></i> Xóa bài viết
                                 </button>
-                            </li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <form method="POST" action="{{ route('posts.destroy', $post) }}" class="m-0 delete-post-form" data-post-id="{{ $post->id }}">
-                    @csrf
-                    @method('DELETE')
-                                    <button class="dropdown-item text-danger" type="submit"><i class="fas fa-trash me-2"></i>Xóa</button>
-                </form>
-                            </li>
-                        </ul>
+                            </form>
+                        </div>
                     </div>
+                    @endif
+                    @endauth
+                </div>
+
+                <!-- Content -->
+                @if($post->content)
+                <div class="post-content">{{ $post->content }}</div>
                 @endif
-                </div>
-                @endauth
-            </div>
-            @if($post->content)
-            <p class="mt-2">{{ $post->content }}</p>
-            @endif
 
-            <!-- Edit Modal -->
-            <div class="modal fade" id="editPostModal{{ $post->id }}" tabindex="-1" aria-hidden="true">
-              <div class="modal-dialog">
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <h5 class="modal-title">Chỉnh sửa bài viết</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                  </div>
-                  <form method="POST" action="{{ route('posts.update',$post) }}">
-                    @csrf
-                    @method('PUT')
-                    <div class="modal-body">
-                      <textarea name="content" class="form-control" rows="5" placeholder="Nội dung...">{{ old('content',$post->content) }}</textarea>
-                    </div>
-                    <div class="modal-footer">
-                      <button class="btn btn-primary">Lưu</button>
-                    </div>
-                  </form>
-                </div>
-              </div>
-            </div>
-
-            @if($post->shared_post_id && $post->sharedPost)
-            @php $sp = $post->sharedPost; $spAvatar = get_avatar_url($sp->user?->avatar); @endphp
-            <div class="border rounded p-2 bg-light mt-2">
-                @if($sp->media && $sp->media->count())
-                    @php $spImages = $sp->media->where('type','image'); $spVideos = $sp->media->where('type','!=','image'); @endphp
-                    @if($spImages->count())
-                        @php $cnt=$spImages->count(); @endphp
-                        @if($cnt==1)
-                            <img src="{{ asset('storage/'.$spImages->first()->path) }}" class="post-media mt-2 mb-2">
-                        @elseif($cnt==2)
-                            <div class="mt-2 post-gallery cols-2">
-                                @foreach($spImages as $im)
-                                    <div class="gallery-tile"><img src="{{ asset('storage/'.$im->path) }}" alt=""></div>
-                                @endforeach
-                            </div>
-                        @else
-                            @php $rightVisible=min($cnt-1,4); $remain=max(0,($cnt-1)-$rightVisible); @endphp
-                            <div class="mt-2 post-collage-split">
-                                <div class="collage-left"><img src="{{ asset('storage/'.$spImages->first()->path) }}" alt=""></div>
-                                <div class="collage-right cols-{{ $rightVisible }}">
-                                    @foreach($spImages->slice(1)->take($rightVisible) as $i=>$im)
-                                        @php $isMore = $remain>0 && $i===($rightVisible-1); @endphp
-                                        <div class="tile {{ $isMore ? 'more':'' }}">
-                                            <img src="{{ asset('storage/'.$im->path) }}" alt="">
-                                            @if($isMore)<span>+{{ $remain }}</span>@endif
-                                        </div>
-                                    @endforeach
+                <!-- Shared Post -->
+                @if($post->shared_post_id && $post->sharedPost)
+                @php $sp = $post->sharedPost; $spAvatar = get_avatar_url($sp->user?->avatar); @endphp
+                <div class="shared-post">
+                    @if($sp->media && $sp->media->count())
+                        @php $spImages = $sp->media->where('type','image'); @endphp
+                        @if($spImages->count() == 1)
+                            <img src="{{ asset('storage/'.$spImages->first()->path) }}" class="post-media-single">
+                        @elseif($spImages->count() >= 2)
+                            <div class="post-media-grid cols-2">
+                                @foreach($spImages->take(4) as $i => $im)
+                                <div class="media-item">
+                                    <img src="{{ asset('storage/'.$im->path) }}">
+                                    @if($i == 3 && $spImages->count() > 4)
+                                    <div class="media-more-overlay">+{{ $spImages->count() - 4 }}</div>
+                                    @endif
                                 </div>
+                                @endforeach
                             </div>
                         @endif
                     @endif
-                    @if($spVideos->count())
-                        @foreach($spVideos as $v)
-                            <video controls class="post-media-video mt-2 mb-2"><source src="{{ asset('storage/'.$v->path) }}"></video>
-                        @endforeach
-                    @endif
-                @endif
-                <div class="d-flex align-items-center gap-2 mt-2">
-                    <img src="{{ $spAvatar }}" class="rounded-circle" style="width:28px;height:28px;object-fit:cover"/>
-                    <div>
-                        <div class="fw-semibold small">{{ $sp->user->name ?? 'User' }}</div>
-                        <div class="text-muted small">{{ optional($sp->created_at)->diffForHumans() }}</div>
+                    <div class="shared-author">
+                        <img src="{{ $spAvatar }}" class="shared-avatar">
+                        <div>
+                            <div class="shared-name">{{ $sp->user->name ?? 'User' }}</div>
+                            <div class="shared-time">{{ optional($sp->created_at)->diffForHumans() }}</div>
+                        </div>
                     </div>
+                    @if($sp->content)
+                    <div class="shared-content">{{ $sp->content }}</div>
+                    @endif
                 </div>
-                @if($sp->content)
-                    <div class="mt-1">{{ $sp->content }}</div>
                 @endif
-            </div>
-            @endif
 
-            
-            @if($post->media && $post->media->count())
-                @php
-                    $images = $post->media->where('type','image');
-                    $videos = $post->media->where('type','!=','image');
-                @endphp
-                @if($images->count())
+                <!-- Post Media -->
+                @if($post->media && $post->media->count())
                     @php
+                        $images = $post->media->where('type','image');
+                        $videos = $post->media->where('type','!=','image');
                         $imgCount = $images->count();
                     @endphp
-                    @if($imgCount==1)
-                        <img src="{{ asset('storage/'.$images->first()->path) }}" class="post-media mt-2 mb-2">
-                    @elseif($imgCount==2)
-                        <div class="mt-2 post-gallery cols-2">
+                    @if($imgCount == 1)
+                        <img src="{{ asset('storage/'.$images->first()->path) }}" class="post-media-single">
+                    @elseif($imgCount == 2)
+                        <div class="post-media-grid cols-2">
                             @foreach($images as $im)
-                                <div class="gallery-tile"><img src="{{ asset('storage/'.$im->path) }}" alt=""></div>
+                            <div class="media-item"><img src="{{ asset('storage/'.$im->path) }}"></div>
                             @endforeach
                         </div>
-                        @else
-                        @php
-                            $rightVisible = min($imgCount-1,4);
-                            $remain = max(0, ($imgCount-1) - $rightVisible);
-                        @endphp
-                        <div class="mt-2 post-collage-split">
-                            <div class="collage-left"><img src="{{ asset('storage/'.$images->first()->path) }}" alt=""></div>
-                            <div class="collage-right cols-{{ $rightVisible }}">
-                                @foreach($images->slice(1)->take($rightVisible) as $i=>$im)
-                                    @php $isMore = $remain>0 && $i === ($rightVisible-1); @endphp
-                                    <div class="tile {{ $isMore ? 'more':'' }}">
-                                        <img src="{{ asset('storage/'.$im->path) }}" alt="">
-                                        @if($isMore)
-                                            <span>+{{ $remain }}</span>
-                                        @endif
-                                    </div>
-                                @endforeach
+                    @elseif($imgCount >= 3)
+                        <div class="post-media-grid cols-3">
+                            @foreach($images->take(5) as $i => $im)
+                            <div class="media-item">
+                                <img src="{{ asset('storage/'.$im->path) }}">
+                                @if($i == 4 && $imgCount > 5)
+                                <div class="media-more-overlay">+{{ $imgCount - 5 }}</div>
+                                @endif
                             </div>
+                            @endforeach
                         </div>
                     @endif
-                @endif
-                @if($videos->count())
                     @foreach($videos as $v)
-                        <video controls class="post-media-video mt-2 mb-2">
-                            <source src="{{ asset('storage/'.$v->path) }}">
-                            </video>
+                        <video controls class="post-media-single"><source src="{{ asset('storage/'.$v->path) }}"></video>
                     @endforeach
                 @endif
-            @endif
 
-            <div class="mt-2 counts-bar">
-                @php
-                    $currentUserId = auth()->id();
-                    $statIconClassMap = [
-                        'like' => 'far fa-thumbs-up',
-                        'love' => 'fas fa-heart',
-                        'haha' => 'fas fa-laugh',
-                        'wow' => 'fas fa-surprise',
-                        'sad' => 'fas fa-sad-tear',
-                        'angry' => 'fas fa-angry'
-                    ];
-                    // Top 2 reaction types by count
-                    $typeCounts = optional($post->reactions)->groupBy('type')->map->count()->sortDesc();
-                    $topTypes = $typeCounts ? $typeCounts->keys()->take(2) : collect();
-                @endphp
-                <div class="left {{ $post->likes_count>0 ? '' : 'd-none' }}" id="likes-wrap-{{ $post->id }}">
-                    <span class="counts-icons">
-                        @foreach($topTypes as $t)
-                            <span class="icon-like icon-like-{{ $t }}">
-                                <i class="{{ $statIconClassMap[$t] ?? 'far fa-thumbs-up' }}"></i>
-                            </span>
-                        @endforeach
-                    </span>
-                    @if($topTypes->isEmpty())
-                        <span class="icon-like icon-like-like fallback-like"><i class="far fa-thumbs-up"></i></span>
-                    @endif
-                    <a href="#" class="likes-count-link" data-reactions-modal="{{ $post->id }}" id="likes-count-{{ $post->id }}">{{ $post->likes_count }}</a>
-                </div>
-                <div class="counts-right">
-                    <span class="link-underline" data-open-post-modal="{{ $post->id }}">
-                        <span class="comments-link" id="comments-count-{{ $post->id }}">{{ $post->comments_count }}</span> {{ __('app.feed.comments', [], 'en') ?? 'comments' }}
-                    </span>
-                    ·
-                    <span class="link-underline" data-open-shares="{{ $post->id }}">
-                        <span class="shares-link" id="shares-count-{{ $post->id }}">{{ $post->shares_count ?? 0 }}</span> {{ __('app.feed.shares', [], 'en') ?? 'shares' }}
-                    </span>
-                </div>
-            </div>
-
-            <div class="mt-2 post-actions">
-                @php
-                    $currentUserId = auth()->id();
-                    $myReaction = $currentUserId ? $post->reactions->firstWhere('user_id', $currentUserId) : null;
-                    $hasLiked = $currentUserId ? $post->likes->contains('user_id', $currentUserId) : false;
-                    $reactionType = $myReaction->type ?? ($hasLiked ? 'like' : null);
-                    $hasReacted = (bool) $reactionType;
-                    $reactionTextMap = ['like'=>'Thích','love'=>'Yêu thích','haha'=>'Haha','wow'=>'Wow','sad'=>'Buồn','angry'=>'Phẫn nộ'];
-                    $reactionIconMap = [
-                        'like' => 'far fa-thumbs-up',
-                        'love' => 'fas fa-heart',
-                        'haha' => 'fas fa-laugh',
-                        'wow' => 'fas fa-surprise',
-                        'sad' => 'fas fa-sad-tear',
-                        'angry' => 'fas fa-angry'
-                    ];
-                @endphp
-                <div class="action-col w-100">
-                    <div class="like-wrapper w-100">
-                <button 
-                            class="btn-action w-100 like-btn {{ $hasReacted ? 'active reacted-'.$reactionType : '' }}"
-                    type="button"
-                            data-like-endpoint="{{ route('posts.like',$post) }}"
-                            data-react-endpoint="{{ route('posts.react',$post) }}"
-                    data-post-id="{{ $post->id }}"
-                            data-reaction="{{ $reactionType ?? '' }}">
-                            <i class="{{ $reactionIconMap[$reactionType] ?? 'far fa-thumbs-up' }}"></i> {{ $reactionTextMap[$reactionType] ?? 'Thích' }}
-                </button>
-                        <div class="reactions-popover" data-for-post="{{ $post->id }}">
-                            <div class="reaction reaction-like" data-type="like" title="Thích"><i class="far fa-thumbs-up"></i></div>
-                            <div class="reaction reaction-love" data-type="love" title="Yêu thích"><i class="fas fa-heart"></i></div>
-                            <div class="reaction reaction-haha" data-type="haha" title="Haha"><i class="fas fa-laugh"></i></div>
-                            <div class="reaction reaction-wow" data-type="wow" title="Wow"><i class="fas fa-surprise"></i></div>
-                            <div class="reaction reaction-sad" data-type="sad" title="Buồn"><i class="fas fa-sad-tear"></i></div>
-                            <div class="reaction reaction-angry" data-type="angry" title="Phẫn nộ"><i class="fas fa-angry"></i></div>
+                <!-- Stats Bar -->
+                <div class="post-stats">
+                    @php
+                        $currentUserId = auth()->id();
+                        $statIconClassMap = ['like'=>'far fa-thumbs-up','love'=>'fas fa-heart','haha'=>'fas fa-laugh','wow'=>'fas fa-surprise','sad'=>'fas fa-sad-tear','angry'=>'fas fa-angry'];
+                        $typeCounts = optional($post->reactions)->groupBy('type')->map->count()->sortDesc();
+                        $topTypes = $typeCounts ? $typeCounts->keys()->take(2) : collect();
+                    @endphp
+                    <div class="stats-reactions {{ $post->likes_count > 0 ? '' : 'hidden' }}" id="likes-wrap-{{ $post->id }}">
+                        <div class="reaction-icons">
+                            @foreach($topTypes as $t)
+                            <span class="reaction-icon {{ $t }}"><i class="{{ $statIconClassMap[$t] }}"></i></span>
+                            @endforeach
+                            @if($topTypes->isEmpty())
+                            <span class="reaction-icon like"><i class="far fa-thumbs-up"></i></span>
+                            @endif
                         </div>
+                        <span class="stats-count" data-reactions-modal="{{ $post->id }}" id="likes-count-{{ $post->id }}">{{ $post->likes_count }}</span>
+                    </div>
+                    <div class="stats-right">
+                        <span class="stats-count" data-toggle-comments="{{ $post->id }}">
+                            <span id="comments-count-{{ $post->id }}">{{ $post->comments_count }}</span> bình luận
+                        </span>
+                        <span class="stats-count">
+                            <span id="shares-count-{{ $post->id }}">{{ $post->shares_count ?? 0 }}</span> chia sẻ
+                        </span>
                     </div>
                 </div>
-                <div class="action-col w-100">
-                    <button class="btn-action w-100" data-bs-toggle="collapse" data-bs-target="#cmt{{ $post->id }}"><i class="far fa-comment"></i> {{ __('app.feed.comment') }}</button>
-                </div>
-                <div class="action-col w-100">
-                <form method="POST" action="{{ route('posts.store') }}" class="d-inline-block w-100 m-0">
-                    @csrf
-                    <input type="hidden" name="shared_post_id" value="{{ $post->id }}">
-                        <button class="btn-action w-100" type="submit"><i class="far fa-share-square"></i> {{ __('app.feed.share') }}</button>
-                </form>
-                </div>
-            </div>
 
-            <div id="cmt{{ $post->id }}" class="collapse mt-2">
-                <form method="POST" action="{{ route('posts.comment',$post) }}" class="d-flex gap-2">@csrf
-                    <input name="content" class="form-control" placeholder="{{ __('app.feed.write_comment') }}">
-                    <button class="btn btn-primary btn-sm">{{ __('app.feed.send') }}</button>
-                </form>
-                @foreach($post->comments as $c)
-                    <div class="comment-item mt-2">
+                <!-- Action Buttons -->
+                <div class="post-actions">
+                    @php
+                        $myReaction = $currentUserId ? $post->reactions->firstWhere('user_id', $currentUserId) : null;
+                        $hasLiked = $currentUserId ? $post->likes->contains('user_id', $currentUserId) : false;
+                        $reactionType = $myReaction->type ?? ($hasLiked ? 'like' : null);
+                        $hasReacted = (bool) $reactionType;
+                        $reactionTextMap = ['like'=>'Thích','love'=>'Yêu thích','haha'=>'Haha','wow'=>'Wow','sad'=>'Buồn','angry'=>'Phẫn nộ'];
+                        $reactionIconMap = ['like'=>'far fa-thumbs-up','love'=>'fas fa-heart','haha'=>'fas fa-laugh','wow'=>'fas fa-surprise','sad'=>'fas fa-sad-tear','angry'=>'fas fa-angry'];
+                    @endphp
+                    
+                    <div class="like-wrapper">
+                        <button class="action-btn like-btn {{ $hasReacted ? 'reacted-'.$reactionType : '' }}"
+                                data-react-endpoint="{{ route('posts.react',$post) }}"
+                                data-post-id="{{ $post->id }}"
+                                data-reaction="{{ $reactionType ?? '' }}">
+                            <i class="{{ $reactionIconMap[$reactionType] ?? 'far fa-thumbs-up' }}"></i>
+                            <span>{{ $reactionTextMap[$reactionType] ?? 'Thích' }}</span>
+                        </button>
+                        <div class="reactions-popover" data-for-post="{{ $post->id }}">
+                            <div class="reaction like" data-type="like" title="Thích"><i class="far fa-thumbs-up"></i></div>
+                            <div class="reaction love" data-type="love" title="Yêu thích"><i class="fas fa-heart"></i></div>
+                            <div class="reaction haha" data-type="haha" title="Haha"><i class="fas fa-laugh"></i></div>
+                            <div class="reaction wow" data-type="wow" title="Wow"><i class="fas fa-surprise"></i></div>
+                            <div class="reaction sad" data-type="sad" title="Buồn"><i class="fas fa-sad-tear"></i></div>
+                            <div class="reaction angry" data-type="angry" title="Phẫn nộ"><i class="fas fa-angry"></i></div>
+                        </div>
+                    </div>
+
+                    <button class="action-btn" data-toggle-comments="{{ $post->id }}">
+                        <i class="far fa-comment"></i>
+                        <span>Bình luận</span>
+                    </button>
+
+                    <form method="POST" action="{{ route('posts.store') }}" style="margin:0">
+                        @csrf
+                        <input type="hidden" name="shared_post_id" value="{{ $post->id }}">
+                        <button type="submit" class="action-btn" style="width:100%">
+                            <i class="far fa-share-square"></i>
+                            <span>Chia sẻ</span>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Comments Section -->
+                <div class="comments-section" id="comments-{{ $post->id }}">
+                    <form method="POST" action="{{ route('posts.comment',$post) }}" class="comment-form">
+                        @csrf
+                        <input name="content" class="comment-input" placeholder="{{ __('app.feed.write_comment') }}">
+                        <button type="submit" class="comment-submit">Gửi</button>
+                    </form>
+                    
+                    @foreach($post->comments as $c)
+                    <div class="comment-item">
                         <div class="comment-avatar"></div>
-                        <div>
+                        <div style="flex:1">
                             <div class="comment-bubble">
-                                <div class="comment-author d-flex align-items-center justify-content-between">
-                                    <span>{{ $c->user->name ?? 'User' }}</span>
-                                    @auth
-                                    @php $canEditComment = (auth()->id() === $c->user_id) || (in_array(auth()->user()->user_role,['admin','super_admin'])); @endphp
-                                    @if($canEditComment)
-                                    <div class="dropdown ms-2">
-                                        <button class="btn btn-sm btn-link text-muted p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="fas fa-ellipsis-h"></i>
-                                        </button>
-                                        <ul class="dropdown-menu dropdown-menu-end">
-                                            <li>
-                                                <button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#editCommentModal{{ $c->id }}">
-                                                    <i class="fas fa-pen me-2"></i>Chỉnh sửa
-                                                </button>
-                                            </li>
-                                            <li><hr class="dropdown-divider"></li>
-                                            <li>
-                                                <form method="POST" action="{{ route('comments.delete',$c) }}" class="m-0" onsubmit="return confirm('Xóa bình luận này?');">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="dropdown-item text-danger"><i class="fas fa-trash me-2"></i>Xóa</button>
-                                                </form>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                    @endif
-                                    @endauth
-                                </div>
+                                <div class="comment-author">{{ $c->user->name ?? 'User' }}</div>
                                 <div class="comment-text">{{ $c->content }}</div>
                             </div>
-                            <div class="comment-actions position-relative">
+                            <div class="comment-actions">
                                 <span class="comment-time">{{ $c->created_at->diffForHumans() }}</span>
-                                @php
-                                  $myCReaction = auth()->check() ? optional($c->reactions->firstWhere('user_id', auth()->id()))->type : null;
-                                  $cIconMap = ['like'=>'far fa-thumbs-up','love'=>'fas fa-heart','haha'=>'fas fa-laugh','wow'=>'fas fa-surprise','sad'=>'fas fa-sad-tear','angry'=>'fas fa-angry'];
-                                  $cTextMap = ['like'=>'Thích','love'=>'Yêu thích','haha'=>'Haha','wow'=>'Wow','sad'=>'Buồn','angry'=>'Phẫn nộ'];
-                                  $cType = $myCReaction ?: ( ($c->likes_count ?? 0) > 0 ? 'like' : null);
-                                  $cLabel = $myCReaction ? ($cTextMap[$myCReaction] ?? 'Thích') : 'Thích';
-                                @endphp
-                                <span class="comment-action comment-like-btn {{ $cType ? 'text-primary' : '' }}"
-                                      data-like-endpoint="{{ route('comments.like',$c) }}"
+                                @php $myCReaction = auth()->check() ? optional($c->reactions->firstWhere('user_id', auth()->id()))->type : null; @endphp
+                                <span class="comment-action {{ $myCReaction ? 'active' : '' }}"
                                       data-react-endpoint="{{ route('comments.react',$c) }}"
                                       data-comment-id="{{ $c->id }}"
                                       data-reaction="{{ $myCReaction ?? '' }}">
-                                      <span id="c-like-label-{{ $c->id }}">{{ $cLabel }}</span>
+                                    {{ $myCReaction ? (['like'=>'Thích','love'=>'Yêu thích','haha'=>'Haha','wow'=>'Wow','sad'=>'Buồn','angry'=>'Phẫn nộ'][$myCReaction] ?? 'Thích') : 'Thích' }}
                                 </span>
-                                <div class="c-react-pop" data-for-comment="{{ $c->id }}">
-                                    <div class="r like" data-type="like"><i class="far fa-thumbs-up"></i></div>
-                                    <div class="r love" data-type="love"><i class="fas fa-heart"></i></div>
-                                    <div class="r haha" data-type="haha"><i class="fas fa-laugh"></i></div>
-                                    <div class="r wow" data-type="wow"><i class="fas fa-surprise"></i></div>
-                                    <div class="r sad" data-type="sad"><i class="fas fa-sad-tear"></i></div>
-                                    <div class="r angry" data-type="angry"><i class="fas fa-angry"></i></div>
-                                </div>
                                 <span class="comment-action">Trả lời</span>
-                                <span class="comment-reaction-summary {{ ($c->likes_count ?? 0) > 0 ? '' : 'd-none' }}" id="c-react-summary-{{ $c->id }}">
-                                    <span class="c-like-icon c-like-{{ $cType ?? 'like' }}" id="c-react-summary-icon-{{ $c->id }}"><i class="{{ $cIconMap[$cType ?? 'like'] }}"></i></span>
-                                    <span id="c-react-summary-count-{{ $c->id }}">{{ $c->likes_count ?? 0 }}</span>
-                                </span>
                             </div>
                         </div>
                     </div>
-
-                    <!-- Edit Comment Modal -->
-                    <div class="modal fade" id="editCommentModal{{ $c->id }}" tabindex="-1" aria-hidden="true">
-                      <div class="modal-dialog">
-                        <div class="modal-content">
-                          <div class="modal-header">
-                            <h5 class="modal-title">Chỉnh sửa bình luận</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                          </div>
-                          <form method="POST" action="{{ route('comments.update',$c) }}">
-                            @csrf
-                            @method('PUT')
-                            <div class="modal-body">
-                              <textarea name="content" class="form-control" rows="3">{{ old('content',$c->content) }}</textarea>
-                            </div>
-                            <div class="modal-footer">
-                              <button class="btn btn-primary">Lưu</button>
-                            </div>
-                          </form>
-                        </div>
-                      </div>
-                    </div>
-                @endforeach
+                    @endforeach
+                </div>
             </div>
+        </div>
+        @endforeach
+
+        <!-- Pagination -->
+        <div style="margin-top: 2rem;">{{ $posts->links() }}</div>
+    </div>
+</div>
+
+<!-- Composer Modal -->
+<div class="modal-overlay" id="composerModal">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <h3 class="modal-title">{{ __('app.feed.create_post') }}</h3>
+            <button class="modal-close" onclick="closeComposerModal()"><i class="fas fa-times"></i></button>
+        </div>
+        <form method="POST" action="{{ route('posts.store') }}" enctype="multipart/form-data">
+            @csrf
+            <div class="modal-body">
+                <textarea class="composer-textarea" name="content" rows="4" placeholder="{{ __('app.feed.whats_on_your_mind') }}"></textarea>
+                <div class="media-preview" id="mediaPreview"></div>
+                
+                <div class="composer-toolbar">
+                    <div class="toolbar-left">
+                        <div style="position:relative">
+                            <button type="button" class="visibility-btn" onclick="toggleDropdown('visibilityDropdown')">
+                                <span id="visibilityText">Công khai</span>
+                                <i class="fas fa-chevron-down" style="font-size:0.7rem"></i>
+                            </button>
+                            <div class="visibility-dropdown" id="visibilityDropdown">
+                                <span class="visibility-option" data-vis="public">Công khai</span>
+                                <span class="visibility-option" data-vis="friends">Bạn bè</span>
+                                <span class="visibility-option" data-vis="only_me">Chỉ mình tôi</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="toolbar-right">
+                        <label class="toolbar-btn green" title="Ảnh/Video">
+                            <i class="fas fa-photo-video"></i>
+                            <input type="file" name="files[]" multiple style="display:none" id="composerFiles">
+                        </label>
+                        <button type="button" class="toolbar-btn blue" title="Gắn thẻ"><i class="fas fa-user-tag"></i></button>
+                        <button type="button" class="toolbar-btn yellow" title="Cảm xúc"><i class="fas fa-smile"></i></button>
+                    </div>
+                </div>
+                <input type="hidden" name="visibility" id="visibilityField" value="public">
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="submit-btn">Đăng bài</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Edit Post Modal Template -->
+@foreach($posts as $post)
+@php $canEdit = auth()->check() && ((auth()->id() === $post->user_id) || in_array(auth()->user()->user_role,['admin','super_admin'])); @endphp
+@if($canEdit)
+<div class="modal-overlay" id="editModal{{ $post->id }}">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <h3 class="modal-title">Chỉnh sửa bài viết</h3>
+            <button class="modal-close" onclick="closeEditModal({{ $post->id }})"><i class="fas fa-times"></i></button>
+        </div>
+        <form method="POST" action="{{ route('posts.update',$post) }}">
+            @csrf @method('PUT')
+            <div class="modal-body">
+                <textarea class="composer-textarea" name="content" rows="5">{{ $post->content }}</textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="submit-btn">Lưu thay đổi</button>
+            </div>
+        </form>
+    </div>
+</div>
+@endif
+@endforeach
+
+<!-- Confirm Delete Modal -->
+<div class="modal-overlay" id="confirmModal">
+    <div class="modal-content" style="max-width:400px" onclick="event.stopPropagation()">
+        <div class="modal-body" style="padding:1.5rem">
+            <div style="display:flex;gap:1rem;align-items:flex-start">
+                <div class="confirm-icon"><i class="fas fa-trash"></i></div>
+                <div>
+                    <h4 style="color:#fff;margin:0 0 0.25rem 0;font-family:'Rajdhani',sans-serif;font-weight:700">Xóa bài viết?</h4>
+                    <p style="color:#94a3b8;margin:0;font-size:0.9rem">Hành động này không thể hoàn tác.</p>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <div class="confirm-actions">
+                <button class="btn-cancel" onclick="closeConfirmModal()">Hủy</button>
+                <button class="btn-danger" id="confirmDeleteBtn">Xóa</button>
             </div>
         </div>
     </div>
-    @endforeach
-
-    <div class="feed-wrap">{{ $posts->links() }}</div>
- </div>
+</div>
 
 @push('scripts')
 <script>
-(()=>{
-  const filesInput = document.getElementById('composerFiles');
-  const mediaPreview = document.getElementById('mediaPreview');
-  filesInput && filesInput.addEventListener('change', (e)=>{
-    mediaPreview.innerHTML='';
-    [...e.target.files].forEach(file=>{
-      const col = document.createElement('div'); col.className='col-4';
-      if(file.type.startsWith('video')){
-        const v=document.createElement('video');v.controls=true;v.className='w-100 rounded';
-        v.src=URL.createObjectURL(file); col.appendChild(v);
-      } else { const img=new Image(); img.className='img-fluid rounded'; img.src=URL.createObjectURL(file); col.appendChild(img); }
-      mediaPreview.appendChild(col);
-    });
-  });
+// Modal functions
+function openComposerModal() {
+    document.getElementById('composerModal').classList.add('show');
+    document.body.style.overflow = 'hidden';
+}
+function closeComposerModal() {
+    document.getElementById('composerModal').classList.remove('show');
+    document.body.style.overflow = '';
+}
+function openEditModal(id) {
+    document.getElementById('editModal' + id).classList.add('show');
+    document.body.style.overflow = 'hidden';
+}
+function closeEditModal(id) {
+    document.getElementById('editModal' + id).classList.remove('show');
+    document.body.style.overflow = '';
+}
+function closeConfirmModal() {
+    document.getElementById('confirmModal').classList.remove('show');
+    document.body.style.overflow = '';
+}
 
-  // Tags
-  const tagBtn=document.getElementById('tagBtn'); const tagContainer=document.getElementById('tagContainer');
-  tagBtn && tagBtn.addEventListener('click',()=>{ tagContainer.style.display = tagContainer.style.display==='none'?'block':'none'; });
-  const tagInput=document.getElementById('tagInput'); const tagResults=document.getElementById('tagResults'); const taggedList=document.getElementById('taggedList'); const mentionsField=document.getElementById('mentionsField');
-  const selectedIds=new Set();
-  tagInput && tagInput.addEventListener('input', function(){
-    const q=this.value.trim(); if(!q){ tagResults.innerHTML=''; return; }
-    fetch(`{{ route('profile.search-users') }}?q=${encodeURIComponent(q)}`)
-      .then(r=>r.json()).then(data=>{
-        tagResults.innerHTML='';
-        (data.users||data || []).slice(0,5).forEach(u=>{
-          const a=document.createElement('a'); a.className='list-group-item list-group-item-action'; a.textContent=u.name || u.full_name || u.email; a.href='#';
-          a.addEventListener('click',e=>{e.preventDefault(); selectedIds.add(u.id); renderTagged(); tagResults.innerHTML=''; tagInput.value='';});
-          tagResults.appendChild(a);
-        });
-      }).catch(()=>{});
-  });
-  function renderTagged(){
-    mentionsField.value=[...selectedIds].join(',');
-    taggedList.textContent = mentionsField.value ? ('Đã gắn thẻ: '+mentionsField.value) : '';
-  }
+// Dropdown toggle
+function toggleDropdown(id) {
+    const el = document.getElementById(id);
+    el.classList.toggle('show');
+}
 
-  // Visibility selector
-  const visBtn = document.getElementById('visibilityBtn');
-  const visField = document.getElementById('visibilityField');
-  const visInclude = document.getElementById('visibilityIncludeField');
-  const visExclude = document.getElementById('visibilityExcludeField');
-  if(visBtn){
-    visBtn.parentElement.querySelectorAll('.dropdown-item').forEach(it=>{
-      it.addEventListener('click', (e)=>{
-        e.preventDefault();
-        const v = it.getAttribute('data-vis');
-        visField.value = v;
-        visBtn.textContent = it.textContent.trim();
-        // When choose advanced options, open simple prompts for now
-        if(v==='friends_except'){
-          const ids = prompt('Nhập ID bạn bè loại trừ (ngăn cách bằng dấu phẩy):','');
-          visExclude.value = (ids||'').replace(/\s+/g,'');
-        } else if(v==='specific_friends' || v==='custom'){
-          const ids = prompt('Nhập ID bạn bè được phép (ngăn cách bằng dấu phẩy):','');
-          visInclude.value = (ids||'').replace(/\s+/g,'');
-        } else {
-          visInclude.value = '';
-          visExclude.value = '';
+// Close dropdowns on outside click
+document.addEventListener('click', (e) => {
+    document.querySelectorAll('.post-dropdown.show, .visibility-dropdown.show').forEach(el => {
+        if (!el.contains(e.target) && !e.target.closest('[onclick*="toggleDropdown"]')) {
+            el.classList.remove('show');
         }
-      });
     });
-  }
+});
 
-  // Like/Reactions UI
-  const reactionTextMap = { like:'Thích', love:'Yêu thích', haha:'Haha', wow:'Wow', sad:'Buồn', angry:'Phẫn nộ' };
-  const reactionIconMap = { like:'far fa-thumbs-up', love:'fas fa-heart', haha:'fas fa-laugh', wow:'fas fa-surprise', sad:'fas fa-sad-tear', angry:'fas fa-angry' };
+// Close modal on overlay click
+document.querySelectorAll('.modal-overlay').forEach(modal => {
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.classList.remove('show');
+            document.body.style.overflow = '';
+        }
+    });
+});
 
-  document.querySelectorAll('.like-wrapper').forEach(wrapper=>{
+// Toggle comments
+document.querySelectorAll('[data-toggle-comments]').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const id = btn.dataset.toggleComments;
+        document.getElementById('comments-' + id).classList.toggle('show');
+    });
+});
+
+// File preview
+document.getElementById('composerFiles')?.addEventListener('change', (e) => {
+    const preview = document.getElementById('mediaPreview');
+    preview.innerHTML = '';
+    [...e.target.files].forEach(file => {
+        const div = document.createElement('div');
+        div.className = 'media-preview-item';
+        if (file.type.startsWith('video')) {
+            const v = document.createElement('video');
+            v.src = URL.createObjectURL(file);
+            v.controls = true;
+            div.appendChild(v);
+        } else {
+            const img = document.createElement('img');
+            img.src = URL.createObjectURL(file);
+            div.appendChild(img);
+        }
+        preview.appendChild(div);
+    });
+});
+
+// Visibility selector
+document.querySelectorAll('.visibility-option').forEach(opt => {
+    opt.addEventListener('click', () => {
+        document.getElementById('visibilityField').value = opt.dataset.vis;
+        document.getElementById('visibilityText').textContent = opt.textContent;
+        document.getElementById('visibilityDropdown').classList.remove('show');
+    });
+});
+
+// Reactions
+const reactionTextMap = { like: 'Thích', love: 'Yêu thích', haha: 'Haha', wow: 'Wow', sad: 'Buồn', angry: 'Phẫn nộ' };
+const reactionIconMap = { like: 'far fa-thumbs-up', love: 'fas fa-heart', haha: 'fas fa-laugh', wow: 'fas fa-surprise', sad: 'fas fa-sad-tear', angry: 'fas fa-angry' };
+
+document.querySelectorAll('.like-wrapper').forEach(wrapper => {
     const button = wrapper.querySelector('.like-btn');
     const pop = wrapper.querySelector('.reactions-popover');
-    const postId = button.getAttribute('data-post-id');
+    const postId = button.dataset.postId;
     let hideTimer = null;
 
-    function showPop(){ clearTimeout(hideTimer); pop.style.display='flex'; }
-    function hidePop(){ hideTimer = setTimeout(()=>{ pop.style.display='none'; }, 180); }
+    function showPop() { clearTimeout(hideTimer); pop.classList.add('show'); }
+    function hidePop() { hideTimer = setTimeout(() => pop.classList.remove('show'), 200); }
 
-    // Hover to show reactions
     button.addEventListener('mouseenter', showPop);
     button.addEventListener('mouseleave', hidePop);
     pop.addEventListener('mouseenter', showPop);
     pop.addEventListener('mouseleave', hidePop);
 
-    // Click on button: if reaction exists -> remove reaction; if none -> quick like
-    button.addEventListener('click', ()=>{
-      const current = button.getAttribute('data-reaction');
-      if(current){
-        // remove any reaction
-        updateReaction('');
-        optimisticCount(-1);
-        sendReact('none');
-      } else {
-        // quick like
-        updateReaction('like');
-        optimisticCount(1);
-        sendReact('like');
-      }
+    button.addEventListener('click', () => {
+        const current = button.dataset.reaction;
+        if (current) {
+            updateReaction('');
+            optimisticCount(-1);
+            sendReact('none');
+        } else {
+            updateReaction('like');
+            optimisticCount(1);
+            sendReact('like');
+        }
     });
 
-    // Select reaction from popover
-    pop.querySelectorAll('.reaction').forEach(el=>{
-      el.addEventListener('click', ()=>{
-        const type = el.getAttribute('data-type');
-        const prev = button.getAttribute('data-reaction');
-        if(!prev){ optimisticCount(1); }
-        updateReaction(type);
-        sendReact(type);
-        pop.style.display='none';
-      });
-    });
-
-    function updateReaction(type){
-      const prev = button.getAttribute('data-reaction') || '';
-      button.setAttribute('data-reaction', type);
-      const icon = button.querySelector('i');
-      icon.className = reactionIconMap[type] || 'far fa-thumbs-up';
-      button.classList.toggle('active', !!type);
-      // remove previous reacted-* class and add new one
-      if(prev){ button.classList.remove('reacted-'+prev); }
-      if(type){ button.classList.add('reacted-'+type); } else { ['like','love','haha','wow','sad','angry'].forEach(t=>button.classList.remove('reacted-'+t)); }
-      button.lastChild.nodeValue = ' ' + (reactionTextMap[type] || 'Thích');
-
-      // Sync small stats icon color and glyph
-      const statIconWrap = document.getElementById('likes-icon-'+postId);
-      const statCountWrap = document.getElementById('likes-wrap-'+postId);
-      if(statIconWrap){
-        // reset icon-like-* classes
-        ['like','love','haha','wow','sad','angry'].forEach(t=>statIconWrap.classList.remove('icon-like-'+t));
-        statIconWrap.classList.add('icon-like-'+(type || 'like'));
-        const glyph = statIconWrap.querySelector('i');
-        if(glyph){ glyph.className = reactionIconMap[type || 'like']; }
-      }
-      if(statCountWrap){ statCountWrap.classList.toggle('d-none', (document.getElementById('likes-count-'+postId).textContent||'0')==='0'); }
-    }
-
-    function optimisticCount(delta){
-      const countEl = document.getElementById('likes-count-'+postId);
-      const wrapEl = document.getElementById('likes-wrap-'+postId);
-      let count = parseInt(countEl.textContent||'0',10);
-      count = Math.max(0, count + delta);
-      countEl.textContent = String(count);
-      // Toggle visibility when no likes
-      if(wrapEl){ wrapEl.classList.toggle('d-none', count === 0); }
-    }
-
-    function sendLikeToggle(){
-      const url = button.getAttribute('data-like-endpoint');
-      const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-      fetch(url, { method:'POST', headers:{ 'X-CSRF-TOKEN': token, 'Accept':'application/json' } }).catch(()=>{});
-    }
-    function sendReact(type){
-      const url = button.getAttribute('data-react-endpoint');
-      const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-      const form = new FormData(); form.append('type', type);
-      fetch(url, { method:'POST', headers:{ 'X-CSRF-TOKEN': token }, body: form }).catch(()=>{});
-    }
-  });
-
-  // Reactions modal (simple fetch + bootstrap modal)
-  document.querySelectorAll('[data-reactions-modal]').forEach(el=>{
-    el.addEventListener('click', function(e){
-      e.preventDefault();
-      const postId = this.getAttribute('data-reactions-modal');
-      const url = `{{ url('/posts') }}/${postId}/reactions`;
-      fetch(url, { headers:{ 'Accept':'application/json' } })
-        .then(r=>r.json())
-        .then(payload=>{
-          showReactionsModal(postId, payload);
+    pop.querySelectorAll('.reaction').forEach(el => {
+        el.addEventListener('click', () => {
+            const type = el.dataset.type;
+            const prev = button.dataset.reaction;
+            if (!prev) optimisticCount(1);
+            updateReaction(type);
+            sendReact(type);
+            pop.classList.remove('show');
         });
     });
-  });
 
-  function ensureModal(){
-    let modal = document.getElementById('reactionsModal');
-    if(modal) return modal;
-    const tpl = document.createElement('div');
-    tpl.innerHTML = `
-    <div class="modal fade reactions-modal" id="reactionsModal" tabindex="-1" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content">
-          <div class="modal-header"><h5 class="modal-title" id="postModalTitle">Post details</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-          <div class="modal-body">
-            <ul class="nav nav-pills mb-3" id="reactionsTabs"></ul>
-            <div id="reactionsModalBody"></div>
-          </div>
-        </div>
-      </div>
-    </div>`;
-    document.body.appendChild(tpl.firstElementChild);
-    return document.getElementById('reactionsModal');
-  }
+    function updateReaction(type) {
+        button.dataset.reaction = type;
+        const icon = button.querySelector('i');
+        icon.className = reactionIconMap[type] || 'far fa-thumbs-up';
+        button.querySelector('span').textContent = reactionTextMap[type] || 'Thích';
+        
+        ['like','love','haha','wow','sad','angry'].forEach(t => button.classList.remove('reacted-'+t));
+        if (type) button.classList.add('reacted-' + type);
+    }
 
-  function buildReactionTabs(postId, counts){
-    const tabs = document.getElementById('reactionsTabs');
-    const typeOrder = ['all','like','love','haha','wow','sad','angry'];
-    const icons = { all:'fas fa-layer-group', like:'far fa-thumbs-up', love:'fas fa-heart', haha:'fas fa-laugh', wow:'fas fa-surprise', sad:'fas fa-sad-tear', angry:'fas fa-angry' };
-    const present = typeOrder.filter(t=> t==='all' || counts[t]);
-    tabs.innerHTML = present.map((t,idx)=>{
-      const c = t==='all' ? Object.values(counts||{}).reduce((a,b)=>a+(b||0),0) : (counts[t]||0);
-      const active = idx===0 ? 'active' : '';
-      return `<li class="nav-item"><a href="#" class="nav-link ${active}" data-tab-type="${t}"><i class="${icons[t]}"></i> <span class="ms-1">${c}</span></a></li>`;
-    }).join('');
-    tabs.querySelectorAll('[data-tab-type]').forEach(a=>{
-      a.addEventListener('click', e=>{
+    function optimisticCount(delta) {
+        const countEl = document.getElementById('likes-count-' + postId);
+        const wrapEl = document.getElementById('likes-wrap-' + postId);
+        let count = parseInt(countEl?.textContent || '0', 10);
+        count = Math.max(0, count + delta);
+        if (countEl) countEl.textContent = String(count);
+        if (wrapEl) wrapEl.classList.toggle('hidden', count === 0);
+    }
+
+    function sendReact(type) {
+        const url = button.dataset.reactEndpoint;
+        const token = document.querySelector('meta[name="csrf-token"]').content;
+        const form = new FormData();
+        form.append('type', type);
+        fetch(url, { method: 'POST', headers: { 'X-CSRF-TOKEN': token }, body: form });
+    }
+});
+
+// Delete confirmation
+let pendingDeleteForm = null;
+document.querySelectorAll('.delete-post-form').forEach(form => {
+    form.addEventListener('submit', function(e) {
         e.preventDefault();
-        tabs.querySelectorAll('.nav-link').forEach(x=>x.classList.remove('active'));
-        a.classList.add('active');
-        const type = a.getAttribute('data-tab-type');
-        loadReactions(postId, type==='all'? null : type);
-      });
+        pendingDeleteForm = form;
+        document.getElementById('confirmModal').classList.add('show');
+        document.body.style.overflow = 'hidden';
     });
-  }
+});
 
-  function loadReactions(postId, type){
-    const url = type ? `{{ url('/posts') }}/${postId}/reactions?tab=${encodeURIComponent(type)}` : `{{ url('/posts') }}/${postId}/reactions`;
-    fetch(url, { headers:{ 'Accept':'application/json' } })
-      .then(r=>r.json())
-      .then(payload=>{
-        renderReactionsList(payload);
-      });
-  }
+document.getElementById('confirmDeleteBtn')?.addEventListener('click', () => {
+    if (pendingDeleteForm) pendingDeleteForm.submit();
+    closeConfirmModal();
+});
 
-  function renderReactionsList(payload){
-    const modal = ensureModal();
-    const body = modal.querySelector('#reactionsModalBody');
-    const users = (payload && payload.data) || [];
-    body.innerHTML = users.map(u=>{
-      const avatar = (u.user && u.user.avatar) || "{{ asset('images/default-avatar.png') }}";
-      const name = u.user && (u.user.name || 'User');
-      return `<div class="d-flex align-items-center justify-content-between gap-2 mb-2">
-        <div class="d-flex align-items-center gap-2">
-          <img src="${avatar}" class="rounded-circle" style="width:40px;height:40px;object-fit:cover"/>
-          <a href="{{ url('/profile/user') }}/${u.user.id}" class="text-decoration-none">${name}</a>
-        </div>
-        <button class="btn btn-sm btn-outline-primary">Theo dõi</button>
-      </div>`;
-    }).join('') || '<div class="text-muted">No reactions yet</div>';
-  }
-
-  function showReactionsModal(postId, payload){
-    const modal = ensureModal();
-    const title = modal.querySelector('#postModalTitle'); if(title) title.textContent = 'Reactions';
-    buildReactionTabs(postId, payload && payload.counts ? payload.counts : {});
-    renderReactionsList(payload);
-    new bootstrap.Modal(modal).show();
-  }
-
-  // Open post details modal (comments/shares summary)
-  document.querySelectorAll('[data-open-post-modal]').forEach(el=>{
-    el.addEventListener('click', ()=>{
-      const postId = el.getAttribute('data-open-post-modal');
-      const modal = ensureModal();
-      const title = modal.querySelector('#postModalTitle'); if(title) title.textContent = 'Post details';
-      const body = modal.querySelector('#reactionsModalBody');
-      // clone the post card content into modal (read-only)
-      const card = document.querySelector(`[data-post-card="${postId}"]`);
-      if(card){
-        const clone = card.cloneNode(true);
-        // expand comments section so it is visible for reading
-        const cmt = clone.querySelector('[id^="cmt"]');
-        if(cmt){ cmt.classList.add('show'); cmt.style.display='block'; }
-        body.innerHTML='';
-        body.appendChild(clone);
-      } else {
-        body.innerHTML = '<div class="text-muted">Loading...</div>';
-      }
-      new bootstrap.Modal(modal).show();
-    });
-  });
-
-  // Open shares list when clicking shares count
-  document.querySelectorAll('.shares-link, [data-open-shares]').forEach(el=>{
-    el.addEventListener('click', (e)=>{
-      e.stopPropagation();
-      const parent = el.closest('[data-post-card]') || document;
-      const postId = el.getAttribute('data-open-shares') || el.getAttribute('data-open-post-modal') || parent.getAttribute('data-post-card');
-      const modal = ensureModal();
-      const title = modal.querySelector('#postModalTitle'); if(title) title.textContent = 'Shares';
-      const body = modal.querySelector('#reactionsModalBody');
-      body.innerHTML = '<div class="text-muted">Loading shares...</div>';
-      fetch(`{{ url('/posts') }}/${postId}/shares`, { headers:{ 'Accept':'application/json' } })
-        .then(r=>r.json()).then(payload=>{
-          const arr = payload.data || [];
-          if(!arr.length){ body.innerHTML = '<div class="text-muted">No public shares to show.</div>'; return; }
-          body.innerHTML = arr.map(s=>`<div class=\"d-flex align-items-center gap-2 mb-2\"><img src=\"${s.user.avatar}\" class=\"rounded-circle\" style=\"width:36px;height:36px\"/> <div><strong>${s.user.name}</strong><div class=\"text-muted\">${s.created_at}</div></div></div>`).join('');
-        }).catch(()=>{ body.innerHTML = '<div class="text-muted">No public shares to show.</div>'; });
-      new bootstrap.Modal(modal).show();
-    });
-  });
-
-  // Auto-refresh counters for each post
-  function refreshPostCounters(){
-    document.querySelectorAll('[data-post-id]').forEach(btn=>{
-      const postId = btn.getAttribute('data-post-id');
-      fetch(`{{ url('/posts') }}/${postId}/counters`,{ headers:{ 'Accept':'application/json' }})
-        .then(r=>r.json())
-        .then(data=>{
-          // likes count
-          const likeWrap = document.getElementById('likes-wrap-'+postId);
-          const likeCountEl = document.getElementById('likes-count-'+postId);
-          const counts = data.counts || {}; const top = data.top_types || [];
-          if(likeWrap){ likeWrap.classList.toggle('d-none', (counts.likes_count||0) === 0); }
-          if(likeCountEl){ likeCountEl.textContent = String(counts.likes_count||0); }
-          // update top icons
-          const iconsContainer = likeWrap ? likeWrap.querySelector('.counts-icons') : null;
-          if(iconsContainer){
-            // remove any fallback default icon
-            const fallback = likeWrap.querySelector('.fallback-like');
-            if(fallback){ fallback.remove(); }
-            iconsContainer.innerHTML = '';
-            top.forEach(t=>{
-              const span = document.createElement('span');
-              span.className = 'icon-like icon-like-'+t;
-              const i = document.createElement('i');
-              i.className = { like:'far fa-thumbs-up', love:'fas fa-heart', haha:'fas fa-laugh', wow:'fas fa-surprise', sad:'fas fa-sad-tear', angry:'fas fa-angry' }[t] || 'far fa-thumbs-up';
-              span.appendChild(i);
-              iconsContainer.appendChild(span);
-            });
-          }
-          // comments/shares text
-          const cmtSpan = document.getElementById('comments-count-'+postId);
-          if(cmtSpan){ cmtSpan.textContent = String(counts.comments_count||0); }
-          const shareSpan = document.getElementById('shares-count-'+postId);
-          if(shareSpan){ shareSpan.textContent = String(counts.shares_count||0); }
-        }).catch(()=>{});
-    });
-  }
-  // Immediate refresh on load
-  refreshPostCounters();
-  // Poll every 3s for snappier updates
-  let countersTimer = setInterval(refreshPostCounters, 3000);
-  // Pause when tab hidden, resume when visible
-  document.addEventListener('visibilitychange', ()=>{
-    if(document.hidden){ clearInterval(countersTimer); }
-    else { refreshPostCounters(); countersTimer = setInterval(refreshPostCounters, 3000); }
-  });
-
-  // Auto-update relative times for posts
-  function refreshPostTimes(){
+// Auto refresh times
+function refreshPostTimes() {
     const now = Date.now();
-    document.querySelectorAll('.post-time[data-timestamp]').forEach(el=>{
-      const ts = Date.parse(el.getAttribute('data-timestamp'));
-      const diffSec = Math.max(1, Math.floor((now - ts)/1000));
-      let text;
-      if(diffSec < 60) text = `${diffSec} seconds ago`;
-      else if(diffSec < 3600) text = `${Math.floor(diffSec/60)} minutes ago`;
-      else if(diffSec < 86400) text = `${Math.floor(diffSec/3600)} hours ago`;
-      else text = `${Math.floor(diffSec/86400)} days ago`;
-      el.textContent = text;
+    document.querySelectorAll('.post-time[data-timestamp]').forEach(el => {
+        const ts = Date.parse(el.dataset.timestamp);
+        const diffSec = Math.max(1, Math.floor((now - ts) / 1000));
+        let text;
+        if (diffSec < 60) text = `${diffSec} giây trước`;
+        else if (diffSec < 3600) text = `${Math.floor(diffSec / 60)} phút trước`;
+        else if (diffSec < 86400) text = `${Math.floor(diffSec / 3600)} giờ trước`;
+        else text = `${Math.floor(diffSec / 86400)} ngày trước`;
+        el.textContent = text;
     });
-  }
-  refreshPostTimes();
-  setInterval(refreshPostTimes, 60000);
-
-  // Comment like toggle (no page reload)
-  document.querySelectorAll('.comment-actions').forEach(container=>{
-    const btn = container.querySelector('.comment-like-btn');
-    const pop = container.querySelector('.c-react-pop');
-    const commentId = btn.getAttribute('data-comment-id');
-    let hideTimer=null;
-
-    function show(){ clearTimeout(hideTimer); pop.style.display='flex'; }
-    function hide(){ hideTimer=setTimeout(()=>{ pop.style.display='none'; }, 180); }
-
-    btn.addEventListener('mouseenter', show);
-    btn.addEventListener('mouseleave', hide);
-    pop.addEventListener('mouseenter', show);
-    pop.addEventListener('mouseleave', hide);
-
-    // Click: toggle like if none, else remove reaction
-    btn.addEventListener('click', ()=>{
-      const current = btn.getAttribute('data-reaction');
-      if(current){ // remove
-        optimisticCommentCount(commentId, -1);
-        sendCommentReact(btn, 'none');
-        btn.setAttribute('data-reaction','');
-        btn.classList.remove('text-primary');
-        const sIcon = document.getElementById('c-react-summary-icon-'+commentId);
-        if(sIcon){
-          ['like','love','haha','wow','sad','angry'].forEach(t=>sIcon.classList.remove('c-like-'+t));
-          sIcon.classList.add('c-like-like');
-          const i = sIcon.querySelector('i'); if(i){ i.className = 'far fa-thumbs-up'; }
-        }
-        const summary = document.getElementById('c-react-summary-'+commentId);
-        if(summary){ summary.classList.add('d-none'); }
-        const label = document.getElementById('c-like-label-'+commentId);
-        if(label){ label.textContent = 'Thích'; }
-      } else { // quick like
-        optimisticCommentCount(commentId, 1);
-        sendCommentReact(btn, 'like');
-        btn.setAttribute('data-reaction','like');
-        btn.classList.add('text-primary');
-        const sIcon = document.getElementById('c-react-summary-icon-'+commentId);
-        if(sIcon){
-          ['like','love','haha','wow','sad','angry'].forEach(t=>sIcon.classList.remove('c-like-'+t));
-          sIcon.classList.add('c-like-like');
-          const i = sIcon.querySelector('i'); if(i){ i.className = 'far fa-thumbs-up'; }
-        }
-        const summary = document.getElementById('c-react-summary-'+commentId);
-        if(summary){ summary.classList.remove('d-none'); }
-        const label = document.getElementById('c-like-label-'+commentId);
-        if(label){ label.textContent = 'Thích'; }
-      }
-    });
-
-    pop.querySelectorAll('.r').forEach(r=>{
-      r.addEventListener('click', ()=>{
-        const type = r.getAttribute('data-type');
-        const prev = btn.getAttribute('data-reaction');
-        if(!prev){ optimisticCommentCount(commentId, 1); }
-        btn.setAttribute('data-reaction', type);
-        btn.classList.add('text-primary');
-        sendCommentReact(btn, type);
-        const sIcon = document.getElementById('c-react-summary-icon-'+commentId);
-        if(sIcon){
-          ['like','love','haha','wow','sad','angry'].forEach(t=>sIcon.classList.remove('c-like-'+t));
-          sIcon.classList.add('c-like-'+type);
-          const i = sIcon.querySelector('i'); if(i){
-            const map = { like:'far fa-thumbs-up', love:'fas fa-heart', haha:'fas fa-laugh', wow:'fas fa-surprise', sad:'fas fa-sad-tear', angry:'fas fa-angry' };
-            i.className = map[type] || 'far fa-thumbs-up';
-          }
-        }
-        pop.style.display='none';
-        const summary = document.getElementById('c-react-summary-'+commentId);
-        if(summary){ summary.classList.remove('d-none'); }
-        const label = document.getElementById('c-like-label-'+commentId);
-        if(label){
-          const txt = { like:'Thích', love:'Yêu thích', haha:'Haha', wow:'Wow', sad:'Buồn', angry:'Phẫn nộ' };
-          label.textContent = txt[type] || 'Thích';
-        }
-      });
-    });
-  });
-
-  function sendCommentReact(btn, type){
-    const url = btn.getAttribute('data-react-endpoint') || btn.getAttribute('data-like-endpoint');
-    const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-    const form = new FormData(); form.append('type', type);
-    fetch(url, { method:'POST', headers:{ 'X-CSRF-TOKEN': token }, body: form }).catch(()=>{});
-  }
-
-  function optimisticCommentCount(commentId, delta){
-    const summary = document.getElementById('c-react-summary-'+commentId);
-    const summaryCount = document.getElementById('c-react-summary-count-'+commentId);
-    let count = parseInt((summaryCount && summaryCount.textContent)||'0',10);
-    count = Math.max(0, count + delta);
-    if(summary){ summary.classList.toggle('d-none', count === 0); }
-    if(summaryCount){ summaryCount.textContent = String(count); }
-  }
-
-  // Modern confirm for deleting posts
-  document.querySelectorAll('.delete-post-form').forEach(form=>{
-    form.addEventListener('submit', function(e){
-      e.preventDefault();
-      showDeleteConfirm(()=>{ form.submit(); });
-    });
-  });
-
-  function ensureConfirmModal(){
-    let modal = document.getElementById('confirmModal');
-    if(modal) return modal;
-    const tpl = document.createElement('div');
-    tpl.innerHTML = `
-    <div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content" style="border-radius:16px">
-          <div class="modal-header border-0">
-            <h5 class="modal-title">Xóa bài viết</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-          </div>
-          <div class="modal-body">
-            <div class="d-flex align-items-start gap-3">
-              <div class="bg-danger bg-opacity-10 text-danger rounded-circle d-flex align-items-center justify-content-center" style="width:44px;height:44px"><i class="fas fa-trash"></i></div>
-              <div>
-                <div class="fw-semibold">Bạn có chắc muốn xóa bài viết này?</div>
-                <div class="text-muted small">Hành động này không thể hoàn tác.</div>
-              </div>
-            </div>
-          </div>
-          <div class="modal-footer border-0">
-            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Hủy</button>
-            <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Xóa</button>
-          </div>
-        </div>
-      </div>
-    </div>`;
-    document.body.appendChild(tpl.firstElementChild);
-    return document.getElementById('confirmModal');
-  }
-
-  function showDeleteConfirm(onConfirm){
-    const modal = ensureConfirmModal();
-    const bsModal = new bootstrap.Modal(modal);
-    const btn = modal.querySelector('#confirmDeleteBtn');
-    const handler = ()=>{ onConfirm && onConfirm(); bsModal.hide(); btn.removeEventListener('click', handler); };
-    btn.addEventListener('click', handler);
-    bsModal.show();
-  }
-})();
+}
+refreshPostTimes();
+setInterval(refreshPostTimes, 60000);
 </script>
 @endpush
 @endsection
-
-

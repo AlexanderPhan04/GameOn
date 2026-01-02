@@ -15,11 +15,11 @@
                     <h4>{{ $user->name }}</h4>
                     <p class="text-muted">{{ $user->email }}</p>
                     <div class="mb-3">
-                        <span class="badge @if($user->user_role === 'super_admin') bg-danger @elseif($user->user_role === 'admin') bg-warning @elseif($user->user_role === 'player') bg-primary @else bg-secondary @endif me-2">
+                        <span class="badge @if($user->user_role === 'super_admin') bg-danger @elseif($user->user_role === 'admin') bg-warning @elseif($user->user_role === 'participant') bg-primary @else bg-secondary @endif me-2">
                             @if($user->user_role === 'super_admin') Super Admin
                             @elseif($user->user_role === 'admin') Admin
-                            @elseif($user->user_role === 'player') Player
-                            @else Viewer
+                            @elseif($user->user_role === 'participant') Participant
+                            @else User
                             @endif
                         </span>
                         <span class="badge @if($user->status === 'active') bg-success @elseif($user->status === 'suspended') bg-warning @elseif($user->status === 'banned') bg-danger @else bg-secondary @endif">
@@ -98,7 +98,7 @@
                             </div>
                             <div class="mb-3">
                                 <label class="form-label small text-muted">Vai trò</label>
-                                <p class="mb-1"><span class="badge @if($user->user_role === 'super_admin') bg-danger @elseif($user->user_role === 'admin') bg-warning @elseif($user->user_role === 'player') bg-primary @else bg-secondary @endif">{{ $user->role_display_name }}</span></p>
+                                <p class="mb-1"><span class="badge @if($user->user_role === 'super_admin') bg-danger @elseif($user->user_role === 'admin') bg-warning @elseif($user->user_role === 'participant') bg-primary @else bg-secondary @endif">{{ $user->role_display_name }}</span></p>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label small text-muted">Trạng thái</label>

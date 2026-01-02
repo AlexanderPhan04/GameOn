@@ -186,7 +186,7 @@
     <!-- Hero Banner với ảnh ESP -->
     <section class="relative overflow-hidden" style="margin-top: 64px; height: 85vh; min-height: 750px; max-height: 1300px; width: 100vw; position: relative; left: 50%; right: 50%; margin-left: -50vw; margin-right: -50vw;">
         <div class="absolute inset-0 w-full h-full" style="width: 100vw; height: 100%;">
-            <img src="{{ asset('esp.jpg') }}" alt="Esports Players" 
+            <img src="{{ asset('esp.jpg') }}" alt="Esports Community" 
                  class="block absolute w-full h-full"
                  style="filter: brightness(0.3) contrast(1.2); width: 100vw; height: 100%; min-height: 100%; object-fit: cover; object-position: center 100%; bottom: 0; left: 0; z-index: 0;">
             <!-- Overlay để text dễ đọc hơn -->

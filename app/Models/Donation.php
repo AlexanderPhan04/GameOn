@@ -52,7 +52,7 @@ class Donation extends Model
     }
 
     /**
-     * Người nhận (player)
+     * Người nhận (user)
      */
     public function recipient(): BelongsTo
     {

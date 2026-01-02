@@ -118,7 +118,7 @@
                                             </td>
                                             <td>
                                                 <div class="d-flex align-items-center">
-                                                    @if($honorEvent->target_type === 'player')
+                                                    @if($honorEvent->target_type === 'user')
                                                         <img src="{{ get_avatar_url($result['item']->avatar) }}" 
                                                              class="rounded-circle me-3" width="40" height="40" alt="Avatar">
                                                     @elseif($honorEvent->target_type === 'team')

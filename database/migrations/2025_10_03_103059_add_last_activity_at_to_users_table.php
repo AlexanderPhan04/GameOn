@@ -12,7 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->timestamp('last_activity_at')->nullable()->after('last_seen_at');
+            // Thêm column mà không chỉ định vị trí cụ thể
+            $table->timestamp('last_activity_at')->nullable();
             $table->index('last_activity_at');
         });
     }

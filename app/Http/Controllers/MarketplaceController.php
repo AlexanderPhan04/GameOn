@@ -43,9 +43,9 @@ class MarketplaceController extends Controller
         // Tìm kiếm
         if ($request->has('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%");
+                    ->orWhere('description', 'like', "%{$search}%");
             });
         }
 
@@ -282,7 +282,6 @@ class MarketplaceController extends Controller
                 'payment_url' => $paymentUrl,
                 'order_id' => $order->order_id
             ]);
-
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Marketplace Payment Error: ' . $e->getMessage());
@@ -348,9 +347,9 @@ class MarketplaceController extends Controller
     }
 
     /**
-     * Quyên góp cho player
+     * Quyên góp cho người dùng
      */
-    public function donate(Request $request, $playerId)
+    public function donate(Request $request, $userId)
     {
         $request->validate([
             'amount' => 'required|numeric|min:1000',
@@ -362,16 +361,16 @@ class MarketplaceController extends Controller
             return response()->json(['success' => false, 'message' => 'Vui lòng đăng nhập'], 401);
         }
 
-        $player = User::findOrFail($playerId);
-        if (!$player->isPlayer()) {
-            return response()->json(['success' => false, 'message' => 'Chỉ có thể quyên góp cho Player'], 400);
+        $recipient = User::findOrFail($userId);
+        if (!$recipient->isParticipant()) {
+            return response()->json(['success' => false, 'message' => 'Chỉ có thể quyên góp cho Participant'], 400);
         }
 
         DB::beginTransaction();
         try {
             $donation = new Donation();
             $donation->donor_id = Auth::id();
-            $donation->recipient_id = $playerId;
+            $donation->recipient_id = $userId;
             $donation->amount = $request->amount;
             $donation->message = $request->message;
             $donation->is_anonymous = $request->get('is_anonymous', false);
@@ -384,7 +383,7 @@ class MarketplaceController extends Controller
             $paymentData = [
                 'order_id' => $donation->donation_id,
                 'amount' => $request->amount,
-                'order_desc' => 'Quyên góp cho ' . ($donation->is_anonymous ? 'Player' : $player->name),
+                'order_desc' => 'Quyên góp cho ' . ($donation->is_anonymous ? 'Người dùng' : $recipient->name),
                 'order_type' => 'other',
                 'language' => 'vn',
             ];
@@ -398,7 +397,6 @@ class MarketplaceController extends Controller
                 'payment_url' => $paymentUrl,
                 'donation_id' => $donation->donation_id
             ]);
-
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Donation Error: ' . $e->getMessage());

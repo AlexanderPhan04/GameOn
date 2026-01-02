@@ -73,7 +73,7 @@
 
     <div class="marketplace-header">
         <h1 class="mb-2"><i class="fas fa-store me-2"></i>Marketplace</h1>
-        <p class="mb-0">Mua giao diện, sticker, vật phẩm game và quyên góp cho player</p>
+        <p class="mb-0">Mua giao diện, sticker, vật phẩm game và quyên góp cho người dùng</p>
     </div>
 
     <!-- Filters -->

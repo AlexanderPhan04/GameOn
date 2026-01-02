@@ -28,9 +28,9 @@ class SearchController extends Controller
         $users = User::query()
             ->where(function ($w) use ($q) {
                 $w->where('name', 'like', "%$q%")
-                    ->orWhere('full_name', 'like', "%$q%")
                     ->orWhere('email', 'like', "%$q%");
             })
+            ->with('profile:user_id,avatar')
             ->limit($limit)
             ->get(['id', 'name', 'email']);
 
@@ -66,7 +66,7 @@ class SearchController extends Controller
         // Build URLs to relevant index pages with search params
         $map = function ($items, $type) use ($user) {
             return $items->map(function ($item) use ($type, $user) {
-                $name = $item->name ?? ($item->full_name ?? '');
+                $name = $item->name ?? '';
                 $base = '#';
                 if ($type === 'users') {
                     // For users, redirect to their profile page
@@ -117,9 +117,9 @@ class SearchController extends Controller
                 $users = User::query()
                     ->where(function ($w) use ($q) {
                         $w->where('name', 'like', "%$q%")
-                            ->orWhere('full_name', 'like', "%$q%")
                             ->orWhere('email', 'like', "%$q%");
                     })
+                    ->with('profile:user_id,avatar')
                     ->limit($limit)
                     ->get(['id', 'name', 'email']);
             }
@@ -148,7 +148,6 @@ class SearchController extends Controller
         $counts = [
             'users' => $q === '' ? 0 : User::where(function ($w) use ($q) {
                 $w->where('name', 'like', "%$q%")
-                    ->orWhere('full_name', 'like', "%$q%")
                     ->orWhere('email', 'like', "%$q%");
             })->count(),
             'teams' => $q === '' ? 0 : Team::where('name', 'like', "%$q%")->count(),

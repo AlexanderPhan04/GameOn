@@ -15,6 +15,7 @@ class MarketplaceProduct extends Model
         'description',
         'type',
         'category',
+        'category_id', // New: FK to product_categories
         'price',
         'discount_price',
         'is_active',
@@ -25,7 +26,7 @@ class MarketplaceProduct extends Model
         'images',
         'preview_url',
         'metadata',
-        'game_id',
+        'game_id', // Fixed: Now BIGINT with FK to games
         'rarity',
         'created_by',
         'sort_order',
@@ -49,6 +50,22 @@ class MarketplaceProduct extends Model
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    /**
+     * Game liên quan (nếu là vật phẩm game)
+     */
+    public function game(): BelongsTo
+    {
+        return $this->belongsTo(Game::class);
+    }
+
+    /**
+     * Category của sản phẩm (new normalized approach)
+     */
+    public function productCategory(): BelongsTo
+    {
+        return $this->belongsTo(ProductCategory::class, 'category_id');
     }
 
     /**

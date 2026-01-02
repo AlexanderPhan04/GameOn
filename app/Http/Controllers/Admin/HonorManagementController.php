@@ -45,15 +45,13 @@ class HonorManagementController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string|max:1000',
             'mode' => 'required|in:free,event',
-            'target_type' => 'required|in:player,team,tournament,game',
+            'target_type' => 'required|in:user,team,tournament,game',
             'start_time' => 'nullable|date|after:now',
             'end_time' => 'nullable|date|after:start_time',
-            'allow_viewer_vote' => 'boolean',
-            'allow_player_vote' => 'boolean',
+            'allow_participant_vote' => 'boolean',
             'allow_admin_vote' => 'boolean',
             'allow_anonymous' => 'boolean',
-            'viewer_weight' => 'required|numeric|min:0.1|max:10',
-            'player_weight' => 'required|numeric|min:0.1|max:10',
+            'participant_weight' => 'required|numeric|min:0.1|max:10',
             'admin_weight' => 'required|numeric|min:0.1|max:10',
         ]);
 
@@ -66,19 +64,16 @@ class HonorManagementController extends Controller
                 'start_time' => $request->start_time ? Carbon::parse($request->start_time) : null,
                 'end_time' => $request->end_time ? Carbon::parse($request->end_time) : null,
                 'is_active' => true,
-                'allow_viewer_vote' => $request->boolean('allow_viewer_vote'),
-                'allow_player_vote' => $request->boolean('allow_player_vote'),
+                'allow_participant_vote' => $request->boolean('allow_participant_vote'),
                 'allow_admin_vote' => $request->boolean('allow_admin_vote'),
                 'allow_anonymous' => $request->boolean('allow_anonymous'),
-                'viewer_weight' => $request->viewer_weight,
-                'player_weight' => $request->player_weight,
+                'participant_weight' => $request->participant_weight,
                 'admin_weight' => $request->admin_weight,
                 'created_by' => Auth::id(),
             ]);
 
             return redirect()->route('admin.honor.index')
                 ->with('success', 'Đợt vote đã được tạo thành công!');
-
         } catch (\Exception $e) {
             return redirect()->back()
                 ->withInput()
@@ -122,12 +117,10 @@ class HonorManagementController extends Controller
             'description' => 'nullable|string|max:1000',
             'start_time' => 'nullable|date',
             'end_time' => 'nullable|date|after:start_time',
-            'allow_viewer_vote' => 'boolean',
-            'allow_player_vote' => 'boolean',
+            'allow_participant_vote' => 'boolean',
             'allow_admin_vote' => 'boolean',
             'allow_anonymous' => 'boolean',
-            'viewer_weight' => 'required|numeric|min:0.1|max:10',
-            'player_weight' => 'required|numeric|min:0.1|max:10',
+            'participant_weight' => 'required|numeric|min:0.1|max:10',
             'admin_weight' => 'required|numeric|min:0.1|max:10',
         ]);
 
@@ -137,18 +130,15 @@ class HonorManagementController extends Controller
                 'description' => $request->description,
                 'start_time' => $request->start_time ? Carbon::parse($request->start_time) : null,
                 'end_time' => $request->end_time ? Carbon::parse($request->end_time) : null,
-                'allow_viewer_vote' => $request->boolean('allow_viewer_vote'),
-                'allow_player_vote' => $request->boolean('allow_player_vote'),
+                'allow_participant_vote' => $request->boolean('allow_participant_vote'),
                 'allow_admin_vote' => $request->boolean('allow_admin_vote'),
                 'allow_anonymous' => $request->boolean('allow_anonymous'),
-                'viewer_weight' => $request->viewer_weight,
-                'player_weight' => $request->player_weight,
+                'participant_weight' => $request->participant_weight,
                 'admin_weight' => $request->admin_weight,
             ]);
 
             return redirect()->route('admin.honor.index')
                 ->with('success', 'Đợt vote đã được cập nhật thành công!');
-
         } catch (\Exception $e) {
             return redirect()->back()
                 ->withInput()
@@ -168,7 +158,6 @@ class HonorManagementController extends Controller
 
             return redirect()->back()
                 ->with('success', "Đợt vote đã được {$status} thành công!");
-
         } catch (\Exception $e) {
             return redirect()->back()
                 ->with('error', 'Có lỗi xảy ra khi thay đổi trạng thái.');
@@ -189,7 +178,6 @@ class HonorManagementController extends Controller
 
             return redirect()->back()
                 ->with('success', 'Tất cả vote đã được reset thành công!');
-
         } catch (\Exception $e) {
             DB::rollBack();
 
@@ -216,7 +204,6 @@ class HonorManagementController extends Controller
 
             return redirect()->route('admin.honor.index')
                 ->with('success', 'Đợt vote đã được xóa thành công!');
-
         } catch (\Exception $e) {
             DB::rollBack();
 
@@ -269,7 +256,7 @@ class HonorManagementController extends Controller
     private function getVotedItemById(string $type, int $id)
     {
         switch ($type) {
-            case 'player':
+            case 'user':
                 return User::find($id);
             case 'team':
                 return Team::find($id);
@@ -288,8 +275,8 @@ class HonorManagementController extends Controller
     private function getItemName($item, string $type): string
     {
         switch ($type) {
-            case 'player':
-                return $item->name ?? $item->display_name ?? 'Unknown Player';
+            case 'user':
+                return $item->name ?? $item->display_name ?? 'Unknown User';
             case 'team':
                 return $item->name ?? 'Unknown Team';
             case 'tournament':

@@ -203,7 +203,12 @@ class ChatConversation extends Model
     public function getDisplayAvatar($userId)
     {
         if ($this->type === 'group') {
-            return $this->avatar ?: asset('images/group-avatar.png');
+            if ($this->avatar) {
+                return asset('storage/'.$this->avatar);
+            }
+            // Generate group avatar
+            $name = urlencode($this->name ?? 'Group');
+            return "https://ui-avatars.com/api/?name={$name}&size=128&background=8b5cf6&color=ffffff&bold=true&format=svg";
         }
 
         // For private conversations, show the other user's avatar
@@ -212,7 +217,11 @@ class ChatConversation extends Model
             ->where('user_id', '!=', $userId)
             ->first();
 
-        return $otherUser ? $otherUser->user->getDisplayAvatar() : asset('images/default-avatar.png');
+        if ($otherUser && $otherUser->user) {
+            return $otherUser->user->getDisplayAvatar();
+        }
+        
+        return "https://ui-avatars.com/api/?name=User&size=128&background=667eea&color=ffffff&bold=true&format=svg";
     }
 
     /**

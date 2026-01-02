@@ -1,75 +1,104 @@
 ﻿@php
 $isOwn = $message->sender_id === auth()->id();
-$alignClass = $isOwn ? 'justify-content-end' : 'justify-content-start';
-$bubbleClass = $isOwn ? 'own' : 'other';
 @endphp
 
-<div class="d-flex {{ $alignClass }} mb-4 message-item" data-message-id="{{ $message->id }}">
-    @if(!$isOwn)
-    <img src="{{ $message->sender->getDisplayAvatar() }}" 
-         alt="{{ $message->sender->name }}" 
-         class="message-avatar me-3 align-self-end">
-    @endif
+<div class="message-item {{ $isOwn ? 'own' : 'other' }}" data-message-id="{{ $message->id }}">
+    <div class="message-content">
+        <img src="{{ $message->sender->getDisplayAvatar() }}" 
+             alt="{{ $message->sender->name }}" 
+             class="msg-avatar">
 
-    <div class="message-bubble {{ $bubbleClass }}">
-        @if(!$isOwn)
-        <div class="fw-bold text-primary small mb-1">{{ $message->sender->name }}</div>
-        @endif
+        <div class="message-bubble">
+            @if(!$isOwn)
+            <div class="msg-sender">{{ $message->sender->name }}</div>
+            @endif
 
-        {{-- Display attachment if present --}}
-        @if($message->attachment_path)
-        <div class="mb-2">
-            @if($message->type === 'image' || $message->isImage())
-            <div class="attachment-preview">
+            {{-- Display attachment if present --}}
+            @if($message->attachment_path)
+            <div class="msg-attachment">
+                @if($message->type === 'image' || $message->isImage())
                 <img src="{{ $message->attachment_url }}"
-                    alt="Hình ảnh" class="img-fluid rounded-3"
-                    style="max-width: 250px; cursor: pointer; border-radius: 12px;"
-                    onclick="window.open('{{ $message->attachment_url }}', '_blank')"
-                    onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                <div style="display:none; padding: 10px; background: rgba(255,0,0,0.1); border-radius: 8px;">
-                    <i class="fas fa-exclamation-triangle text-danger me-2"></i>
-                    <span class="text-danger">Không thể tải ảnh</span>
+                     alt="Hình ảnh" 
+                     class="msg-image"
+                     onclick="window.open('{{ $message->attachment_url }}', '_blank')"
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="msg-image-error" style="display:none;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>Không thể tải ảnh</span>
                 </div>
-            </div>
-            @else
-            <div class="attachment-preview">
-                <a href="{{ $message->attachment_url }}" target="_blank" class="text-decoration-none">
-                    <i class="fas fa-file me-2"></i>
-                    {{ $message->attachment_name ?? 'Tệp đính kèm' }}
+                @else
+                <a href="{{ $message->attachment_url }}" target="_blank" class="msg-file">
+                    <i class="fas fa-file"></i>
+                    <span>{{ $message->attachment_name ?? 'Tệp đính kèm' }}</span>
                 </a>
+                @endif
             </div>
             @endif
-        </div>
-        @endif
 
-        {{-- Display message content --}}
-        @if($message->content)
-        <div class="message-text">
-            {!! nl2br(e($message->content)) !!}
-        </div>
-        @endif
+            {{-- Display message content --}}
+            @if($message->content)
+            <div class="msg-text">{!! nl2br(e($message->content)) !!}</div>
+            @endif
 
-        <div class="message-time">
-            {{ $message->formatted_time }}
-        </div>
-
-        {{-- Message reactions --}}
-        <div class="message-reactions mt-2">
-            @php
-                $allEmojis = ['👍', '❤️', '😂', '😮', '😢'];
-            @endphp
-            @foreach($allEmojis as $emoji)
-                <button class="reaction-btn" data-emoji="{{ $emoji }}" disabled 
-                        title="Tính năng reaction sẽ được triển khai sau">
-                    {{ $emoji }}
-                </button>
-            @endforeach
+            <div class="msg-time">{{ $message->formatted_time }}</div>
         </div>
     </div>
-
-    @if($isOwn)
-    <img src="{{ $message->sender->getDisplayAvatar() }}" 
-         alt="{{ $message->sender->name }}" 
-         class="message-avatar ms-3 align-self-end">
-    @endif
 </div>
+
+<style>
+.msg-attachment {
+    margin-bottom: 0.5rem;
+}
+
+.msg-image {
+    max-width: 250px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.msg-image:hover {
+    transform: scale(1.02);
+}
+
+.msg-image-error {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    background: rgba(239, 68, 68, 0.1);
+    border-radius: 8px;
+    color: #ef4444;
+    font-size: 0.85rem;
+}
+
+.msg-file {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: rgba(0, 229, 255, 0.1);
+    border: 1px solid rgba(0, 229, 255, 0.2);
+    border-radius: 8px;
+    color: #00E5FF;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+.msg-file:hover {
+    background: rgba(0, 229, 255, 0.2);
+    color: #00E5FF;
+}
+
+.message-item.own .msg-file {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+    color: #fff;
+}
+
+.message-item.own .msg-file:hover {
+    background: rgba(255, 255, 255, 0.25);
+    color: #fff;
+}
+</style>

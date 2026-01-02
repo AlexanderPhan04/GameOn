@@ -24,7 +24,7 @@ class AuthenticationService
     public function login(LoginDto $loginDto): AuthenticationResult
     {
         try {
-            Log::info('Login attempt for user: '.$loginDto->username);
+            Log::info('Login attempt for user: ' . $loginDto->username);
 
             // 1. Validate input
             $errors = $loginDto->validate();
@@ -35,20 +35,20 @@ class AuthenticationService
             // 2. Tìm user theo username
             $user = EsportsUser::where('username', $loginDto->username)->first();
             if (! $user) {
-                Log::warning('Login failed: User not found - '.$loginDto->username);
+                Log::warning('Login failed: User not found - ' . $loginDto->username);
 
                 return AuthenticationResult::failure('Tên đăng nhập hoặc mật khẩu không đúng');
             }
 
             // 3. Kiểm tra trạng thái tài khoản
             if ($user->status === EsportsUser::STATUS_DELETED) {
-                Log::warning('Login failed: User deleted - '.$loginDto->username);
+                Log::warning('Login failed: User deleted - ' . $loginDto->username);
 
                 return AuthenticationResult::failure('Tài khoản đã bị xóa');
             }
 
             if ($user->status === EsportsUser::STATUS_SUSPENDED) {
-                Log::warning('Login failed: User suspended - '.$loginDto->username);
+                Log::warning('Login failed: User suspended - ' . $loginDto->username);
 
                 return AuthenticationResult::failure('Tài khoản đã bị tạm khóa');
             }
@@ -57,7 +57,7 @@ class AuthenticationService
 
             // 4. Xác minh mật khẩu
             if (! Hash::check($loginDto->password, $user->password_hash)) {
-                Log::warning('Login failed: Invalid password - '.$loginDto->username);
+                Log::warning('Login failed: Invalid password - ' . $loginDto->username);
 
                 return AuthenticationResult::failure('Tên đăng nhập hoặc mật khẩu không đúng');
             }
@@ -68,11 +68,11 @@ class AuthenticationService
             // 6. Đảm bảo role hiển thị bằng tiếng Việt
             $displayRole = $this->getRoleDisplayName($user->role);
 
-            Log::info('Login successful for user: '.$user->username.', Role: '.$displayRole);
+            Log::info('Login successful for user: ' . $user->username . ', Role: ' . $displayRole);
 
             return AuthenticationResult::success($user->user_id, $user->username, $displayRole);
         } catch (Exception $ex) {
-            Log::error('Error during login for user: '.($loginDto->username ?? 'unknown'), [
+            Log::error('Error during login for user: ' . ($loginDto->username ?? 'unknown'), [
                 'exception' => $ex->getMessage(),
                 'trace' => $ex->getTraceAsString(),
             ]);
@@ -91,7 +91,7 @@ class AuthenticationService
             // 1. Comprehensive validation using RegisterDto.validateAll()
             $validationErrors = $registerDto->validateAll();
             if (! empty($validationErrors)) {
-                return AuthenticationResult::failure('Dữ liệu không hợp lệ: '.implode(', ', $validationErrors));
+                return AuthenticationResult::failure('Dữ liệu không hợp lệ: ' . implode(', ', $validationErrors));
             }
 
             // 2. Check if username exists
@@ -106,14 +106,14 @@ class AuthenticationService
 
             // 4. Validate role
             $userRole = $registerDto->role;
-            $validRoles = [EsportsUser::ROLE_PLAYER, EsportsUser::ROLE_VIEWER];
+            $validRoles = [EsportsUser::ROLE_PARTICIPANT];
             if (! in_array($userRole, $validRoles)) {
-                $userRole = EsportsUser::ROLE_VIEWER; // Default fallback
+                $userRole = EsportsUser::ROLE_PARTICIPANT; // Default fallback
             }
 
-            Log::debug('Creating user: '.$registerDto->username.
-                ', SecurityQuestion: '.$registerDto->securityQuestion.
-                ', SecurityAnswer: '.$registerDto->securityAnswer);
+            Log::debug('Creating user: ' . $registerDto->username .
+                ', SecurityQuestion: ' . $registerDto->securityQuestion .
+                ', SecurityAnswer: ' . $registerDto->securityAnswer);
 
             // 5. Create user
             $user = EsportsUser::create([
@@ -128,7 +128,7 @@ class AuthenticationService
                 'is_email_verified' => false,
             ]);
 
-            Log::info('User registered successfully: '.$user->username);
+            Log::info('User registered successfully: ' . $user->username);
 
             return AuthenticationResult::success($user->user_id, $user->username, $user->role);
         } catch (Exception $ex) {
@@ -157,8 +157,7 @@ class AuthenticationService
     {
         return match ($role) {
             EsportsUser::ROLE_ADMIN => 'Quản trị viên',
-            EsportsUser::ROLE_PLAYER => 'Người chơi',
-            EsportsUser::ROLE_VIEWER => 'Người xem',
+            EsportsUser::ROLE_PARTICIPANT => 'Người tham gia',
             default => 'Không xác định'
         };
     }

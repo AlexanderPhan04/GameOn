@@ -24,14 +24,14 @@ class UserProfile extends Model
         'team_preference',
         'id_app',
         'description',
-        'upgraded_to_player_at',
+        'upgraded_to_participant_at',
         'is_verified',
         'verified_at',
     ];
 
     protected $casts = [
         'date_of_birth' => 'date',
-        'upgraded_to_player_at' => 'datetime',
+        'upgraded_to_participant_at' => 'datetime',
         'is_verified' => 'boolean',
         'verified_at' => 'datetime',
     ];
@@ -49,7 +49,7 @@ class UserProfile extends Model
      */
     public function getAvatarUrlAttribute()
     {
-        return $this->avatar ? asset('storage/'.$this->avatar) : null;
+        return $this->avatar ? asset('storage/' . $this->avatar) : null;
     }
 
     /**
@@ -60,4 +60,3 @@ class UserProfile extends Model
         return $this->is_verified === true;
     }
 }
-

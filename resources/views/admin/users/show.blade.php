@@ -39,13 +39,13 @@
                                 <span class="badge 
                                     @if($user->user_role === 'super_admin') bg-danger
                                     @elseif($user->user_role === 'admin') bg-warning
-                                    @elseif($user->user_role === 'player') bg-primary
+                                    @elseif($user->user_role === 'participant') bg-primary
                                     @else bg-secondary
                                     @endif me-2">
                                     @if($user->user_role === 'super_admin') Super Admin
                                     @elseif($user->user_role === 'admin') Admin
-                                    @elseif($user->user_role === 'player') Player
-                                    @else Viewer
+                                    @elseif($user->user_role === 'participant') Participant
+                                    @else User
                                     @endif
                                 </span>
                                 <span class="badge 
@@ -71,7 +71,7 @@
                             if ($currentUser->user_role === 'super_admin' && $user->id !== $currentUser->id) {
                             $canManageStatus = true;
                             }
-                            // Admin chỉ có thể quản lý Player và Viewer
+                            // Admin chỉ có thể quản lý Participant
                             elseif ($currentUser->user_role === 'admin' &&
                             $user->id !== $currentUser->id &&
                             !in_array($user->user_role, ['super_admin', 'admin'])) {
@@ -202,13 +202,13 @@
                                             <span class="badge 
                                                 @if($user->user_role === 'super_admin') bg-danger
                                                 @elseif($user->user_role === 'admin') bg-warning
-                                                @elseif($user->user_role === 'player') bg-primary
+                                                @elseif($user->user_role === 'participant') bg-primary
                                                 @else bg-secondary
                                                 @endif">
                                                 @if($user->user_role === 'super_admin') Super Admin
                                                 @elseif($user->user_role === 'admin') Admin
-                                                @elseif($user->user_role === 'player') Player
-                                                @else Viewer
+                                                @elseif($user->user_role === 'participant') Participant
+                                                @else User
                                                 @endif
                                             </span>
                                         </p>

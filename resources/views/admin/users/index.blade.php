@@ -136,8 +136,7 @@
     .badge-role { padding: 0.35rem 0.75rem; border-radius: 20px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
     .role-super_admin { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
     .role-admin { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
-    .role-player { background: rgba(99, 102, 241, 0.2); color: #818cf8; }
-    .role-viewer { background: rgba(100, 116, 139, 0.2); color: #94a3b8; }
+    .role-participant { background: rgba(99, 102, 241, 0.2); color: #818cf8; }
 
     /* Status Badges */
     .badge-status { padding: 0.35rem 0.75rem; border-radius: 20px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; cursor: pointer; }
@@ -339,8 +338,8 @@
                                 <span class="badge-role role-{{ $user->user_role }}">
                                     @if($user->user_role === 'super_admin') Super Admin
                                     @elseif($user->user_role === 'admin') Admin
-                                    @elseif($user->user_role === 'player') Player
-                                    @else Viewer @endif
+                                    @elseif($user->user_role === 'participant') Participant
+                                    @else User @endif
                                 </span>
                             </td>
                             <td>

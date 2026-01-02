@@ -314,4 +314,70 @@ class User extends Authenticatable implements MustVerifyEmail
             ->take(50)
             ->get();
     }
+
+    // ========== ADMIN PERMISSION METHODS ==========
+
+    /**
+     * Get the admin permission record for this user
+     */
+    public function adminPermission()
+    {
+        return $this->hasOne(AdminPermission::class);
+    }
+
+    /**
+     * Check if admin has a specific permission
+     */
+    public function hasAdminPermission(string $permission): bool
+    {
+        // Super admin has all permissions
+        if ($this->isSuperAdmin()) {
+            return true;
+        }
+
+        // Regular user has no admin permissions
+        if (!$this->isAdmin()) {
+            return false;
+        }
+
+        return $this->adminPermission?->hasPermission($permission) ?? false;
+    }
+
+    /**
+     * Check if admin has all specified permissions
+     */
+    public function hasAllAdminPermissions(array $permissions): bool
+    {
+        foreach ($permissions as $permission) {
+            if (!$this->hasAdminPermission($permission)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Check if admin has any of the specified permissions
+     */
+    public function hasAnyAdminPermission(array $permissions): bool
+    {
+        foreach ($permissions as $permission) {
+            if ($this->hasAdminPermission($permission)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Get all admin permissions as array
+     */
+    public function getAdminPermissions(): array
+    {
+        if ($this->isSuperAdmin()) {
+            return array_keys(AdminPermission::AVAILABLE_PERMISSIONS);
+        }
+
+        return $this->adminPermission?->permissions ?? [];
+    }
 }

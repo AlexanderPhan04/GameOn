@@ -2454,6 +2454,14 @@
                                     <span>{{ __('app.profile.manage_users') }}</span>
                                 </a>
                             </li>
+                            @if(Auth::user()->isSuperAdmin())
+                            <li class="menu-item {{ Request::is('admin/admins*') ? 'active' : '' }}">
+                                <a href="{{ route('admin.admins.index') }}" class="menu-link" title="Quản lý Admin">
+                                    <i class="fas fa-user-shield"></i>
+                                    <span>Quản lý Admin</span>
+                                </a>
+                            </li>
+                            @endif
                             <li class="menu-item {{ Request::is('admin/honor*') || Request::is('honor*') ? 'active' : '' }}">
                                 <a href="{{ route('admin.honor.index') }}" class="menu-link" title="{{ __('app.honor.manage_title') }}">
                                     <i class="fas fa-trophy"></i>
@@ -2711,6 +2719,14 @@
                                     <span>{{ __('app.profile.manage_users') }}</span>
                                 </a>
                             </li>
+                            @if(Auth::user()->isSuperAdmin())
+                            <li class="list-none">
+                                <a href="{{ route('admin.admins.index') }}" class="gameon-dropdown-item">
+                                    <i class="fas fa-user-shield"></i>
+                                    <span>Quản lý Admin</span>
+                                </a>
+                            </li>
+                            @endif
                             @endif
                             <li class="list-none">
                                 <hr class="border-t border-[rgba(0,229,255,0.2)] my-2">
@@ -2855,6 +2871,12 @@
                         <i class="fas fa-users"></i>
                         <span>{{ __('app.profile.manage_users') }}</span>
                     </a>
+                    @if(Auth::user()->isSuperAdmin())
+                    <a href="{{ route('admin.admins.index') }}" class="mobile-menu-item">
+                        <i class="fas fa-user-shield"></i>
+                        <span>Quản lý Admin</span>
+                    </a>
+                    @endif
                 </nav>
                 @endif
                 

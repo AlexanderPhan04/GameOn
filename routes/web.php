@@ -256,6 +256,22 @@ Route::prefix('admin/honor')->name('admin.honor.')->middleware(['auth.session'])
     Route::delete('/{honorEvent}', [HonorManagementController::class, 'destroy'])->name('destroy');
 });
 
+// Admin Management Routes (Super Admin only)
+Route::prefix('admin/admins')->name('admin.admins.')->middleware(['auth.session'])->group(function () {
+    Route::get('/', [\App\Http\Controllers\Admin\AdminInvitationController::class, 'index'])->name('index');
+    Route::get('/invite', [\App\Http\Controllers\Admin\AdminInvitationController::class, 'create'])->name('create');
+    Route::post('/', [\App\Http\Controllers\Admin\AdminInvitationController::class, 'store'])->name('store');
+    Route::get('/{user}/edit-permissions', [\App\Http\Controllers\Admin\AdminInvitationController::class, 'editPermissions'])->name('edit-permissions');
+    Route::put('/{user}/update-permissions', [\App\Http\Controllers\Admin\AdminInvitationController::class, 'updatePermissions'])->name('update-permissions');
+    Route::delete('/{user}/revoke', [\App\Http\Controllers\Admin\AdminInvitationController::class, 'revokeAdmin'])->name('revoke');
+    Route::delete('/invitation/{invitation}/cancel', [\App\Http\Controllers\Admin\AdminInvitationController::class, 'cancelInvitation'])->name('cancel-invitation');
+    Route::post('/invitation/{invitation}/resend', [\App\Http\Controllers\Admin\AdminInvitationController::class, 'resendInvitation'])->name('resend-invitation');
+});
+
+// Public routes for Admin Invitation (no auth required)
+Route::get('/admin-invitation/{token}/accept', [\App\Http\Controllers\Admin\AdminInvitationController::class, 'accept'])->name('admin.invitation.accept');
+Route::get('/admin-invitation/{token}/reject', [\App\Http\Controllers\Admin\AdminInvitationController::class, 'reject'])->name('admin.invitation.reject');
+
 // Admin Marketplace Management Routes
 Route::prefix('admin/marketplace')->name('admin.marketplace.')->middleware(['auth.session'])->group(function () {
     Route::get('/', [AdminMarketplaceController::class, 'index'])->name('index');

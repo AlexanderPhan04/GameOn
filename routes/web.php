@@ -9,8 +9,6 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\HonorController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\MaintenanceController;
-use App\Http\Controllers\PlayerController;
-use App\Http\Controllers\PlayerUpgradeController;
 use App\Http\Controllers\PostsController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SearchController;
@@ -42,7 +40,6 @@ Route::post('/language/switch', [LanguageController::class, 'switch'])->name('la
 Route::get('/language/current', [LanguageController::class, 'current'])->name('language.current');
 
 Route::resource('tournaments', TournamentController::class);
-Route::resource('players', PlayerController::class);
 
 // Authentication routes - chuyển đổi từ EsportsManager
 Route::prefix('auth')->name('auth.')->group(function () {
@@ -99,13 +96,11 @@ Route::middleware(['auth.session'])->group(function () {
     Route::get('/dashboard', [HomeController::class, 'dashboard'])->name('dashboard');
     Route::get('/dashboard/recent-users', [HomeController::class, 'getRecentUsers'])->name('dashboard.recent-users');
 
-    // Legacy routes for backwards compatibility
+    // Admin dashboard routes
     Route::get('/admin/dashboard', [HomeController::class, 'dashboard'])->name('admin.dashboard');
-    Route::get('/player/dashboard', [HomeController::class, 'dashboard'])->name('player.dashboard');
-    Route::get('/viewer/dashboard', [HomeController::class, 'dashboard'])->name('viewer.dashboard');
 
-    // Teams routes - only for players and admins
-    Route::middleware(['check.player.role'])->group(function () {
+    // Teams routes - for participants and admins
+    Route::middleware(['check.participant.role'])->group(function () {
         Route::resource('teams', TeamController::class);
         Route::post('/teams/{team}/join', [TeamController::class, 'join'])->name('teams.join');
         Route::post('/teams/{team}/leave', [TeamController::class, 'leave'])->name('teams.leave');
@@ -124,12 +119,6 @@ Route::middleware(['auth.session', 'track.login'])->prefix('profile')->name('pro
     Route::put('/update-password', [ProfileController::class, 'updatePassword'])->name('update-password');
     Route::get('/search-users', [ProfileController::class, 'searchUsers'])->name('search-users');
     Route::get('/user/{id}', [ProfileController::class, 'showUser'])->name('show-user');
-});
-
-// Player upgrade routes - separate from profile routes
-Route::middleware(['auth.session', 'track.login'])->group(function () {
-    Route::get('/player/upgrade', [PlayerUpgradeController::class, 'show'])->name('player.upgrade');
-    Route::post('/player/upgrade', [PlayerUpgradeController::class, 'upgrade'])->name('player.upgrade.submit');
 });
 
 // Game Management Routes (Admin only)
@@ -267,6 +256,22 @@ Route::prefix('admin/honor')->name('admin.honor.')->middleware(['auth.session'])
     Route::delete('/{honorEvent}', [HonorManagementController::class, 'destroy'])->name('destroy');
 });
 
+// Admin Management Routes (Super Admin only)
+Route::prefix('admin/admins')->name('admin.admins.')->middleware(['auth.session'])->group(function () {
+    Route::get('/', [\App\Http\Controllers\Admin\AdminInvitationController::class, 'index'])->name('index');
+    Route::get('/invite', [\App\Http\Controllers\Admin\AdminInvitationController::class, 'create'])->name('create');
+    Route::post('/', [\App\Http\Controllers\Admin\AdminInvitationController::class, 'store'])->name('store');
+    Route::get('/{user}/edit-permissions', [\App\Http\Controllers\Admin\AdminInvitationController::class, 'editPermissions'])->name('edit-permissions');
+    Route::put('/{user}/update-permissions', [\App\Http\Controllers\Admin\AdminInvitationController::class, 'updatePermissions'])->name('update-permissions');
+    Route::delete('/{user}/revoke', [\App\Http\Controllers\Admin\AdminInvitationController::class, 'revokeAdmin'])->name('revoke');
+    Route::delete('/invitation/{invitation}/cancel', [\App\Http\Controllers\Admin\AdminInvitationController::class, 'cancelInvitation'])->name('cancel-invitation');
+    Route::post('/invitation/{invitation}/resend', [\App\Http\Controllers\Admin\AdminInvitationController::class, 'resendInvitation'])->name('resend-invitation');
+});
+
+// Public routes for Admin Invitation (no auth required)
+Route::get('/admin-invitation/{token}/accept', [\App\Http\Controllers\Admin\AdminInvitationController::class, 'accept'])->name('admin.invitation.accept');
+Route::get('/admin-invitation/{token}/reject', [\App\Http\Controllers\Admin\AdminInvitationController::class, 'reject'])->name('admin.invitation.reject');
+
 // Admin Marketplace Management Routes
 Route::prefix('admin/marketplace')->name('admin.marketplace.')->middleware(['auth.session'])->group(function () {
     Route::get('/', [AdminMarketplaceController::class, 'index'])->name('index');
@@ -283,13 +288,13 @@ Route::prefix('admin/marketplace')->name('admin.marketplace.')->middleware(['aut
 Route::prefix('payment')->name('payment.')->group(function () {
     // Tạo đơn hàng và chuyển hướng đến VNPay
     Route::post('/vnpay/create', [PaymentController::class, 'createPayment'])->name('vnpay.create');
-    
+
     // Callback từ VNPay sau khi thanh toán
     Route::get('/vnpay/return', [PaymentController::class, 'vnpayReturn'])->name('vnpay.return');
-    
+
     // IPN (Instant Payment Notification) từ VNPay
     Route::post('/vnpay/ipn', [PaymentController::class, 'vnpayIpn'])->name('vnpay.ipn');
-    
+
     // Query transaction từ VNPay
     Route::post('/vnpay/query', [PaymentController::class, 'queryTransaction'])->name('vnpay.query');
 });
@@ -305,5 +310,5 @@ Route::prefix('marketplace')->name('marketplace.')->group(function () {
     Route::post('/process-payment', [MarketplaceController::class, 'processPayment'])->name('processPayment')->middleware('auth.session');
     Route::get('/inventory', [MarketplaceController::class, 'inventory'])->name('inventory')->middleware('auth.session');
     Route::post('/inventory/{id}/equip', [MarketplaceController::class, 'equipItem'])->name('equipItem')->middleware('auth.session');
-    Route::post('/donate/{playerId}', [MarketplaceController::class, 'donate'])->name('donate')->middleware('auth.session');
+    Route::post('/donate/{userId}', [MarketplaceController::class, 'donate'])->name('donate')->middleware('auth.session');
 });

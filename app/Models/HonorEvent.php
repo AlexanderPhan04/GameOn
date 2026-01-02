@@ -17,12 +17,10 @@ class HonorEvent extends Model
         'start_time',
         'end_time',
         'is_active',
-        'allow_viewer_vote',
-        'allow_player_vote',
+        'allow_participant_vote',
         'allow_admin_vote',
         'allow_anonymous',
-        'viewer_weight',
-        'player_weight',
+        'participant_weight',
         'admin_weight',
         'created_by',
     ];
@@ -31,12 +29,10 @@ class HonorEvent extends Model
         'start_time' => 'datetime',
         'end_time' => 'datetime',
         'is_active' => 'boolean',
-        'allow_viewer_vote' => 'boolean',
-        'allow_player_vote' => 'boolean',
+        'allow_participant_vote' => 'boolean',
         'allow_admin_vote' => 'boolean',
         'allow_anonymous' => 'boolean',
-        'viewer_weight' => 'decimal:1',
-        'player_weight' => 'decimal:1',
+        'participant_weight' => 'decimal:1',
         'admin_weight' => 'decimal:1',
     ];
 
@@ -111,10 +107,8 @@ class HonorEvent extends Model
         $role = $user->user_role;
 
         switch ($role) {
-            case 'viewer':
-                return $this->allow_viewer_vote;
-            case 'player':
-                return $this->allow_player_vote;
+            case 'participant':
+                return $this->allow_participant_vote;
             case 'admin':
             case 'super_admin':
                 return $this->allow_admin_vote;
@@ -126,10 +120,8 @@ class HonorEvent extends Model
     public function getWeightForRole(string $role): float
     {
         switch ($role) {
-            case 'viewer':
-                return (float) $this->viewer_weight;
-            case 'player':
-                return (float) $this->player_weight;
+            case 'participant':
+                return (float) $this->participant_weight;
             case 'admin':
             case 'super_admin':
                 return (float) $this->admin_weight;

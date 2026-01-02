@@ -93,7 +93,7 @@
                                 <div class="col-lg-4 col-md-6 mb-4">
                                     <div class="card h-100 vote-item" data-item-id="{{ $item->id }}">
                                         <div class="card-body text-center">
-                                            @if($honorEvent->target_type === 'player')
+                                            @if($honorEvent->target_type === 'user')
                                                 <img src="{{ get_avatar_url($item->avatar) }}" 
                                                      class="rounded-circle mb-3" width="80" height="80" alt="Avatar">
                                                 <h6 class="card-title">{{ $item->name ?? $item->display_name }}</h6>

@@ -20,7 +20,6 @@ class Game extends Model
         'banner_url',
         'max_team_size',
         'format',
-        'is_active',
         'status',
         'is_esport_supported',
         'format_metadata',
@@ -31,7 +30,6 @@ class Game extends Model
 
     protected $casts = [
         'release_date' => 'date',
-        'is_active' => 'boolean',
         'is_esport_supported' => 'boolean',
         'format_metadata' => 'array',
     ];
@@ -89,10 +87,7 @@ class Game extends Model
      */
     public function scopeActive($query)
     {
-        return $query->where(function ($q) {
-            $q->where('is_active', true)
-              ->orWhere('status', 'active');
-        });
+        return $query->where('status', 'active');
     }
 
     /**

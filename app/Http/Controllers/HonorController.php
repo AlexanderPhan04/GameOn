@@ -75,8 +75,8 @@ class HonorController extends Controller
             return response()->json(['success' => false, 'message' => 'Đối tượng vote không tồn tại.']);
         }
 
-        // Kiểm tra không được vote cho chính mình (nếu là player)
-        if ($honorEvent->target_type === 'player' && $votedItemId == Auth::id()) {
+        // Kiểm tra không được vote cho chính mình (nếu là user)
+        if ($honorEvent->target_type === 'user' && $votedItemId == Auth::id()) {
             return response()->json(['success' => false, 'message' => 'Bạn không thể vote cho chính mình.']);
         }
 
@@ -120,7 +120,6 @@ class HonorController extends Controller
                 'message' => 'Vote thành công!',
                 'vote' => $vote,
             ]);
-
         } catch (\Exception $e) {
             DB::rollBack();
 
@@ -144,14 +143,14 @@ class HonorController extends Controller
     private function getVotableItems(HonorEvent $honorEvent)
     {
         switch ($honorEvent->target_type) {
-            case 'player':
-                return User::where('user_role', 'player')
+            case 'user':
+                return User::where('user_role', 'participant')
                     ->where('id', '!=', Auth::id()) // Không vote cho chính mình
                     ->select('id', 'name', 'display_name', 'avatar')
                     ->get();
 
             case 'team':
-                return Team::where('is_active', true)
+                return Team::where('status', 'active')
                     ->whereDoesntHave('members', function ($query) {
                         $query->where('user_id', Auth::id());
                     })
@@ -164,7 +163,7 @@ class HonorController extends Controller
                     ->get();
 
             case 'game':
-                return Game::where('is_active', true)
+                return Game::where('status', 'active')
                     ->select('id', 'name', 'description', 'image')
                     ->get();
 
@@ -179,7 +178,7 @@ class HonorController extends Controller
     private function getVotedItemById(string $type, int $id)
     {
         switch ($type) {
-            case 'player':
+            case 'user':
                 return User::find($id);
             case 'team':
                 return Team::find($id);
@@ -198,7 +197,7 @@ class HonorController extends Controller
     private function getUserIdFromItem(string $type, $item)
     {
         switch ($type) {
-            case 'player':
+            case 'user':
                 return $item->id;
             case 'team':
                 return $item->captain_id ?? $item->members()->first()?->user_id;
@@ -241,8 +240,8 @@ class HonorController extends Controller
     private function getItemName($item, string $type): string
     {
         switch ($type) {
-            case 'player':
-                return $item->name ?? $item->display_name ?? 'Unknown Player';
+            case 'user':
+                return $item->name ?? $item->display_name ?? 'Unknown User';
             case 'team':
                 return $item->name ?? 'Unknown Team';
             case 'tournament':

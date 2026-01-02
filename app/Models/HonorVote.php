@@ -44,7 +44,7 @@ class HonorVote extends Model
     public function getVotedItem()
     {
         switch ($this->vote_type) {
-            case 'player':
+            case 'user':
                 return User::find($this->voted_item_id);
             case 'team':
                 return Team::find($this->voted_item_id);
@@ -66,8 +66,8 @@ class HonorVote extends Model
         }
 
         switch ($this->vote_type) {
-            case 'player':
-                return $item->name ?? $item->display_name ?? 'Unknown Player';
+            case 'user':
+                return $item->name ?? $item->display_name ?? 'Unknown User';
             case 'team':
                 return $item->name ?? 'Unknown Team';
             case 'tournament':

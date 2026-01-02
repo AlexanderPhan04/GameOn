@@ -893,7 +893,7 @@
                 <a href="{{ route('search.view') }}" class="btn-primary-glow">
                     <i class="fas fa-user-plus"></i> Tìm bạn bè
                 </a>
-                <a href="{{ route('players.index') }}" class="btn-secondary-outline">
+                <a href="{{ route('search.view') }}" class="btn-secondary-outline">
                     <i class="fas fa-users"></i> Khám phá cộng đồng
                 </a>
             </div>

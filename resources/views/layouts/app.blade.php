@@ -2423,12 +2423,6 @@
                             <span>{{ __('app.nav.dashboard') }}</span>
                         </a>
                     </li>
-                    <li class="menu-item {{ Request::is('admin/players*') || Request::is('players*') ? 'active' : '' }}">
-                        <a href="{{ route('players.index') }}" class="menu-link" title="{{ __('app.nav.players') }}">
-                            <i class="fas fa-user-friends"></i>
-                            <span>{{ __('app.nav.players') }}</span>
-                        </a>
-                    </li>
                     <li class="menu-divider"></li>
                     <li class="menu-item has-submenu {{ Request::is('admin/tournaments*') || Request::is('admin/games*') || Request::is('admin/teams*') || Request::is('admin/users*') || Request::is('admin/honor*') || Request::is('admin/marketplace*') || Request::is('honor*') ? 'open' : '' }}" id="managerMenu">
                         <a href="#" class="menu-link" onclick="event.preventDefault(); toggleSubmenu('managerMenu');" title="Manager">
@@ -2460,6 +2454,14 @@
                                     <span>{{ __('app.profile.manage_users') }}</span>
                                 </a>
                             </li>
+                            @if(Auth::user()->isSuperAdmin())
+                            <li class="menu-item {{ Request::is('admin/admins*') ? 'active' : '' }}">
+                                <a href="{{ route('admin.admins.index') }}" class="menu-link" title="Quản lý Admin">
+                                    <i class="fas fa-user-shield"></i>
+                                    <span>Quản lý Admin</span>
+                                </a>
+                            </li>
+                            @endif
                             <li class="menu-item {{ Request::is('admin/honor*') || Request::is('honor*') ? 'active' : '' }}">
                                 <a href="{{ route('admin.honor.index') }}" class="menu-link" title="{{ __('app.honor.manage_title') }}">
                                     <i class="fas fa-trophy"></i>
@@ -2597,7 +2599,7 @@
                             <span>{{ __('app.nav.dashboard') }}</span>
                         </a>
                         @endif
-                        @if(Auth::user()->user_role === 'participant' || Auth::user()->user_role === 'player')
+                        @if(Auth::user()->user_role === 'participant')
                         <a href="{{ route('teams.index') }}" class="gameon-nav-link">
                             <i class="fas fa-users"></i>
                             <span>{{ __('app.nav.my_teams') }}</span>
@@ -2684,7 +2686,7 @@
                             <i class="fas fa-chevron-down"></i>
                         </a>
                         <ul class="absolute right-0 top-full mt-2 hidden bg-[#0d1b2a] border border-[rgba(0,229,255,0.2)] rounded-lg py-2 min-w-[200px] z-[10000] shadow-lg" id="userMenuDropdownMenu">
-                            @if(Auth::user()->user_role === 'participant' || Auth::user()->user_role === 'player')
+                            @if(Auth::user()->user_role === 'participant')
                             <li class="list-none">
                                 <a href="{{ route('teams.index') }}" class="gameon-dropdown-item">
                                     <i class="fas fa-users"></i>
@@ -2717,6 +2719,14 @@
                                     <span>{{ __('app.profile.manage_users') }}</span>
                                 </a>
                             </li>
+                            @if(Auth::user()->isSuperAdmin())
+                            <li class="list-none">
+                                <a href="{{ route('admin.admins.index') }}" class="gameon-dropdown-item">
+                                    <i class="fas fa-user-shield"></i>
+                                    <span>Quản lý Admin</span>
+                                </a>
+                            </li>
+                            @endif
                             @endif
                             <li class="list-none">
                                 <hr class="border-t border-[rgba(0,229,255,0.2)] my-2">
@@ -2809,7 +2819,7 @@
                         <span>{{ __('app.nav.tournaments') }}</span>
                     </a>
                     @endif
-                    @if((Auth::user()->user_role === 'participant' || Auth::user()->user_role === 'player') && Route::has('teams.index'))
+                    @if(Auth::user()->user_role === 'participant' && Route::has('teams.index'))
                     <a href="{{ route('teams.index') }}" class="mobile-menu-item {{ Request::is('teams*') ? 'active' : '' }}">
                         <i class="fas fa-users"></i>
                         <span>{{ __('app.nav.my_teams') }}</span>
@@ -2861,6 +2871,12 @@
                         <i class="fas fa-users"></i>
                         <span>{{ __('app.profile.manage_users') }}</span>
                     </a>
+                    @if(Auth::user()->isSuperAdmin())
+                    <a href="{{ route('admin.admins.index') }}" class="mobile-menu-item">
+                        <i class="fas fa-user-shield"></i>
+                        <span>Quản lý Admin</span>
+                    </a>
+                    @endif
                 </nav>
                 @endif
                 
@@ -2899,12 +2915,6 @@
                     <a href="{{ route('tournaments.index') }}" class="mobile-menu-item {{ Request::is('tournaments*') ? 'active' : '' }}">
                         <i class="fas fa-trophy"></i>
                         <span>{{ __('app.nav.tournaments') }}</span>
-                    </a>
-                    @endif
-                    @if(Route::has('players.index'))
-                    <a href="{{ route('players.index') }}" class="mobile-menu-item {{ Request::is('players*') ? 'active' : '' }}">
-                        <i class="fas fa-gamepad"></i>
-                        <span>{{ __('app.nav.players') }}</span>
                     </a>
                     @endif
                 </nav>
@@ -3026,11 +3036,6 @@
                             <li style="margin-bottom: 12px;">
                                 <a href="{{ route('teams.index') }}" style="color: #94a3b8; text-decoration: none; font-size: 14px; transition: color 0.3s ease; display: flex; align-items: center; gap: 8px;">
                                     <span style="color: #00E5FF;">›</span> {{ __('app.nav.my_teams') }}
-                                </a>
-                            </li>
-                            <li style="margin-bottom: 12px;">
-                                <a href="{{ route('players.index') }}" style="color: #94a3b8; text-decoration: none; font-size: 14px; transition: color 0.3s ease; display: flex; align-items: center; gap: 8px;">
-                                    <span style="color: #00E5FF;">›</span> {{ __('app.nav.players') }}
                                 </a>
                             </li>
                             <li style="margin-bottom: 12px;">
@@ -3192,12 +3197,6 @@
                                     <a href="{{ route('teams.index') }}" class="text-white hover:text-neon transition-colors flex items-center gap-2">
                                         <i class="fas fa-angle-right text-xs text-slate-400"></i>
                                         {{ __('app.nav.my_teams') }}
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="{{ route('players.index') }}" class="text-white hover:text-neon transition-colors flex items-center gap-2">
-                                        <i class="fas fa-angle-right text-xs text-slate-400"></i>
-                                        {{ __('app.nav.players') }}
                                     </a>
                                 </li>
                                 <li>

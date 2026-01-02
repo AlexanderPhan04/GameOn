@@ -63,9 +63,7 @@ class EsportsUser extends Authenticatable
     // Constants cho Role (tương ứng UsersRoles trong C#)
     const ROLE_ADMIN = 'Admin';
 
-    const ROLE_PLAYER = 'Player';
-
-    const ROLE_VIEWER = 'Viewer';
+    const ROLE_PARTICIPANT = 'Participant';
 
     // Constants cho Status (tương ứng UsersStatus trong C#)
     const STATUS_ACTIVE = 'Active';
@@ -113,19 +111,11 @@ class EsportsUser extends Authenticatable
     }
 
     /**
-     * Check if user is player
+     * Check if user is participant
      */
-    public function isPlayer(): bool
+    public function isParticipant(): bool
     {
-        return $this->role === self::ROLE_PLAYER;
-    }
-
-    /**
-     * Check if user is viewer
-     */
-    public function isViewer(): bool
-    {
-        return $this->role === self::ROLE_VIEWER;
+        return $this->role === self::ROLE_PARTICIPANT;
     }
 
     /**
@@ -176,8 +166,7 @@ class EsportsUser extends Authenticatable
     {
         return match ($this->role) {
             self::ROLE_ADMIN => 'Quản trị viên',
-            self::ROLE_PLAYER => 'Người chơi',
-            self::ROLE_VIEWER => 'Người xem',
+            self::ROLE_PARTICIPANT => 'Người tham gia',
             default => 'Không xác định'
         };
     }

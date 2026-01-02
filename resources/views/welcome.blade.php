@@ -398,7 +398,7 @@
                 @endforeach
             </div>
             <div class="text-center mt-10">
-                <a href="{{ route('players.index') }}" class="btn-primary-custom font-semibold py-3 px-8 rounded-full font-display inline-block">
+                <a href="{{ route('search.view') }}" class="btn-primary-custom font-semibold py-3 px-8 rounded-full font-display inline-block">
                     <i class="fas fa-users mr-2"></i>{{ __('app.home.explore_gamers') }}
                 </a>
             </div>

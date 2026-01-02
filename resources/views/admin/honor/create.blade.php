@@ -229,7 +229,7 @@
                             <label class="form-label">{{ __('app.honor.col_target') }} <span class="required">*</span></label>
                             <select name="target_type" class="form-select" required>
                                 <option value="">{{ __('app.common.select') }}</option>
-                                <option value="player" {{ old('target_type') === 'player' ? 'selected' : '' }}>Player</option>
+                                <option value="user" {{ old('target_type') === 'user' ? 'selected' : '' }}>User</option>
                                 <option value="team" {{ old('target_type') === 'team' ? 'selected' : '' }}>Team</option>
                                 <option value="tournament" {{ old('target_type') === 'tournament' ? 'selected' : '' }}>Tournament</option>
                                 <option value="game" {{ old('target_type') === 'game' ? 'selected' : '' }}>Game</option>
@@ -289,14 +289,10 @@
                 </div>
                 <div class="form-card-body">
                     <div class="checkbox-group">
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
                             <label class="checkbox-item">
-                                <input type="checkbox" name="allow_viewer_vote" value="1" class="checkbox-input" {{ old('allow_viewer_vote', true) ? 'checked' : '' }}>
-                                <span class="checkbox-label"><strong>Viewer</strong> - {{ __('app.auth.viewer') }}</span>
-                            </label>
-                            <label class="checkbox-item">
-                                <input type="checkbox" name="allow_player_vote" value="1" class="checkbox-input" {{ old('allow_player_vote', true) ? 'checked' : '' }}>
-                                <span class="checkbox-label"><strong>Player</strong> - {{ __('app.auth.player') }}</span>
+                                <input type="checkbox" name="allow_participant_vote" value="1" class="checkbox-input" {{ old('allow_participant_vote', true) ? 'checked' : '' }}>
+                                <span class="checkbox-label"><strong>Participant</strong> - Người tham gia</span>
                             </label>
                             <label class="checkbox-item">
                                 <input type="checkbox" name="allow_admin_vote" value="1" class="checkbox-input" {{ old('allow_admin_vote', true) ? 'checked' : '' }}>
@@ -314,14 +310,10 @@
                     <h3 class="card-title">{{ __('app.common.weights_by_role') }}</h3>
                 </div>
                 <div class="form-card-body">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="form-group">
-                            <label class="form-label">Viewer weight <span class="required">*</span></label>
-                            <input type="number" name="viewer_weight" class="weight-input" value="{{ old('viewer_weight', 1.0) }}" step="0.1" min="0.1" max="10" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Player weight <span class="required">*</span></label>
-                            <input type="number" name="player_weight" class="weight-input" value="{{ old('player_weight', 1.5) }}" step="0.1" min="0.1" max="10" required>
+                            <label class="form-label">Participant weight <span class="required">*</span></label>
+                            <input type="number" name="participant_weight" class="weight-input" value="{{ old('participant_weight', 1.0) }}" step="0.1" min="0.1" max="10" required>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Admin weight <span class="required">*</span></label>

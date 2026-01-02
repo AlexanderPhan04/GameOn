@@ -69,12 +69,6 @@ class HomeController extends Controller
             case 'participant':
                 // Participant không có dashboard, chuyển đến posts
                 return redirect('/posts');
-            case 'player':
-                // Legacy: chuyển đến posts
-                return redirect('/posts');
-            case 'viewer':
-                // Legacy: chuyển đến posts
-                return redirect('/posts');
             default:
                 return redirect('/posts');
         }
@@ -106,8 +100,7 @@ class HomeController extends Controller
         $stats = [
             'total_users' => User::count(),
             'total_admins' => User::where('user_role', 'admin')->count(),
-            'total_players' => User::where('user_role', 'player')->count(),
-            'total_viewers' => User::where('user_role', 'viewer')->count(),
+            'total_participants' => User::where('user_role', 'participant')->count(),
             'total_teams' => Schema::hasTable('teams') ? Team::count() : 0,
             'active_teams' => Schema::hasTable('teams') ? Team::where('status', 'active')->count() : 0,
             'total_games' => $totalGames,
@@ -146,7 +139,7 @@ class HomeController extends Controller
     {
         $stats = [
             'total_users' => User::count(),
-            'total_players' => User::where('user_role', 'player')->count(),
+            'total_participants' => User::where('user_role', 'participant')->count(),
             'total_teams' => Schema::hasTable('teams') ? Team::count() : 0,
             'active_teams' => Schema::hasTable('teams') ? Team::where('status', 'active')->count() : 0,
             'recent_users' => User::with('profile')

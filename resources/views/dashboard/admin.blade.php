@@ -84,9 +84,9 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <h6 class="text-white-50 text-uppercase mb-2">
-                                <i class="fas fa-gamepad me-2"></i>{{ __('app.dashboard.players') }}
+                                <i class="fas fa-users me-2"></i>{{ __('app.dashboard.participants') }}
                             </h6>
-                            <h2 class="mb-0 fw-bold">{{ number_format($stats['total_players']) }}</h2>
+                            <h2 class="mb-0 fw-bold">{{ number_format($stats['total_participants']) }}</h2>
                             <div class="mt-2">
                                 <small class="text-white-50">
                                     <i class="fas fa-trophy me-1"></i>{{ __('app.dashboard.competing') }}
@@ -95,13 +95,13 @@
                         </div>
                         <div class="text-end">
                             <div class="bg-white bg-opacity-20 rounded-circle p-3" style="width: 60px; height: 60px;">
-                                <i class="fas fa-gamepad fa-lg"></i>
+                                <i class="fas fa-users fa-lg"></i>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="card-footer bg-white bg-opacity-10 border-0">
-                    <a href="{{ route('admin.users.index') }}?role=player" class="text-white text-decoration-none">
+                    <a href="{{ route('admin.users.index') }}?role=participant" class="text-white text-decoration-none">
                         <small>{{ __('app.dashboard.view_details') }} <i class="fas fa-arrow-right ms-1"></i></small>
                     </a>
                 </div>
@@ -201,15 +201,15 @@
                             <h6 class="mb-1 fw-bold">{{ $user->display_name }}</h6>
                             <div class="d-flex align-items-center">
                                 <small class="text-muted me-3">{{ $user->email }}</small>
-                                <span class="badge {{ $user->user_role === 'super_admin' ? 'bg-dark' : ($user->user_role === 'admin' ? 'bg-danger' : ($user->user_role === 'manager' ? 'bg-warning' : ($user->user_role === 'player' ? 'bg-success' : 'bg-info'))) }}">
+                                <span class="badge {{ $user->user_role === 'super_admin' ? 'bg-dark' : ($user->user_role === 'admin' ? 'bg-danger' : ($user->user_role === 'participant' ? 'bg-success' : 'bg-info')) }}">
                                     @if($user->user_role === 'super_admin')
                                     <i class="fas fa-crown me-1"></i>Super Admin
                                     @elseif($user->user_role === 'admin')
                                     <i class="fas fa-user-shield me-1"></i>Admin
-                                    @elseif($user->user_role === 'player')
-                                    <i class="fas fa-gamepad me-1"></i>Player
+                                    @elseif($user->user_role === 'participant')
+                                    <i class="fas fa-gamepad me-1"></i>Participant
                                     @else
-                                    <i class="fas fa-eye me-1"></i>{{ ucfirst($user->user_role) }}
+                                    <i class="fas fa-user me-1"></i>{{ ucfirst($user->user_role) }}
                                     @endif
                                 </span>
                             </div>
@@ -353,9 +353,9 @@
                         </div>
                         <div class="col-md-3 text-center mb-3">
                             <div class="p-3 rounded-3" style="background: linear-gradient(135deg, rgba(250, 112, 154, 0.1), rgba(254, 225, 64, 0.1));">
-                                <i class="fas fa-gamepad fa-2x text-success mb-2"></i>
-                                <h4 class="fw-bold text-success mb-1">{{ $stats['total_players'] ?? 0 }}</h4>
-                                <p class="text-muted mb-0">{{ __('app.dashboard.active_players') }}</p>
+                                <i class="fas fa-users fa-2x text-success mb-2"></i>
+                                <h4 class="fw-bold text-success mb-1">{{ $stats['total_participants'] ?? 0 }}</h4>
+                                <p class="text-muted mb-0">{{ __('app.dashboard.active_participants') }}</p>
                             </div>
                         </div>
                     </div>

@@ -65,8 +65,7 @@
     }
     .role-badge.super-admin { background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
     .role-badge.admin { background: rgba(245, 158, 11, 0.2); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); }
-    .role-badge.player { background: rgba(99, 102, 241, 0.2); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.3); }
-    .role-badge.viewer { background: rgba(100, 116, 139, 0.2); color: #94a3b8; border: 1px solid rgba(100, 116, 139, 0.3); }
+    .role-badge.participant { background: rgba(99, 102, 241, 0.2); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.3); }
 
     /* Buttons */
     .btn-neon {
@@ -234,16 +233,14 @@
                     <div class="role-badge super-admin"><i class="fas fa-crown"></i><span>Super Administrator</span></div>
                     @elseif($user->user_role === 'admin')
                     <div class="role-badge admin"><i class="fas fa-shield-alt"></i><span>Administrator</span></div>
-                    @elseif($user->user_role === 'participant' || $user->user_role === 'player')
-                    <div class="role-badge player">
+                    @else
+                    <div class="role-badge participant">
                         <i class="fas fa-gamepad"></i>
                         <span>Participant</span>
                         @if($user->is_verified_gamer)
                         <i class="fas fa-check-circle text-cyan-400 ml-1" title="Verified Gamer"></i>
                         @endif
                     </div>
-                    @else
-                    <div class="role-badge viewer"><i class="fas fa-user"></i><span>Participant</span></div>
                     @endif
                     
                     <!-- Action Buttons -->
@@ -254,11 +251,6 @@
                         <a href="{{ route('profile.change-password') }}" class="btn-neon btn-neon-secondary">
                             <i class="fas fa-key"></i><span>{{ __('app.profile.change_password') }}</span>
                         </a>
-                        @if($user->canUpgradeToPlayer())
-                        <a href="{{ route('player.upgrade') }}" class="btn-neon btn-neon-success">
-                            <i class="fas fa-gamepad"></i><span>{{ __('app.auth.become_player') }}</span>
-                        </a>
-                        @endif
                     </div>
                 </div>
             </div>
@@ -321,7 +313,7 @@
             </div>
         </div>
 
-        @if($user->user_role === 'participant' || $user->user_role === 'player')
+        @if($user->user_role === 'participant')
         <!-- Teams Card -->
         <div class="profile-card">
             <div class="profile-card-header">

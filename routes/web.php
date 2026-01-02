@@ -9,8 +9,6 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\HonorController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\MaintenanceController;
-use App\Http\Controllers\PlayerController;
-use App\Http\Controllers\PlayerUpgradeController;
 use App\Http\Controllers\PostsController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SearchController;
@@ -42,7 +40,6 @@ Route::post('/language/switch', [LanguageController::class, 'switch'])->name('la
 Route::get('/language/current', [LanguageController::class, 'current'])->name('language.current');
 
 Route::resource('tournaments', TournamentController::class);
-Route::resource('players', PlayerController::class);
 
 // Authentication routes - chuyển đổi từ EsportsManager
 Route::prefix('auth')->name('auth.')->group(function () {
@@ -102,8 +99,8 @@ Route::middleware(['auth.session'])->group(function () {
     // Admin dashboard routes
     Route::get('/admin/dashboard', [HomeController::class, 'dashboard'])->name('admin.dashboard');
 
-    // Teams routes - only for players and admins
-    Route::middleware(['check.player.role'])->group(function () {
+    // Teams routes - for participants and admins
+    Route::middleware(['check.participant.role'])->group(function () {
         Route::resource('teams', TeamController::class);
         Route::post('/teams/{team}/join', [TeamController::class, 'join'])->name('teams.join');
         Route::post('/teams/{team}/leave', [TeamController::class, 'leave'])->name('teams.leave');
@@ -122,12 +119,6 @@ Route::middleware(['auth.session', 'track.login'])->prefix('profile')->name('pro
     Route::put('/update-password', [ProfileController::class, 'updatePassword'])->name('update-password');
     Route::get('/search-users', [ProfileController::class, 'searchUsers'])->name('search-users');
     Route::get('/user/{id}', [ProfileController::class, 'showUser'])->name('show-user');
-});
-
-// Player upgrade routes - separate from profile routes
-Route::middleware(['auth.session', 'track.login'])->group(function () {
-    Route::get('/player/upgrade', [PlayerUpgradeController::class, 'show'])->name('player.upgrade');
-    Route::post('/player/upgrade', [PlayerUpgradeController::class, 'upgrade'])->name('player.upgrade.submit');
 });
 
 // Game Management Routes (Admin only)
@@ -303,5 +294,5 @@ Route::prefix('marketplace')->name('marketplace.')->group(function () {
     Route::post('/process-payment', [MarketplaceController::class, 'processPayment'])->name('processPayment')->middleware('auth.session');
     Route::get('/inventory', [MarketplaceController::class, 'inventory'])->name('inventory')->middleware('auth.session');
     Route::post('/inventory/{id}/equip', [MarketplaceController::class, 'equipItem'])->name('equipItem')->middleware('auth.session');
-    Route::post('/donate/{playerId}', [MarketplaceController::class, 'donate'])->name('donate')->middleware('auth.session');
+    Route::post('/donate/{userId}', [MarketplaceController::class, 'donate'])->name('donate')->middleware('auth.session');
 });

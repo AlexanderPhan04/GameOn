@@ -60,7 +60,7 @@ class TeamManagementController extends Controller
         }
 
         $teams = $query->paginate(15)->appends($request->query());
-        $games = Game::where('is_active', true)->get();
+        $games = Game::where('status', 'active')->get();
 
         return view('admin.teams.index', compact('teams', 'games'));
     }
@@ -161,10 +161,10 @@ class TeamManagementController extends Controller
             $csvData .= sprintf(
                 "%d,%s,%s,%s,%s,%d,%s,%s\n",
                 $team->id,
-                '"'.str_replace('"', '""', $team->name).'"',
-                '"'.str_replace('"', '""', $team->captain->name ?? 'N/A').'"',
+                '"' . str_replace('"', '""', $team->name) . '"',
+                '"' . str_replace('"', '""', $team->captain->name ?? 'N/A') . '"',
                 $team->captain->email ?? 'N/A',
-                '"'.str_replace('"', '""', $team->game->name ?? 'N/A').'"',
+                '"' . str_replace('"', '""', $team->game->name ?? 'N/A') . '"',
                 $team->members->count(),
                 $team->status,
                 $team->created_at->format('d/m/Y H:i')
@@ -173,7 +173,7 @@ class TeamManagementController extends Controller
 
         return Response::make($csvData, 200, [
             'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="teams_export_'.date('Y-m-d').'.csv"',
+            'Content-Disposition' => 'attachment; filename="teams_export_' . date('Y-m-d') . '.csv"',
         ]);
     }
 

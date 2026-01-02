@@ -31,14 +31,14 @@
                         <i class="fas fa-shield text-[8px]"></i>ADMIN
                     </span>
                     @break
-                    @case('player')
+                    @case('participant')
                     <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-gradient-to-r from-blue-500/20 to-indigo-500/20 text-blue-400 border border-blue-500/30">
-                        <i class="fas fa-gamepad text-[8px]"></i>PLAYER
+                        <i class="fas fa-gamepad text-[8px]"></i>PARTICIPANT
                     </span>
                     @break
                     @default
                     <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-gradient-to-r from-cyan-500/20 to-teal-500/20 text-cyan-400 border border-cyan-500/30">
-                        <i class="fas fa-eye text-[8px]"></i>VIEWER
+                        <i class="fas fa-user text-[8px]"></i>USER
                     </span>
                     @endswitch
                 </div>

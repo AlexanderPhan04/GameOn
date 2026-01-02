@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
-class CheckPlayerRole
+class CheckParticipantRole
 {
     /**
      * Handle an incoming request.
@@ -22,8 +22,8 @@ class CheckPlayerRole
 
         $user = Auth::user();
 
-        // Allow admin, participant (merged player/viewer) roles to access team features
-        if (!in_array($user->user_role, ['participant', 'player', 'admin', 'super_admin'])) {
+        // Allow admin, participant roles to access team features
+        if (!in_array($user->user_role, ['participant', 'admin', 'super_admin'])) {
             return redirect()->route('home')->with('error', 'Bạn cần đăng nhập để truy cập tính năng này.');
         }
 

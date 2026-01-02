@@ -620,8 +620,6 @@ class AuthController extends Controller
             'super_admin' => '/dashboard',
             'admin' => '/dashboard',
             'participant' => '/posts',  // Participant -> bảng tin posts
-            'player' => '/posts',       // Legacy: chuyển đến posts
-            'viewer' => '/posts',       // Legacy: chuyển đến posts
             default => '/posts'         // Default -> posts
         };
     }

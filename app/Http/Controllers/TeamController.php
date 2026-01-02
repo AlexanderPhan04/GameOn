@@ -21,12 +21,12 @@ class TeamController extends Controller
         // Get teams where user is captain
         $teamsAsCaptain = Team::with(['captain', 'members', 'game'])
             ->where('captain_id', Auth::id())
-            ->where('is_active', true)
+            ->where('status', 'active')
             ->get();
 
         // Get all teams for display
         $allTeams = Team::with(['captain', 'members', 'game'])
-            ->where('is_active', true)
+            ->where('status', 'active')
             ->paginate(12);
 
         // Merge teams as captain and all teams for pagination compatibility
@@ -40,7 +40,7 @@ class TeamController extends Controller
      */
     public function create()
     {
-        $games = \App\Models\Game::where('is_active', true)->get();
+        $games = \App\Models\Game::where('status', 'active')->get();
 
         return view('teams.create', compact('games'));
     }
@@ -71,7 +71,6 @@ class TeamController extends Controller
             'created_by' => Auth::id(),
             'captain_id' => Auth::id(),
             'max_members' => $request->max_members ?? 10, // Default max members
-            'is_active' => true,
             'status' => 'active',
         ]);
 
@@ -114,7 +113,7 @@ class TeamController extends Controller
         $this->authorize('update', $team);
 
         $request->validate([
-            'name' => 'required|string|max:255|unique:teams,name,'.$team->id,
+            'name' => 'required|string|max:255|unique:teams,name,' . $team->id,
             'description' => 'nullable|string|max:1000',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);

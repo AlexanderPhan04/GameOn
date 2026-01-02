@@ -137,7 +137,7 @@
         color: #f87171;
         border: 1px solid rgba(239, 68, 68, 0.3);
     }
-    .role-badge.player {
+    .role-badge.participant {
         background: linear-gradient(135deg, rgba(0, 229, 255, 0.2) 0%, rgba(0, 153, 204, 0.1) 100%);
         color: #00E5FF;
         border: 1px solid rgba(0, 229, 255, 0.3);
@@ -428,9 +428,9 @@
                         <div class="role-badge admin">
                             <i class="fas fa-shield-alt"></i> Admin
                         </div>
-                        @elseif($user->user_role === 'player' || $user->user_role === 'participant')
-                        <div class="role-badge player">
-                            <i class="fas fa-gamepad"></i> Player
+                        @elseif($user->user_role === 'participant')
+                        <div class="role-badge participant">
+                            <i class="fas fa-gamepad"></i> Participant
                         </div>
                         @else
                         <div class="role-badge user">

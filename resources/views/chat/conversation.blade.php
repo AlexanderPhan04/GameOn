@@ -717,6 +717,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 fileInput.value = '';
                 filePreview.style.display = 'none';
                 previewImage.src = '';
+                
+                // Update lastMessageId for polling
+                if (typeof lastMessageId !== 'undefined') {
+                    lastMessageId = Math.max(lastMessageId, m.id);
+                }
             } else if (data.error) {
                 console.error('Send error:', data.error);
                 alert(data.error);
@@ -745,6 +750,87 @@ document.addEventListener('DOMContentLoaded', function() {
     
     document.getElementById('leave-btn').onclick = leaveHandler;
     document.getElementById('leave-btn-menu').onclick = leaveHandler;
+    
+    // Real-time polling for new messages
+    let lastMessageId = {{ $messages->last()?->id ?? 0 }};
+    const currentUserId = {{ Auth::id() }};
+    
+    async function fetchNewMessages() {
+        try {
+            const res = await fetch(`/chat/conversation/${convId}/messages?after_id=${lastMessageId}`);
+            const data = await res.json();
+            
+            if (data.data && data.data.length > 0) {
+                data.data.forEach(m => {
+                    // Skip if this message is from current user (already added when sent)
+                    if (m.sender.id === currentUserId) {
+                        lastMessageId = Math.max(lastMessageId, m.id);
+                        return;
+                    }
+                    
+                    // Check if message already exists
+                    if (document.querySelector(`[data-message-id="${m.id}"]`)) {
+                        lastMessageId = Math.max(lastMessageId, m.id);
+                        return;
+                    }
+                    
+                    let attachmentHtml = '';
+                    if (m.attachment_url) {
+                        if (m.type === 'image') {
+                            attachmentHtml = `<div class="msg-attachment">
+                                <img src="${m.attachment_url}" alt="Hình ảnh" class="msg-image" onclick="window.open('${m.attachment_url}', '_blank')">
+                            </div>`;
+                        } else if (m.type === 'file') {
+                            attachmentHtml = `<div class="msg-attachment">
+                                <a href="${m.attachment_url}" target="_blank" class="msg-file">
+                                    <i class="fas fa-file"></i>
+                                    <span>${m.attachment_name || 'Tệp đính kèm'}</span>
+                                </a>
+                            </div>`;
+                        }
+                    }
+                    
+                    let textHtml = '';
+                    if (m.content) {
+                        const escaped = m.content.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>');
+                        textHtml = `<div class="msg-text">${escaped}</div>`;
+                    }
+                    
+                    const messageHtml = `
+                    <div class="message-item other" data-message-id="${m.id}">
+                        <div class="message-content">
+                            <img src="${m.sender.avatar}" alt="${m.sender.name}" class="msg-avatar">
+                            <div class="message-bubble">
+                                <div class="msg-sender">${m.sender.name}</div>
+                                ${attachmentHtml}
+                                ${textHtml}
+                                <div class="msg-time">${m.formatted_time}</div>
+                            </div>
+                        </div>
+                    </div>`;
+                    
+                    msgList.insertAdjacentHTML('beforeend', messageHtml);
+                    lastMessageId = Math.max(lastMessageId, m.id);
+                });
+                
+                // Scroll to bottom if user is near bottom
+                const isNearBottom = msgContainer.scrollHeight - msgContainer.scrollTop - msgContainer.clientHeight < 150;
+                if (isNearBottom) {
+                    msgContainer.scrollTop = msgContainer.scrollHeight;
+                }
+            }
+        } catch (err) {
+            console.error('Polling error:', err);
+        }
+    }
+    
+    // Poll every 3 seconds
+    const pollingInterval = setInterval(fetchNewMessages, 3000);
+    
+    // Clean up on page leave
+    window.addEventListener('beforeunload', () => {
+        clearInterval(pollingInterval);
+    });
 });
 </script>
 @endpush

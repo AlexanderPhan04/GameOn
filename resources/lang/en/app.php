@@ -244,6 +244,7 @@ return [
     'profile' => [
         'personal_info' => 'Personal Information',
         'my_teams' => 'My Teams',
+        'admin_area' => 'Admin Area',
         'manage_games' => 'Manage Games',
         'manage_tournaments' => 'Manage Tournaments',
         'manage_tournaments_description' => 'Create and manage professional esports tournaments',

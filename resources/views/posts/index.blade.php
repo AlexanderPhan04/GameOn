@@ -950,37 +950,52 @@
                 @endif
 
                 <!-- Shared Post -->
-                @if($post->shared_post_id && $post->sharedPost)
-                @php $sp = $post->sharedPost; $spAvatar = get_avatar_url($sp->user?->avatar); @endphp
-                <div class="shared-post">
-                    @if($sp->media && $sp->media->count())
-                        @php $spImages = $sp->media->where('type','image'); @endphp
-                        @if($spImages->count() == 1)
-                            <img src="{{ asset('storage/'.$spImages->first()->path) }}" class="post-media-single">
-                        @elseif($spImages->count() >= 2)
-                            <div class="post-media-grid cols-2">
-                                @foreach($spImages->take(4) as $i => $im)
-                                <div class="media-item">
-                                    <img src="{{ asset('storage/'.$im->path) }}">
-                                    @if($i == 3 && $spImages->count() > 4)
-                                    <div class="media-more-overlay">+{{ $spImages->count() - 4 }}</div>
-                                    @endif
+                @if($post->shared_post_id)
+                    @if($post->sharedPost)
+                    @php $sp = $post->sharedPost; $spAvatar = get_avatar_url($sp->user?->avatar); @endphp
+                    <div class="shared-post">
+                        @if($sp->media && $sp->media->count())
+                            @php $spImages = $sp->media->where('type','image'); @endphp
+                            @if($spImages->count() == 1)
+                                <img src="{{ asset('uploads/'.$spImages->first()->path) }}" class="post-media-single">
+                            @elseif($spImages->count() >= 2)
+                                <div class="post-media-grid cols-2">
+                                    @foreach($spImages->take(4) as $i => $im)
+                                    <div class="media-item">
+                                        <img src="{{ asset('uploads/'.$im->path) }}">
+                                        @if($i == 3 && $spImages->count() > 4)
+                                        <div class="media-more-overlay">+{{ $spImages->count() - 4 }}</div>
+                                        @endif
+                                    </div>
+                                    @endforeach
                                 </div>
-                                @endforeach
-                            </div>
+                            @endif
                         @endif
-                    @endif
-                    <div class="shared-author">
-                        <img src="{{ $spAvatar }}" class="shared-avatar">
-                        <div>
-                            <div class="shared-name">{{ $sp->user->name ?? 'User' }}</div>
-                            <div class="shared-time">{{ optional($sp->created_at)->diffForHumans() }}</div>
+                        <div class="shared-author">
+                            <img src="{{ $spAvatar }}" class="shared-avatar">
+                            <div>
+                                <div class="shared-name">{{ $sp->user->name ?? 'User' }}</div>
+                                <div class="shared-time">{{ optional($sp->created_at)->diffForHumans() }}</div>
+                            </div>
+                        </div>
+                        @if($sp->content)
+                        <div class="shared-content">{{ $sp->content }}</div>
+                        @endif
+                    </div>
+                    @else
+                    {{-- Original post was deleted --}}
+                    <div class="shared-post" style="background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3);">
+                        <div style="display: flex; align-items: center; gap: 0.75rem; padding: 1rem;">
+                            <div style="width: 40px; height: 40px; background: rgba(239,68,68,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-exclamation-triangle" style="color: #ef4444; font-size: 1rem;"></i>
+                            </div>
+                            <div>
+                                <div style="color: #ef4444; font-weight: 600; font-size: 0.9rem;">Nội dung không khả dụng</div>
+                                <div style="color: #94a3b8; font-size: 0.8rem;">Bài viết gốc đã bị xóa hoặc không còn tồn tại.</div>
+                            </div>
                         </div>
                     </div>
-                    @if($sp->content)
-                    <div class="shared-content">{{ $sp->content }}</div>
                     @endif
-                </div>
                 @endif
 
                 <!-- Post Media -->
@@ -991,18 +1006,18 @@
                         $imgCount = $images->count();
                     @endphp
                     @if($imgCount == 1)
-                        <img src="{{ asset('storage/'.$images->first()->path) }}" class="post-media-single">
+                        <img src="{{ asset('uploads/'.$images->first()->path) }}" class="post-media-single">
                     @elseif($imgCount == 2)
                         <div class="post-media-grid cols-2">
                             @foreach($images as $im)
-                            <div class="media-item"><img src="{{ asset('storage/'.$im->path) }}"></div>
+                            <div class="media-item"><img src="{{ asset('uploads/'.$im->path) }}"></div>
                             @endforeach
                         </div>
                     @elseif($imgCount >= 3)
                         <div class="post-media-grid cols-3">
                             @foreach($images->take(5) as $i => $im)
                             <div class="media-item">
-                                <img src="{{ asset('storage/'.$im->path) }}">
+                                <img src="{{ asset('uploads/'.$im->path) }}">
                                 @if($i == 4 && $imgCount > 5)
                                 <div class="media-more-overlay">+{{ $imgCount - 5 }}</div>
                                 @endif
@@ -1011,7 +1026,7 @@
                         </div>
                     @endif
                     @foreach($videos as $v)
-                        <video controls class="post-media-single"><source src="{{ asset('storage/'.$v->path) }}"></video>
+                        <video controls class="post-media-single"><source src="{{ asset('uploads/'.$v->path) }}"></video>
                     @endforeach
                 @endif
 
@@ -1078,27 +1093,29 @@
                         <span>Bình luận</span>
                     </button>
 
-                    <form method="POST" action="{{ route('posts.store') }}" style="margin:0">
-                        @csrf
-                        <input type="hidden" name="shared_post_id" value="{{ $post->id }}">
-                        <button type="submit" class="action-btn" style="width:100%">
-                            <i class="far fa-share-square"></i>
-                            <span>Chia sẻ</span>
-                        </button>
-                    </form>
+                    <button type="button" class="action-btn" onclick="openShareModal({{ $post->id }})">
+                        <i class="far fa-share-square"></i>
+                        <span>Chia sẻ</span>
+                    </button>
                 </div>
 
                 <!-- Comments Section -->
                 <div class="comments-section" id="comments-{{ $post->id }}">
-                    <form method="POST" action="{{ route('posts.comment',$post) }}" class="comment-form">
+                    <form method="POST" action="{{ route('posts.comment',$post) }}" class="comment-form" data-post-id="{{ $post->id }}">
                         @csrf
+                        <input type="hidden" name="parent_id" value="" class="reply-parent-id">
+                        <div class="reply-indicator" style="display:none; padding: 0.5rem; background: rgba(0,229,255,0.1); border-radius: 8px 8px 0 0; font-size: 0.85rem; color: #00E5FF;">
+                            <span class="reply-to-text"></span>
+                            <button type="button" class="cancel-reply" style="background:none;border:none;color:#ef4444;cursor:pointer;margin-left:0.5rem;"><i class="fas fa-times"></i></button>
+                        </div>
                         <input name="content" class="comment-input" placeholder="{{ __('app.feed.write_comment') }}">
                         <button type="submit" class="comment-submit">Gửi</button>
                     </form>
                     
-                    @foreach($post->comments as $c)
-                    <div class="comment-item">
-                        <div class="comment-avatar"></div>
+                    @foreach($post->comments->whereNull('parent_id') as $c)
+                    @php $cAvatar = get_avatar_url($c->user?->avatar); @endphp
+                    <div class="comment-item" id="comment-{{ $c->id }}">
+                        <div class="comment-avatar"><img src="{{ $cAvatar }}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;"></div>
                         <div style="flex:1">
                             <div class="comment-bubble">
                                 <div class="comment-author">{{ $c->user->name ?? 'User' }}</div>
@@ -1113,8 +1130,38 @@
                                       data-reaction="{{ $myCReaction ?? '' }}">
                                     {{ $myCReaction ? (['like'=>'Thích','love'=>'Yêu thích','haha'=>'Haha','wow'=>'Wow','sad'=>'Buồn','angry'=>'Phẫn nộ'][$myCReaction] ?? 'Thích') : 'Thích' }}
                                 </span>
-                                <span class="comment-action">Trả lời</span>
+                                <span class="comment-action reply-btn" data-comment-id="{{ $c->id }}" data-comment-author="{{ $c->user->name ?? 'User' }}" data-post-id="{{ $post->id }}">Trả lời</span>
                             </div>
+                            
+                            {{-- Show replies --}}
+                            @if($c->replies && $c->replies->count() > 0)
+                            <div class="replies-container" style="margin-top: 0.75rem; margin-left: 1rem; border-left: 2px solid rgba(0,229,255,0.2); padding-left: 0.75rem;">
+                                @foreach($c->replies as $reply)
+                                @php $myReplyReaction = auth()->check() ? optional($reply->reactions->firstWhere('user_id', auth()->id()))->type : null; @endphp
+                                @php $replyAvatar = get_avatar_url($reply->user?->avatar); @endphp
+                                <div class="comment-item reply-item" style="margin-bottom: 0.5rem;">
+                                    <div class="comment-avatar" style="width:28px;height:28px;"><img src="{{ $replyAvatar }}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;"></div>
+                                    <div style="flex:1">
+                                        <div class="comment-bubble" style="padding: 0.5rem 0.75rem;">
+                                            <div class="comment-author" style="font-size:0.8rem;">{{ $reply->user->name ?? 'User' }}</div>
+                                            <div class="comment-text" style="font-size:0.85rem;"><span style="color: #00E5FF; font-weight: 500; margin-right: 4px;">&#64;{{ $c->user->name ?? 'User' }}</span>{{ $reply->content }}</div>
+                                        </div>
+                                        <div class="comment-actions" style="gap:0.5rem;">
+                                            <span class="comment-time" style="font-size:0.7rem;">{{ $reply->created_at->diffForHumans() }}</span>
+                                            <span class="comment-action {{ $myReplyReaction ? 'active' : '' }}"
+                                                  data-react-endpoint="{{ route('comments.react', $reply) }}"
+                                                  data-comment-id="{{ $reply->id }}"
+                                                  data-reaction="{{ $myReplyReaction ?? '' }}"
+                                                  style="font-size:0.75rem;">
+                                                {{ $myReplyReaction ? (['like'=>'Thích','love'=>'Yêu thích','haha'=>'Haha','wow'=>'Wow','sad'=>'Buồn','angry'=>'Phẫn nộ'][$myReplyReaction] ?? 'Thích') : 'Thích' }}
+                                            </span>
+                                            <span class="comment-action reply-btn" data-comment-id="{{ $c->id }}" data-comment-author="{{ $reply->user->name ?? 'User' }}" data-post-id="{{ $post->id }}" style="font-size:0.75rem;">Trả lời</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                @endforeach
+                            </div>
+                            @endif
                         </div>
                     </div>
                     @endforeach
@@ -1158,7 +1205,7 @@
                     <div class="toolbar-right">
                         <label class="toolbar-btn green" title="Ảnh/Video">
                             <i class="fas fa-photo-video"></i>
-                            <input type="file" name="files[]" multiple style="display:none" id="composerFiles">
+                            <input type="file" name="files[]" multiple accept="image/*,video/*" style="display:none" id="composerFiles">
                         </label>
                         <button type="button" class="toolbar-btn blue" title="Gắn thẻ"><i class="fas fa-user-tag"></i></button>
                         <button type="button" class="toolbar-btn yellow" title="Cảm xúc"><i class="fas fa-smile"></i></button>
@@ -1180,13 +1227,50 @@
 <div class="modal-overlay" id="editModal{{ $post->id }}">
     <div class="modal-content" onclick="event.stopPropagation()">
         <div class="modal-header">
-            <h3 class="modal-title">Chỉnh sửa bài viết</h3>
+            <h3 class="modal-title">Chỉnh sửa bài viết{{ $post->shared_post_id ? ' chia sẻ' : '' }}</h3>
             <button class="modal-close" onclick="closeEditModal({{ $post->id }})"><i class="fas fa-times"></i></button>
         </div>
-        <form method="POST" action="{{ route('posts.update',$post) }}">
+        <form method="POST" action="{{ route('posts.update',$post) }}" enctype="multipart/form-data">
             @csrf @method('PUT')
-            <div class="modal-body">
-                <textarea class="composer-textarea" name="content" rows="5">{{ $post->content }}</textarea>
+            <div class="modal-body" style="padding: 1.25rem; max-height: 60vh; overflow-y: auto;">
+                <textarea class="composer-textarea" name="content" rows="4" style="width: 100%; min-height: 100px; background: rgba(0,0,85,0.3); border: 1px solid rgba(0,229,255,0.2); border-radius: 8px; padding: 1rem; color: #fff; font-family: 'Inter', sans-serif; font-size: 1rem; resize: vertical; box-sizing: border-box;" placeholder="{{ $post->shared_post_id ? 'Nhập nội dung chia sẻ...' : 'Nhập nội dung bài viết...' }}">{{ $post->content }}</textarea>
+                
+                @if(!$post->shared_post_id)
+                {{-- Existing Media - only for non-shared posts --}}
+                @if($post->media->count() > 0)
+                <div style="margin-top: 1rem;">
+                    <label style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 0.5rem; display: block;">Ảnh/Video hiện tại:</label>
+                    <div class="edit-media-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 0.75rem;">
+                        @foreach($post->media as $media)
+                        <div class="edit-media-item" style="position: relative; border-radius: 8px; overflow: hidden; aspect-ratio: 1; background: rgba(0,0,85,0.3);">
+                            @if($media->type === 'video')
+                            <video src="{{ asset('uploads/' . $media->path) }}" style="width: 100%; height: 100%; object-fit: cover;"></video>
+                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #fff; font-size: 1.5rem;"><i class="fas fa-play-circle"></i></div>
+                            @else
+                            <img src="{{ asset('uploads/' . $media->path) }}" style="width: 100%; height: 100%; object-fit: cover;" alt="">
+                            @endif
+                            <label style="position: absolute; top: 4px; right: 4px; background: rgba(239,68,68,0.9); color: #fff; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.7rem;">
+                                <input type="checkbox" name="delete_media[]" value="{{ $media->id }}" style="display: none;" onchange="this.parentElement.style.background = this.checked ? '#ef4444' : 'rgba(239,68,68,0.9)'; this.parentElement.querySelector('i').className = this.checked ? 'fas fa-check' : 'fas fa-times';">
+                                <i class="fas fa-times"></i>
+                            </label>
+                        </div>
+                        @endforeach
+                    </div>
+                    <p style="color: #64748b; font-size: 0.75rem; margin-top: 0.5rem;"><i class="fas fa-info-circle"></i> Click vào <i class="fas fa-times"></i> để đánh dấu xóa ảnh</p>
+                </div>
+                @endif
+                
+                {{-- Add New Media - only for non-shared posts --}}
+                <div style="margin-top: 1rem;">
+                    <label style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 0.5rem; display: block;">Thêm ảnh/video mới:</label>
+                    <div class="edit-upload-area" style="border: 2px dashed rgba(0,229,255,0.3); border-radius: 8px; padding: 1rem; text-align: center; cursor: pointer; transition: all 0.3s;" onclick="document.getElementById('editFiles{{ $post->id }}').click()">
+                        <i class="fas fa-cloud-upload-alt" style="font-size: 1.5rem; color: #00E5FF; margin-bottom: 0.5rem;"></i>
+                        <p style="color: #94a3b8; font-size: 0.85rem; margin: 0;">Click để chọn ảnh/video</p>
+                        <input type="file" id="editFiles{{ $post->id }}" name="files[]" multiple accept="image/*,video/*" style="display: none;" onchange="previewEditFiles(this, {{ $post->id }})">
+                    </div>
+                    <div id="editPreview{{ $post->id }}" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 0.5rem; margin-top: 0.75rem;"></div>
+                </div>
+                @endif
             </div>
             <div class="modal-footer">
                 <button type="submit" class="submit-btn">Lưu thay đổi</button>
@@ -1196,6 +1280,40 @@
 </div>
 @endif
 @endforeach
+
+<!-- Share Post Modal -->
+<div class="modal-overlay" id="shareModal">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <h3 class="modal-title">Chia sẻ bài viết</h3>
+            <button class="modal-close" onclick="closeShareModal()"><i class="fas fa-times"></i></button>
+        </div>
+        <form method="POST" action="{{ route('posts.store') }}" id="shareForm">
+            @csrf
+            <input type="hidden" name="shared_post_id" id="sharePostId" value="">
+            <div class="modal-body" style="padding: 1.25rem;">
+                <textarea class="composer-textarea" name="content" rows="3" placeholder="Viết gì đó về bài viết này..." style="width: 100%; min-height: 80px; background: rgba(0,0,85,0.3); border: 1px solid rgba(0,229,255,0.2); border-radius: 8px; padding: 1rem; color: #fff; font-family: 'Inter', sans-serif; font-size: 1rem; resize: vertical; box-sizing: border-box;"></textarea>
+                
+                {{-- Preview of shared post --}}
+                <div id="sharePreview" style="margin-top: 1rem; padding: 1rem; background: rgba(0,0,85,0.2); border: 1px solid rgba(0,229,255,0.1); border-radius: 8px;">
+                    <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
+                        <div id="sharePreviewAvatar" style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #00E5FF 0%, #000055 100%);"></div>
+                        <div>
+                            <div id="sharePreviewName" style="color: #fff; font-weight: 600; font-size: 0.85rem;"></div>
+                            <div id="sharePreviewTime" style="color: #64748b; font-size: 0.75rem;"></div>
+                        </div>
+                    </div>
+                    <div id="sharePreviewContent" style="color: #94a3b8; font-size: 0.9rem;"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-share"></i> Chia sẻ ngay
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 
 <!-- Confirm Delete Modal -->
 <div class="modal-overlay" id="confirmModal">
@@ -1240,6 +1358,74 @@ function closeEditModal(id) {
 function closeConfirmModal() {
     document.getElementById('confirmModal').classList.remove('show');
     document.body.style.overflow = '';
+}
+
+// Share modal functions
+function openShareModal(postId) {
+    const postCard = document.querySelector(`[data-post-id="${postId}"]`) || document.querySelector(`.post-card:has([data-toggle-comments="${postId}"])`);
+    
+    // Get post info from the page
+    const postElement = document.querySelector(`#comments-${postId}`)?.closest('.post-card');
+    if (postElement) {
+        const authorName = postElement.querySelector('.author-name')?.textContent || 'User';
+        const postTime = postElement.querySelector('.post-time')?.textContent || '';
+        const postContent = postElement.querySelector('.post-text')?.textContent || '';
+        const avatarImg = postElement.querySelector('.post-avatar img');
+        
+        document.getElementById('sharePreviewName').textContent = authorName;
+        document.getElementById('sharePreviewTime').textContent = postTime;
+        document.getElementById('sharePreviewContent').textContent = postContent.length > 150 ? postContent.substring(0, 150) + '...' : postContent;
+        
+        if (avatarImg) {
+            document.getElementById('sharePreviewAvatar').innerHTML = `<img src="${avatarImg.src}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+        }
+    }
+    
+    document.getElementById('sharePostId').value = postId;
+    document.getElementById('shareModal').classList.add('show');
+    document.body.style.overflow = 'hidden';
+}
+function closeShareModal() {
+    document.getElementById('shareModal').classList.remove('show');
+    document.body.style.overflow = '';
+    document.getElementById('shareForm').reset();
+}
+
+// Preview files for edit modal
+function previewEditFiles(input, postId) {
+    const preview = document.getElementById('editPreview' + postId);
+    preview.innerHTML = '';
+    if (input.files) {
+        Array.from(input.files).forEach((file, index) => {
+            const div = document.createElement('div');
+            div.style.cssText = 'position: relative; border-radius: 6px; overflow: hidden; aspect-ratio: 1; background: rgba(0,0,85,0.3);';
+            
+            if (file.type.startsWith('video/')) {
+                const video = document.createElement('video');
+                video.src = URL.createObjectURL(file);
+                video.style.cssText = 'width: 100%; height: 100%; object-fit: cover;';
+                div.appendChild(video);
+                const icon = document.createElement('div');
+                icon.innerHTML = '<i class="fas fa-play-circle"></i>';
+                icon.style.cssText = 'position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #fff; font-size: 1.2rem;';
+                div.appendChild(icon);
+            } else {
+                const img = document.createElement('img');
+                img.src = URL.createObjectURL(file);
+                img.style.cssText = 'width: 100%; height: 100%; object-fit: cover;';
+                div.appendChild(img);
+            }
+            
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+            removeBtn.style.cssText = 'position: absolute; top: 2px; right: 2px; background: rgba(239,68,68,0.9); color: #fff; width: 20px; height: 20px; border-radius: 50%; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.6rem;';
+            removeBtn.onclick = function() { div.remove(); };
+            div.appendChild(removeBtn);
+            
+            preview.appendChild(div);
+        });
+    }
 }
 
 // Dropdown toggle
@@ -1407,6 +1593,177 @@ function refreshPostTimes() {
 }
 refreshPostTimes();
 setInterval(refreshPostTimes, 60000);
+
+// Reply comment functionality
+document.querySelectorAll('.reply-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const commentId = this.dataset.commentId;
+        const authorName = this.dataset.commentAuthor;
+        const postId = this.dataset.postId;
+        
+        const commentsSection = document.getElementById('comments-' + postId);
+        const form = commentsSection.querySelector('.comment-form');
+        const parentIdInput = form.querySelector('.reply-parent-id');
+        const replyIndicator = form.querySelector('.reply-indicator');
+        const replyToText = form.querySelector('.reply-to-text');
+        const commentInput = form.querySelector('.comment-input');
+        
+        // Set parent_id
+        parentIdInput.value = commentId;
+        
+        // Show reply indicator
+        replyToText.textContent = 'Đang trả lời ' + authorName;
+        replyIndicator.style.display = 'block';
+        
+        // Focus input
+        commentInput.focus();
+        commentInput.placeholder = 'Trả lời ' + authorName + '...';
+    });
+});
+
+// Cancel reply
+document.querySelectorAll('.cancel-reply').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const form = this.closest('.comment-form');
+        const parentIdInput = form.querySelector('.reply-parent-id');
+        const replyIndicator = form.querySelector('.reply-indicator');
+        const commentInput = form.querySelector('.comment-input');
+        
+        parentIdInput.value = '';
+        replyIndicator.style.display = 'none';
+        commentInput.placeholder = '{{ __("app.feed.write_comment") }}';
+    });
+});
+
+// AJAX Comment Submit
+document.querySelectorAll('.comment-form').forEach(form => {
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const postId = this.dataset.postId;
+        const input = this.querySelector('.comment-input');
+        const content = input.value.trim();
+        const parentIdInput = this.querySelector('.reply-parent-id');
+        const parentId = parentIdInput.value;
+        
+        if (!content) return;
+        
+        const submitBtn = this.querySelector('.comment-submit');
+        submitBtn.disabled = true;
+        submitBtn.textContent = '...';
+        
+        try {
+            const response = await fetch(this.action, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ content, parent_id: parentId || null })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                // Clear input
+                input.value = '';
+                parentIdInput.value = '';
+                this.querySelector('.reply-indicator').style.display = 'none';
+                input.placeholder = '{{ __("app.feed.write_comment") }}';
+                
+                // Create new comment element
+                const commentHtml = createCommentHtml(data.comment, parentId);
+                
+                if (parentId) {
+                    // Add reply to parent comment
+                    let repliesContainer = document.querySelector(`#comment-${parentId} .replies-container`);
+                    if (!repliesContainer) {
+                        const parentComment = document.querySelector(`#comment-${parentId}`);
+                        if (parentComment) {
+                            repliesContainer = document.createElement('div');
+                            repliesContainer.className = 'replies-container';
+                            repliesContainer.style.cssText = 'margin-top: 0.75rem; margin-left: 1rem; border-left: 2px solid rgba(0,229,255,0.2); padding-left: 0.75rem;';
+                            parentComment.querySelector('[style*="flex:1"]').appendChild(repliesContainer);
+                        }
+                    }
+                    if (repliesContainer) {
+                        repliesContainer.insertAdjacentHTML('beforeend', commentHtml);
+                    }
+                } else {
+                    // Add new comment at end
+                    const commentsSection = document.getElementById('comments-' + postId);
+                    commentsSection.insertAdjacentHTML('beforeend', commentHtml);
+                }
+                
+                // Update comment count
+                const countEl = document.querySelector(`#comments-count-${postId}`);
+                if (countEl) {
+                    countEl.textContent = parseInt(countEl.textContent) + 1;
+                }
+                
+                // Re-attach reply button listeners
+                attachReplyListeners();
+            }
+        } catch (error) {
+            console.error('Error posting comment:', error);
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Gửi';
+        }
+    });
+});
+
+function createCommentHtml(comment, parentId) {
+    const isReply = !!parentId;
+    const sizeStyle = isReply ? 'width:28px;height:28px;' : '';
+    const fontSize = isReply ? 'font-size:0.8rem;' : '';
+    const textSize = isReply ? 'font-size:0.85rem;' : '';
+    const actionSize = isReply ? 'font-size:0.75rem;' : '';
+    const gapStyle = isReply ? 'gap:0.5rem;' : '';
+    const paddingStyle = isReply ? 'padding: 0.5rem 0.75rem;' : '';
+    const avatarUrl = comment.user_avatar || '';
+    
+    return `
+        <div class="comment-item ${isReply ? 'reply-item' : ''}" id="comment-${comment.id}" style="${isReply ? 'margin-bottom: 0.5rem;' : ''}">
+            <div class="comment-avatar" style="${sizeStyle}"><img src="${avatarUrl}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;"></div>
+            <div style="flex:1">
+                <div class="comment-bubble" style="${paddingStyle}">
+                    <div class="comment-author" style="${fontSize}">${comment.user_name}</div>
+                    <div class="comment-text" style="${textSize}">${comment.content}</div>
+                </div>
+                <div class="comment-actions" style="${gapStyle}">
+                    <span class="comment-time" style="${isReply ? 'font-size:0.7rem;' : ''}">vừa xong</span>
+                    <span class="comment-action" style="${actionSize}">Thích</span>
+                    <span class="comment-action reply-btn" data-comment-id="${parentId || comment.id}" data-comment-author="${comment.user_name}" data-post-id="${comment.post_id}" style="${actionSize}">Trả lời</span>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function attachReplyListeners() {
+    document.querySelectorAll('.reply-btn').forEach(btn => {
+        btn.onclick = function() {
+            const commentId = this.dataset.commentId;
+            const authorName = this.dataset.commentAuthor;
+            const postId = this.dataset.postId;
+            
+            const commentsSection = document.getElementById('comments-' + postId);
+            const form = commentsSection.querySelector('.comment-form');
+            const parentIdInput = form.querySelector('.reply-parent-id');
+            const replyIndicator = form.querySelector('.reply-indicator');
+            const replyToText = form.querySelector('.reply-to-text');
+            const commentInput = form.querySelector('.comment-input');
+            
+            parentIdInput.value = commentId;
+            replyToText.textContent = 'Đang trả lời ' + authorName;
+            replyIndicator.style.display = 'block';
+            commentInput.focus();
+            commentInput.placeholder = 'Trả lời ' + authorName + '...';
+        };
+    });
+}
 </script>
 @endpush
 @endsection

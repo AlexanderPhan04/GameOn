@@ -27,7 +27,7 @@
                     <div class="col-md-6 col-lg-4 mb-4">
                         <div class="card h-100 shadow-sm border-warning">
                             @if($team->logo_url)
-                            <img src="{{ asset('storage/' . $team->logo_url) }}" class="card-img-top" style="height: 200px; object-fit: cover;">
+                            <img src="{{ asset('uploads/' . $team->logo_url) }}" class="card-img-top" style="height: 200px; object-fit: cover;">
                             @else
                             <div class="card-img-top bg-warning d-flex align-items-center justify-content-center" style="height: 200px;">
                                 <i class="fas fa-users fa-4x text-white"></i>
@@ -90,7 +90,7 @@
                     <div class="col-md-6 col-lg-4 mb-4">
                         <div class="card h-100 shadow-sm">
                             @if($team->logo_url)
-                            <img src="{{ asset('storage/' . $team->logo_url) }}" class="card-img-top" style="height: 200px; object-fit: cover;">
+                            <img src="{{ asset('uploads/' . $team->logo_url) }}" class="card-img-top" style="height: 200px; object-fit: cover;">
                             @else
                             <div class="card-img-top bg-primary d-flex align-items-center justify-content-center" style="height: 200px;">
                                 <i class="fas fa-users fa-4x text-white"></i>
@@ -156,7 +156,7 @@
                 <div class="col-md-6 col-lg-4 mb-4">
                     <div class="card h-100 shadow-sm">
                         @if($team->logo_url)
-                        <img src="{{ asset('storage/' . $team->logo_url) }}" class="card-img-top" style="height: 200px; object-fit: cover;">
+                        <img src="{{ asset('uploads/' . $team->logo_url) }}" class="card-img-top" style="height: 200px; object-fit: cover;">
                         @else
                         <div class="card-img-top bg-primary d-flex align-items-center justify-content-center" style="height: 200px;">
                             <i class="fas fa-users fa-4x text-white opacity-50"></i>

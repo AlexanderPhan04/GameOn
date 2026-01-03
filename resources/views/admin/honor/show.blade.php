@@ -216,7 +216,7 @@
                                                                 <img src="{{ get_avatar_url($item['item']->avatar) }}" 
                                                                      class="rounded-circle me-3" width="40" height="40" alt="Avatar">
                                                             @elseif($honorEvent->target_type === 'team')
-                                                                <img src="{{ $item['item']->logo ? asset('storage/' . $item['item']->logo) : asset('images/default-team.png') }}" 
+                                                                <img src="{{ $item['item']->logo ? asset('uploads/' . $item['item']->logo) : asset('images/default-team.png') }}" 
                                                                      class="rounded me-3" width="40" height="40" alt="Logo">
                                                             @elseif($honorEvent->target_type === 'tournament')
                                                                 <div class="bg-primary text-white rounded me-3 d-flex align-items-center justify-content-center" 
@@ -224,7 +224,7 @@
                                                                     <i class="fas fa-trophy"></i>
                                                                 </div>
                                                             @elseif($honorEvent->target_type === 'game')
-                                                                <img src="{{ $item['item']->image ? asset('storage/' . $item['item']->image) : asset('images/default-game.png') }}" 
+                                                                <img src="{{ $item['item']->image ? asset('uploads/' . $item['item']->image) : asset('images/default-game.png') }}" 
                                                                      class="rounded me-3" width="40" height="40" alt="Game">
                                                             @endif
                                                             <div>

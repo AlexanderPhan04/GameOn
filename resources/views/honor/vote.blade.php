@@ -98,7 +98,7 @@
                                                      class="rounded-circle mb-3" width="80" height="80" alt="Avatar">
                                                 <h6 class="card-title">{{ $item->name ?? $item->display_name }}</h6>
                                             @elseif($honorEvent->target_type === 'team')
-                                                <img src="{{ $item->logo ? asset('storage/' . $item->logo) : asset('images/default-team.png') }}" 
+                                                <img src="{{ $item->logo ? asset('uploads/' . $item->logo) : asset('images/default-team.png') }}" 
                                                      class="rounded mb-3" width="80" height="80" alt="Logo">
                                                 <h6 class="card-title">{{ $item->name }}</h6>
                                                 @if($item->description)
@@ -113,7 +113,7 @@
                                                     <p class="text-success font-weight-bold">Giải thưởng: {{ number_format($item->prize_pool) }} VNĐ</p>
                                                 @endif
                                             @elseif($honorEvent->target_type === 'game')
-                                                <img src="{{ $item->image ? asset('storage/' . $item->image) : asset('images/default-game.png') }}" 
+                                                <img src="{{ $item->image ? asset('uploads/' . $item->image) : asset('images/default-game.png') }}" 
                                                      class="rounded mb-3" width="80" height="80" alt="Game">
                                                 <h6 class="card-title">{{ $item->name }}</h6>
                                                 @if($item->description)

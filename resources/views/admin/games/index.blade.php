@@ -629,7 +629,7 @@
                 <!-- Banner -->
                 <div class="game-banner">
                     @if($game->banner)
-                    <img src="{{ asset('storage/' . $game->banner) }}" alt="{{ $game->name }}">
+                    <img src="{{ asset('uploads/' . $game->banner) }}" alt="{{ $game->name }}">
                     @else
                     <div class="game-banner-placeholder">
                         <i class="fas fa-image"></i>
@@ -653,7 +653,7 @@
                 <div class="game-card-body">
                     <div class="game-header">
                         @if($game->logo)
-                        <img src="{{ asset('storage/' . $game->logo) }}" alt="{{ $game->name }}" class="game-logo">
+                        <img src="{{ asset('uploads/' . $game->logo) }}" alt="{{ $game->name }}" class="game-logo">
                         @else
                         <div class="game-logo-placeholder">
                             <i class="fas fa-gamepad"></i>

@@ -25,6 +25,11 @@ class PostComment extends Model
         return $this->belongsTo(PostComment::class, 'parent_id');
     }
 
+    public function replies(): HasMany
+    {
+        return $this->hasMany(PostComment::class, 'parent_id');
+    }
+
     public function likes(): HasMany
     {
         return $this->hasMany(PostCommentLike::class, 'comment_id');

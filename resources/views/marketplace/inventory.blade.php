@@ -10,7 +10,7 @@
         @forelse($inventory as $item)
         <div class="col-md-3">
             <div class="card">
-                <img src="{{ $item->product->thumbnail ? asset('storage/' . $item->product->thumbnail) : 'https://via.placeholder.com/300' }}" 
+                <img src="{{ $item->product->thumbnail ? asset('uploads/' . $item->product->thumbnail) : 'https://via.placeholder.com/300' }}" 
                      class="card-img-top" alt="{{ $item->product->name }}">
                 <div class="card-body">
                     <h6 class="card-title">{{ $item->product->name }}</h6>

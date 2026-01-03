@@ -228,6 +228,7 @@ return [
     'profile' => [
         'personal_info' => 'Thông tin cá nhân',
         'my_teams' => 'Đội của tôi',
+        'admin_area' => 'Khu vực quản trị',
         'manage_games' => 'Quản lý Game',
         'manage_tournaments' => 'Quản lý Tournament',
         'manage_tournaments_description' => 'Tạo và quản lý các giải đấu esports chuyên nghiệp',

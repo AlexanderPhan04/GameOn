@@ -270,7 +270,7 @@
                             <td><span class="product-id">{{ $product->id }}</span></td>
                             <td>
                                 @if($product->thumbnail)
-                                <img src="{{ asset('storage/' . $product->thumbnail) }}" alt="{{ $product->name }}" class="product-thumb">
+                                <img src="{{ asset('uploads/' . $product->thumbnail) }}" alt="{{ $product->name }}" class="product-thumb">
                                 @else
                                 <div class="product-thumb-placeholder"><i class="fas fa-image"></i></div>
                                 @endif

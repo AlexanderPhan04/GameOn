@@ -67,7 +67,7 @@ class GameManagement extends Model
 
         // Check if local file exists, otherwise use default
         if (Storage::disk('public')->exists($this->logo)) {
-            return asset('storage/'.$this->logo);
+            return asset('uploads/' . $this->logo);
         }
 
         // File doesn't exist, use default
@@ -90,7 +90,7 @@ class GameManagement extends Model
 
         // Check if local file exists, otherwise use default
         if (Storage::disk('public')->exists($this->banner)) {
-            return asset('storage/'.$this->banner);
+            return asset('uploads/' . $this->banner);
         }
 
         // File doesn't exist, use default

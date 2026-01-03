@@ -27,7 +27,7 @@ class Team extends Model
     // Accessors
     public function getLogoAttribute()
     {
-        return $this->logo_url ? asset('storage/' . $this->logo_url) : null;
+        return $this->logo_url ? asset('uploads/' . $this->logo_url) : null;
     }
 
     // Relationships
@@ -74,6 +74,6 @@ class Team extends Model
 
     public function getLogoUrlAttribute($value)
     {
-        return $value ? asset('storage/' . $value) : null;
+        return $value ? asset('uploads/' . $value) : null;
     }
 }

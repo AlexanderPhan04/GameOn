@@ -23,7 +23,7 @@
                 <tr>
                     <td>
                         <div class="d-flex align-items-center">
-                            <img src="{{ $item['product']->thumbnail ? asset('storage/' . $item['product']->thumbnail) : 'https://via.placeholder.com/80' }}" 
+                            <img src="{{ $item['product']->thumbnail ? asset('uploads/' . $item['product']->thumbnail) : 'https://via.placeholder.com/80' }}" 
                                  alt="{{ $item['product']->name }}" 
                                  style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; margin-right: 1rem;">
                             <div>

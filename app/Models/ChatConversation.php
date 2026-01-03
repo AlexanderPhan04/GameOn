@@ -43,7 +43,7 @@ class ChatConversation extends Model
     public function messages(): HasMany
     {
         return $this->hasMany(ChatMessage::class, 'conversation_id')
-            ->where('is_deleted', false)
+            ->whereNull('deleted_at')
             ->orderBy('created_at', 'asc');
     }
 
@@ -53,7 +53,7 @@ class ChatConversation extends Model
     public function latestMessage(): HasMany
     {
         return $this->hasMany(ChatMessage::class, 'conversation_id')
-            ->where('is_deleted', false)
+            ->whereNull('deleted_at')
             ->latest()
             ->limit(1);
     }
@@ -204,7 +204,7 @@ class ChatConversation extends Model
     {
         if ($this->type === 'group') {
             if ($this->avatar) {
-                return asset('storage/'.$this->avatar);
+                return asset('uploads/' . $this->avatar);
             }
             // Generate group avatar
             $name = urlencode($this->name ?? 'Group');
@@ -220,7 +220,7 @@ class ChatConversation extends Model
         if ($otherUser && $otherUser->user) {
             return $otherUser->user->getDisplayAvatar();
         }
-        
+
         return "https://ui-avatars.com/api/?name=User&size=128&background=667eea&color=ffffff&bold=true&format=svg";
     }
 
@@ -257,11 +257,11 @@ class ChatConversation extends Model
         }
 
         if ($lastMessage->type === 'file') {
-            return '📎 File: '.$lastMessage->attachment_name;
+            return '📎 File: ' . $lastMessage->attachment_name;
         }
 
         return strlen($lastMessage->content) > 50
-            ? substr($lastMessage->content, 0, 50).'...'
+            ? substr($lastMessage->content, 0, 50) . '...'
             : $lastMessage->content;
     }
 }

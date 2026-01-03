@@ -49,7 +49,7 @@ class UserProfile extends Model
      */
     public function getAvatarUrlAttribute()
     {
-        return $this->avatar ? asset('storage/' . $this->avatar) : null;
+        return $this->avatar ? asset('uploads/' . $this->avatar) : null;
     }
 
     /**

@@ -1,4 +1,4 @@
-﻿@php
+@php
 $isOwn = $message->sender_id === auth()->id();
 @endphp
 

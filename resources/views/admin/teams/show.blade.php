@@ -32,7 +32,7 @@
                             <!-- Logo -->
                             <div class="mb-3">
                                 @if($team->logo_url)
-                                <img src="{{ asset('storage/' . $team->logo_url) }}"
+                                <img src="{{ asset('uploads/' . $team->logo_url) }}"
                                     class="rounded mb-3"
                                     width="120"
                                     height="120"

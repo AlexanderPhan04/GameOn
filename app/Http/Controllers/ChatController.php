@@ -285,9 +285,9 @@ class ChatController extends Controller
             ->get();
 
         $typingUsers = $participants->filter(function ($participant) {
-            return $participant->user->activity 
-                && $participant->user->activity->is_typing 
-                && $participant->user->activity->typing_started_at 
+            return $participant->user->activity
+                && $participant->user->activity->is_typing
+                && $participant->user->activity->typing_started_at
                 && $participant->user->activity->typing_started_at->gt(now()->subSeconds(5));
         })->map(function ($participant) {
             return [
@@ -373,7 +373,6 @@ class ChatController extends Controller
         }
 
         $message->update([
-            'is_deleted' => true,
             'deleted_at' => now(),
         ]);
 
@@ -438,7 +437,7 @@ class ChatController extends Controller
 
         $query = $conversation->messages()
             ->with('sender')
-            ->where('is_deleted', false);
+            ->whereNull('deleted_at');
 
         // If after_id is provided, get messages after that ID (for real-time updates)
         if ($afterId) {
@@ -488,7 +487,7 @@ class ChatController extends Controller
             'data' => $formattedMessages,
             'has_more' => $hasMore,
             'current_page' => $currentPage,
-            'next_page_url' => $hasMore ? url()->current().'?page='.($currentPage + 1) : null,
+            'next_page_url' => $hasMore ? url()->current() . '?page=' . ($currentPage + 1) : null,
         ]);
     }
 
@@ -599,7 +598,7 @@ class ChatController extends Controller
             // Send system message
             $conversation->messages()->create([
                 'type' => 'system',
-                'content' => $user->name.' đã tạo nhóm chat "'.$request->name.'"',
+                'content' => $user->name . ' đã tạo nhóm chat "' . $request->name . '"',
                 'sender_id' => $user->id,
             ]);
 
@@ -644,7 +643,7 @@ class ChatController extends Controller
         DB::beginTransaction();
         try {
             // Soft delete all messages
-            $conversation->messages()->update(['is_deleted' => true, 'deleted_at' => now()]);
+            $conversation->messages()->update(['deleted_at' => now()]);
 
             // Remove all participants
             $conversation->participants()->delete();
@@ -682,7 +681,6 @@ class ChatController extends Controller
         try {
             // Mark all messages as deleted
             $conversation->messages()->update([
-                'is_deleted' => true,
                 'deleted_at' => now(),
             ]);
 
@@ -738,7 +736,7 @@ class ChatController extends Controller
             ->map(function ($participant) {
                 $user = $participant->user;
                 $isOnline = $user->last_activity_at &&
-                           $user->last_activity_at->diffInMinutes(now()) <= 5; // Online if active within 5 minutes
+                    $user->last_activity_at->diffInMinutes(now()) <= 5; // Online if active within 5 minutes
 
                 return [
                     'id' => $user->id,

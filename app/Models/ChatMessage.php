@@ -20,17 +20,13 @@ class ChatMessage extends Model
         'attachment_type',
         'attachment_size',
         'reactions',
-        'is_edited',
         'edited_at',
-        'is_deleted',
         'deleted_at',
     ];
 
     protected $casts = [
         'reactions' => 'array', // Deprecated: use messageReactions() relationship instead
-        'is_edited' => 'boolean', // Deprecated: use edited_at instead
         'edited_at' => 'datetime',
-        'is_deleted' => 'boolean', // Deprecated: use deleted_at instead
         'deleted_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
@@ -120,7 +116,7 @@ class ChatMessage extends Model
             return null;
         }
 
-        return asset('storage/' . $this->attachment_path);
+        return asset('uploads/' . $this->attachment_path);
     }
 
     /**
@@ -261,7 +257,7 @@ class ChatMessage extends Model
     public function scopeInConversation($query, $conversationId)
     {
         return $query->where('conversation_id', $conversationId)
-            ->where('is_deleted', false);
+            ->whereNull('deleted_at');
     }
 
     /**
@@ -270,7 +266,6 @@ class ChatMessage extends Model
     public function markAsEdited()
     {
         $this->update([
-            'is_edited' => true,
             'edited_at' => now(),
         ]);
     }
@@ -281,7 +276,6 @@ class ChatMessage extends Model
     public function softDelete()
     {
         $this->update([
-            'is_deleted' => true,
             'deleted_at' => now(),
         ]);
     }

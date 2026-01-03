@@ -713,9 +713,7 @@
         }
 
         .gameon-nav-links {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+            display: none !important; /* Hidden - moved to dropdown */
         }
 
         .gameon-nav-link {
@@ -2590,8 +2588,8 @@
                     </div>
                 </a>
 
-                <!-- Desktop: Nav Links -->
-                <div class="gameon-nav-links hidden lg:flex">
+                <!-- Desktop: Nav Links - Hidden, moved to dropdown -->
+                <div class="gameon-nav-links hidden">
                     @auth
                         @if(!Request::is('dashboard*'))
                         <a href="{{ route('dashboard') }}" class="gameon-nav-link">
@@ -2685,7 +2683,16 @@
                             </div>
                             <i class="fas fa-chevron-down"></i>
                         </a>
-                        <ul class="absolute right-0 top-full mt-2 hidden bg-[#0d1b2a] border border-[rgba(0,229,255,0.2)] rounded-lg py-2 min-w-[200px] z-[10000] shadow-lg" id="userMenuDropdownMenu">
+                        <ul class="absolute right-0 top-full mt-2 hidden bg-[#0d1b2a] border border-[rgba(0,229,255,0.2)] rounded-lg py-2 min-w-[220px] z-[10000] shadow-lg" id="userMenuDropdownMenu" style="padding-left: 0; margin: 0; list-style: none;">
+                            <!-- Main Navigation Items -->
+                            @if(!Request::is('dashboard*'))
+                            <li class="list-none">
+                                <a href="{{ route('dashboard') }}" class="gameon-dropdown-item">
+                                    <i class="fas fa-gauge-high"></i>
+                                    <span>{{ __('app.nav.dashboard') }}</span>
+                                </a>
+                            </li>
+                            @endif
                             @if(Auth::user()->user_role === 'participant')
                             <li class="list-none">
                                 <a href="{{ route('teams.index') }}" class="gameon-dropdown-item">
@@ -2694,7 +2701,39 @@
                                 </a>
                             </li>
                             @endif
+                            <li class="list-none">
+                                <a href="{{ route('chat.index') }}" class="gameon-dropdown-item">
+                                    <i class="fas fa-comments"></i>
+                                    <span>{{ __('app.nav.chat') }}</span>
+                                </a>
+                            </li>
+                            <li class="list-none">
+                                <a href="{{ route('posts.index') }}" class="gameon-dropdown-item">
+                                    <i class="fas fa-newspaper"></i>
+                                    <span>{{ __('app.nav.posts') }}</span>
+                                </a>
+                            </li>
+                            <li class="list-none">
+                                <a href="{{ route('marketplace.index') }}" class="gameon-dropdown-item">
+                                    <i class="fas fa-store"></i>
+                                    <span>Marketplace</span>
+                                </a>
+                            </li>
+                            <li class="list-none">
+                                <a href="{{ route('profile.show') }}" class="gameon-dropdown-item">
+                                    <i class="fas fa-id-card"></i>
+                                    <span>{{ __('app.profile.personal_info') }}</span>
+                                </a>
+                            </li>
+                            
+                            <!-- Admin Section -->
                             @if(Auth::user()->user_role === 'admin' || Auth::user()->user_role === 'super_admin')
+                            <li class="list-none">
+                                <hr class="border-t border-[rgba(0,229,255,0.2)] my-2">
+                            </li>
+                            <li class="list-none px-3 py-1">
+                                <span class="text-xs text-gray-500 uppercase tracking-wider">{{ __('app.profile.admin_area') ?? 'Admin' }}</span>
+                            </li>
                             <li class="list-none">
                                 <a href="{{ route('admin.games.index') }}" class="gameon-dropdown-item">
                                     <i class="fas fa-gamepad"></i>
@@ -2728,6 +2767,8 @@
                             </li>
                             @endif
                             @endif
+                            
+                            <!-- Logout -->
                             <li class="list-none">
                                 <hr class="border-t border-[rgba(0,229,255,0.2)] my-2">
                             </li>

@@ -15,7 +15,7 @@ class PostsController extends Controller
 {
     public function index()
     {
-        $posts = Post::with(['user', 'sharedPost.user', 'sharedPost.media', 'likes', 'comments.user', 'comments.likes', 'comments.reactions', 'media', 'reactions'])
+        $posts = Post::with(['user', 'sharedPost.user', 'sharedPost.media', 'likes', 'comments.user', 'comments.likes', 'comments.reactions', 'comments.replies.user', 'comments.replies.reactions', 'media', 'reactions'])
             ->orderByDesc('created_at')->paginate(10);
 
         return view('posts.index', compact('posts'));
@@ -27,7 +27,7 @@ class PostsController extends Controller
         $request->validate([
             'content' => 'nullable|string',
             'shared_post_id' => 'nullable|exists:posts,id',
-            'files.*' => 'nullable|file|mimes:jpeg,png,jpg,gif,mp4,webm,mov|max:51200',
+            'files.*' => 'nullable|file|mimes:jpeg,png,jpg,gif,mp4,webm,mov,avi,mkv|max:153600', // 150MB
         ]);
         // Determine root_post_id according to share logic
         $rootId = null;
@@ -105,13 +105,30 @@ class PostsController extends Controller
     public function comment(Request $request, Post $post)
     {
         $request->validate(['content' => 'required|string', 'parent_id' => 'nullable|exists:post_comments,id']);
-        PostComment::create([
+        $comment = PostComment::create([
             'post_id' => $post->id,
             'user_id' => Auth::id(),
             'parent_id' => $request->parent_id,
             'content' => $request->content,
         ]);
         $post->increment('comments_count');
+
+        // Return JSON for AJAX requests
+        if ($request->expectsJson()) {
+            $user = Auth::user();
+            return response()->json([
+                'success' => true,
+                'comment' => [
+                    'id' => $comment->id,
+                    'content' => $comment->content,
+                    'user_name' => $user->name,
+                    'user_avatar' => get_avatar_url($user->avatar),
+                    'post_id' => $post->id,
+                    'parent_id' => $comment->parent_id,
+                    'created_at' => $comment->created_at->diffForHumans(),
+                ]
+            ]);
+        }
 
         return back();
     }
@@ -206,7 +223,7 @@ class PostsController extends Controller
                     'user' => [
                         'id' => $r->user->id,
                         'name' => $r->user->name,
-                        'avatar' => $r->user->avatar ? asset('storage/'.$r->user->avatar) : asset('images/default-avatar.png'),
+                        'avatar' => $r->user->avatar ? asset('uploads/' . $r->user->avatar) : asset('images/default-avatar.png'),
                     ],
                 ];
             }),
@@ -246,7 +263,7 @@ class PostsController extends Controller
                 'user' => [
                     'id' => optional($p->user)->id,
                     'name' => optional($p->user)->name,
-                    'avatar' => optional($p->user) && $p->user->avatar ? asset('storage/'.$p->user->avatar) : asset('images/default-avatar.png'),
+                    'avatar' => optional($p->user) && $p->user->avatar ? asset('uploads/' . $p->user->avatar) : asset('images/default-avatar.png'),
                 ],
             ];
         });
@@ -317,8 +334,32 @@ class PostsController extends Controller
         if (! $user || ($post->user_id !== $user->id && ! $isAdmin)) {
             abort(403);
         }
-        $request->validate(['content' => 'nullable|string|max:5000']);
+        $request->validate([
+            'content' => 'nullable|string|max:5000',
+            'files.*' => 'nullable|file|mimes:jpeg,png,jpg,gif,mp4,webm,mov,avi,mkv|max:153600', // 150MB
+            'delete_media' => 'nullable|array',
+            'delete_media.*' => 'integer',
+        ]);
+
         $post->update(['content' => $request->content]);
+
+        // Delete selected media
+        if ($request->has('delete_media')) {
+            $mediaToDelete = $post->media()->whereIn('id', $request->delete_media)->get();
+            foreach ($mediaToDelete as $media) {
+                \Storage::disk('public')->delete($media->path);
+                $media->delete();
+            }
+        }
+
+        // Add new media files
+        if ($request->hasFile('files')) {
+            foreach ($request->file('files') as $file) {
+                $path = $file->store('posts', 'public');
+                $type = str_starts_with($file->getMimeType(), 'video') ? 'video' : 'image';
+                $post->media()->create(['type' => $type, 'path' => $path]);
+            }
+        }
 
         return redirect()->back()->with('success', 'Đã cập nhật bài viết');
     }

@@ -25,6 +25,6 @@ if (! function_exists('get_avatar_url')) {
         }
 
         // Otherwise, it's a local path - use asset with storage
-        return asset('storage/'.$avatar);
+        return asset('uploads/' . $avatar);
     }
 }

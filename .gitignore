@@ -19,6 +19,7 @@
 /storage/*.key
 /storage/pail
 /storage/framework/views/*
+!/storage/framework/views/.gitkeep
 /vendor
 Homestead.json
 Homestead.yaml
@@ -29,5 +30,4 @@ taildw.html
 boots.html
 fixDB
 promp.txt
-setNewRule.txt
 docs/DDD_DATABASE_REPORT.md

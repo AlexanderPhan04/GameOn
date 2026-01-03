@@ -49,7 +49,16 @@ class UserProfile extends Model
      */
     public function getAvatarUrlAttribute()
     {
-        return $this->avatar ? asset('uploads/' . $this->avatar) : null;
+        if (!$this->avatar) {
+            return null;
+        }
+
+        // Check if it's already a full URL (e.g., Google avatar)
+        if (filter_var($this->avatar, FILTER_VALIDATE_URL)) {
+            return $this->avatar;
+        }
+
+        return asset('uploads/' . $this->avatar);
     }
 
     /**

@@ -2957,25 +2957,63 @@
     <!-- Main Content -->
     <main class="content-wrapper {{ $showAdminSidebar ? 'content-wrapper-with-sidebar' : '' }}">
         @if(session('success'))
-        <div class="container mx-auto px-4">
-            <div class="bg-green-500/20 border border-green-500/50 text-green-400 px-4 py-3 rounded-lg flex items-center justify-between" role="alert">
-                <span>{{ session('success') }}</span>
-                <button type="button" class="text-green-400 hover:text-green-300 ml-4" onclick="this.parentElement.remove()">
-                    <i class="fas fa-times"></i>
+        <div id="session-success-toast" style="position: fixed; top: 100px; left: 50%; transform: translateX(-50%); z-index: 9999; animation: slideDown 0.4s ease-out;">
+            <div style="background: linear-gradient(135deg, rgba(0, 229, 255, 0.15) 0%, rgba(34, 197, 94, 0.15) 100%); border: 1px solid rgba(0, 229, 255, 0.5); color: #00E5FF; padding: 16px 24px; border-radius: 12px; display: flex; align-items: center; gap: 12px; box-shadow: 0 8px 32px rgba(0, 229, 255, 0.3), 0 0 20px rgba(0, 229, 255, 0.1); backdrop-filter: blur(10px); font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 500; min-width: 300px; max-width: 90vw;" role="alert">
+                <div style="width: 32px; height: 32px; background: rgba(0, 229, 255, 0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                    <i class="fas fa-check" style="font-size: 14px;"></i>
+                </div>
+                <span style="flex: 1;">{{ session('success') }}</span>
+                <button type="button" style="background: none; border: none; color: rgba(0, 229, 255, 0.7); cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; transition: color 0.2s ease;" onclick="this.closest('#session-success-toast').remove()" onmouseover="this.style.color='#00E5FF'" onmouseout="this.style.color='rgba(0, 229, 255, 0.7)'">
+                    <i class="fas fa-times" style="font-size: 16px;"></i>
                 </button>
             </div>
         </div>
+        <style>
+            @keyframes slideDown {
+                from { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+                to { opacity: 1; transform: translateX(-50%) translateY(0); }
+            }
+        </style>
+        <script>
+            setTimeout(function() {
+                var toast = document.getElementById('session-success-toast');
+                if (toast) {
+                    toast.style.animation = 'slideUp 0.3s ease-out forwards';
+                    toast.insertAdjacentHTML('beforeend', '<style>@keyframes slideUp { to { opacity: 0; transform: translateX(-50%) translateY(-20px); } }</style>');
+                    setTimeout(function() { toast.remove(); }, 300);
+                }
+            }, 5000);
+        </script>
         @endif
 
         @if(session('error'))
-        <div class="container mx-auto px-4">
-            <div class="bg-red-500/20 border border-red-500/50 text-red-400 px-4 py-3 rounded-lg flex items-center justify-between" role="alert">
-                <span>{{ session('error') }}</span>
-                <button type="button" class="text-red-400 hover:text-red-300 ml-4" onclick="this.parentElement.remove()">
-                    <i class="fas fa-times"></i>
+        <div id="session-error-toast" style="position: fixed; top: 100px; left: 50%; transform: translateX(-50%); z-index: 9999; animation: slideDownError 0.4s ease-out;">
+            <div style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(220, 38, 38, 0.15) 100%); border: 1px solid rgba(239, 68, 68, 0.5); color: #f87171; padding: 16px 24px; border-radius: 12px; display: flex; align-items: center; gap: 12px; box-shadow: 0 8px 32px rgba(239, 68, 68, 0.3), 0 0 20px rgba(239, 68, 68, 0.1); backdrop-filter: blur(10px); font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 500; min-width: 300px; max-width: 90vw;" role="alert">
+                <div style="width: 32px; height: 32px; background: rgba(239, 68, 68, 0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 14px;"></i>
+                </div>
+                <span style="flex: 1;">{{ session('error') }}</span>
+                <button type="button" style="background: none; border: none; color: rgba(239, 68, 68, 0.7); cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; transition: color 0.2s ease;" onclick="this.closest('#session-error-toast').remove()" onmouseover="this.style.color='#f87171'" onmouseout="this.style.color='rgba(239, 68, 68, 0.7)'">
+                    <i class="fas fa-times" style="font-size: 16px;"></i>
                 </button>
             </div>
         </div>
+        <style>
+            @keyframes slideDownError {
+                from { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+                to { opacity: 1; transform: translateX(-50%) translateY(0); }
+            }
+        </style>
+        <script>
+            setTimeout(function() {
+                var toast = document.getElementById('session-error-toast');
+                if (toast) {
+                    toast.style.animation = 'slideUpError 0.3s ease-out forwards';
+                    toast.insertAdjacentHTML('beforeend', '<style>@keyframes slideUpError { to { opacity: 0; transform: translateX(-50%) translateY(-20px); } }</style>');
+                    setTimeout(function() { toast.remove(); }, 300);
+                }
+            }, 5000);
+        </script>
         @endif
 
         @yield('content')
@@ -2986,312 +3024,187 @@
 
     <!-- Removed legacy Confirm Modal (use SweetAlert2 in JS wrapper) -->
 
-    <!-- Modern Footer - Only show for guests or on welcome page -->
-    @guest
-        <footer style="background: linear-gradient(180deg, #000814 0%, #000022 100%); border-top: 1px solid rgba(0, 229, 255, 0.2); padding: 60px 0 30px 0; position: relative; overflow: hidden;">
-            <!-- Background Glow Effects -->
-            <div style="position: absolute; top: -100px; left: 10%; width: 300px; height: 300px; background: radial-gradient(circle, rgba(0, 229, 255, 0.1) 0%, transparent 70%); pointer-events: none;"></div>
-            <div style="position: absolute; bottom: -100px; right: 10%; width: 400px; height: 400px; background: radial-gradient(circle, rgba(0, 0, 85, 0.3) 0%, transparent 70%); pointer-events: none;"></div>
-            
-            <div style="max-width: 1200px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 10;">
-                <!-- Main Footer Content -->
-                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 48px; margin-bottom: 48px;">
-                    
-                    <!-- Brand Section -->
-                    <div>
-                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
-                            <img src="{{ asset('logo_remove_bg.png') }}" alt="{{ __('app.name') }}" style="width: 48px; height: 48px; object-fit: contain;">
-                            <span style="font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 28px; color: white;">
-                                GAME <span style="color: #00E5FF;">ON</span>
-                            </span>
-                        </div>
-                        <p style="color: #94a3b8; font-size: 14px; line-height: 1.6; margin-bottom: 24px;">
-                            {{ __('app.footer.professional_esports_management_platform') }}
-                        </p>
-                        <!-- Social Icons -->
-                        <div style="display: flex; gap: 12px;">
-                            <a href="#" style="width: 44px; height: 44px; border-radius: 12px; background: rgba(0, 229, 255, 0.1); border: 1px solid rgba(0, 229, 255, 0.3); display: flex; align-items: center; justify-content: center; color: #00E5FF; text-decoration: none; transition: all 0.3s ease;">
-                                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z"/></svg>
-                            </a>
-                            <a href="#" style="width: 44px; height: 44px; border-radius: 12px; background: rgba(88, 101, 242, 0.1); border: 1px solid rgba(88, 101, 242, 0.3); display: flex; align-items: center; justify-content: center; color: #5865F2; text-decoration: none; transition: all 0.3s ease;">
-                                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/></svg>
-                            </a>
-                            <a href="#" style="width: 44px; height: 44px; border-radius: 12px; background: rgba(255, 0, 0, 0.1); border: 1px solid rgba(255, 0, 0, 0.3); display: flex; align-items: center; justify-content: center; color: #FF0000; text-decoration: none; transition: all 0.3s ease;">
-                                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
-                            </a>
-                        </div>
+    <!-- Modern Footer - Show for guests OR on index page for authenticated users -->
+    @if(auth()->guest() || Request::is('/'))
+    <footer style="background: linear-gradient(180deg, #000814 0%, #000022 100%); border-top: 1px solid rgba(0, 229, 255, 0.2); padding: 60px 0 30px 0; position: relative; overflow: hidden;">
+        <!-- Background Glow Effects -->
+        <div style="position: absolute; top: -100px; left: 10%; width: 300px; height: 300px; background: radial-gradient(circle, rgba(0, 229, 255, 0.1) 0%, transparent 70%); pointer-events: none;"></div>
+        <div style="position: absolute; bottom: -100px; right: 10%; width: 400px; height: 400px; background: radial-gradient(circle, rgba(0, 0, 85, 0.3) 0%, transparent 70%); pointer-events: none;"></div>
+        
+        <div style="max-width: 1200px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 10;">
+            <!-- Main Footer Content -->
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 48px; margin-bottom: 48px;">
+                
+                <!-- Brand Section -->
+                <div>
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
+                        <img src="{{ asset('logo_remove_bg.png') }}" alt="{{ __('app.name') }}" style="width: 48px; height: 48px; object-fit: contain;">
+                        <span style="font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 28px; color: white;">
+                            GAME <span style="color: #00E5FF;">ON</span>
+                        </span>
                     </div>
-                    
-                    <!-- Features Section -->
-                    <div>
-                        <h3 style="font-family: 'Rajdhani', sans-serif; font-weight: 700; color: white; font-size: 18px; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 24px; padding-left: 16px; border-left: 3px solid #00E5FF;">
-                            {{ __('app.footer.features') }}
-                        </h3>
-                        <ul style="list-style: none; padding: 0; margin: 0;">
-                            <li style="margin-bottom: 12px;">
-                                <a href="{{ route('tournaments.index') }}" style="color: #94a3b8; text-decoration: none; font-size: 14px; transition: color 0.3s ease; display: flex; align-items: center; gap: 8px;">
-                                    <span style="color: #00E5FF;">›</span> {{ __('app.nav.tournaments') }}
-                                </a>
-                            </li>
-                            <li style="margin-bottom: 12px;">
-                                <a href="{{ route('teams.index') }}" style="color: #94a3b8; text-decoration: none; font-size: 14px; transition: color 0.3s ease; display: flex; align-items: center; gap: 8px;">
-                                    <span style="color: #00E5FF;">›</span> {{ __('app.nav.my_teams') }}
-                                </a>
-                            </li>
-                            <li style="margin-bottom: 12px;">
-                                <a href="{{ route('chat.index') }}" style="color: #94a3b8; text-decoration: none; font-size: 14px; transition: color 0.3s ease; display: flex; align-items: center; gap: 8px;">
-                                    <span style="color: #00E5FF;">›</span> {{ __('app.nav.chat') }}
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                    
-                    <!-- Support Section -->
-                    <div>
-                        <h3 style="font-family: 'Rajdhani', sans-serif; font-weight: 700; color: white; font-size: 18px; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 24px; padding-left: 16px; border-left: 3px solid #00E5FF;">
-                            {{ __('app.footer.support') }}
-                        </h3>
-                        <ul style="list-style: none; padding: 0; margin: 0;">
-                            <li style="margin-bottom: 12px;">
-                                <a href="#" style="color: #94a3b8; text-decoration: none; font-size: 14px; transition: color 0.3s ease; display: flex; align-items: center; gap: 8px;">
-                                    <span style="color: #00E5FF;">›</span> {{ __('app.footer.help_center') }}
-                                </a>
-                            </li>
-                            <li style="margin-bottom: 12px;">
-                                <a href="#" style="color: #94a3b8; text-decoration: none; font-size: 14px; transition: color 0.3s ease; display: flex; align-items: center; gap: 8px;">
-                                    <span style="color: #00E5FF;">›</span> {{ __('app.footer.contact') }}
-                                </a>
-                            </li>
-                            <li style="margin-bottom: 12px;">
-                                <a href="#" style="color: #94a3b8; text-decoration: none; font-size: 14px; transition: color 0.3s ease; display: flex; align-items: center; gap: 8px;">
-                                    <span style="color: #00E5FF;">›</span> {{ __('app.footer.bug_report') }}
-                                </a>
-                            </li>
-                            <li style="margin-bottom: 12px;">
-                                <a href="#" style="color: #94a3b8; text-decoration: none; font-size: 14px; transition: color 0.3s ease; display: flex; align-items: center; gap: 8px;">
-                                    <span style="color: #00E5FF;">›</span> {{ __('app.footer.faq') }}
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                    
-                    <!-- Newsletter Section -->
-                    <div>
-                        <h3 style="font-family: 'Rajdhani', sans-serif; font-weight: 700; color: white; font-size: 18px; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 24px; padding-left: 16px; border-left: 3px solid #00E5FF;">
-                            {{ __('app.footer.connect') }}
-                        </h3>
-                        <p style="color: #94a3b8; font-size: 14px; margin-bottom: 16px;">{{ __('app.footer.subscribe_newsletter') }}</p>
-                        
-                        <form style="display: flex; gap: 8px; margin-bottom: 20px;">
-                            <input type="email" placeholder="{{ __('app.footer.your_email') }}" 
-                                style="flex: 1; background: rgba(0, 8, 20, 0.8); border: 1px solid rgba(0, 229, 255, 0.2); border-radius: 10px; padding: 12px 16px; color: white; font-size: 14px; outline: none;">
-                            <button type="submit" style="background: linear-gradient(135deg, #00E5FF, #0099cc); border: none; border-radius: 10px; padding: 12px 20px; color: #000; font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 14px; text-transform: uppercase; cursor: pointer; transition: all 0.3s ease;">
-                                {{ __('app.footer.send') }}
-                            </button>
-                        </form>
+                    <p style="color: #94a3b8; font-size: 14px; line-height: 1.6; margin-bottom: 24px;">
+                        {{ __('app.footer.professional_esports_management_platform') }}
+                    </p>
+                    <!-- Social Icons -->
+                    <div style="display: flex; gap: 12px;">
+                        <a href="#" style="width: 44px; height: 44px; border-radius: 12px; background: rgba(0, 229, 255, 0.1); border: 1px solid rgba(0, 229, 255, 0.3); display: flex; align-items: center; justify-content: center; color: #00E5FF; text-decoration: none; transition: all 0.3s ease;">
+                            <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z"/></svg>
+                        </a>
+                        <a href="#" style="width: 44px; height: 44px; border-radius: 12px; background: rgba(88, 101, 242, 0.1); border: 1px solid rgba(88, 101, 242, 0.3); display: flex; align-items: center; justify-content: center; color: #5865F2; text-decoration: none; transition: all 0.3s ease;">
+                            <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/></svg>
+                        </a>
+                        <a href="#" style="width: 44px; height: 44px; border-radius: 12px; background: rgba(255, 0, 0, 0.1); border: 1px solid rgba(255, 0, 0, 0.3); display: flex; align-items: center; justify-content: center; color: #FF0000; text-decoration: none; transition: all 0.3s ease;">
+                            <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                        </a>
                     </div>
                 </div>
                 
-                <!-- Footer Bottom -->
-                <div style="border-top: 1px solid rgba(0, 229, 255, 0.1); padding-top: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
-                    <div style="color: #64748b; font-size: 13px;">
-                        &copy; {{ date('Y') }} <span style="color: white; font-weight: 600;">Game On</span>. All rights reserved.
-                    </div>
-                    <div style="display: flex; gap: 24px;">
-                        <a href="#" style="color: #64748b; text-decoration: none; font-size: 13px; transition: color 0.3s ease;">{{ __('app.footer.terms_of_service') }}</a>
-                        <a href="#" style="color: #64748b; text-decoration: none; font-size: 13px; transition: color 0.3s ease;">{{ __('app.footer.privacy_policy') }}</a>
-                        <a href="#" style="color: #64748b; text-decoration: none; font-size: 13px; transition: color 0.3s ease;">{{ __('app.footer.cookie_policy') }}</a>
-                    </div>
-                    <div style="color: #64748b; font-size: 13px; display: flex; align-items: center; gap: 6px;">
-                        Made with <span style="color: #ef4444;">❤</span> by <span style="color: #00E5FF; font-weight: 600;">GameOn Team</span>
+                <!-- Features Section -->
+                <div>
+                    <h3 style="font-family: 'Rajdhani', sans-serif; font-weight: 700; color: white; font-size: 18px; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 24px; padding-left: 16px; border-left: 3px solid #00E5FF;">
+                        {{ __('app.footer.features') }}
+                    </h3>
+                    <ul style="list-style: none; padding: 0; margin: 0;">
+                        <li style="margin-bottom: 12px;">
+                            <a href="{{ route('tournaments.index') }}" style="color: #94a3b8; text-decoration: none; font-size: 14px; transition: color 0.3s ease; display: flex; align-items: center; gap: 8px;">
+                                <span style="color: #00E5FF;">›</span> {{ __('app.nav.tournaments') }}
+                            </a>
+                        </li>
+                        <li style="margin-bottom: 12px;">
+                            <a href="{{ route('teams.index') }}" style="color: #94a3b8; text-decoration: none; font-size: 14px; transition: color 0.3s ease; display: flex; align-items: center; gap: 8px;">
+                                <span style="color: #00E5FF;">›</span> {{ __('app.nav.my_teams') }}
+                            </a>
+                        </li>
+                        <li style="margin-bottom: 12px;">
+                            <a href="{{ route('chat.index') }}" style="color: #94a3b8; text-decoration: none; font-size: 14px; transition: color 0.3s ease; display: flex; align-items: center; gap: 8px;">
+                                <span style="color: #00E5FF;">›</span> {{ __('app.nav.chat') }}
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- Support Section -->
+                <div>
+                    <h3 style="font-family: 'Rajdhani', sans-serif; font-weight: 700; color: white; font-size: 18px; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 24px; padding-left: 16px; border-left: 3px solid #00E5FF;">
+                        {{ __('app.footer.support') }}
+                    </h3>
+                    <ul style="list-style: none; padding: 0; margin: 0;">
+                        <li style="margin-bottom: 12px;">
+                            <a href="#" style="color: #94a3b8; text-decoration: none; font-size: 14px; transition: color 0.3s ease; display: flex; align-items: center; gap: 8px;">
+                                <span style="color: #00E5FF;">›</span> {{ __('app.footer.help_center') }}
+                            </a>
+                        </li>
+                        <li style="margin-bottom: 12px;">
+                            <a href="#" style="color: #94a3b8; text-decoration: none; font-size: 14px; transition: color 0.3s ease; display: flex; align-items: center; gap: 8px;">
+                                <span style="color: #00E5FF;">›</span> {{ __('app.footer.contact') }}
+                            </a>
+                        </li>
+                        <li style="margin-bottom: 12px;">
+                            <a href="#" style="color: #94a3b8; text-decoration: none; font-size: 14px; transition: color 0.3s ease; display: flex; align-items: center; gap: 8px;">
+                                <span style="color: #00E5FF;">›</span> {{ __('app.footer.bug_report') }}
+                            </a>
+                        </li>
+                        <li style="margin-bottom: 12px;">
+                            <a href="#" style="color: #94a3b8; text-decoration: none; font-size: 14px; transition: color 0.3s ease; display: flex; align-items: center; gap: 8px;">
+                                <span style="color: #00E5FF;">›</span> {{ __('app.footer.faq') }}
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- Newsletter Section -->
+                <div>
+                    <h3 style="font-family: 'Rajdhani', sans-serif; font-weight: 700; color: white; font-size: 18px; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 24px; padding-left: 16px; border-left: 3px solid #00E5FF;">
+                        {{ __('app.footer.connect') }}
+                    </h3>
+                    <p style="color: #94a3b8; font-size: 14px; margin-bottom: 16px;">{{ __('app.footer.subscribe_newsletter') }}</p>
+                    
+                    <form style="display: flex; gap: 8px; margin-bottom: 20px;">
+                        <input type="email" placeholder="{{ __('app.footer.your_email') }}" 
+                            style="flex: 1; background: rgba(0, 8, 20, 0.8); border: 1px solid rgba(0, 229, 255, 0.2); border-radius: 10px; padding: 12px 16px; color: white; font-size: 14px; outline: none;">
+                        <button type="submit" style="background: linear-gradient(135deg, #00E5FF, #0099cc); border: none; border-radius: 10px; padding: 12px 20px; color: #000; font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 14px; text-transform: uppercase; cursor: pointer; transition: all 0.3s ease;">
+                            {{ __('app.footer.send') }}
+                        </button>
+                    </form>
+                    
+                    <!-- App Download Buttons -->
+                    <div style="display: flex; gap: 12px;">
+                        <a href="#" style="flex: 1; background: rgba(0, 8, 20, 0.8); border: 1px solid rgba(0, 229, 255, 0.2); border-radius: 10px; padding: 10px 12px; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; transition: all 0.3s ease;">
+                            <svg width="20" height="20" fill="white" viewBox="0 0 24 24"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+                            <div style="text-align: left;">
+                                <div style="font-size: 10px; color: #94a3b8; line-height: 1;">Download on</div>
+                                <div style="font-size: 13px; color: white; font-weight: 600; font-family: 'Rajdhani', sans-serif;">App Store</div>
+                            </div>
+                        </a>
+                        <a href="#" style="flex: 1; background: rgba(0, 8, 20, 0.8); border: 1px solid rgba(0, 229, 255, 0.2); border-radius: 10px; padding: 10px 12px; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; transition: all 0.3s ease;">
+                            <svg width="18" height="18" fill="white" viewBox="0 0 24 24"><path d="M3,20.5V3.5C3,2.91 3.34,2.39 3.84,2.15L13.69,12L3.84,21.85C3.34,21.6 3,21.09 3,20.5M16.81,15.12L6.05,21.34L14.54,12.85L16.81,15.12M20.16,10.81C20.5,11.08 20.75,11.5 20.75,12C20.75,12.5 20.53,12.9 20.18,13.18L17.89,14.5L15.39,12L17.89,9.5L20.16,10.81M6.05,2.66L16.81,8.88L14.54,11.15L6.05,2.66Z"/></svg>
+                            <div style="text-align: left;">
+                                <div style="font-size: 10px; color: #94a3b8; line-height: 1;">Get it on</div>
+                                <div style="font-size: 13px; color: white; font-weight: 600; font-family: 'Rajdhani', sans-serif;">Google Play</div>
+                            </div>
+                        </a>
                     </div>
                 </div>
             </div>
             
-            <!-- Responsive Styles -->
-            <style>
-                /* Footer mobile responsive - 2 columns layout */
-                @media (max-width: 1024px) {
-                    footer > div > div:first-of-type {
-                        grid-template-columns: repeat(2, 1fr) !important;
-                        gap: 24px !important;
-                    }
-                }
-                @media (max-width: 640px) {
-                    /* Keep 2 columns for Features and Support on mobile */
-                    footer > div > div:first-of-type {
-                        grid-template-columns: repeat(2, 1fr) !important;
-                        gap: 16px !important;
-                    }
-                    /* Hide Brand and Newsletter sections on mobile */
-                    footer > div > div:first-of-type > div:first-child,
-                    footer > div > div:first-of-type > div:last-child {
-                        display: none !important;
-                    }
-                    /* Adjust footer bottom */
-                    footer > div > div:last-of-type {
-                        flex-direction: column !important;
-                        text-align: center !important;
-                        gap: 12px !important;
-                    }
-                    /* Smaller text on mobile */
-                    footer h3 {
-                        font-size: 14px !important;
-                        margin-bottom: 16px !important;
-                    }
-                    footer ul li {
-                        margin-bottom: 8px !important;
-                    }
-                    footer ul li a {
-                        font-size: 13px !important;
-                    }
-                }
-            </style>
-        </footer>
-    @else
-        {{-- Show footer only on welcome page for authenticated users --}}
-        @if(Request::is('/') || Request::is('welcome'))
-            <footer class="bg-midnight border-t border-border pt-24 pb-16 text-slate-400 font-body relative overflow-hidden">
-                <!-- Background Blur Effect -->
-                <div class="absolute top-0 left-1/4 w-96 h-96 bg-brand/20 rounded-full blur-[100px] pointer-events-none"></div>
-                
-                <div class="container mx-auto px-6 relative z-10">
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
-                        <!-- Brand Section -->
-                        <div class="space-y-6">
-                            <div class="flex items-center gap-3">
-                                <img src="{{ asset('logo_remove_bg.png') }}" alt="{{ __('app.name') }}" class="w-10 h-10 object-contain">
-                                <span class="font-display font-bold text-3xl text-white tracking-wider">
-                                    GAME <span class="text-neon">ON</span>
-                                </span>
-                                </div>
-                            <p class="text-sm leading-relaxed text-white">
-                                {{ __('app.footer.professional_esports_management_platform') }}
-                            </p>
-                            <div class="flex gap-4">
-                                <a href="#" class="w-10 h-10 rounded-lg bg-void border border-border flex items-center justify-center hover:bg-brand hover:text-white hover:border-neon transition-all duration-300 group">
-                                    <i class="fab fa-facebook-f text-white group-hover:scale-110 transition-transform"></i>
-                                </a>
-                                <a href="#" class="w-10 h-10 rounded-lg bg-void border border-border flex items-center justify-center hover:bg-[#5865F2] hover:text-white hover:border-[#5865F2] transition-all duration-300 group">
-                                    <i class="fab fa-discord text-white group-hover:scale-110 transition-transform"></i>
-                                </a>
-                                <a href="#" class="w-10 h-10 rounded-lg bg-void border border-border flex items-center justify-center hover:bg-red-600 hover:text-white hover:border-red-600 transition-all duration-300 group">
-                                    <i class="fab fa-youtube text-white group-hover:scale-110 transition-transform"></i>
-                                </a>
-                            </div>
-                        </div>
-                        
-                        <!-- Features Section -->
-                        <div>
-                            <h3 class="font-display font-bold text-white text-lg uppercase tracking-wider mb-6 border-l-4 border-neon pl-3">
-                                {{ __('app.footer.features') }}
-                            </h3>
-                            <ul class="space-y-3">
-                                <li>
-                                    <a href="{{ route('tournaments.index') }}" class="text-white hover:text-neon transition-colors flex items-center gap-2">
-                                        <i class="fas fa-angle-right text-xs text-slate-400"></i>
-                                        {{ __('app.nav.tournaments') }}
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="{{ route('teams.index') }}" class="text-white hover:text-neon transition-colors flex items-center gap-2">
-                                        <i class="fas fa-angle-right text-xs text-slate-400"></i>
-                                        {{ __('app.nav.my_teams') }}
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="{{ route('chat.index') }}" class="text-white hover:text-neon transition-colors flex items-center gap-2">
-                                        <i class="fas fa-angle-right text-xs text-slate-400"></i>
-                                        {{ __('app.nav.chat') }}
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                        
-                        <!-- Support Section -->
-                        <div>
-                            <h3 class="font-display font-bold text-white text-lg uppercase tracking-wider mb-6 border-l-4 border-neon pl-3">
-                                {{ __('app.footer.support') }}
-                            </h3>
-                            <ul class="space-y-3">
-                                <li>
-                                    <a href="#" class="text-white hover:text-neon transition-colors">
-                                        {{ __('app.footer.help_center') }}
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#" class="text-white hover:text-neon transition-colors">
-                                        {{ __('app.footer.contact') }}
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#" class="text-white hover:text-neon transition-colors">
-                                        {{ __('app.footer.bug_report') }}
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#" class="text-white hover:text-neon transition-colors">
-                                        {{ __('app.footer.faq') }}
-                                    </a>
-                                </li>
-                            </ul>
-                            </div>
-                        
-                        <!-- Newsletter Section -->
-                        <div>
-                            <h3 class="font-display font-bold text-white text-lg uppercase tracking-wider mb-6 border-l-4 border-neon pl-3">
-                                {{ __('app.footer.connect') }}
-                            </h3>
-                            <p class="text-sm mb-4 text-white">{{ __('app.footer.subscribe_newsletter') }}</p>
-                            
-                            <div class="relative mb-6">
-                                <form>
-                                    <input type="email" placeholder="{{ __('app.footer.your_email') }}" 
-                                        class="w-full bg-void border border-border rounded-lg py-3 px-4 text-white placeholder:text-slate-400 focus:outline-none focus:border-neon transition-colors text-sm pr-20">
-                                    <button type="submit" class="absolute right-1 top-1 bottom-1 bg-brand hover:bg-[#1a237e] text-white px-4 rounded-md font-display font-bold uppercase text-xs tracking-wide transition-colors">
-                                        {{ __('app.footer.send') }}
-                                    </button>
-                                </form>
-                                </div>
-                            
-                            <!-- App Download Buttons -->
-                            <div class="flex gap-3">
-                                <button class="flex-1 bg-void border border-border hover:border-white rounded p-2 flex items-center justify-center gap-2 transition-colors">
-                                    <i class="fab fa-apple text-xl text-white"></i>
-                                    <div class="text-left leading-none">
-                                        <div class="text-[10px] text-white">Download on</div>
-                                        <div class="text-xs font-bold text-white">App Store</div>
-                            </div>
-                                </button>
-                                <button class="flex-1 bg-void border border-border hover:border-white rounded p-2 flex items-center justify-center gap-2 transition-colors">
-                                    <i class="fab fa-google-play text-lg text-white"></i>
-                                    <div class="text-left leading-none">
-                                        <div class="text-[10px] text-white">Get it on</div>
-                                        <div class="text-xs font-bold text-white">Google Play</div>
-                        </div>
-                                </button>
-                    </div>
-                            </div>
-                                </div>
-                    
-                    <!-- Footer Bottom -->
-                    <div class="border-t border-border pt-8 pb-8 flex flex-row flex-wrap justify-between items-center gap-4 text-xs text-white">
-                        <div>
-                            &copy; {{ date('Y') }} <span class="font-bold">Game On</span>. All rights reserved.
-                            </div>
-                        <div class="flex gap-6">
-                            <a href="#" class="hover:text-white transition-colors">{{ __('app.footer.terms_of_service') }}</a>
-                            <a href="#" class="hover:text-white transition-colors">{{ __('app.footer.privacy_policy') }}</a>
-                            <a href="#" class="hover:text-white transition-colors">{{ __('app.footer.cookie_policy') }}</a>
-                        </div>
-                        <div class="flex items-center gap-1">
-                            Made with <i class="fas fa-heart text-red-500 animate-pulse"></i> by <span class="text-neon font-bold">GameOn Team</span>
-                        </div>
-                    </div>
+            <!-- Footer Bottom -->
+            <div style="border-top: 1px solid rgba(0, 229, 255, 0.1); padding-top: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+                <div style="color: #64748b; font-size: 13px;">
+                    &copy; {{ date('Y') }} <span style="color: white; font-weight: 600;">Game On</span>. All rights reserved.
                 </div>
-            </footer>
-        @endif
-    @endguest
+                <div style="display: flex; gap: 24px;">
+                    <a href="#" style="color: #64748b; text-decoration: none; font-size: 13px; transition: color 0.3s ease;">{{ __('app.footer.terms_of_service') }}</a>
+                    <a href="#" style="color: #64748b; text-decoration: none; font-size: 13px; transition: color 0.3s ease;">{{ __('app.footer.privacy_policy') }}</a>
+                    <a href="#" style="color: #64748b; text-decoration: none; font-size: 13px; transition: color 0.3s ease;">{{ __('app.footer.cookie_policy') }}</a>
+                </div>
+                <div style="color: #64748b; font-size: 13px; display: flex; align-items: center; gap: 6px;">
+                    Made with <span style="color: #ef4444;">❤</span> by <span style="color: #00E5FF; font-weight: 600;">GameOn Team</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Responsive Styles -->
+        <style>
+            /* Footer mobile responsive - 2 columns layout */
+            @media (max-width: 1024px) {
+                footer > div > div:first-of-type {
+                    grid-template-columns: repeat(2, 1fr) !important;
+                    gap: 24px !important;
+                }
+            }
+            @media (max-width: 640px) {
+                /* Keep 2 columns for Features and Support on mobile */
+                footer > div > div:first-of-type {
+                    grid-template-columns: repeat(2, 1fr) !important;
+                    gap: 16px !important;
+                }
+                /* Hide Brand and Newsletter sections on mobile */
+                footer > div > div:first-of-type > div:first-child,
+                footer > div > div:first-of-type > div:last-child {
+                    display: none !important;
+                }
+                /* Adjust footer bottom */
+                footer > div > div:last-of-type {
+                    flex-direction: column !important;
+                    text-align: center !important;
+                    gap: 12px !important;
+                }
+                /* Smaller text on mobile */
+                footer h3 {
+                    font-size: 14px !important;
+                    margin-bottom: 16px !important;
+                }
+                footer ul li {
+                    margin-bottom: 8px !important;
+                }
+                footer ul li a {
+                    font-size: 13px !important;
+                }
+            }
+        </style>
+    </footer>
+    @endif
 
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

@@ -110,8 +110,8 @@
     .empty-btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1.25rem; background: linear-gradient(135deg, #6366f1, #8b5cf6); border: none; border-radius: 10px; color: #fff; font-size: 0.85rem; font-weight: 600; cursor: pointer; }
 </style>
 <style>
-    .chat-main { flex: 1; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #000814, #000022, #0d1b2a); position: relative; overflow: hidden; }
-    .welcome-box { text-align: center; z-index: 2; padding: 2rem; }
+    .chat-main { flex: 1; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #000814, #000022, #0d1b2a); position: relative; overflow: hidden; width: 100%; }
+    .welcome-box { text-align: center; z-index: 2; padding: 2rem; width: 100%; max-width: 600px; margin: 0 auto; }
     .welcome-icon { width: 120px; height: 120px; margin: 0 auto 2rem; background: linear-gradient(135deg, #0d1b2a, #000022); border: 2px solid rgba(0, 229, 255, 0.3); border-radius: 30px; display: flex; align-items: center; justify-content: center; position: relative; box-shadow: 0 0 50px rgba(0, 229, 255, 0.2); }
     .welcome-icon i { font-size: 3rem; color: #00E5FF; }
     .welcome-icon::after { content: ''; position: absolute; inset: -8px; border: 2px solid rgba(0, 229, 255, 0.3); border-radius: 36px; animation: pulse-ring 2s ease-out infinite; }

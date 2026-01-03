@@ -277,7 +277,7 @@ class User extends Authenticatable implements MustVerifyEmail
     public function getDisplayAvatar()
     {
         if ($this->profile?->avatar) {
-            return asset('storage/' . $this->profile->avatar);
+            return asset('uploads/' . $this->profile->avatar);
         }
 
         // Generate avatar using UI Avatars API with user's initials

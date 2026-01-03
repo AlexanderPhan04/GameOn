@@ -102,7 +102,7 @@
                 @endif
                 
                 <a href="{{ route('marketplace.show', $product->id) }}" class="text-decoration-none">
-                    <img src="{{ $product->thumbnail ? asset('storage/' . $product->thumbnail) : 'https://via.placeholder.com/300x200?text=' . urlencode($product->name) }}" 
+                    <img src="{{ $product->thumbnail ? asset('uploads/' . $product->thumbnail) : 'https://via.placeholder.com/300x200?text=' . urlencode($product->name) }}" 
                          alt="{{ $product->name }}" 
                          class="product-thumbnail">
                     

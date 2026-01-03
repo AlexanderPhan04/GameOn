@@ -122,7 +122,7 @@
                                                         <img src="{{ get_avatar_url($result['item']->avatar) }}" 
                                                              class="rounded-circle me-3" width="40" height="40" alt="Avatar">
                                                     @elseif($honorEvent->target_type === 'team')
-                                                        <img src="{{ $result['item']->logo ? asset('storage/' . $result['item']->logo) : asset('images/default-team.png') }}" 
+                                                        <img src="{{ $result['item']->logo ? asset('uploads/' . $result['item']->logo) : asset('images/default-team.png') }}" 
                                                              class="rounded me-3" width="40" height="40" alt="Logo">
                                                     @elseif($honorEvent->target_type === 'tournament')
                                                         <div class="bg-primary text-white rounded me-3 d-flex align-items-center justify-content-center" 
@@ -130,7 +130,7 @@
                                                             <i class="fas fa-trophy"></i>
                                                         </div>
                                                     @elseif($honorEvent->target_type === 'game')
-                                                        <img src="{{ $result['item']->image ? asset('storage/' . $result['item']->image) : asset('images/default-game.png') }}" 
+                                                        <img src="{{ $result['item']->image ? asset('uploads/' . $result['item']->image) : asset('images/default-game.png') }}" 
                                                              class="rounded me-3" width="40" height="40" alt="Game">
                                                     @endif
                                                     <div>

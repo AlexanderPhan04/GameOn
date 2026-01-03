@@ -11,7 +11,7 @@
                     <div class="d-flex justify-content-between align-items-start mb-4">
                         <div class="d-flex align-items-center">
                             @if($team->logo_url)
-                            <img src="{{ asset('storage/' . $team->logo_url) }}" class="rounded me-3" style="width: 80px; height: 80px; object-fit: cover;">
+                            <img src="{{ asset('uploads/' . $team->logo_url) }}" class="rounded me-3" style="width: 80px; height: 80px; object-fit: cover;">
                             @else
                             <div class="bg-primary rounded d-flex align-items-center justify-content-center me-3" style="width: 80px; height: 80px;">
                                 <i class="fas fa-users fa-2x text-white"></i>

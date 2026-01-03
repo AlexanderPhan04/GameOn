@@ -251,7 +251,7 @@
                     <div class="avatar-upload">
                         <div class="avatar-preview">
                             @if(auth()->user()->avatar)
-                                <img src="{{ asset('storage/' . auth()->user()->avatar) }}" alt="Avatar" id="avatar-preview-img">
+                                <img src="{{ asset('uploads/' . auth()->user()->avatar) }}" alt="Avatar" id="avatar-preview-img">
                             @else
                                 <div class="avatar-preview-placeholder" id="avatar-placeholder">
                                     <i class="fa-solid fa-user"></i>

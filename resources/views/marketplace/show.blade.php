@@ -6,7 +6,7 @@
 <div class="container py-4">
     <div class="row">
         <div class="col-md-6">
-            <img src="{{ $product->thumbnail ? asset('storage/' . $product->thumbnail) : 'https://via.placeholder.com/600x400' }}" 
+            <img src="{{ $product->thumbnail ? asset('uploads/' . $product->thumbnail) : 'https://via.placeholder.com/600x400' }}" 
                  alt="{{ $product->name }}" 
                  class="img-fluid rounded">
         </div>
@@ -57,7 +57,7 @@
             @foreach($relatedProducts as $related)
             <div class="col-md-3">
                 <div class="card">
-                    <img src="{{ $related->thumbnail ? asset('storage/' . $related->thumbnail) : 'https://via.placeholder.com/300' }}" 
+                    <img src="{{ $related->thumbnail ? asset('uploads/' . $related->thumbnail) : 'https://via.placeholder.com/300' }}" 
                          class="card-img-top" alt="{{ $related->name }}">
                     <div class="card-body">
                         <h6 class="card-title">{{ $related->name }}</h6>

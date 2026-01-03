@@ -301,7 +301,7 @@
                             <td><input type="checkbox" class="custom-checkbox team-checkbox" value="{{ $team->id }}"></td>
                             <td>
                                 @if($team->logo_url)
-                                <img src="{{ asset('storage/' . $team->logo_url) }}" class="team-logo" alt="Logo">
+                                <img src="{{ asset('uploads/' . $team->logo_url) }}" class="team-logo" alt="Logo">
                                 @else
                                 <div class="team-logo-fallback">{{ strtoupper(substr($team->name, 0, 2)) }}</div>
                                 @endif

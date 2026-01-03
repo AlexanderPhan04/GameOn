@@ -83,12 +83,12 @@ class TournamentManagement extends Model
     // Accessors for file URLs
     public function getLogoUrlAttribute(): ?string
     {
-        return $this->logo ? asset('storage/'.$this->logo) : null;
+        return $this->logo ? asset('uploads/' . $this->logo) : null;
     }
 
     public function getBannerUrlAttribute(): ?string
     {
-        return $this->banner ? asset('storage/'.$this->banner) : null;
+        return $this->banner ? asset('uploads/' . $this->banner) : null;
     }
 
     // Status helpers
@@ -202,6 +202,6 @@ class TournamentManagement extends Model
             return $this->start_date->format('d/m/Y');
         }
 
-        return $this->start_date->format('d/m/Y').' - '.$this->end_date->format('d/m/Y');
+        return $this->start_date->format('d/m/Y') . ' - ' . $this->end_date->format('d/m/Y');
     }
 }

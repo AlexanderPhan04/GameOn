@@ -138,7 +138,7 @@
                                     <label class="form-label">Ảnh thumbnail</label>
                                     @if($product->thumbnail)
                                         <div class="mb-2">
-                                            <img src="{{ asset('storage/' . $product->thumbnail) }}" 
+                                            <img src="{{ asset('uploads/' . $product->thumbnail) }}" 
                                                  alt="{{ $product->name }}" 
                                                  style="max-width: 200px; border-radius: 8px;">
                                         </div>
@@ -156,7 +156,7 @@
                                     @if($product->images && count($product->images) > 0)
                                         <div class="mb-2">
                                             @foreach($product->images as $image)
-                                                <img src="{{ asset('storage/' . $image) }}" 
+                                                <img src="{{ asset('uploads/' . $image) }}" 
                                                      alt="Product image" 
                                                      style="max-width: 100px; margin-right: 5px; border-radius: 4px;">
                                             @endforeach

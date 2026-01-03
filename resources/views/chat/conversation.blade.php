@@ -9,7 +9,7 @@
     body:has(.chat-page) footer { display: none !important; }
     body.has-admin-sidebar:has(.chat-page) main { margin-left: 60px !important; width: calc(100% - 60px) !important; }
     
-    .chat-page { display: flex; min-height: calc(100vh - 64px); background: #000814; width: 100%; padding: 1rem; gap: 1rem; box-sizing: border-box; }
+    .chat-page { display: flex; height: calc(100vh - 64px); max-height: calc(100vh - 64px); background: #000814; width: 100%; padding: 1rem; gap: 1rem; box-sizing: border-box; overflow: hidden; }
     
     /* Sidebar */
     .chat-sidebar {
@@ -81,6 +81,7 @@
         border: 1px solid rgba(0, 229, 255, 0.15);
         border-radius: 16px;
         overflow: hidden;
+        max-height: 100%;
     }
     
     .chat-header {
@@ -112,6 +113,7 @@
     .messages-area {
         flex: 1; overflow-y: auto; padding: 1.5rem;
         background: linear-gradient(180deg, #000814 0%, #0d1b2a 100%);
+        min-height: 0;
     }
     
     .messages-area::-webkit-scrollbar { width: 6px; }
@@ -148,6 +150,7 @@
         padding: 1rem 1.5rem;
         background: #0d1b2a;
         border-top: 1px solid rgba(0, 229, 255, 0.15);
+        flex-shrink: 0;
     }
     
     .input-wrapper {
@@ -168,12 +171,78 @@
     .btn-emoji { background: #f59e0b; color: #fff; }
     .btn-send { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; }
     
+    /* File Preview - compact inline style */
+    .file-preview {
+        padding: 0.5rem 1rem;
+        background: rgba(0, 229, 255, 0.08);
+        border-radius: 12px 12px 0 0;
+        margin: 0 0.5rem;
+    }
+    
+    .preview-content {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        position: relative;
+    }
+    
+    .preview-img {
+        width: 60px;
+        height: 60px;
+        border-radius: 8px;
+        object-fit: cover;
+        border: 2px solid rgba(0, 229, 255, 0.3);
+    }
+    
+    .preview-file {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 0.75rem;
+        background: rgba(0, 229, 255, 0.1);
+        border: 1px solid rgba(0, 229, 255, 0.2);
+        border-radius: 8px;
+        color: #00E5FF;
+        font-size: 0.8rem;
+        max-width: 200px;
+    }
+    
+    .preview-file i {
+        font-size: 1rem;
+    }
+    
+    .preview-file span {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .remove-file-btn {
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #ef4444;
+        border: none;
+        border-radius: 50%;
+        color: #fff;
+        cursor: pointer;
+        font-size: 0.65rem;
+        transition: all 0.2s;
+        flex-shrink: 0;
+    }
+    
+    .remove-file-btn:hover {
+        background: #dc2626;
+        transform: scale(1.1);
+    }
+    
     .message-input {
         flex: 1; background: transparent; border: none; color: #fff;
         font-size: 0.9rem; padding: 0.5rem; resize: none; max-height: 100px;
     }
-    
-    .message-input::placeholder { color: #64748b; }
+        .message-input::placeholder { color: #64748b; }
     .message-input:focus { outline: none; }
     
     /* Dropdown */
@@ -324,9 +393,23 @@
         </div>
 
         <div class="chat-input-area">
+            <!-- Image Preview -->
+            <div id="file-preview" class="file-preview" style="display: none;">
+                <div class="preview-content">
+                    <img id="preview-image" src="" alt="Preview" class="preview-img">
+                    <div id="preview-file" class="preview-file" style="display: none;">
+                        <i class="fas fa-file"></i>
+                        <span id="preview-filename"></span>
+                    </div>
+                    <button type="button" id="remove-file" class="remove-file-btn">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            
             <form id="message-form">
                 @csrf
-                <input type="file" id="file-input" accept="image/*,application/pdf,.doc,.docx,.txt">
+                <input type="file" id="file-input" accept="image/*,application/pdf,.doc,.docx,.txt" style="display:none;">
                 <div class="input-wrapper">
                     <button type="button" class="btn-input btn-attach" id="attach-btn"><i class="fas fa-paperclip"></i></button>
                     <textarea id="message-input" class="message-input" placeholder="Nhập tin nhắn..." rows="1"></textarea>
@@ -505,7 +588,48 @@ document.addEventListener('DOMContentLoaded', function() {
         this.style.height = Math.min(this.scrollHeight, 100) + 'px';
     });
     
+    // File preview elements
+    const filePreview = document.getElementById('file-preview');
+    const previewImage = document.getElementById('preview-image');
+    const previewFile = document.getElementById('preview-file');
+    const previewFilename = document.getElementById('preview-filename');
+    const removeFileBtn = document.getElementById('remove-file');
+    
     document.getElementById('attach-btn').onclick = () => fileInput.click();
+    
+    // Handle file selection with preview
+    fileInput.addEventListener('change', function() {
+        const file = this.files[0];
+        if (!file) {
+            filePreview.style.display = 'none';
+            return;
+        }
+        
+        const isImage = file.type.startsWith('image/');
+        
+        if (isImage) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImage.src = e.target.result;
+                previewImage.style.display = 'block';
+                previewFile.style.display = 'none';
+                filePreview.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        } else {
+            previewImage.style.display = 'none';
+            previewFile.style.display = 'flex';
+            previewFilename.textContent = file.name;
+            filePreview.style.display = 'block';
+        }
+    });
+    
+    // Remove file
+    removeFileBtn.onclick = function() {
+        fileInput.value = '';
+        filePreview.style.display = 'none';
+        previewImage.src = '';
+    };
     
     document.getElementById('emoji-toggle').onclick = (e) => {
         e.stopPropagation();
@@ -532,7 +656,7 @@ document.addEventListener('DOMContentLoaded', function() {
         dropdownMenu.classList.remove('show');
     };
     
-    msgForm.onsubmit = async (e) => {
+    msgForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const msg = msgInput.value.trim();
         const file = fileInput.files[0];
@@ -540,26 +664,70 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const formData = new FormData();
         formData.append('_token', '{{ csrf_token() }}');
-        formData.append('message', msg);
-        if (file) formData.append('file', file);
+        formData.append('content', msg);
+        if (file) formData.append('attachment', file);
         
         try {
             const res = await fetch(`/chat/conversation/${convId}/send`, { method: 'POST', body: formData });
             const data = await res.json();
-            if (data.success && data.html) {
-                msgList.insertAdjacentHTML('beforeend', data.html);
+            console.log('Send response:', data);
+            if (data.success && data.message) {
+                // Build message HTML from JSON response (matching message.blade.php structure)
+                const m = data.message;
+                const isMine = m.sender.id === {{ Auth::id() }};
+                
+                let attachmentHtml = '';
+                if (m.attachment_url) {
+                    if (m.type === 'image') {
+                        attachmentHtml = `<div class="msg-attachment">
+                            <img src="${m.attachment_url}" alt="Hình ảnh" class="msg-image" onclick="window.open('${m.attachment_url}', '_blank')">
+                        </div>`;
+                    } else if (m.type === 'file') {
+                        attachmentHtml = `<div class="msg-attachment">
+                            <a href="${m.attachment_url}" target="_blank" class="msg-file">
+                                <i class="fas fa-file"></i>
+                                <span>${m.attachment_name || 'Tệp đính kèm'}</span>
+                            </a>
+                        </div>`;
+                    }
+                }
+                
+                let textHtml = '';
+                if (m.content) {
+                    textHtml = `<div class="msg-text">${m.content.replace(/\n/g, '<br>').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/&lt;br&gt;/g, '<br>')}</div>`;
+                }
+                
+                const messageHtml = `
+                <div class="message-item ${isMine ? 'own' : 'other'}" data-message-id="${m.id}">
+                    <div class="message-content">
+                        <img src="${m.sender.avatar}" alt="${m.sender.name}" class="msg-avatar">
+                        <div class="message-bubble">
+                            ${!isMine ? `<div class="msg-sender">${m.sender.name}</div>` : ''}
+                            ${attachmentHtml}
+                            ${textHtml}
+                            <div class="msg-time">${m.formatted_time}</div>
+                        </div>
+                    </div>
+                </div>`;
+                
+                msgList.insertAdjacentHTML('beforeend', messageHtml);
                 msgContainer.scrollTop = msgContainer.scrollHeight;
                 msgInput.value = '';
                 msgInput.style.height = 'auto';
                 fileInput.value = '';
+                filePreview.style.display = 'none';
+                previewImage.src = '';
+            } else if (data.error) {
+                console.error('Send error:', data.error);
+                alert(data.error);
             }
-        } catch (err) { console.error(err); }
-    };
+        } catch (err) { console.error('Fetch error:', err); }
+    });
     
     msgInput.onkeydown = (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
-            msgForm.dispatchEvent(new Event('submit'));
+            msgForm.requestSubmit();
         }
     };
     

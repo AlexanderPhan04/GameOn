@@ -285,19 +285,19 @@ Route::prefix('admin/marketplace')->name('admin.marketplace.')->middleware(['aut
     Route::patch('/{id}/toggle-status', [AdminMarketplaceController::class, 'toggleStatus'])->name('toggleStatus');
 });
 
-// Payment Routes - VNPay Integration
+// Payment Routes - PayOS Integration
 Route::prefix('payment')->name('payment.')->group(function () {
-    // Tạo đơn hàng và chuyển hướng đến VNPay
-    Route::post('/vnpay/create', [PaymentController::class, 'createPayment'])->name('vnpay.create');
+    // Tạo link thanh toán PayOS
+    Route::post('/payos/create', [PaymentController::class, 'createPayment'])->name('payos.create');
 
-    // Callback từ VNPay sau khi thanh toán
-    Route::get('/vnpay/return', [PaymentController::class, 'vnpayReturn'])->name('vnpay.return');
+    // Callback từ PayOS sau khi thanh toán thành công
+    Route::get('/payos/success', [PaymentController::class, 'handleSuccess'])->name('success');
 
-    // IPN (Instant Payment Notification) từ VNPay
-    Route::post('/vnpay/ipn', [PaymentController::class, 'vnpayIpn'])->name('vnpay.ipn');
+    // Callback từ PayOS khi hủy thanh toán
+    Route::get('/payos/cancel', [PaymentController::class, 'handleCancel'])->name('cancel');
 
-    // Query transaction từ VNPay
-    Route::post('/vnpay/query', [PaymentController::class, 'queryTransaction'])->name('vnpay.query');
+    // Webhook từ PayOS (IPN)
+    Route::post('/payos/webhook', [PaymentController::class, 'webhook'])->name('payos.webhook');
 });
 
 // Marketplace Routes
@@ -306,10 +306,12 @@ Route::prefix('marketplace')->name('marketplace.')->group(function () {
     Route::get('/product/{id}', [MarketplaceController::class, 'show'])->name('show');
     Route::post('/cart/{id}', [MarketplaceController::class, 'addToCart'])->name('addToCart');
     Route::get('/cart', [MarketplaceController::class, 'cart'])->name('cart');
+    Route::patch('/cart/{id}', [MarketplaceController::class, 'updateCartQuantity'])->name('updateCartQuantity');
     Route::delete('/cart/{id}', [MarketplaceController::class, 'removeFromCart'])->name('removeFromCart');
     Route::get('/checkout', [MarketplaceController::class, 'checkout'])->name('checkout')->middleware('auth.session');
     Route::post('/process-payment', [MarketplaceController::class, 'processPayment'])->name('processPayment')->middleware('auth.session');
     Route::get('/inventory', [MarketplaceController::class, 'inventory'])->name('inventory')->middleware('auth.session');
     Route::post('/inventory/{id}/equip', [MarketplaceController::class, 'equipItem'])->name('equipItem')->middleware('auth.session');
     Route::post('/donate/{userId}', [MarketplaceController::class, 'donate'])->name('donate')->middleware('auth.session');
+    
 });

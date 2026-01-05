@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Events\ProductUpdated;
 use App\Http\Controllers\Controller;
 use App\Models\MarketplaceProduct;
 use Illuminate\Http\Request;
@@ -128,6 +129,9 @@ class MarketplaceController extends Controller
 
         $product = MarketplaceProduct::create($data);
 
+        // Broadcast product created
+        broadcast(new ProductUpdated($product, 'created'));
+
         return redirect()->route('admin.marketplace.index')
             ->with('success', 'Sản phẩm đã được tạo thành công!');
     }
@@ -214,6 +218,9 @@ class MarketplaceController extends Controller
 
         $product->update($data);
 
+        // Broadcast product updated
+        broadcast(new ProductUpdated($product, 'updated'));
+
         return redirect()->route('admin.marketplace.index')
             ->with('success', 'Sản phẩm đã được cập nhật thành công!');
     }
@@ -253,6 +260,9 @@ class MarketplaceController extends Controller
         $product = MarketplaceProduct::findOrFail($id);
         $product->is_active = !$product->is_active;
         $product->save();
+
+        // Broadcast product status change
+        broadcast(new ProductUpdated($product, $product->is_active ? 'activated' : 'deactivated'));
 
         return response()->json([
             'success' => true,

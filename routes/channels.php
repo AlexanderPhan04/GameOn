@@ -55,3 +55,11 @@ Broadcast::channel('conversation.{conversationId}.presence', function ($user, $c
         'avatar' => $user->getDisplayAvatar(),
     ];
 });
+
+/**
+ * Public channel for marketplace updates
+ * Anyone can listen to product updates
+ */
+Broadcast::channel('marketplace', function () {
+    return true;
+});

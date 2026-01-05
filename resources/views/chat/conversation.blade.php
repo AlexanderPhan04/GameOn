@@ -275,20 +275,24 @@
     .emoji-picker {
         position: absolute; bottom: calc(100% + 10px); right: 0;
         background: #0d1b2a; border: 1px solid rgba(0, 229, 255, 0.2);
-        border-radius: 12px; padding: 0.75rem; width: 260px;
+        border-radius: 12px; padding: 0.75rem; width: 280px;
         display: none; z-index: 100;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
     }
     
     .emoji-picker.show { display: block; }
     
-    .emoji-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 0.25rem; }
+    .emoji-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 0.35rem; }
     
     .emoji-btn {
-        padding: 0.4rem; background: transparent; border: none;
-        border-radius: 6px; font-size: 1.1rem; cursor: pointer;
+        width: 30px; height: 30px;
+        padding: 0; background: transparent; border: none;
+        border-radius: 6px; font-size: 1.2rem; cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        transition: all 0.2s;
     }
     
-    .emoji-btn:hover { background: rgba(0, 229, 255, 0.1); }
+    .emoji-btn:hover { background: rgba(0, 229, 255, 0.15); transform: scale(1.15); }
     
     #file-input { display: none; }
     
@@ -326,8 +330,29 @@
     .member-item .email { color: #64748b; font-size: 0.8rem; }
     
     @media (max-width: 768px) {
+        body:has(.chat-page) main { margin-left: 0 !important; width: 100% !important; }
+        .chat-page { padding: 0; gap: 0; }
         .chat-sidebar { display: none; }
+        .chat-main-area { border-radius: 0; border: none; }
+        .btn-back-mobile { display: flex !important; }
+        .chat-header { padding: 0.75rem 1rem; }
+        .chat-input-area { padding: 0.75rem 1rem; }
+        .messages-area { padding: 1rem; }
     }
+    
+    .btn-back-mobile {
+        display: none;
+        width: 36px; height: 36px;
+        align-items: center; justify-content: center;
+        background: rgba(0, 229, 255, 0.1);
+        border: 1px solid rgba(0, 229, 255, 0.2);
+        border-radius: 8px;
+        color: #00E5FF;
+        text-decoration: none;
+        margin-right: 0.5rem;
+    }
+    
+    .btn-back-mobile:hover { background: rgba(0, 229, 255, 0.2); color: #fff; }
 </style>
 @endpush
 
@@ -364,6 +389,9 @@
     <div class="chat-main-area">
         <header class="chat-header">
             <div class="chat-header-left">
+                <a href="{{ route('chat.index') }}" class="btn-back-mobile">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
                 <img src="{{ $conversation->getDisplayAvatar(auth()->id()) }}" alt="Avatar">
                 <div>
                     <h6>{{ $conversation->getDisplayName(auth()->id()) }}</h6>
@@ -373,9 +401,13 @@
             <div class="dropdown-wrapper">
                 <button class="btn-menu" id="menu-toggle"><i class="fas fa-ellipsis-v"></i></button>
                 <div class="dropdown-menu-chat" id="dropdown-menu">
-                    <button class="dropdown-item-chat"><i class="fas fa-bell"></i> Bật thông báo</button>
+                    <button class="dropdown-item-chat" id="toggle-notification-btn">
+                        <i class="fas fa-bell"></i> <span id="notification-text">Bật thông báo</span>
+                    </button>
                     <div class="dropdown-divider"></div>
-                    <button class="dropdown-item-chat"><i class="fas fa-broom"></i> Xóa lịch sử</button>
+                    <button class="dropdown-item-chat" id="clear-history-btn">
+                        <i class="fas fa-broom"></i> Xóa lịch sử
+                    </button>
                     <div class="dropdown-divider"></div>
                     <button class="dropdown-item-chat danger" id="leave-btn-menu">
                         <i class="fas fa-sign-out-alt"></i> Rời cuộc trò chuyện
@@ -456,6 +488,30 @@
         <div class="modal-footer">
             <button class="btn-cancel" id="cancelModalBtn">Hủy</button>
             <button class="btn-submit" id="submitGroupBtn" disabled><i class="fas fa-plus"></i> Tạo nhóm</button>
+        </div>
+    </div>
+</div>
+
+<!-- Confirm Modal -->
+<div class="modal-overlay" id="confirmOverlay"></div>
+<div class="modal-container" id="confirmContainer">
+    <div class="modal-box" style="max-width: 400px;">
+        <div class="modal-header" style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(220, 38, 38, 0.15));">
+            <div class="modal-header-left">
+                <div class="modal-icon" style="background: linear-gradient(135deg, #ef4444, #dc2626);"><i class="fas fa-exclamation-triangle"></i></div>
+                <div>
+                    <h3 class="modal-title" id="confirmTitle">Xác nhận</h3>
+                    <p class="modal-subtitle" id="confirmSubtitle">Hành động này không thể hoàn tác</p>
+                </div>
+            </div>
+            <button class="modal-close" id="confirmCloseBtn"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <p id="confirmMessage" style="color: #94a3b8; font-size: 0.95rem; line-height: 1.6; margin: 0;">Bạn có chắc chắn muốn thực hiện hành động này?</p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-cancel" id="confirmCancelBtn">Hủy</button>
+            <button class="btn-submit" id="confirmOkBtn" style="background: linear-gradient(135deg, #ef4444, #dc2626);"><i class="fas fa-check"></i> Xác nhận</button>
         </div>
     </div>
 </div>
@@ -638,10 +694,11 @@ document.addEventListener('DOMContentLoaded', function() {
     };
     
     document.querySelectorAll('.emoji-btn').forEach(btn => {
-        btn.onclick = function() {
+        btn.onclick = function(e) {
+            e.stopPropagation(); // Prevent closing picker
             msgInput.value += this.dataset.emoji;
             msgInput.focus();
-            emojiPicker.classList.remove('show');
+            // Don't close picker - let user add multiple emojis
         };
     });
     
@@ -734,20 +791,178 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
     
-    const leaveHandler = async () => {
-        if (!confirm('Bạn có chắc muốn rời?')) return;
-        try {
-            const res = await fetch(`/chat/conversation/${convId}/leave`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
-            });
-            const data = await res.json();
-            if (data.success) window.location.href = '{{ route("chat.index") }}';
-        } catch (err) { /* Silent error */ }
+    // Custom confirm modal
+    const confirmOverlay = document.getElementById('confirmOverlay');
+    const confirmContainer = document.getElementById('confirmContainer');
+    const confirmTitle = document.getElementById('confirmTitle');
+    const confirmSubtitle = document.getElementById('confirmSubtitle');
+    const confirmMessage = document.getElementById('confirmMessage');
+    const confirmOkBtn = document.getElementById('confirmOkBtn');
+    const confirmCancelBtn = document.getElementById('confirmCancelBtn');
+    const confirmCloseBtn = document.getElementById('confirmCloseBtn');
+    
+    let confirmCallback = null;
+    
+    function showConfirm(options) {
+        confirmTitle.textContent = options.title || 'Xác nhận';
+        confirmSubtitle.textContent = options.subtitle || 'Hành động này không thể hoàn tác';
+        confirmMessage.textContent = options.message || 'Bạn có chắc chắn?';
+        confirmOkBtn.innerHTML = `<i class="fas fa-${options.icon || 'check'}"></i> ${options.okText || 'Xác nhận'}`;
+        confirmCallback = options.onConfirm;
+        confirmOverlay.classList.add('show');
+        confirmContainer.classList.add('show');
+    }
+    
+    function hideConfirm() {
+        confirmOverlay.classList.remove('show');
+        confirmContainer.classList.remove('show');
+        confirmCallback = null;
+    }
+    
+    confirmCancelBtn.onclick = hideConfirm;
+    confirmCloseBtn.onclick = hideConfirm;
+    confirmOverlay.onclick = hideConfirm;
+    confirmOkBtn.onclick = () => {
+        if (confirmCallback) confirmCallback();
+        hideConfirm();
+    };
+    
+    const leaveHandler = () => {
+        showConfirm({
+            title: 'Rời cuộc trò chuyện',
+            subtitle: 'Bạn sẽ không nhận được tin nhắn mới',
+            message: 'Bạn có chắc chắn muốn rời khỏi cuộc trò chuyện này? Bạn sẽ cần được mời lại để tham gia.',
+            okText: 'Rời đi',
+            icon: 'sign-out-alt',
+            onConfirm: async () => {
+                try {
+                    const res = await fetch(`/chat/conversation/${convId}/leave`, {
+                        method: 'DELETE',
+                        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+                    });
+                    const data = await res.json();
+                    if (data.success) window.location.href = '{{ route("chat.index") }}';
+                    else alert(data.error || 'Không thể rời cuộc trò chuyện');
+                } catch (err) { 
+                    alert('Có lỗi xảy ra');
+                }
+            }
+        });
     };
     
     document.getElementById('leave-btn').onclick = leaveHandler;
     document.getElementById('leave-btn-menu').onclick = leaveHandler;
+    
+    // Clear history handler
+    const clearHistoryBtn = document.getElementById('clear-history-btn');
+    if (clearHistoryBtn) {
+        clearHistoryBtn.onclick = () => {
+            showConfirm({
+                title: 'Xóa lịch sử chat',
+                subtitle: 'Tất cả tin nhắn sẽ bị xóa',
+                message: 'Bạn có chắc chắn muốn xóa toàn bộ lịch sử chat? Hành động này không thể hoàn tác.',
+                okText: 'Xóa',
+                icon: 'trash',
+                onConfirm: async () => {
+                    try {
+                        const res = await fetch(`/chat/conversation/${convId}/clear-history`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                            msgList.innerHTML = '';
+                            dropdownMenu.classList.remove('show');
+                        } else {
+                            alert(data.error || 'Không thể xóa lịch sử');
+                        }
+                    } catch (err) { 
+                        alert('Có lỗi xảy ra');
+                    }
+                }
+            });
+        };
+    }
+    
+    // Toast notification function
+    function showToast(message, type = 'success') {
+        // Remove existing toast
+        const existingToast = document.getElementById('chat-toast');
+        if (existingToast) existingToast.remove();
+        
+        const iconMap = {
+            success: 'check-circle',
+            error: 'exclamation-circle',
+            info: 'info-circle',
+            warning: 'exclamation-triangle'
+        };
+        const colorMap = {
+            success: '#00E5FF',
+            error: '#ef4444',
+            info: '#3b82f6',
+            warning: '#f59e0b'
+        };
+        
+        const toast = document.createElement('div');
+        toast.id = 'chat-toast';
+        toast.innerHTML = `
+            <div style="position: fixed; top: 80px; left: 50%; transform: translateX(-50%); z-index: 99999; animation: toastSlideIn 0.3s ease;">
+                <div style="background: linear-gradient(135deg, rgba(13, 27, 42, 0.98), rgba(0, 0, 34, 0.98)); border: 1px solid ${colorMap[type]}40; border-radius: 12px; padding: 14px 20px; display: flex; align-items: center; gap: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.5), 0 0 20px ${colorMap[type]}20; backdrop-filter: blur(10px);">
+                    <div style="width: 32px; height: 32px; background: ${colorMap[type]}20; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: ${colorMap[type]};">
+                        <i class="fas fa-${iconMap[type]}"></i>
+                    </div>
+                    <span style="color: #fff; font-size: 14px; font-weight: 500;">${message}</span>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(toast);
+        
+        // Auto remove after 3 seconds
+        setTimeout(() => {
+            toast.style.animation = 'toastSlideOut 0.3s ease forwards';
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+    
+    // Add toast animation styles
+    if (!document.getElementById('toast-styles')) {
+        const style = document.createElement('style');
+        style.id = 'toast-styles';
+        style.textContent = `
+            @keyframes toastSlideIn { from { opacity: 0; transform: translateX(-50%) translateY(-20px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+            @keyframes toastSlideOut { from { opacity: 1; transform: translateX(-50%) translateY(0); } to { opacity: 0; transform: translateX(-50%) translateY(-20px); } }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    // Toggle notification handler
+    let notificationEnabled = localStorage.getItem(`chat_notification_${convId}`) !== 'disabled';
+    const toggleNotificationBtn = document.getElementById('toggle-notification-btn');
+    const notificationText = document.getElementById('notification-text');
+    
+    function updateNotificationUI() {
+        if (notificationText) {
+            notificationText.textContent = notificationEnabled ? 'Tắt thông báo' : 'Bật thông báo';
+        }
+        if (toggleNotificationBtn) {
+            const icon = toggleNotificationBtn.querySelector('i');
+            if (icon) {
+                icon.className = notificationEnabled ? 'fas fa-bell-slash' : 'fas fa-bell';
+            }
+        }
+    }
+    
+    updateNotificationUI();
+    
+    if (toggleNotificationBtn) {
+        toggleNotificationBtn.onclick = () => {
+            notificationEnabled = !notificationEnabled;
+            localStorage.setItem(`chat_notification_${convId}`, notificationEnabled ? 'enabled' : 'disabled');
+            updateNotificationUI();
+            dropdownMenu.classList.remove('show');
+            showToast(notificationEnabled ? 'Đã bật thông báo cho cuộc trò chuyện này' : 'Đã tắt thông báo cho cuộc trò chuyện này', notificationEnabled ? 'success' : 'info');
+        };
+    }
     
     // Real-time WebSocket with Laravel Echo
     let lastMessageId = {{ $messages->last()?->id ?? 0 }};
@@ -846,6 +1061,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Don't add if it's from current user (already added when sent)
                 if (e.sender.id !== currentUserId) {
                     addMessageToUI(e, false);
+                    
+                    // Play notification sound only if notifications are enabled for this conversation
+                    if (notificationEnabled) {
+                        try {
+                            const audio = new Audio('/matchfound.mp3');
+                            audio.volume = 0.85;
+                            audio.play().catch(() => {});
+                        } catch (err) {}
+                    }
                 }
             })
             // User typing

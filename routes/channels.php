@@ -19,6 +19,13 @@ Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
 });
 
 /**
+ * Private channel for user notifications
+ */
+Broadcast::channel('user.{userId}', function ($user, $userId) {
+    return (int) $user->id === (int) $userId;
+});
+
+/**
  * Private channel for chat conversations
  * Only participants can listen to this channel
  */

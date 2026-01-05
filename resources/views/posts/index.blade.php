@@ -11,7 +11,7 @@
     .feed-container {
         max-width: 680px;
         margin: 0 auto;
-        padding: 2rem 1rem;
+        padding: 0.5rem 1rem 2rem 1rem;
     }
     .page-title {
         font-family: 'Rajdhani', sans-serif;
@@ -465,6 +465,10 @@
     /* Reactions Popover */
     .like-wrapper {
         position: relative;
+        display: flex;
+    }
+    .like-wrapper .action-btn {
+        flex: 1;
     }
     .reactions-popover {
         position: absolute;
@@ -603,6 +607,74 @@
     }
     .comment-action.active {
         color: #3b82f6;
+    }
+    /* Comment Like Wrapper */
+    .comment-like-wrapper {
+        position: relative;
+        display: inline-block;
+    }
+    .comment-like-btn.reacted-like { color: #3b82f6; }
+    .comment-like-btn.reacted-love { color: #ef4444; }
+    .comment-like-btn.reacted-haha { color: #f59e0b; }
+    .comment-like-btn.reacted-wow { color: #06b6d4; }
+    .comment-like-btn.reacted-sad { color: #64748b; }
+    .comment-like-btn.reacted-angry { color: #f97316; }
+    
+    /* Comment Reactions Popover */
+    .comment-reactions-popover {
+        position: absolute;
+        bottom: calc(100% + 6px);
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(135deg, #0d1b2a 0%, #000022 100%);
+        border: 1px solid rgba(0, 229, 255, 0.25);
+        border-radius: 20px;
+        padding: 0.35rem 0.5rem;
+        display: none;
+        gap: 0.15rem;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 15px rgba(0, 229, 255, 0.1);
+        z-index: 100;
+    }
+    .comment-reactions-popover.show {
+        display: flex;
+    }
+    .comment-reactions-popover .reaction {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        color: #fff;
+        font-size: 0.75rem;
+    }
+    .comment-reactions-popover .reaction:hover {
+        transform: scale(1.3) translateY(-3px);
+    }
+    .comment-reactions-popover.small .reaction {
+        width: 24px;
+        height: 24px;
+        font-size: 0.65rem;
+    }
+    .comment-reactions-popover .reaction.like { color: #3b82f6; }
+    .comment-reactions-popover .reaction.love { color: #ef4444; }
+    .comment-reactions-popover .reaction.haha { color: #f59e0b; }
+    .comment-reactions-popover .reaction.wow { color: #06b6d4; }
+    .comment-reactions-popover .reaction.sad { color: #64748b; }
+    .comment-reactions-popover .reaction.angry { color: #f97316; }
+    
+    /* Comment Likes Count */
+    .comment-likes-count {
+        color: #64748b;
+        font-size: 0.7rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+    .comment-likes-count.hidden {
+        display: none;
     }
 
     /* Modal */
@@ -1039,7 +1111,7 @@
                         $topTypes = $typeCounts ? $typeCounts->keys()->take(2) : collect();
                     @endphp
                     <div class="stats-reactions {{ $post->likes_count > 0 ? '' : 'hidden' }}" id="likes-wrap-{{ $post->id }}">
-                        <div class="reaction-icons">
+                        <div class="reaction-icons" id="reaction-icons-{{ $post->id }}">
                             @foreach($topTypes as $t)
                             <span class="reaction-icon {{ $t }}"><i class="{{ $statIconClassMap[$t] }}"></i></span>
                             @endforeach
@@ -1124,11 +1196,24 @@
                             <div class="comment-actions">
                                 <span class="comment-time">{{ $c->created_at->diffForHumans() }}</span>
                                 @php $myCReaction = auth()->check() ? optional($c->reactions->firstWhere('user_id', auth()->id()))->type : null; @endphp
-                                <span class="comment-action {{ $myCReaction ? 'active' : '' }}"
-                                      data-react-endpoint="{{ route('comments.react',$c) }}"
-                                      data-comment-id="{{ $c->id }}"
-                                      data-reaction="{{ $myCReaction ?? '' }}">
-                                    {{ $myCReaction ? (['like'=>'Thích','love'=>'Yêu thích','haha'=>'Haha','wow'=>'Wow','sad'=>'Buồn','angry'=>'Phẫn nộ'][$myCReaction] ?? 'Thích') : 'Thích' }}
+                                <div class="comment-like-wrapper">
+                                    <span class="comment-action comment-like-btn {{ $myCReaction ? 'reacted-'.$myCReaction : '' }}"
+                                          data-react-endpoint="{{ route('comments.react',$c) }}"
+                                          data-comment-id="{{ $c->id }}"
+                                          data-reaction="{{ $myCReaction ?? '' }}">
+                                        {{ $myCReaction ? (['like'=>'Thích','love'=>'Yêu thích','haha'=>'Haha','wow'=>'Wow','sad'=>'Buồn','angry'=>'Phẫn nộ'][$myCReaction] ?? 'Thích') : 'Thích' }}
+                                    </span>
+                                    <div class="comment-reactions-popover">
+                                        <div class="reaction like" data-type="like" title="Thích"><i class="far fa-thumbs-up"></i></div>
+                                        <div class="reaction love" data-type="love" title="Yêu thích"><i class="fas fa-heart"></i></div>
+                                        <div class="reaction haha" data-type="haha" title="Haha"><i class="fas fa-laugh"></i></div>
+                                        <div class="reaction wow" data-type="wow" title="Wow"><i class="fas fa-surprise"></i></div>
+                                        <div class="reaction sad" data-type="sad" title="Buồn"><i class="fas fa-sad-tear"></i></div>
+                                        <div class="reaction angry" data-type="angry" title="Phẫn nộ"><i class="fas fa-angry"></i></div>
+                                    </div>
+                                </div>
+                                <span class="comment-likes-count {{ $c->likes_count > 0 ? '' : 'hidden' }}" id="comment-likes-{{ $c->id }}">
+                                    <i class="far fa-thumbs-up"></i> <span class="count">{{ $c->likes_count }}</span>
                                 </span>
                                 <span class="comment-action reply-btn" data-comment-id="{{ $c->id }}" data-comment-author="{{ $c->user->name ?? 'User' }}" data-post-id="{{ $post->id }}">Trả lời</span>
                             </div>
@@ -1148,12 +1233,24 @@
                                         </div>
                                         <div class="comment-actions" style="gap:0.5rem;">
                                             <span class="comment-time" style="font-size:0.7rem;">{{ $reply->created_at->diffForHumans() }}</span>
-                                            <span class="comment-action {{ $myReplyReaction ? 'active' : '' }}"
-                                                  data-react-endpoint="{{ route('comments.react', $reply) }}"
-                                                  data-comment-id="{{ $reply->id }}"
-                                                  data-reaction="{{ $myReplyReaction ?? '' }}"
-                                                  style="font-size:0.75rem;">
-                                                {{ $myReplyReaction ? (['like'=>'Thích','love'=>'Yêu thích','haha'=>'Haha','wow'=>'Wow','sad'=>'Buồn','angry'=>'Phẫn nộ'][$myReplyReaction] ?? 'Thích') : 'Thích' }}
+                                            <div class="comment-like-wrapper" style="font-size:0.75rem;">
+                                                <span class="comment-action comment-like-btn {{ $myReplyReaction ? 'reacted-'.$myReplyReaction : '' }}"
+                                                      data-react-endpoint="{{ route('comments.react', $reply) }}"
+                                                      data-comment-id="{{ $reply->id }}"
+                                                      data-reaction="{{ $myReplyReaction ?? '' }}">
+                                                    {{ $myReplyReaction ? (['like'=>'Thích','love'=>'Yêu thích','haha'=>'Haha','wow'=>'Wow','sad'=>'Buồn','angry'=>'Phẫn nộ'][$myReplyReaction] ?? 'Thích') : 'Thích' }}
+                                                </span>
+                                                <div class="comment-reactions-popover small">
+                                                    <div class="reaction like" data-type="like" title="Thích"><i class="far fa-thumbs-up"></i></div>
+                                                    <div class="reaction love" data-type="love" title="Yêu thích"><i class="fas fa-heart"></i></div>
+                                                    <div class="reaction haha" data-type="haha" title="Haha"><i class="fas fa-laugh"></i></div>
+                                                    <div class="reaction wow" data-type="wow" title="Wow"><i class="fas fa-surprise"></i></div>
+                                                    <div class="reaction sad" data-type="sad" title="Buồn"><i class="fas fa-sad-tear"></i></div>
+                                                    <div class="reaction angry" data-type="angry" title="Phẫn nộ"><i class="fas fa-angry"></i></div>
+                                                </div>
+                                            </div>
+                                            <span class="comment-likes-count {{ $reply->likes_count > 0 ? '' : 'hidden' }}" id="comment-likes-{{ $reply->id }}" style="font-size:0.7rem;">
+                                                <i class="far fa-thumbs-up"></i> <span class="count">{{ $reply->likes_count }}</span>
                                             </span>
                                             <span class="comment-action reply-btn" data-comment-id="{{ $c->id }}" data-comment-author="{{ $reply->user->name ?? 'User' }}" data-post-id="{{ $post->id }}" style="font-size:0.75rem;">Trả lời</span>
                                         </div>
@@ -1362,22 +1459,25 @@ function closeConfirmModal() {
 
 // Share modal functions
 function openShareModal(postId) {
-    const postCard = document.querySelector(`[data-post-id="${postId}"]`) || document.querySelector(`.post-card:has([data-toggle-comments="${postId}"])`);
-    
-    // Get post info from the page
-    const postElement = document.querySelector(`#comments-${postId}`)?.closest('.post-card');
+    // Get post info from the page using correct selectors
+    const postElement = document.querySelector(`[data-post-card="${postId}"]`);
     if (postElement) {
-        const authorName = postElement.querySelector('.author-name')?.textContent || 'User';
-        const postTime = postElement.querySelector('.post-time')?.textContent || '';
-        const postContent = postElement.querySelector('.post-text')?.textContent || '';
-        const avatarImg = postElement.querySelector('.post-avatar img');
+        const authorName = postElement.querySelector('.post-author-name')?.textContent?.trim() || 'User';
+        const postTime = postElement.querySelector('.post-time')?.textContent?.trim() || '';
+        const postContent = postElement.querySelector('.post-content')?.textContent?.trim() || '';
+        const avatarDiv = postElement.querySelector('.post-avatar');
         
         document.getElementById('sharePreviewName').textContent = authorName;
         document.getElementById('sharePreviewTime').textContent = postTime;
         document.getElementById('sharePreviewContent').textContent = postContent.length > 150 ? postContent.substring(0, 150) + '...' : postContent;
         
-        if (avatarImg) {
-            document.getElementById('sharePreviewAvatar').innerHTML = `<img src="${avatarImg.src}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+        // Get avatar from background-image style
+        if (avatarDiv) {
+            const bgImage = avatarDiv.style.backgroundImage;
+            const avatarUrl = bgImage.replace(/url\(['"]?([^'"]+)['"]?\)/, '$1');
+            if (avatarUrl && avatarUrl !== 'none') {
+                document.getElementById('sharePreviewAvatar').innerHTML = `<img src="${avatarUrl}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+            }
         }
     }
     
@@ -1557,7 +1657,44 @@ document.querySelectorAll('.like-wrapper').forEach(wrapper => {
         const token = document.querySelector('meta[name="csrf-token"]').content;
         const form = new FormData();
         form.append('type', type);
-        fetch(url, { method: 'POST', headers: { 'X-CSRF-TOKEN': token }, body: form });
+        fetch(url, { method: 'POST', headers: { 'X-CSRF-TOKEN': token, 'Accept': 'application/json' }, body: form })
+            .then(res => res.json())
+            .then(data => {
+                if (data.topTypes) {
+                    updateReactionIcons(data.topTypes);
+                }
+                if (typeof data.totalCount !== 'undefined') {
+                    const countEl = document.getElementById('likes-count-' + postId);
+                    const wrapEl = document.getElementById('likes-wrap-' + postId);
+                    if (countEl) countEl.textContent = String(data.totalCount);
+                    if (wrapEl) wrapEl.classList.toggle('hidden', data.totalCount === 0);
+                }
+            })
+            .catch(() => {});
+    }
+
+    function updateReactionIcons(topTypes) {
+        const iconsContainer = document.getElementById('reaction-icons-' + postId);
+        if (!iconsContainer) return;
+        
+        const statIconClassMap = {
+            like: 'far fa-thumbs-up',
+            love: 'fas fa-heart',
+            haha: 'fas fa-laugh',
+            wow: 'fas fa-surprise',
+            sad: 'fas fa-sad-tear',
+            angry: 'fas fa-angry'
+        };
+        
+        let html = '';
+        if (topTypes && topTypes.length > 0) {
+            topTypes.forEach(t => {
+                html += `<span class="reaction-icon ${t}"><i class="${statIconClassMap[t]}"></i></span>`;
+            });
+        } else {
+            html = '<span class="reaction-icon like"><i class="far fa-thumbs-up"></i></span>';
+        }
+        iconsContainer.innerHTML = html;
     }
 });
 
@@ -1764,6 +1901,109 @@ function attachReplyListeners() {
         };
     });
 }
+
+// Comment Reaction Handler with Popover
+function attachCommentReactionListeners() {
+    const reactionTextMap = { like: 'Thích', love: 'Yêu thích', haha: 'Haha', wow: 'Wow', sad: 'Buồn', angry: 'Phẫn nộ' };
+    const reactionClasses = ['reacted-like', 'reacted-love', 'reacted-haha', 'reacted-wow', 'reacted-sad', 'reacted-angry'];
+    
+    document.querySelectorAll('.comment-like-wrapper').forEach(wrapper => {
+        const button = wrapper.querySelector('.comment-like-btn');
+        const popover = wrapper.querySelector('.comment-reactions-popover');
+        if (!button || !popover) return;
+        
+        let hideTimer = null;
+        
+        function showPopover() {
+            clearTimeout(hideTimer);
+            popover.classList.add('show');
+        }
+        
+        function hidePopover() {
+            hideTimer = setTimeout(() => popover.classList.remove('show'), 200);
+        }
+        
+        // Hover to show popover
+        button.addEventListener('mouseenter', showPopover);
+        button.addEventListener('mouseleave', hidePopover);
+        popover.addEventListener('mouseenter', showPopover);
+        popover.addEventListener('mouseleave', hidePopover);
+        
+        // Click on button to toggle like
+        button.addEventListener('click', async (e) => {
+            e.preventDefault();
+            const currentReaction = button.dataset.reaction;
+            const newType = currentReaction ? 'none' : 'like';
+            await sendCommentReaction(button, newType);
+        });
+        
+        // Click on reaction in popover
+        popover.querySelectorAll('.reaction').forEach(reaction => {
+            reaction.addEventListener('click', async (e) => {
+                e.preventDefault();
+                const type = reaction.dataset.type;
+                await sendCommentReaction(button, type);
+                popover.classList.remove('show');
+            });
+        });
+    });
+    
+    async function sendCommentReaction(button, type) {
+        const endpoint = button.dataset.reactEndpoint;
+        const commentId = button.dataset.commentId;
+        const currentReaction = button.dataset.reaction;
+        const token = document.querySelector('meta[name="csrf-token"]').content;
+        const likesCountEl = document.getElementById('comment-likes-' + commentId);
+        
+        try {
+            const formData = new FormData();
+            formData.append('type', type);
+            
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'X-CSRF-TOKEN': token },
+                body: formData
+            });
+            
+            if (response.ok) {
+                // Remove old classes
+                reactionClasses.forEach(cls => button.classList.remove(cls));
+                
+                if (type === 'none') {
+                    button.dataset.reaction = '';
+                    button.textContent = 'Thích';
+                    // Decrease count
+                    if (likesCountEl) {
+                        const countSpan = likesCountEl.querySelector('.count') || likesCountEl;
+                        let count = parseInt(countSpan.textContent) || 1;
+                        count = Math.max(0, count - 1);
+                        if (count === 0) {
+                            likesCountEl.classList.add('hidden');
+                        } else {
+                            countSpan.textContent = count;
+                        }
+                    }
+                } else {
+                    button.dataset.reaction = type;
+                    button.classList.add('reacted-' + type);
+                    button.textContent = reactionTextMap[type] || 'Thích';
+                    // Increase count if new reaction
+                    if (!currentReaction && likesCountEl) {
+                        likesCountEl.classList.remove('hidden');
+                        const countSpan = likesCountEl.querySelector('.count') || likesCountEl;
+                        let count = parseInt(countSpan.textContent) || 0;
+                        countSpan.textContent = count + 1;
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Error reacting to comment:', error);
+        }
+    }
+}
+
+// Initialize comment reaction listeners
+attachCommentReactionListeners();
 </script>
 @endpush
 @endsection

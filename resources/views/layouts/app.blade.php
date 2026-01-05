@@ -2675,7 +2675,11 @@
                     <div class="relative" id="userMenuDropdown">
                         <a href="#" class="gameon-nav-link" id="userMenuToggle" style="text-decoration: none;">
                             <div class="gameon-user-avatar">
-                                <i class="fas fa-user"></i>
+                                @if(Auth::user()->avatar)
+                                    <img src="{{ get_avatar_url(Auth::user()->avatar) }}" alt="Avatar" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+                                @else
+                                    <i class="fas fa-user"></i>
+                                @endif
                             </div>
                             <div class="gameon-user-info hidden lg:block">
                                 <div class="gameon-user-name">{{ Auth::user()->name ?? 'User' }}</div>

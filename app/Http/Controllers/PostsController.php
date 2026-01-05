@@ -283,17 +283,34 @@ class PostsController extends Controller
                     $post->decrement('likes_count');
                 }
             }
-
-            return back();
-        }
-        if ($existing) {
-            // Change type without touching total count
-            if ($existing->type !== $request->type) {
-                $existing->update(['type' => $request->type]);
-            }
         } else {
-            \App\Models\PostReaction::create(['post_id' => $post->id, 'user_id' => $userId, 'type' => $request->type]);
-            $post->increment('likes_count');
+            if ($existing) {
+                // Change type without touching total count
+                if ($existing->type !== $request->type) {
+                    $existing->update(['type' => $request->type]);
+                }
+            } else {
+                \App\Models\PostReaction::create(['post_id' => $post->id, 'user_id' => $userId, 'type' => $request->type]);
+                $post->increment('likes_count');
+            }
+        }
+
+        // Return JSON for AJAX requests
+        if ($request->expectsJson()) {
+            $post->refresh();
+            $topTypes = $post->reactions()
+                ->select('type', \Illuminate\Support\Facades\DB::raw('count(*) as c'))
+                ->groupBy('type')
+                ->orderByDesc('c')
+                ->limit(2)
+                ->pluck('type')
+                ->toArray();
+
+            return response()->json([
+                'success' => true,
+                'topTypes' => $topTypes,
+                'totalCount' => (int) $post->likes_count,
+            ]);
         }
 
         return back();

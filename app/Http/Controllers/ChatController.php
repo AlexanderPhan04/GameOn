@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\MessageDeleted;
+use App\Events\MessageSent;
+use App\Events\UserTyping;
 use App\Models\ChatConversation;
 use App\Models\ChatMessage;
 use App\Models\User;
@@ -142,6 +145,9 @@ class ChatController extends Controller
             // Load the message with sender for response
             $message->load('sender');
 
+            // Broadcast message to all participants via WebSocket
+            broadcast(new MessageSent($message))->toOthers();
+
             return response()->json([
                 'success' => true,
                 'message' => [
@@ -238,7 +244,7 @@ class ChatController extends Controller
 
     /**
      * Update typing status
-     * Lưu ý: Nên dùng Redis hoặc in-memory cache thay vì database
+     * Now broadcasts via WebSocket instead of database
      */
     public function updateTypingStatus(Request $request, ChatConversation $conversation)
     {
@@ -250,17 +256,8 @@ class ChatController extends Controller
 
         $isTyping = $request->boolean('is_typing');
 
-        // Update user activity (tạm thời, nên dùng Redis sau)
-        $user->activity()->updateOrCreate(
-            ['user_id' => $user->id],
-            [
-                'is_typing' => $isTyping,
-                'typing_started_at' => $isTyping ? now() : null,
-            ]
-        );
-
-        // TODO: Nên dùng Redis để lưu typing status theo conversation_id
-        // Cache::put("typing:{$conversation->id}:{$user->id}", $isTyping, 5);
+        // Broadcast typing status via WebSocket
+        broadcast(new UserTyping($conversation->id, $user, $isTyping))->toOthers();
 
         return response()->json(['success' => true]);
     }
@@ -372,9 +369,15 @@ class ChatController extends Controller
             return response()->json(['error' => 'You can only delete your own messages'], 403);
         }
 
+        $conversationId = $message->conversation_id;
+        $messageId = $message->id;
+
         $message->update([
             'deleted_at' => now(),
         ]);
+
+        // Broadcast message deletion via WebSocket
+        broadcast(new MessageDeleted($conversationId, $messageId))->toOthers();
 
         return response()->json([
             'success' => true,

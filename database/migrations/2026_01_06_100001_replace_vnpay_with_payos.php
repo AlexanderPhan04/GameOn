@@ -9,16 +9,25 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // Cập nhật dữ liệu cũ từ vnpay sang payos trước
-        DB::table('marketplace_orders')->where('payment_method', 'vnpay')->update(['payment_method' => 'other']);
-        DB::table('marketplace_orders')->where('payment_method', 'zalopay')->update(['payment_method' => 'other']);
+        $driver = DB::connection()->getDriverName();
+        
+        // Cập nhật dữ liệu cũ từ vnpay/zalopay sang payos
+        DB::table('marketplace_orders')->where('payment_method', 'vnpay')->update(['payment_method' => 'payos']);
+        DB::table('marketplace_orders')->where('payment_method', 'zalopay')->update(['payment_method' => 'payos']);
         
         // Cập nhật marketplace_orders
-        Schema::table('marketplace_orders', function (Blueprint $table) {
+        Schema::table('marketplace_orders', function (Blueprint $table) use ($driver) {
+            // Thêm cột order_code nếu chưa có
+            if (!Schema::hasColumn('marketplace_orders', 'order_code')) {
+                $table->string('order_code')->nullable()->after('order_id');
+            }
+            
             // Đổi tên cột vnpay thành payos
             if (Schema::hasColumn('marketplace_orders', 'vnpay_transaction_no')) {
                 $table->renameColumn('vnpay_transaction_no', 'payos_transaction_id');
             }
+            
+            // Xóa cột vnpay_bank_code nếu có
             if (Schema::hasColumn('marketplace_orders', 'vnpay_bank_code')) {
                 $table->dropColumn('vnpay_bank_code');
             }
@@ -32,56 +41,61 @@ return new class extends Migration
             }
         });
 
-        // Cập nhật payment_method enum
-        DB::statement("ALTER TABLE marketplace_orders MODIFY COLUMN payment_method ENUM('payos', 'wallet', 'other') NULL");
-        
-        // Cập nhật lại giá trị other thành payos
-        DB::table('marketplace_orders')->where('payment_method', 'other')->update(['payment_method' => 'payos']);
+        // Cập nhật payment_method enum - chỉ MySQL hỗ trợ MODIFY COLUMN
+        if ($driver === 'mysql') {
+            DB::statement("ALTER TABLE marketplace_orders MODIFY COLUMN payment_method VARCHAR(255) NULL");
+        }
 
         // Cập nhật donations
         if (Schema::hasTable('donations')) {
-            DB::table('donations')->where('payment_method', 'vnpay')->update(['payment_method' => 'other']);
+            DB::table('donations')->where('payment_method', 'vnpay')->update(['payment_method' => 'payos']);
             
             Schema::table('donations', function (Blueprint $table) {
+                // Thêm cột order_code nếu chưa có
+                if (!Schema::hasColumn('donations', 'order_code')) {
+                    $table->string('order_code')->nullable()->after('donation_id');
+                }
+                
                 if (Schema::hasColumn('donations', 'vnpay_transaction_no')) {
                     $table->renameColumn('vnpay_transaction_no', 'payos_transaction_id');
                 }
                 if (Schema::hasColumn('donations', 'vnpay_bank_code')) {
                     $table->dropColumn('vnpay_bank_code');
                 }
-                
-                // Thêm cột order_code nếu chưa có
-                if (!Schema::hasColumn('donations', 'order_code')) {
-                    $table->string('order_code')->nullable()->after('donation_id');
-                }
             });
 
-            // Cập nhật payment_method enum cho donations
-            DB::statement("ALTER TABLE donations MODIFY COLUMN payment_method ENUM('payos', 'wallet', 'other') NULL");
-            DB::table('donations')->where('payment_method', 'other')->update(['payment_method' => 'payos']);
+            if ($driver === 'mysql') {
+                DB::statement("ALTER TABLE donations MODIFY COLUMN payment_method VARCHAR(255) NULL");
+            }
         }
     }
 
     public function down(): void
     {
+        $driver = DB::connection()->getDriverName();
+        
         Schema::table('marketplace_orders', function (Blueprint $table) {
             if (Schema::hasColumn('marketplace_orders', 'payos_transaction_id')) {
                 $table->renameColumn('payos_transaction_id', 'vnpay_transaction_no');
             }
-            $table->string('vnpay_bank_code')->nullable();
+            if (!Schema::hasColumn('marketplace_orders', 'vnpay_bank_code')) {
+                $table->string('vnpay_bank_code')->nullable();
+            }
         });
 
-        DB::statement("ALTER TABLE marketplace_orders MODIFY COLUMN payment_method ENUM('vnpay', 'wallet', 'other') NULL");
+        DB::table('marketplace_orders')->where('payment_method', 'payos')->update(['payment_method' => 'vnpay']);
 
         if (Schema::hasTable('donations')) {
             Schema::table('donations', function (Blueprint $table) {
                 if (Schema::hasColumn('donations', 'payos_transaction_id')) {
                     $table->renameColumn('payos_transaction_id', 'vnpay_transaction_no');
                 }
-                $table->string('vnpay_bank_code')->nullable();
+                if (!Schema::hasColumn('donations', 'vnpay_bank_code')) {
+                    $table->string('vnpay_bank_code')->nullable();
+                }
             });
-
-            DB::statement("ALTER TABLE donations MODIFY COLUMN payment_method ENUM('vnpay', 'wallet', 'other') NULL");
+            
+            DB::table('donations')->where('payment_method', 'payos')->update(['payment_method' => 'vnpay']);
         }
     }
 };

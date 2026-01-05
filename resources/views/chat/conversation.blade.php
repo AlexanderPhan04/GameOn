@@ -670,7 +670,6 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             const res = await fetch(`/chat/conversation/${convId}/send`, { method: 'POST', body: formData });
             const data = await res.json();
-            console.log('Send response:', data);
             if (data.success && data.message) {
                 // Build message HTML from JSON response (matching message.blade.php structure)
                 const m = data.message;
@@ -723,10 +722,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     lastMessageId = Math.max(lastMessageId, m.id);
                 }
             } else if (data.error) {
-                console.error('Send error:', data.error);
                 alert(data.error);
             }
-        } catch (err) { console.error('Fetch error:', err); }
+        } catch (err) { /* Silent error */ }
     });
     
     msgInput.onkeydown = (e) => {
@@ -745,91 +743,185 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             const data = await res.json();
             if (data.success) window.location.href = '{{ route("chat.index") }}';
-        } catch (err) { console.error(err); }
+        } catch (err) { /* Silent error */ }
     };
     
     document.getElementById('leave-btn').onclick = leaveHandler;
     document.getElementById('leave-btn-menu').onclick = leaveHandler;
     
-    // Real-time polling for new messages
+    // Real-time WebSocket with Laravel Echo
     let lastMessageId = {{ $messages->last()?->id ?? 0 }};
     const currentUserId = {{ Auth::id() }};
     
-    async function fetchNewMessages() {
-        try {
-            const res = await fetch(`/chat/conversation/${convId}/messages?after_id=${lastMessageId}`);
-            const data = await res.json();
-            
-            if (data.data && data.data.length > 0) {
-                data.data.forEach(m => {
-                    // Skip if this message is from current user (already added when sent)
-                    if (m.sender.id === currentUserId) {
-                        lastMessageId = Math.max(lastMessageId, m.id);
-                        return;
-                    }
-                    
-                    // Check if message already exists
-                    if (document.querySelector(`[data-message-id="${m.id}"]`)) {
-                        lastMessageId = Math.max(lastMessageId, m.id);
-                        return;
-                    }
-                    
-                    let attachmentHtml = '';
-                    if (m.attachment_url) {
-                        if (m.type === 'image') {
-                            attachmentHtml = `<div class="msg-attachment">
-                                <img src="${m.attachment_url}" alt="Hình ảnh" class="msg-image" onclick="window.open('${m.attachment_url}', '_blank')">
-                            </div>`;
-                        } else if (m.type === 'file') {
-                            attachmentHtml = `<div class="msg-attachment">
-                                <a href="${m.attachment_url}" target="_blank" class="msg-file">
-                                    <i class="fas fa-file"></i>
-                                    <span>${m.attachment_name || 'Tệp đính kèm'}</span>
-                                </a>
-                            </div>`;
-                        }
-                    }
-                    
-                    let textHtml = '';
-                    if (m.content) {
-                        const escaped = m.content.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>');
-                        textHtml = `<div class="msg-text">${escaped}</div>`;
-                    }
-                    
-                    const messageHtml = `
-                    <div class="message-item other" data-message-id="${m.id}">
-                        <div class="message-content">
-                            <img src="${m.sender.avatar}" alt="${m.sender.name}" class="msg-avatar">
-                            <div class="message-bubble">
-                                <div class="msg-sender">${m.sender.name}</div>
-                                ${attachmentHtml}
-                                ${textHtml}
-                                <div class="msg-time">${m.formatted_time}</div>
-                            </div>
-                        </div>
-                    </div>`;
-                    
-                    msgList.insertAdjacentHTML('beforeend', messageHtml);
-                    lastMessageId = Math.max(lastMessageId, m.id);
-                });
-                
-                // Scroll to bottom if user is near bottom
-                const isNearBottom = msgContainer.scrollHeight - msgContainer.scrollTop - msgContainer.clientHeight < 150;
-                if (isNearBottom) {
-                    msgContainer.scrollTop = msgContainer.scrollHeight;
-                }
+    // Helper function to add message to UI
+    function addMessageToUI(m, isOwn = false) {
+        // Check if message already exists
+        if (document.querySelector(`[data-message-id="${m.id}"]`)) {
+            return;
+        }
+        
+        let attachmentHtml = '';
+        if (m.attachment_url) {
+            if (m.type === 'image') {
+                attachmentHtml = `<div class="msg-attachment">
+                    <img src="${m.attachment_url}" alt="Hình ảnh" class="msg-image" onclick="window.open('${m.attachment_url}', '_blank')">
+                </div>`;
+            } else if (m.type === 'file') {
+                attachmentHtml = `<div class="msg-attachment">
+                    <a href="${m.attachment_url}" target="_blank" class="msg-file">
+                        <i class="fas fa-file"></i>
+                        <span>${m.attachment_name || 'Tệp đính kèm'}</span>
+                    </a>
+                </div>`;
             }
-        } catch (err) {
-            console.error('Polling error:', err);
+        }
+        
+        let textHtml = '';
+        if (m.content) {
+            const escaped = m.content.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>');
+            textHtml = `<div class="msg-text">${escaped}</div>`;
+        }
+        
+        const messageClass = isOwn ? 'own' : 'other';
+        const senderHtml = isOwn ? '' : `<div class="msg-sender">${m.sender.name}</div>`;
+        
+        const messageHtml = `
+        <div class="message-item ${messageClass}" data-message-id="${m.id}">
+            <div class="message-content">
+                <img src="${m.sender.avatar}" alt="${m.sender.name}" class="msg-avatar">
+                <div class="message-bubble">
+                    ${senderHtml}
+                    ${attachmentHtml}
+                    ${textHtml}
+                    <div class="msg-time">${m.formatted_time}</div>
+                </div>
+            </div>
+        </div>`;
+        
+        msgList.insertAdjacentHTML('beforeend', messageHtml);
+        lastMessageId = Math.max(lastMessageId, m.id);
+        
+        // Scroll to bottom if user is near bottom
+        const isNearBottom = msgContainer.scrollHeight - msgContainer.scrollTop - msgContainer.clientHeight < 150;
+        if (isNearBottom) {
+            msgContainer.scrollTop = msgContainer.scrollHeight;
         }
     }
     
-    // Poll every 3 seconds
-    const pollingInterval = setInterval(fetchNewMessages, 3000);
+    // Typing indicator element
+    let typingIndicator = null;
+    const typingUsers = new Map();
     
-    // Clean up on page leave
-    window.addEventListener('beforeunload', () => {
-        clearInterval(pollingInterval);
+    function updateTypingIndicator() {
+        const names = Array.from(typingUsers.values());
+        
+        if (names.length === 0) {
+            if (typingIndicator) {
+                typingIndicator.remove();
+                typingIndicator = null;
+            }
+            return;
+        }
+        
+        const text = names.length === 1 
+            ? `${names[0]} đang gõ...` 
+            : `${names.slice(0, 2).join(', ')} đang gõ...`;
+        
+        if (!typingIndicator) {
+            typingIndicator = document.createElement('div');
+            typingIndicator.className = 'typing-indicator';
+            typingIndicator.style.cssText = 'padding: 0.5rem 1rem; color: #94a3b8; font-size: 0.85rem; font-style: italic;';
+            msgList.appendChild(typingIndicator);
+        }
+        
+        typingIndicator.innerHTML = `<i class="fas fa-ellipsis-h"></i> ${text}`;
+        msgContainer.scrollTop = msgContainer.scrollHeight;
+    }
+    
+    // Listen for real-time events via Laravel Echo
+    if (typeof window.Echo !== 'undefined') {
+        window.Echo.private(`conversation.${convId}`)
+            // New message received
+            .listen('.message.sent', (e) => {
+                // Don't add if it's from current user (already added when sent)
+                if (e.sender.id !== currentUserId) {
+                    addMessageToUI(e, false);
+                }
+            })
+            // User typing
+            .listen('.user.typing', (e) => {
+                if (e.user_id !== currentUserId) {
+                    if (e.is_typing) {
+                        typingUsers.set(e.user_id, e.user_name);
+                    } else {
+                        typingUsers.delete(e.user_id);
+                    }
+                    updateTypingIndicator();
+                    
+                    // Auto-remove typing indicator after 5 seconds
+                    if (e.is_typing) {
+                        setTimeout(() => {
+                            typingUsers.delete(e.user_id);
+                            updateTypingIndicator();
+                        }, 5000);
+                    }
+                }
+            })
+            // Message deleted
+            .listen('.message.deleted', (e) => {
+                const msgEl = document.querySelector(`[data-message-id="${e.message_id}"]`);
+                if (msgEl) {
+                    msgEl.remove();
+                }
+            });
+    } else {
+        // Fallback to polling if Echo is not available
+        async function fetchNewMessages() {
+            try {
+                const res = await fetch(`/chat/conversation/${convId}/messages?after_id=${lastMessageId}`);
+                const data = await res.json();
+                
+                if (data.data && data.data.length > 0) {
+                    data.data.forEach(m => {
+                        if (m.sender.id !== currentUserId) {
+                            addMessageToUI(m, false);
+                        } else {
+                            lastMessageId = Math.max(lastMessageId, m.id);
+                        }
+                    });
+                }
+            } catch (err) {
+                // Silent polling error
+            }
+        }
+        
+        const pollingInterval = setInterval(fetchNewMessages, 3000);
+        window.addEventListener('beforeunload', () => clearInterval(pollingInterval));
+    }
+    
+    // Send typing status when user types
+    let typingTimeout;
+    let isCurrentlyTyping = false;
+    
+    msgInput.addEventListener('input', function() {
+        if (!isCurrentlyTyping) {
+            isCurrentlyTyping = true;
+            fetch(`/chat/conversation/${convId}/typing`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                body: JSON.stringify({ is_typing: true })
+            });
+        }
+        
+        clearTimeout(typingTimeout);
+        typingTimeout = setTimeout(() => {
+            isCurrentlyTyping = false;
+            fetch(`/chat/conversation/${convId}/typing`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                body: JSON.stringify({ is_typing: false })
+            });
+        }, 2000);
     });
 });
 </script>

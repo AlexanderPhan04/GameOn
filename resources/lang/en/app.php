@@ -16,6 +16,11 @@ return [
         'posts' => 'Posts',
         'profile' => 'Profile',
         'logout' => 'Logout',
+        'cart' => 'Cart',
+        'marketplace' => 'Marketplace',
+        'manage_admin' => 'Manage Admins',
+        'manage_marketplace' => 'Manage Marketplace',
+        'home' => 'Home',
     ],
 
     // Feed / Posts
@@ -524,6 +529,19 @@ return [
         'inactive' => 'Inactive',
     ],
 
+    // Notifications
+    'notifications' => [
+        'title' => 'Notifications',
+        'mark_all_read' => 'Mark all read',
+        'no_notifications' => 'No new notifications',
+    ],
+
+    // Language
+    'language' => [
+        'select_language' => 'Select Language',
+        'language' => 'Language',
+    ],
+
     // Maintenance
     'maintenance' => [
         'title' => 'System Maintenance',
@@ -533,5 +551,38 @@ return [
         'system_maintenance' => 'System is under maintenance',
         'system_back_online' => 'System is back online',
         'still_maintenance' => 'System is still under maintenance',
+    ],
+
+    // Marketplace
+    'marketplace' => [
+        'cart' => 'Cart',
+        'cart_items_count' => ':count item(s) in cart',
+        'restricted_items_warning' => 'Some items are restricted',
+        'restricted_items_desc' => 'These items will not be included in your order. You can remove them or keep them for later.',
+        'restricted' => 'Restricted',
+        'unavailable' => 'Unavailable',
+        'subtotal' => 'Subtotal (:count available item(s))',
+        'total' => 'Total',
+        'continue_shopping' => 'Continue Shopping',
+        'checkout_now' => 'Checkout Now',
+        'no_available_items' => 'No available items',
+        'empty_cart' => 'Your cart is empty',
+        'empty_cart_desc' => 'You have not added any items to your cart',
+        'shop_now' => 'Shop Now',
+        'remove' => 'Remove',
+        'theme' => 'Theme',
+        'sticker' => 'Sticker',
+        'game_item' => 'Game Item',
+        'inventory' => 'Inventory',
+        'payment_success' => 'Payment Successful',
+        'payment_success_desc' => 'Thank you for your purchase. Your order has been processed.',
+        'order_code' => 'Order Code',
+        'amount' => 'Amount',
+        'view_inventory' => 'View Inventory',
+        'continue_shopping_btn' => 'Continue Shopping',
+        'payment_failed' => 'Payment Failed',
+        'payment_failed_desc' => 'Transaction failed or was cancelled. Please try again.',
+        'retry' => 'Retry',
+        'back_to_store' => 'Back to Store',
     ],
 ];

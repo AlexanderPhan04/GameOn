@@ -168,17 +168,17 @@
             <i class="fas fa-check"></i>
         </div>
         
-        <h1 class="result-title">Thanh toán thành công!</h1>
-        <p class="result-desc">Cảm ơn bạn đã mua hàng. Đơn hàng của bạn đã được xử lý.</p>
+        <h1 class="result-title">{{ __('app.marketplace.payment_success') }}!</h1>
+        <p class="result-desc">{{ __('app.marketplace.payment_success_desc') }}</p>
         
         <div class="order-info">
             <div class="order-row">
-                <span class="order-label">Mã đơn hàng</span>
+                <span class="order-label">{{ __('app.marketplace.order_code') }}</span>
                 <span class="order-value">{{ $orderCode ?? 'N/A' }}</span>
             </div>
             @if(isset($amount) && $amount > 0)
             <div class="order-row">
-                <span class="order-label">Số tiền</span>
+                <span class="order-label">{{ __('app.marketplace.amount') }}</span>
                 <span class="order-value amount">{{ number_format($amount, 0, ',', '.') }} đ</span>
             </div>
             @endif
@@ -187,11 +187,11 @@
         <div class="result-actions">
             <a href="{{ route('marketplace.inventory') }}" class="btn-inventory">
                 <i class="fas fa-box"></i>
-                Xem kho đồ
+                {{ __('app.marketplace.view_inventory') }}
             </a>
             <a href="{{ route('marketplace.index') }}" class="btn-continue">
                 <i class="fas fa-shopping-bag"></i>
-                Tiếp tục mua
+                {{ __('app.marketplace.continue_shopping_btn') }}
             </a>
         </div>
     </div>

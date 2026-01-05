@@ -230,6 +230,8 @@ return [
         'join_professional_gaming_community' => 'Join the professional gaming community today and discover your unlimited potential!',
         'register_free' => 'Register Free',
         'start_now' => 'Start Now',
+        'development_team' => 'Development Team',
+        'development_team_description' => 'The people behind the success of Game On system.',
         'contributed_by' => 'Contributed By',
         'developer' => 'Developer',
         'developer_description' => 'Development and system maintenance',

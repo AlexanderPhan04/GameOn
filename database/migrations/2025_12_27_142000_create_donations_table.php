@@ -24,13 +24,13 @@ return new class extends Migration
             $table->text('message')->nullable(); // Lời nhắn kèm theo
             
             // Trạng thái
-            $table->enum('status', ['pending', 'completed', 'cancelled', 'refunded'])->default('pending');
-            $table->enum('payment_status', ['pending', 'paid', 'failed', 'refunded'])->default('pending');
-            $table->enum('payment_method', ['vnpay', 'wallet', 'other'])->nullable();
+            $table->string('status')->default('pending'); // pending, completed, cancelled, refunded
+            $table->string('payment_status')->default('pending'); // pending, paid, failed, refunded
+            $table->string('payment_method')->nullable(); // payos, wallet, other
             
-            // Thông tin thanh toán VNPay
-            $table->string('vnpay_transaction_no')->nullable();
-            $table->string('vnpay_bank_code')->nullable();
+            // Thông tin thanh toán PayOS
+            $table->string('order_code')->nullable();
+            $table->string('payos_transaction_id')->nullable();
             $table->timestamp('paid_at')->nullable();
             
             // Ẩn danh

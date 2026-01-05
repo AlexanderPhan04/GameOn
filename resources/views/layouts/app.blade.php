@@ -1487,6 +1487,52 @@
                 display: none;
             }
         }
+        
+        /* Mobile Icon Buttons */
+        .mobile-icon-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: rgba(0, 229, 255, 0.1);
+            border: 1px solid rgba(0, 229, 255, 0.2);
+            color: #00E5FF;
+            transition: all 0.3s;
+            position: relative;
+            margin-left: 8px;
+        }
+        
+        .mobile-icon-btn:first-child {
+            margin-left: 0;
+        }
+        
+        .mobile-icon-btn:hover {
+            background: rgba(0, 229, 255, 0.2);
+            color: #fff;
+        }
+        
+        .mobile-icon-btn i {
+            font-size: 1rem;
+        }
+        
+        .mobile-cart-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            min-width: 18px;
+            height: 18px;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 4px;
+        }
 
         /* Footer Styles - Comprehensive CSS to ensure proper display */
         footer {
@@ -3154,6 +3200,27 @@
                     </a>
                     @endauth
                     
+                    <!-- Mobile Icons (Search, Cart) -->
+                    <div class="flex items-center gap-3 lg:hidden">
+                        @auth
+                        <!-- Mobile Search -->
+                        <button type="button" class="mobile-icon-btn" id="mobileSearchToggle" title="Tìm kiếm">
+                            <i class="fas fa-magnifying-glass"></i>
+                        </button>
+                        
+                        <!-- Mobile Cart -->
+                        <a href="{{ route('marketplace.cart') }}" class="mobile-icon-btn" style="position: relative;" title="Giỏ hàng">
+                            <i class="fas fa-shopping-cart"></i>
+                            @php
+                                $mobileCartCount = session('cart') ? count(session('cart')) : 0;
+                            @endphp
+                            @if($mobileCartCount > 0)
+                            <span class="mobile-cart-badge">{{ $mobileCartCount }}</span>
+                            @endif
+                        </a>
+                        @endauth
+                    </div>
+                    
                     <!-- Mobile: Hamburger Menu Button -->
                     <button class="mobile-menu-toggle lg:hidden" id="mobileMenuToggle" aria-label="Toggle menu">
                         <span class="hamburger-line"></span>
@@ -3941,6 +4008,21 @@
             
             function escapeHtml(str){
                 return String(str).replace(/[&<>"]/g, s=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[s]));
+            }
+        })();
+        
+        // Mobile Search Toggle
+        (function(){
+            const mobileSearchToggle = document.getElementById('mobileSearchToggle');
+            const desktopSearchToggle = document.getElementById('navbarSearchToggle');
+            
+            if(mobileSearchToggle && desktopSearchToggle) {
+                mobileSearchToggle.addEventListener('click', function(e){
+                    e.preventDefault();
+                    e.stopPropagation();
+                    // Trigger the desktop search toggle click
+                    desktopSearchToggle.click();
+                });
             }
         })();
 

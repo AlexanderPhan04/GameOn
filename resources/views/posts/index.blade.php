@@ -1125,7 +1125,12 @@
                         <span class="stats-count" data-toggle-comments="{{ $post->id }}">
                             <span id="comments-count-{{ $post->id }}">{{ $post->comments_count }}</span> bình luận
                         </span>
-                        <span class="stats-count">
+                        <span class="stats-count {{ auth()->id() === $post->user_id && ($post->shares_count ?? 0) > 0 ? 'clickable' : '' }}" 
+                              @if(auth()->id() === $post->user_id && ($post->shares_count ?? 0) > 0)
+                              data-shares-modal="{{ $post->id }}"
+                              onclick="openSharesModal({{ $post->id }})"
+                              title="Xem ai đã chia sẻ"
+                              @endif>
                             <span id="shares-count-{{ $post->id }}">{{ $post->shares_count ?? 0 }}</span> chia sẻ
                         </span>
                     </div>
@@ -1184,7 +1189,27 @@
                         <button type="submit" class="comment-submit">Gửi</button>
                     </form>
                     
-                    @foreach($post->comments->whereNull('parent_id') as $c)
+                    @php 
+                        $parentComments = $post->comments->whereNull('parent_id');
+                        $initialLimit = 3;
+                        $totalComments = $parentComments->count();
+                        $showLoadMore = $totalComments > $initialLimit;
+                        $limitedComments = $parentComments->take($initialLimit);
+                    @endphp
+                    
+                    @if($showLoadMore)
+                    <button class="load-more-comments-btn" 
+                            data-post-id="{{ $post->id }}" 
+                            data-offset="{{ $initialLimit }}"
+                            data-total="{{ $totalComments }}"
+                            onclick="loadMoreComments({{ $post->id }}, this)"
+                            style="width: 100%; padding: 0.75rem; background: transparent; border: 1px dashed rgba(0,229,255,0.3); border-radius: 8px; color: #00E5FF; cursor: pointer; font-size: 0.85rem; margin-bottom: 0.75rem; transition: all 0.2s;">
+                        <i class="fas fa-comments"></i> Xem thêm {{ $totalComments - $initialLimit }} bình luận khác
+                    </button>
+                    @endif
+                    
+                    <div class="comments-list" id="comments-list-{{ $post->id }}">
+                    @foreach($limitedComments as $c)
                     @php $cAvatar = get_avatar_url($c->user?->avatar); @endphp
                     <div class="comment-item" id="comment-{{ $c->id }}">
                         <div class="comment-avatar"><img src="{{ $cAvatar }}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;"></div>
@@ -1262,6 +1287,7 @@
                         </div>
                     </div>
                     @endforeach
+                    </div>
                 </div>
             </div>
         </div>
@@ -1433,6 +1459,27 @@
     </div>
 </div>
 
+<!-- Shares List Modal -->
+<div class="modal-overlay" id="sharesListModal">
+    <div class="modal-content" style="max-width:450px" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <h3 class="modal-title"><i class="fas fa-share-alt"></i> Người đã chia sẻ</h3>
+            <button class="modal-close" onclick="closeSharesListModal()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body" style="padding: 0; max-height: 400px; overflow-y: auto;">
+            <div id="sharesListLoading" style="text-align: center; padding: 2rem; color: #94a3b8;">
+                <i class="fas fa-spinner fa-spin" style="font-size: 1.5rem; margin-bottom: 0.5rem;"></i>
+                <p style="margin: 0;">Đang tải...</p>
+            </div>
+            <div id="sharesListContent" style="display: none;"></div>
+            <div id="sharesListEmpty" style="display: none; text-align: center; padding: 2rem; color: #64748b;">
+                <i class="fas fa-share" style="font-size: 2rem; margin-bottom: 0.5rem; opacity: 0.5;"></i>
+                <p style="margin: 0;">Chưa có ai chia sẻ bài viết này.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
 @push('scripts')
 <script>
 // Modal functions
@@ -1489,6 +1536,189 @@ function closeShareModal() {
     document.getElementById('shareModal').classList.remove('show');
     document.body.style.overflow = '';
     document.getElementById('shareForm').reset();
+}
+
+// Shares List Modal functions
+function openSharesModal(postId) {
+    const modal = document.getElementById('sharesListModal');
+    modal.classList.add('show');
+    document.body.style.overflow = 'hidden';
+    
+    // Show loading, hide content
+    document.getElementById('sharesListLoading').style.display = 'block';
+    document.getElementById('sharesListContent').style.display = 'none';
+    document.getElementById('sharesListEmpty').style.display = 'none';
+    
+    // Fetch shares list
+    fetch(`/posts/${postId}/shares`, {
+        headers: {
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('sharesListLoading').style.display = 'none';
+        
+        const currentUserId = {{ auth()->id() ?? 'null' }};
+        
+        if (data.data && data.data.length > 0) {
+            const content = document.getElementById('sharesListContent');
+            content.innerHTML = data.data.map(share => {
+                const profileUrl = share.user?.id === currentUserId 
+                    ? '/profile' 
+                    : `/profile/${share.user?.id}`;
+                return `
+                <a href="${profileUrl}" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border-bottom: 1px solid rgba(0,229,255,0.1); text-decoration: none; transition: background 0.2s;" onmouseover="this.style.background='rgba(0,229,255,0.1)'" onmouseout="this.style.background='transparent'">
+                    <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #00E5FF 0%, #000055 100%); overflow: hidden; flex-shrink: 0;">
+                        ${share.user?.avatar ? `<img src="${share.user.avatar}" style="width: 100%; height: 100%; object-fit: cover;">` : '<i class="fas fa-user" style="display: flex; align-items: center; justify-content: center; height: 100%; color: white;"></i>'}
+                    </div>
+                    <div style="flex: 1;">
+                        <div style="color: #fff; font-weight: 600; font-size: 0.9rem;">${share.user?.name || 'Người dùng'}</div>
+                        <div style="color: #64748b; font-size: 0.75rem;">${share.created_at || ''}</div>
+                    </div>
+                </a>
+            `}).join('');
+            content.style.display = 'block';
+        } else {
+            document.getElementById('sharesListEmpty').style.display = 'block';
+        }
+    })
+    .catch(error => {
+        console.error('Error fetching shares:', error);
+        document.getElementById('sharesListLoading').style.display = 'none';
+        document.getElementById('sharesListEmpty').style.display = 'block';
+    });
+}
+
+function closeSharesListModal() {
+    document.getElementById('sharesListModal').classList.remove('show');
+    document.body.style.overflow = '';
+}
+
+// Load more comments function
+async function loadMoreComments(postId, button) {
+    const offset = parseInt(button.dataset.offset);
+    const total = parseInt(button.dataset.total);
+    const remaining = total - offset;
+    
+    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang tải...';
+    button.disabled = true;
+    
+    try {
+        // Fetch comments starting after the already displayed ones
+        const response = await fetch(`/posts/${postId}/comments?offset=${offset}&limit=${remaining}`, {
+            headers: {
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.comments && data.comments.length > 0) {
+            const commentsList = document.getElementById('comments-list-' + postId);
+            const currentUserId = {{ auth()->id() ?? 'null' }};
+            const reactionTextMap = { like: 'Thích', love: 'Yêu thích', haha: 'Haha', wow: 'Wow', sad: 'Buồn', angry: 'Phẫn nộ' };
+            
+            // Build HTML for new comments and prepend
+            const commentsHtml = data.comments.map(c => {
+                const profileUrl = c.user_id === currentUserId ? '/profile' : `/profile/${c.user_id}`;
+                const reactionClass = c.my_reaction ? `reacted-${c.my_reaction}` : '';
+                const reactionText = c.my_reaction ? (reactionTextMap[c.my_reaction] || 'Thích') : 'Thích';
+                
+                let repliesHtml = '';
+                if (c.replies && c.replies.length > 0) {
+                    repliesHtml = `
+                        <div class="replies-container" style="margin-top: 0.75rem; margin-left: 1rem; border-left: 2px solid rgba(0,229,255,0.2); padding-left: 0.75rem;">
+                            ${c.replies.map(reply => {
+                                const replyProfileUrl = reply.user_id === currentUserId ? '/profile' : `/profile/${reply.user_id}`;
+                                const replyReactionClass = reply.my_reaction ? `reacted-${reply.my_reaction}` : '';
+                                const replyReactionText = reply.my_reaction ? (reactionTextMap[reply.my_reaction] || 'Thích') : 'Thích';
+                                return `
+                                    <div class="comment-item reply-item" style="margin-bottom: 0.5rem;">
+                                        <div class="comment-avatar" style="width:28px;height:28px;">
+                                            <a href="${replyProfileUrl}"><img src="${reply.user_avatar}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;"></a>
+                                        </div>
+                                        <div style="flex:1">
+                                            <div class="comment-bubble" style="padding: 0.5rem 0.75rem;">
+                                                <div class="comment-author" style="font-size:0.8rem;">${reply.user_name}</div>
+                                                <div class="comment-text" style="font-size:0.85rem;"><span style="color: #00E5FF; font-weight: 500; margin-right: 4px;">@${reply.parent_user_name}</span>${reply.content}</div>
+                                            </div>
+                                            <div class="comment-actions" style="gap:0.5rem;">
+                                                <span class="comment-time" style="font-size:0.7rem;">${reply.created_at}</span>
+                                                <div class="comment-like-wrapper" style="font-size:0.75rem;">
+                                                    <span class="comment-action comment-like-btn ${replyReactionClass}"
+                                                          data-react-endpoint="/comments/${reply.id}/react"
+                                                          data-comment-id="${reply.id}"
+                                                          data-reaction="${reply.my_reaction || ''}">${replyReactionText}</span>
+                                                    <div class="comment-reactions-popover small">
+                                                        <div class="reaction like" data-type="like" title="Thích"><i class="far fa-thumbs-up"></i></div>
+                                                        <div class="reaction love" data-type="love" title="Yêu thích"><i class="fas fa-heart"></i></div>
+                                                        <div class="reaction haha" data-type="haha" title="Haha"><i class="fas fa-laugh"></i></div>
+                                                        <div class="reaction wow" data-type="wow" title="Wow"><i class="fas fa-surprise"></i></div>
+                                                        <div class="reaction sad" data-type="sad" title="Buồn"><i class="fas fa-sad-tear"></i></div>
+                                                        <div class="reaction angry" data-type="angry" title="Phẫn nộ"><i class="fas fa-angry"></i></div>
+                                                    </div>
+                                                </div>
+                                                ${reply.likes_count > 0 ? `<span class="comment-likes-count" style="font-size:0.7rem;"><i class="far fa-thumbs-up"></i> <span class="count">${reply.likes_count}</span></span>` : ''}
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    `;
+                }
+                
+                return `
+                    <div class="comment-item" id="comment-${c.id}">
+                        <div class="comment-avatar"><a href="${profileUrl}"><img src="${c.user_avatar}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;"></a></div>
+                        <div style="flex:1">
+                            <div class="comment-bubble">
+                                <div class="comment-author">${c.user_name}</div>
+                                <div class="comment-text">${c.content}</div>
+                            </div>
+                            <div class="comment-actions">
+                                <span class="comment-time">${c.created_at}</span>
+                                <div class="comment-like-wrapper">
+                                    <span class="comment-action comment-like-btn ${reactionClass}"
+                                          data-react-endpoint="/comments/${c.id}/react"
+                                          data-comment-id="${c.id}"
+                                          data-reaction="${c.my_reaction || ''}">${reactionText}</span>
+                                    <div class="comment-reactions-popover">
+                                        <div class="reaction like" data-type="like" title="Thích"><i class="far fa-thumbs-up"></i></div>
+                                        <div class="reaction love" data-type="love" title="Yêu thích"><i class="fas fa-heart"></i></div>
+                                        <div class="reaction haha" data-type="haha" title="Haha"><i class="fas fa-laugh"></i></div>
+                                        <div class="reaction wow" data-type="wow" title="Wow"><i class="fas fa-surprise"></i></div>
+                                        <div class="reaction sad" data-type="sad" title="Buồn"><i class="fas fa-sad-tear"></i></div>
+                                        <div class="reaction angry" data-type="angry" title="Phẫn nộ"><i class="fas fa-angry"></i></div>
+                                    </div>
+                                </div>
+                                ${c.likes_count > 0 ? `<span class="comment-likes-count"><i class="far fa-thumbs-up"></i> <span class="count">${c.likes_count}</span></span>` : ''}
+                                <span class="comment-action reply-btn" data-comment-id="${c.id}" data-comment-author="${c.user_name}" data-post-id="${postId}">Trả lời</span>
+                            </div>
+                            ${repliesHtml}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            // Append new comments at the end of the list (after already displayed ones)
+            commentsList.insertAdjacentHTML('beforeend', commentsHtml);
+            
+            // Remove the load more button
+            button.remove();
+            
+            // Re-attach comment reaction listeners
+            attachCommentReactionListeners();
+            attachReplyListeners();
+        }
+    } catch (error) {
+        console.error('Error loading comments:', error);
+        button.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Lỗi, thử lại';
+        button.disabled = false;
+    }
 }
 
 // Preview files for edit modal

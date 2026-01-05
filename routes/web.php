@@ -229,6 +229,7 @@ Route::middleware(['auth.session'])->group(function () {
     Route::get('/posts/{post}/reactions', [PostsController::class, 'listReactions'])->name('posts.reactions');
     Route::get('/posts/{post}/counters', [PostsController::class, 'counters'])->name('posts.counters');
     Route::get('/posts/{post}/shares', [PostsController::class, 'listShares'])->name('posts.shares');
+    Route::get('/posts/{post}/comments', [PostsController::class, 'getComments'])->name('posts.comments');
     Route::post('/comments/{comment}/like', [PostsController::class, 'toggleCommentLike'])->name('comments.like');
     Route::post('/comments/{comment}/react', [PostsController::class, 'reactComment'])->name('comments.react');
     Route::put('/comments/{comment}', [PostsController::class, 'updateComment'])->name('comments.update');

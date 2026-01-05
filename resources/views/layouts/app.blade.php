@@ -741,6 +741,177 @@
             text-align: center;
         }
 
+        /* Notification Bell Styles */
+        .notification-bell-btn {
+            position: relative;
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            min-width: 18px;
+            height: 18px;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            font-size: 10px;
+            font-weight: 700;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 4px;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.5);
+            animation: pulse-notification 2s infinite;
+        }
+        
+        @keyframes pulse-notification {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .notification-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(0, 229, 255, 0.1);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .notification-item:hover {
+            background: rgba(0, 229, 255, 0.1);
+        }
+        
+        .notification-item.unread {
+            background: rgba(0, 229, 255, 0.05);
+        }
+        
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+        
+        .notification-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+        
+        .notification-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .notification-content {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .notification-text {
+            color: white;
+            font-size: 13px;
+            line-height: 1.4;
+            margin-bottom: 4px;
+        }
+        
+        .notification-text strong {
+            color: #00E5FF;
+        }
+        
+        .notification-time {
+            color: #64748b;
+            font-size: 11px;
+        }
+        
+        /* Desktop Notification Dropdown */
+        .notification-dropdown-desktop {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            width: 340px;
+            background: linear-gradient(180deg, #0d1b2a 0%, #000814 100%);
+            border: 1px solid rgba(0, 229, 255, 0.25);
+            border-radius: 16px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(0, 229, 255, 0.1);
+            z-index: 10000;
+            overflow: hidden;
+        }
+        
+        .notification-dropdown-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 18px;
+            background: linear-gradient(135deg, rgba(0, 0, 85, 0.4), rgba(0, 229, 255, 0.05));
+            border-bottom: 1px solid rgba(0, 229, 255, 0.15);
+        }
+        
+        .notification-dropdown-header span {
+            color: #fff;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+        }
+        
+        .notification-mark-read-btn {
+            background: none;
+            border: none;
+            color: #00E5FF;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .notification-mark-read-btn:hover {
+            color: #fff;
+            text-decoration: underline;
+        }
+        
+        .notification-dropdown-list {
+            max-height: 380px;
+            overflow-y: auto;
+        }
+        
+        .notification-dropdown-list::-webkit-scrollbar {
+            width: 4px;
+        }
+        
+        .notification-dropdown-list::-webkit-scrollbar-thumb {
+            background: rgba(0, 229, 255, 0.3);
+            border-radius: 4px;
+        }
+        
+        .notification-empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            color: #64748b;
+            gap: 12px;
+        }
+        
+        .notification-empty-state i {
+            font-size: 32px;
+            opacity: 0.4;
+            color: #00E5FF;
+        }
+        
+        .notification-empty-state span {
+            font-size: 14px;
+        }
+
         .gameon-user-menu {
             display: flex;
             align-items: center;
@@ -944,6 +1115,119 @@
             max-height: 40px;
             object-fit: contain;
             flex-shrink: 0;
+        }
+        
+        .mobile-menu-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        /* Mobile Notification */
+        .mobile-notification-wrapper {
+            position: relative;
+        }
+        
+        .mobile-notification-btn {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 229, 255, 0.1);
+            border: 1px solid rgba(0, 229, 255, 0.3);
+            border-radius: 8px;
+            color: #00E5FF;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .mobile-notification-btn:hover {
+            background: rgba(0, 229, 255, 0.2);
+        }
+        
+        .mobile-notification-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            min-width: 16px;
+            height: 16px;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            font-size: 9px;
+            font-weight: 700;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 3px;
+        }
+        
+        .mobile-notification-dropdown {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            width: 280px;
+            max-height: 350px;
+            background: #0d1b2a;
+            border: 1px solid rgba(0, 229, 255, 0.2);
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 100;
+            overflow: hidden;
+        }
+        
+        .mobile-notification-dropdown.show {
+            display: block;
+        }
+        
+        .mobile-notification-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(0, 229, 255, 0.1);
+            background: rgba(0, 0, 85, 0.3);
+        }
+        
+        .mobile-notification-header span {
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .mobile-mark-all-read {
+            background: none;
+            border: none;
+            color: #00E5FF;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        
+        .mobile-notification-list {
+            max-height: 280px;
+            overflow-y: auto;
+        }
+        
+        .mobile-notification-empty {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 30px 20px;
+            color: #64748b;
+            gap: 8px;
+        }
+        
+        .mobile-notification-empty i {
+            font-size: 24px;
+            opacity: 0.5;
+        }
+        
+        .mobile-notification-empty span {
+            font-size: 13px;
         }
         
         .mobile-menu-close {
@@ -2670,6 +2954,28 @@
                     </div>
                     @endauth
 
+                    <!-- Notification Bell -->
+                    @auth
+                    <div class="relative" id="notificationBell">
+                        <button type="button" class="gameon-nav-link notification-bell-btn" id="notificationToggle" style="border: none; background: none; cursor: pointer; position: relative;" title="Thông báo">
+                            <i class="fas fa-bell"></i>
+                            <span class="notification-badge" id="notificationCount" style="display: none;">0</span>
+                        </button>
+                        <div id="notificationDropdown" class="notification-dropdown-desktop hidden">
+                            <div class="notification-dropdown-header">
+                                <span>Thông báo</span>
+                                <button id="markAllRead" class="notification-mark-read-btn">Đọc tất cả</button>
+                            </div>
+                            <div id="notificationList" class="notification-dropdown-list">
+                                <div class="notification-empty-state">
+                                    <i class="fas fa-bell-slash"></i>
+                                    <span>Không có thông báo mới</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endauth
+
                     <!-- User Menu -->
                     @auth
                     <div class="relative" id="userMenuDropdown">
@@ -2823,9 +3129,32 @@
                         <div class="text-slate-400 text-xs">{{ __('app.tagline') }}</div>
                     </div>
                 </div>
-                <button class="mobile-menu-close" id="mobileMenuClose" aria-label="Close menu">
-                    <i class="fas fa-times"></i>
-                </button>
+                <div class="mobile-menu-header-actions">
+                    @auth
+                    <!-- Notification Bell for Mobile -->
+                    <div class="mobile-notification-wrapper">
+                        <button class="mobile-notification-btn" id="mobileNotificationToggle">
+                            <i class="fas fa-bell"></i>
+                            <span class="mobile-notification-badge" id="mobileNotificationBadge" style="display: none;">0</span>
+                        </button>
+                        <div class="mobile-notification-dropdown" id="mobileNotificationDropdown">
+                            <div class="mobile-notification-header">
+                                <span>Thông báo</span>
+                                <button id="mobileMarkAllRead" class="mobile-mark-all-read">Đọc tất cả</button>
+                            </div>
+                            <div class="mobile-notification-list" id="mobileNotificationList">
+                                <div class="mobile-notification-empty">
+                                    <i class="fas fa-bell-slash"></i>
+                                    <span>Không có thông báo mới</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endauth
+                    <button class="mobile-menu-close" id="mobileMenuClose" aria-label="Close menu">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
             </div>
             
             <!-- Menu Content -->
@@ -3923,6 +4252,253 @@
             }, { passive: true });
         });
     </script>
+
+    <!-- Notification Bell Script -->
+    @auth
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Desktop elements
+            const notificationToggle = document.getElementById('notificationToggle');
+            const notificationDropdown = document.getElementById('notificationDropdown');
+            const notificationCount = document.getElementById('notificationCount');
+            const notificationList = document.getElementById('notificationList');
+            const markAllReadBtn = document.getElementById('markAllRead');
+            
+            // Mobile elements
+            const mobileNotificationToggle = document.getElementById('mobileNotificationToggle');
+            const mobileNotificationDropdown = document.getElementById('mobileNotificationDropdown');
+            const mobileNotificationBadge = document.getElementById('mobileNotificationBadge');
+            const mobileNotificationList = document.getElementById('mobileNotificationList');
+            const mobileMarkAllRead = document.getElementById('mobileMarkAllRead');
+            
+            let notifications = [];
+            let unreadCount = 0;
+            
+            // Toggle desktop dropdown
+            if (notificationToggle && notificationDropdown) {
+                notificationToggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    notificationDropdown.classList.toggle('hidden');
+                });
+                
+                document.addEventListener('click', function(e) {
+                    if (!notificationToggle.contains(e.target) && !notificationDropdown.contains(e.target)) {
+                        notificationDropdown.classList.add('hidden');
+                    }
+                });
+            }
+            
+            // Toggle mobile dropdown
+            if (mobileNotificationToggle && mobileNotificationDropdown) {
+                mobileNotificationToggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    mobileNotificationDropdown.classList.toggle('show');
+                });
+                
+                document.addEventListener('click', function(e) {
+                    if (!mobileNotificationToggle.contains(e.target) && !mobileNotificationDropdown.contains(e.target)) {
+                        mobileNotificationDropdown.classList.remove('show');
+                    }
+                });
+            }
+            
+            // Mark all as read - Desktop
+            if (markAllReadBtn) {
+                markAllReadBtn.addEventListener('click', function() {
+                    markAllAsRead();
+                });
+            }
+            
+            // Mark all as read - Mobile
+            if (mobileMarkAllRead) {
+                mobileMarkAllRead.addEventListener('click', function() {
+                    markAllAsRead();
+                });
+            }
+            
+            function markAllAsRead() {
+                notifications.forEach(n => n.read = true);
+                unreadCount = 0;
+                updateBadge();
+                renderNotifications();
+            }
+            
+            // Update badge (both desktop and mobile)
+            function updateBadge() {
+                const displayCount = unreadCount > 99 ? '99+' : unreadCount;
+                
+                // Desktop
+                if (notificationCount) {
+                    if (unreadCount > 0) {
+                        notificationCount.textContent = displayCount;
+                        notificationCount.style.display = 'flex';
+                    } else {
+                        notificationCount.style.display = 'none';
+                    }
+                }
+                
+                // Mobile
+                if (mobileNotificationBadge) {
+                    if (unreadCount > 0) {
+                        mobileNotificationBadge.textContent = displayCount;
+                        mobileNotificationBadge.style.display = 'flex';
+                    } else {
+                        mobileNotificationBadge.style.display = 'none';
+                    }
+                }
+            }
+            
+            // Render notifications (both desktop and mobile)
+            function renderNotifications() {
+                const emptyHtml = `
+                    <div class="notification-empty-state">
+                        <i class="fas fa-bell-slash"></i>
+                        <span>Không có thông báo mới</span>
+                    </div>
+                `;
+                
+                const itemsHtml = notifications.slice(0, 10).map(n => `
+                    <div class="notification-item ${n.read ? '' : 'unread'}" data-id="${n.id}" data-url="${n.url || '#'}">
+                        <div class="notification-avatar">
+                            ${n.avatar ? `<img src="${n.avatar}" alt="">` : `<i class="fas fa-${n.icon || 'bell'}"></i>`}
+                        </div>
+                        <div class="notification-content">
+                            <div class="notification-text">${n.message}</div>
+                            <div class="notification-time">${n.time}</div>
+                        </div>
+                    </div>
+                `).join('');
+                
+                // Desktop
+                if (notificationList) {
+                    notificationList.innerHTML = notifications.length === 0 ? emptyHtml : itemsHtml;
+                    bindNotificationClicks(notificationList);
+                }
+                
+                // Mobile
+                if (mobileNotificationList) {
+                    mobileNotificationList.innerHTML = notifications.length === 0 ? emptyHtml : itemsHtml;
+                    bindNotificationClicks(mobileNotificationList);
+                }
+            }
+            
+            function bindNotificationClicks(container) {
+                container.querySelectorAll('.notification-item').forEach(item => {
+                    item.addEventListener('click', function() {
+                        const url = this.dataset.url;
+                        const id = this.dataset.id;
+                        
+                        const notif = notifications.find(n => n.id == id);
+                        if (notif && !notif.read) {
+                            notif.read = true;
+                            unreadCount = Math.max(0, unreadCount - 1);
+                            updateBadge();
+                        }
+                        
+                        if (url && url !== '#') {
+                            window.location.href = url;
+                        }
+                    });
+                });
+            }
+            
+            // Add notification
+            function addNotification(data) {
+                // Check if notification is disabled for this conversation
+                const conversationId = data.conversationId;
+                if (conversationId && localStorage.getItem(`chat_notification_${conversationId}`) === 'disabled') {
+                    // Still add to list but don't play sound or show browser notification
+                    const notif = {
+                        id: Date.now(),
+                        message: data.message,
+                        avatar: data.avatar || null,
+                        icon: data.icon || 'comment',
+                        url: data.url || '#',
+                        time: 'Vừa xong',
+                        read: false
+                    };
+                    notifications.unshift(notif);
+                    if (notifications.length > 50) notifications.pop();
+                    unreadCount++;
+                    updateBadge();
+                    renderNotifications();
+                    return;
+                }
+                
+                const notif = {
+                    id: Date.now(),
+                    message: data.message,
+                    avatar: data.avatar || null,
+                    icon: data.icon || 'comment',
+                    url: data.url || '#',
+                    time: 'Vừa xong',
+                    read: false
+                };
+                
+                notifications.unshift(notif);
+                if (notifications.length > 50) notifications.pop();
+                unreadCount++;
+                updateBadge();
+                renderNotifications();
+                
+                // Play notification sound
+                try {
+                    const audio = new Audio('/matchfound.mp3');
+                    audio.volume = 0.85;
+                    audio.play().catch(() => {});
+                } catch (e) {}
+                
+                // Show browser notification if permitted
+                if (Notification.permission === 'granted') {
+                    new Notification('Tin nhắn mới', {
+                        body: data.message.replace(/<[^>]*>/g, ''),
+                        icon: data.avatar || '/logo_remove_bg.png'
+                    });
+                } else if (Notification.permission !== 'denied') {
+                    Notification.requestPermission();
+                }
+            }
+            
+            // Listen for real-time notifications via Laravel Echo
+            function setupEchoNotifications() {
+                if (typeof window.Echo === 'undefined') {
+                    setTimeout(setupEchoNotifications, 500);
+                    return;
+                }
+                
+                const userId = {{ Auth::id() }};
+                
+                window.Echo.private(`user.${userId}`)
+                    .listen('.chat.message', (e) => {
+                        // Don't notify if sender is current user
+                        if (e.sender_id === userId) {
+                            return;
+                        }
+                        
+                        // Don't notify if on the same conversation page
+                        if (window.location.pathname.includes(`/chat/conversation/${e.conversation_id}`)) {
+                            return;
+                        }
+                        
+                        addNotification({
+                            conversationId: e.conversation_id,
+                            message: `<strong>${e.sender_name}</strong> đã gửi tin nhắn: "${e.content.substring(0, 50)}${e.content.length > 50 ? '...' : ''}"`,
+                            avatar: e.sender_avatar,
+                            icon: 'comment',
+                            url: `/chat/conversation/${e.conversation_id}`
+                        });
+                    });
+            }
+            
+            setupEchoNotifications();
+            
+            // Initial render
+            renderNotifications();
+        });
+    </script>
+    @endauth
 
     @stack('scripts')
 </body>

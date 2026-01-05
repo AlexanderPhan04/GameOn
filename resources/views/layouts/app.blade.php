@@ -2797,6 +2797,12 @@
                         </a>
                     </li>
                     <li class="menu-item">
+                        <a href="{{ route('marketplace.inventory') }}" class="menu-link" title="Kho đồ">
+                            <i class="fas fa-box"></i>
+                            <span>Kho đồ</span>
+                        </a>
+                    </li>
+                    <li class="menu-item">
                         <form method="POST" action="{{ route('auth.logout') }}" class="menu-form">
                             @csrf
                             <button type="submit" class="menu-link menu-link-logout" title="{{ __('app.auth.logout') }}">
@@ -3067,6 +3073,12 @@
                                 </a>
                             </li>
                             <li class="list-none">
+                                <a href="{{ route('marketplace.inventory') }}" class="gameon-dropdown-item">
+                                    <i class="fas fa-box"></i>
+                                    <span>Kho đồ</span>
+                                </a>
+                            </li>
+                            <li class="list-none">
                                 <a href="{{ route('profile.show') }}" class="gameon-dropdown-item">
                                     <i class="fas fa-id-card"></i>
                                     <span>{{ __('app.profile.personal_info') }}</span>
@@ -3249,9 +3261,15 @@
                     </a>
                     @endif
                     @if(Route::has('marketplace.index'))
-                    <a href="{{ route('marketplace.index') }}" class="mobile-menu-item {{ Request::is('marketplace*') ? 'active' : '' }}">
+                    <a href="{{ route('marketplace.index') }}" class="mobile-menu-item {{ Request::is('marketplace') ? 'active' : '' }}">
                         <i class="fas fa-store"></i>
                         <span>Marketplace</span>
+                    </a>
+                    @endif
+                    @if(Route::has('marketplace.inventory'))
+                    <a href="{{ route('marketplace.inventory') }}" class="mobile-menu-item {{ Request::is('marketplace/inventory*') ? 'active' : '' }}">
+                        <i class="fas fa-box"></i>
+                        <span>Kho đồ</span>
                     </a>
                     @endif
                     @if(Route::has('profile.show'))

@@ -65,6 +65,49 @@
         padding: 1.25rem;
         border-bottom: 1px solid rgba(0, 229, 255, 0.1);
         transition: background 0.2s;
+        position: relative;
+    }
+    
+    .cart-item.restricted {
+        opacity: 0.7;
+        background: rgba(239, 68, 68, 0.05);
+    }
+    
+    .cart-item.restricted:hover {
+        background: rgba(239, 68, 68, 0.08);
+    }
+    
+    .restricted-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        color: #fff;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        z-index: 1;
+    }
+    
+    .restricted-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: repeating-linear-gradient(
+            45deg,
+            transparent,
+            transparent 10px,
+            rgba(239, 68, 68, 0.03) 10px,
+            rgba(239, 68, 68, 0.03) 20px
+        );
+        pointer-events: none;
+        border-radius: inherit;
     }
     
     .cart-item:last-child {
@@ -431,9 +474,28 @@
         </div>
         
         @if(count($items) > 0)
+        
+        @if($hasRestrictedItems ?? false)
+        <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 12px; padding: 1rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
+            <i class="fas fa-exclamation-triangle" style="color: #ef4444; font-size: 1.25rem;"></i>
+            <div>
+                <p style="color: #fff; margin: 0; font-weight: 600;">Một số vật phẩm đang bị hạn chế</p>
+                <p style="color: #94a3b8; margin: 0; font-size: 0.85rem;">Các vật phẩm này sẽ không được tính vào đơn hàng. Bạn có thể xóa hoặc giữ lại chờ mở bán.</p>
+            </div>
+        </div>
+        @endif
+        
         <div class="cart-items">
             @foreach($items as $item)
-            <div class="cart-item" data-id="{{ $item['product']->id }}">
+            <div class="cart-item {{ ($item['is_restricted'] ?? false) ? 'restricted' : '' }}" data-id="{{ $item['product']->id }}">
+                @if($item['is_restricted'] ?? false)
+                <div class="restricted-badge">
+                    <i class="fas fa-ban"></i>
+                    Đang hạn chế
+                </div>
+                <div class="restricted-overlay"></div>
+                @endif
+                
                 <div class="cart-item-image">
                     @if($item['product']->thumbnail)
                         <img src="{{ asset('uploads/' . $item['product']->thumbnail) }}" alt="{{ $item['product']->name }}">
@@ -456,6 +518,17 @@
                 </div>
                 
                 <div class="cart-item-quantity">
+                    @if($item['is_restricted'] ?? false)
+                    <div class="quantity-controls" style="opacity: 0.5; pointer-events: none;">
+                        <button type="button" class="quantity-btn" disabled>
+                            <i class="fas fa-minus"></i>
+                        </button>
+                        <input type="number" class="quantity-input" value="{{ $item['quantity'] }}" disabled>
+                        <button type="button" class="quantity-btn" disabled>
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                    @else
                     <div class="quantity-controls">
                         <button type="button" class="quantity-btn quantity-decrease" data-id="{{ $item['product']->id }}" {{ $item['quantity'] <= 1 ? 'disabled' : '' }}>
                             <i class="fas fa-minus"></i>
@@ -471,11 +544,17 @@
                             <i class="fas fa-plus"></i>
                         </button>
                     </div>
+                    @endif
                 </div>
                 
                 <div class="cart-item-price">
+                    @if($item['is_restricted'] ?? false)
+                    <div class="price-unit" style="text-decoration: line-through; color: #64748b;">{{ number_format($item['product']->current_price ?? $item['product']->price, 0, ',', '.') }} đ</div>
+                    <div class="price-subtotal" style="color: #ef4444; font-size: 0.9rem;">Không khả dụng</div>
+                    @else
                     <div class="price-unit">{{ number_format($item['product']->current_price ?? $item['product']->price, 0, ',', '.') }} đ</div>
                     <div class="price-subtotal">{{ number_format($item['subtotal'], 0, ',', '.') }} đ</div>
+                    @endif
                 </div>
                 
                 <button class="cart-item-remove" data-id="{{ $item['product']->id }}" title="Xóa">
@@ -487,7 +566,7 @@
         
         <div class="cart-summary">
             <div class="summary-row">
-                <span class="summary-label">Tạm tính ({{ count($items) }} sản phẩm)</span>
+                <span class="summary-label">Tạm tính ({{ collect($items)->where('is_restricted', false)->count() }} sản phẩm khả dụng)</span>
                 <span class="summary-value">{{ number_format($total, 0, ',', '.') }} đ</span>
             </div>
             <div class="summary-row">
@@ -500,10 +579,17 @@
                     <i class="fas fa-arrow-left"></i>
                     Tiếp tục mua
                 </a>
+                @if($total > 0)
                 <a href="{{ route('marketplace.checkout') }}" class="btn-checkout">
                     <i class="fas fa-credit-card"></i>
                     Thanh toán ngay
                 </a>
+                @else
+                <button class="btn-checkout" disabled style="opacity: 0.5; cursor: not-allowed;">
+                    <i class="fas fa-credit-card"></i>
+                    Không có sản phẩm khả dụng
+                </button>
+                @endif
             </div>
         </div>
         

@@ -139,21 +139,30 @@ class MarketplaceController extends Controller
         $cart = session()->get('cart', []);
         $items = [];
         $total = 0;
+        $hasRestrictedItems = false;
 
         foreach ($cart as $item) {
             $product = MarketplaceProduct::find($item['id']);
-            if ($product && $product->is_active) {
-                $subtotal = $product->current_price * $item['quantity'];
+            if ($product) {
+                $isRestricted = !$product->is_active || !$product->isInStock();
+                $subtotal = $isRestricted ? 0 : $product->current_price * $item['quantity'];
+                
                 $items[] = [
                     'product' => $product,
                     'quantity' => $item['quantity'],
                     'subtotal' => $subtotal,
+                    'is_restricted' => $isRestricted,
                 ];
-                $total += $subtotal;
+                
+                if (!$isRestricted) {
+                    $total += $subtotal;
+                } else {
+                    $hasRestrictedItems = true;
+                }
             }
         }
 
-        return view('marketplace.cart', compact('items', 'total'));
+        return view('marketplace.cart', compact('items', 'total', 'hasRestrictedItems'));
     }
 
     /**

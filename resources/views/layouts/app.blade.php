@@ -746,6 +746,30 @@
             position: relative;
         }
         
+        /* Cart Icon */
+        .cart-icon-btn {
+            position: relative;
+            text-decoration: none;
+        }
+        
+        .cart-badge {
+            position: absolute;
+            top: -4px;
+            right: -6px;
+            min-width: 18px;
+            height: 18px;
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: white;
+            font-size: 10px;
+            font-weight: 700;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 4px;
+            box-shadow: 0 2px 8px rgba(34, 197, 94, 0.5);
+        }
+        
         .notification-badge {
             position: absolute;
             top: -2px;
@@ -2952,6 +2976,19 @@
                             </div>
                         </div>
                     </div>
+                    @endauth
+
+                    <!-- Cart Icon -->
+                    @auth
+                    <a href="{{ route('marketplace.cart') }}" class="gameon-nav-link cart-icon-btn" style="position: relative;" title="Giỏ hàng">
+                        <i class="fas fa-shopping-cart"></i>
+                        @php
+                            $cartCount = session('cart') ? count(session('cart')) : 0;
+                        @endphp
+                        @if($cartCount > 0)
+                        <span class="cart-badge">{{ $cartCount }}</span>
+                        @endif
+                    </a>
                     @endauth
 
                     <!-- Notification Bell -->

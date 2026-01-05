@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\CartUpdated;
 use App\Models\MarketplaceProduct;
 use App\Models\MarketplaceOrder;
 use App\Models\MarketplaceOrderItem;
 use App\Models\UserInventory;
 use App\Models\Donation;
 use App\Models\User;
-use App\Services\VnpayService;
+use App\Services\ZalopayService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -16,11 +17,11 @@ use Illuminate\Support\Facades\Log;
 
 class MarketplaceController extends Controller
 {
-    protected $vnpayService;
+    protected $zalopayService;
 
-    public function __construct(VnpayService $vnpayService)
+    public function __construct(ZalopayService $zalopayService)
     {
-        $this->vnpayService = $vnpayService;
+        $this->zalopayService = $zalopayService;
     }
 
     /**
@@ -119,6 +120,17 @@ class MarketplaceController extends Controller
 
         session()->put('cart', $cart);
 
+        // Broadcast cart update
+        if (Auth::check()) {
+            broadcast(new CartUpdated(
+                Auth::id(),
+                count($cart),
+                'add',
+                $product->id,
+                $product->name
+            ))->toOthers();
+        }
+
         return response()->json([
             'success' => true,
             'message' => 'Đã thêm vào giỏ hàng',
@@ -157,13 +169,87 @@ class MarketplaceController extends Controller
     public function removeFromCart($id)
     {
         $cart = session()->get('cart', []);
+        $productName = isset($cart[$id]) ? $cart[$id]['name'] : null;
         unset($cart[$id]);
         session()->put('cart', $cart);
 
+        // Broadcast cart update
+        if (Auth::check()) {
+            broadcast(new CartUpdated(
+                Auth::id(),
+                count($cart),
+                'remove',
+                $id,
+                $productName
+            ))->toOthers();
+        }
+
         return response()->json([
             'success' => true,
-            'message' => 'Đã xóa khỏi giỏ hàng'
+            'message' => 'Đã xóa khỏi giỏ hàng',
+            'cart_count' => count($cart)
         ]);
+    }
+
+    /**
+     * Cập nhật số lượng trong giỏ hàng
+     */
+    public function updateCartQuantity(Request $request, $id)
+    {
+        $request->validate([
+            'quantity' => 'required|integer|min:1'
+        ]);
+
+        $product = MarketplaceProduct::find($id);
+        if (!$product) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Sản phẩm không tồn tại'
+            ], 404);
+        }
+
+        $quantity = $request->quantity;
+
+        // Check stock limit (-1 means unlimited)
+        if ($product->stock != -1 && $quantity > $product->stock) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Số lượng vượt quá kho hàng (còn ' . $product->stock . ' sản phẩm)',
+                'max_quantity' => $product->stock
+            ], 400);
+        }
+
+        $cart = session()->get('cart', []);
+        
+        if (isset($cart[$id])) {
+            $cart[$id]['quantity'] = $quantity;
+            session()->put('cart', $cart);
+
+            $subtotal = $product->current_price * $quantity;
+            
+            // Calculate new total
+            $total = 0;
+            foreach ($cart as $item) {
+                $p = MarketplaceProduct::find($item['id']);
+                if ($p) {
+                    $total += $p->current_price * $item['quantity'];
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Đã cập nhật số lượng',
+                'quantity' => $quantity,
+                'subtotal' => $subtotal,
+                'total' => $total,
+                'cart_count' => count($cart)
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Sản phẩm không có trong giỏ hàng'
+        ], 404);
     }
 
     /**
@@ -213,7 +299,7 @@ class MarketplaceController extends Controller
         }
 
         $request->validate([
-            'payment_method' => 'required|in:vnpay',
+            'payment_method' => 'required|in:zalopay',
         ]);
 
         $cart = session()->get('cart', []);
@@ -231,12 +317,13 @@ class MarketplaceController extends Controller
             $order->final_amount = 0;
             $order->status = 'pending';
             $order->payment_status = 'pending';
-            $order->payment_method = $request->payment_method;
+            $order->payment_method = 'zalopay';
             $order->notes = $request->notes;
             $order->save();
 
             // Tính tổng và tạo order items
             $total = 0;
+            $itemsData = [];
             foreach ($cart as $item) {
                 $product = MarketplaceProduct::find($item['id']);
                 if ($product && $product->is_active && $product->isInStock()) {
@@ -254,6 +341,13 @@ class MarketplaceController extends Controller
                     $orderItem->save();
 
                     $total += $subtotal;
+                    
+                    $itemsData[] = [
+                        'id' => $product->id,
+                        'name' => $product->name,
+                        'price' => $price,
+                        'quantity' => $quantity,
+                    ];
                 }
             }
 
@@ -261,16 +355,26 @@ class MarketplaceController extends Controller
             $order->final_amount = $total;
             $order->save();
 
-            // Tạo payment URL với VNPay
-            $paymentData = [
-                'order_id' => $order->order_id,
-                'amount' => $total,
-                'order_desc' => 'Thanh toán đơn hàng #' . $order->order_id,
-                'order_type' => 'other',
-                'language' => 'vn',
-            ];
+            // Tạo payment URL với ZaloPay
+            $paymentResult = $this->zalopayService->createOrder([
+                'user_id' => Auth::id(),
+                'app_user' => 'user_' . Auth::id(),
+                'amount' => (int) $total,
+                'description' => 'Thanh toán đơn hàng #' . $order->order_id,
+                'items' => $itemsData,
+            ]);
 
-            $paymentUrl = $this->vnpayService->createPaymentUrl($paymentData);
+            if (!$paymentResult['success']) {
+                DB::rollBack();
+                return response()->json([
+                    'success' => false,
+                    'message' => $paymentResult['message'] ?? 'Không thể tạo thanh toán'
+                ], 500);
+            }
+
+            // Lưu app_trans_id vào order
+            $order->zalopay_trans_id = $paymentResult['app_trans_id'];
+            $order->save();
 
             DB::commit();
 
@@ -279,7 +383,7 @@ class MarketplaceController extends Controller
 
             return response()->json([
                 'success' => true,
-                'payment_url' => $paymentUrl,
+                'payment_url' => $paymentResult['order_url'],
                 'order_id' => $order->order_id
             ]);
         } catch (\Exception $e) {

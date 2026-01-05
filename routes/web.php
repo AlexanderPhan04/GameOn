@@ -18,6 +18,7 @@ use App\Http\Controllers\TournamentManagementController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\MarketplaceController;
 use App\Http\Controllers\Admin\MarketplaceController as AdminMarketplaceController;
+use App\Http\Controllers\ZalopayController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -285,7 +286,7 @@ Route::prefix('admin/marketplace')->name('admin.marketplace.')->middleware(['aut
     Route::patch('/{id}/toggle-status', [AdminMarketplaceController::class, 'toggleStatus'])->name('toggleStatus');
 });
 
-// Payment Routes - VNPay Integration
+// Payment Routes - VNPay Integration (deprecated)
 Route::prefix('payment')->name('payment.')->group(function () {
     // Tạo đơn hàng và chuyển hướng đến VNPay
     Route::post('/vnpay/create', [PaymentController::class, 'createPayment'])->name('vnpay.create');
@@ -298,6 +299,10 @@ Route::prefix('payment')->name('payment.')->group(function () {
 
     // Query transaction từ VNPay
     Route::post('/vnpay/query', [PaymentController::class, 'queryTransaction'])->name('vnpay.query');
+    
+    // ZaloPay Routes
+    Route::post('/zalopay/callback', [ZalopayController::class, 'callback'])->name('zalopay.callback');
+    Route::get('/zalopay/return', [ZalopayController::class, 'return'])->name('zalopay.return');
 });
 
 // Marketplace Routes
@@ -306,10 +311,15 @@ Route::prefix('marketplace')->name('marketplace.')->group(function () {
     Route::get('/product/{id}', [MarketplaceController::class, 'show'])->name('show');
     Route::post('/cart/{id}', [MarketplaceController::class, 'addToCart'])->name('addToCart');
     Route::get('/cart', [MarketplaceController::class, 'cart'])->name('cart');
+    Route::patch('/cart/{id}', [MarketplaceController::class, 'updateCartQuantity'])->name('updateCartQuantity');
     Route::delete('/cart/{id}', [MarketplaceController::class, 'removeFromCart'])->name('removeFromCart');
     Route::get('/checkout', [MarketplaceController::class, 'checkout'])->name('checkout')->middleware('auth.session');
     Route::post('/process-payment', [MarketplaceController::class, 'processPayment'])->name('processPayment')->middleware('auth.session');
     Route::get('/inventory', [MarketplaceController::class, 'inventory'])->name('inventory')->middleware('auth.session');
     Route::post('/inventory/{id}/equip', [MarketplaceController::class, 'equipItem'])->name('equipItem')->middleware('auth.session');
     Route::post('/donate/{userId}', [MarketplaceController::class, 'donate'])->name('donate')->middleware('auth.session');
+    
+    // Payment result pages
+    Route::get('/payment/success/{order}', [ZalopayController::class, 'success'])->name('payment.success');
+    Route::get('/payment/failed/{order}', [ZalopayController::class, 'failed'])->name('payment.failed');
 });

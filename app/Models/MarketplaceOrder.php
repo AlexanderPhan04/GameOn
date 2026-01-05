@@ -24,6 +24,8 @@ class MarketplaceOrder extends Model
         'payment_method',
         'vnpay_transaction_no',
         'vnpay_bank_code',
+        'zalopay_trans_id',
+        'zalopay_zp_trans_id',
         'paid_at',
         'notes',
     ];
@@ -40,8 +42,12 @@ class MarketplaceOrder extends Model
         parent::boot();
 
         static::creating(function ($order) {
+            $code = 'ORD' . strtoupper(Str::random(8)) . time();
             if (empty($order->order_id)) {
-                $order->order_id = 'ORD' . strtoupper(Str::random(8)) . time();
+                $order->order_id = $code;
+            }
+            if (empty($order->order_code)) {
+                $order->order_code = $code;
             }
         });
     }

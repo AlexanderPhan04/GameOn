@@ -539,16 +539,16 @@
                 <div class="payment-card-body">
                     <form id="checkoutForm">
                         @csrf
-                        <input type="hidden" name="payment_method" value="zalopay">
+                        <input type="hidden" name="payment_method" value="payos">
                         
                         <div class="payment-method selected">
                             <div class="payment-method-radio"></div>
                             <div class="payment-method-logo">
-                                <img src="https://cdn.haitrieu.com/wp-content/uploads/2022/10/Logo-ZaloPay.png" alt="ZaloPay">
+                                <img src="https://payos.vn/wp-content/uploads/sites/13/2023/07/payos-logo.svg" alt="PayOS">
                             </div>
                             <div class="payment-method-info">
-                                <h4>ZaloPay</h4>
-                                <p>Thanh toán qua ví ZaloPay hoặc thẻ ngân hàng</p>
+                                <h4>PayOS</h4>
+                                <p>Thanh toán qua QR Code hoặc thẻ ngân hàng</p>
                             </div>
                         </div>
                         
@@ -559,7 +559,7 @@
                         
                         <div class="security-note">
                             <i class="fas fa-shield-alt"></i>
-                            <span>Giao dịch được bảo mật bởi ZaloPay</span>
+                            <span>Giao dịch được bảo mật bởi PayOS</span>
                         </div>
                         
                         <button type="submit" class="btn-checkout" id="btnCheckout">

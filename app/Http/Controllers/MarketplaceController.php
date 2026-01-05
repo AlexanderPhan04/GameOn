@@ -9,7 +9,7 @@ use App\Models\MarketplaceOrderItem;
 use App\Models\UserInventory;
 use App\Models\Donation;
 use App\Models\User;
-use App\Services\ZalopayService;
+use App\Services\PayosService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -17,11 +17,11 @@ use Illuminate\Support\Facades\Log;
 
 class MarketplaceController extends Controller
 {
-    protected $zalopayService;
+    protected $payosService;
 
-    public function __construct(ZalopayService $zalopayService)
+    public function __construct(PayosService $payosService)
     {
-        $this->zalopayService = $zalopayService;
+        $this->payosService = $payosService;
     }
 
     /**
@@ -31,17 +31,14 @@ class MarketplaceController extends Controller
     {
         $query = MarketplaceProduct::where('is_active', true);
 
-        // Lọc theo loại
         if ($request->has('type')) {
             $query->where('type', $request->type);
         }
 
-        // Lọc theo danh mục
         if ($request->has('category')) {
             $query->where('category', $request->category);
         }
 
-        // Tìm kiếm
         if ($request->has('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -50,7 +47,6 @@ class MarketplaceController extends Controller
             });
         }
 
-        // Sắp xếp
         $sortBy = $request->get('sort', 'created_at');
         $sortOrder = $request->get('order', 'desc');
         $query->orderBy($sortBy, $sortOrder);
@@ -71,7 +67,6 @@ class MarketplaceController extends Controller
             abort(404);
         }
 
-        // Kiểm tra user đã sở hữu sản phẩm chưa
         $owned = false;
         if (Auth::check()) {
             $owned = UserInventory::where('user_id', Auth::id())
@@ -79,7 +74,6 @@ class MarketplaceController extends Controller
                 ->exists();
         }
 
-        // Sản phẩm liên quan
         $relatedProducts = MarketplaceProduct::where('is_active', true)
             ->where('id', '!=', $product->id)
             ->where('type', $product->type)
@@ -90,7 +84,7 @@ class MarketplaceController extends Controller
     }
 
     /**
-     * Thêm vào giỏ hàng (session)
+     * Thêm vào giỏ hàng
      */
     public function addToCart(Request $request, $id)
     {
@@ -120,7 +114,6 @@ class MarketplaceController extends Controller
 
         session()->put('cart', $cart);
 
-        // Broadcast cart update
         if (Auth::check()) {
             broadcast(new CartUpdated(
                 Auth::id(),
@@ -173,7 +166,6 @@ class MarketplaceController extends Controller
         unset($cart[$id]);
         session()->put('cart', $cart);
 
-        // Broadcast cart update
         if (Auth::check()) {
             broadcast(new CartUpdated(
                 Auth::id(),
@@ -210,7 +202,6 @@ class MarketplaceController extends Controller
 
         $quantity = $request->quantity;
 
-        // Check stock limit (-1 means unlimited)
         if ($product->stock != -1 && $quantity > $product->stock) {
             return response()->json([
                 'success' => false,
@@ -227,7 +218,6 @@ class MarketplaceController extends Controller
 
             $subtotal = $product->current_price * $quantity;
             
-            // Calculate new total
             $total = 0;
             foreach ($cart as $item) {
                 $p = MarketplaceProduct::find($item['id']);
@@ -266,7 +256,6 @@ class MarketplaceController extends Controller
             return redirect()->route('marketplace.index')->with('error', 'Giỏ hàng trống');
         }
 
-        // Tính tổng tiền
         $total = 0;
         $items = [];
         foreach ($cart as $item) {
@@ -290,7 +279,7 @@ class MarketplaceController extends Controller
     }
 
     /**
-     * Xử lý thanh toán
+     * Xử lý thanh toán với PayOS
      */
     public function processPayment(Request $request)
     {
@@ -299,7 +288,7 @@ class MarketplaceController extends Controller
         }
 
         $request->validate([
-            'payment_method' => 'required|in:zalopay',
+            'payment_method' => 'required|in:payos',
         ]);
 
         $cart = session()->get('cart', []);
@@ -317,18 +306,24 @@ class MarketplaceController extends Controller
             $order->final_amount = 0;
             $order->status = 'pending';
             $order->payment_status = 'pending';
-            $order->payment_method = 'zalopay';
+            $order->payment_method = 'payos';
             $order->notes = $request->notes;
             $order->save();
 
             // Tính tổng và tạo order items
             $total = 0;
-            $itemsData = [];
+            $payosItems = [];
             foreach ($cart as $item) {
                 $product = MarketplaceProduct::find($item['id']);
                 if ($product && $product->is_active && $product->isInStock()) {
                     $price = $product->current_price;
-                    $quantity = $item['quantity'];
+                    $quantity = (int) $item['quantity'];
+                    
+                    // Đảm bảo quantity >= 1
+                    if ($quantity < 1) {
+                        $quantity = 1;
+                    }
+                    
                     $subtotal = $price * $quantity;
 
                     $orderItem = new MarketplaceOrderItem();
@@ -342,11 +337,10 @@ class MarketplaceController extends Controller
 
                     $total += $subtotal;
                     
-                    $itemsData[] = [
-                        'id' => $product->id,
-                        'name' => $product->name,
-                        'price' => $price,
+                    $payosItems[] = [
+                        'name' => mb_substr($product->name, 0, 25),
                         'quantity' => $quantity,
+                        'price' => (int) $price,
                     ];
                 }
             }
@@ -355,26 +349,22 @@ class MarketplaceController extends Controller
             $order->final_amount = $total;
             $order->save();
 
-            // Tạo payment URL với ZaloPay
-            $paymentResult = $this->zalopayService->createOrder([
-                'user_id' => Auth::id(),
-                'app_user' => 'user_' . Auth::id(),
-                'amount' => (int) $total,
-                'description' => 'Thanh toán đơn hàng #' . $order->order_id,
-                'items' => $itemsData,
-            ]);
-
-            if (!$paymentResult['success']) {
-                DB::rollBack();
-                return response()->json([
-                    'success' => false,
-                    'message' => $paymentResult['message'] ?? 'Không thể tạo thanh toán'
-                ], 500);
-            }
-
-            // Lưu app_trans_id vào order
-            $order->zalopay_trans_id = $paymentResult['app_trans_id'];
+            // Tạo order_code cho PayOS (số nguyên duy nhất)
+            $orderCode = intval(substr(strval(microtime(true) * 10000), -8));
+            $order->order_code = $orderCode;
             $order->save();
+
+            // Tạo payment link với PayOS
+            $result = $this->payosService->createPaymentLink([
+                'order_code' => $orderCode,
+                'amount' => (int) $total,
+                'description' => 'DH ' . $order->order_id,
+                'items' => $payosItems,
+                'return_url' => route('payment.success'),
+                'cancel_url' => route('payment.cancel'),
+                'buyer_name' => Auth::user()->name,
+                'buyer_email' => Auth::user()->email,
+            ]);
 
             DB::commit();
 
@@ -383,8 +373,9 @@ class MarketplaceController extends Controller
 
             return response()->json([
                 'success' => true,
-                'payment_url' => $paymentResult['order_url'],
-                'order_id' => $order->order_id
+                'payment_url' => $result['checkout_url'],
+                'order_id' => $order->order_id,
+                'order_code' => $orderCode,
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -429,7 +420,6 @@ class MarketplaceController extends Controller
         $equip = $request->get('equip', true);
 
         if ($equip) {
-            // Tháo các item cùng loại
             if ($inventory->equipment_slot) {
                 UserInventory::where('user_id', Auth::id())
                     ->where('equipment_slot', $inventory->equipment_slot)
@@ -456,7 +446,7 @@ class MarketplaceController extends Controller
     public function donate(Request $request, $userId)
     {
         $request->validate([
-            'amount' => 'required|numeric|min:1000',
+            'amount' => 'required|numeric|min:2000',
             'message' => 'nullable|string|max:500',
             'is_anonymous' => 'boolean',
         ]);
@@ -480,26 +470,32 @@ class MarketplaceController extends Controller
             $donation->is_anonymous = $request->get('is_anonymous', false);
             $donation->status = 'pending';
             $donation->payment_status = 'pending';
-            $donation->payment_method = 'vnpay';
+            $donation->payment_method = 'payos';
             $donation->save();
 
-            // Tạo payment URL
-            $paymentData = [
-                'order_id' => $donation->donation_id,
-                'amount' => $request->amount,
-                'order_desc' => 'Quyên góp cho ' . ($donation->is_anonymous ? 'Người dùng' : $recipient->name),
-                'order_type' => 'other',
-                'language' => 'vn',
-            ];
+            // Tạo order_code cho PayOS
+            $orderCode = intval(substr(strval(microtime(true) * 10000), -8));
+            $donation->order_code = $orderCode;
+            $donation->save();
 
-            $paymentUrl = $this->vnpayService->createPaymentUrl($paymentData);
+            // Tạo payment link
+            $result = $this->payosService->createPaymentLink([
+                'order_code' => $orderCode,
+                'amount' => (int) $request->amount,
+                'description' => 'Donate ' . ($donation->is_anonymous ? 'User' : $recipient->name),
+                'return_url' => route('payment.success'),
+                'cancel_url' => route('payment.cancel'),
+                'buyer_name' => Auth::user()->name,
+                'buyer_email' => Auth::user()->email,
+            ]);
 
             DB::commit();
 
             return response()->json([
                 'success' => true,
-                'payment_url' => $paymentUrl,
-                'donation_id' => $donation->donation_id
+                'payment_url' => $result['checkout_url'],
+                'donation_id' => $donation->donation_id,
+                'order_code' => $orderCode,
             ]);
         } catch (\Exception $e) {
             DB::rollBack();

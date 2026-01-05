@@ -33,12 +33,16 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        animation: pulse 2s infinite;
+        animation: pulse-success 2s infinite;
     }
     
-    @keyframes pulse {
-        0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.05); }
+    @keyframes pulse-success {
+        0%, 100% {
+            box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4);
+        }
+        50% {
+            box-shadow: 0 0 0 15px rgba(34, 197, 94, 0);
+        }
     }
     
     .result-icon i {
@@ -62,7 +66,7 @@
     
     .order-info {
         background: rgba(0, 0, 20, 0.5);
-        border: 1px solid rgba(0, 229, 255, 0.1);
+        border: 1px solid rgba(34, 197, 94, 0.1);
         border-radius: 12px;
         padding: 1.25rem;
         margin-bottom: 2rem;
@@ -72,7 +76,7 @@
         display: flex;
         justify-content: space-between;
         padding: 0.5rem 0;
-        border-bottom: 1px solid rgba(0, 229, 255, 0.08);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     }
     
     .order-row:last-child {
@@ -87,12 +91,12 @@
     .order-value {
         color: #fff;
         font-weight: 600;
+        font-family: 'Rajdhani', sans-serif;
     }
     
-    .order-total {
-        font-family: 'Rajdhani', sans-serif;
-        font-size: 1.25rem;
+    .order-value.amount {
         color: #22c55e;
+        font-size: 1.1rem;
     }
     
     .result-actions {
@@ -107,7 +111,7 @@
         justify-content: center;
         gap: 0.5rem;
         padding: 0.875rem 1.5rem;
-        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        background: linear-gradient(135deg, #22c55e, #16a34a);
         border: none;
         border-radius: 12px;
         color: #fff;
@@ -119,6 +123,7 @@
     
     .btn-inventory:hover {
         transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(34, 197, 94, 0.3);
         color: #fff;
     }
     
@@ -133,7 +138,8 @@
         border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 12px;
         color: #94a3b8;
-        font-weight: 500;
+        font-family: 'Rajdhani', sans-serif;
+        font-weight: 600;
         text-decoration: none;
         transition: all 0.3s;
     }
@@ -141,6 +147,16 @@
     .btn-continue:hover {
         background: rgba(255, 255, 255, 0.1);
         color: #fff;
+    }
+    
+    .confetti {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 1000;
     }
 </style>
 @endpush
@@ -153,21 +169,19 @@
         </div>
         
         <h1 class="result-title">Thanh toán thành công!</h1>
-        <p class="result-desc">Cảm ơn bạn đã mua hàng. Sản phẩm đã được thêm vào kho đồ của bạn.</p>
+        <p class="result-desc">Cảm ơn bạn đã mua hàng. Đơn hàng của bạn đã được xử lý.</p>
         
         <div class="order-info">
             <div class="order-row">
                 <span class="order-label">Mã đơn hàng</span>
-                <span class="order-value">{{ $order->order_id }}</span>
+                <span class="order-value">{{ $orderCode ?? 'N/A' }}</span>
             </div>
+            @if(isset($amount) && $amount > 0)
             <div class="order-row">
-                <span class="order-label">Số sản phẩm</span>
-                <span class="order-value">{{ $order->items->sum('quantity') }} sản phẩm</span>
+                <span class="order-label">Số tiền</span>
+                <span class="order-value amount">{{ number_format($amount, 0, ',', '.') }} đ</span>
             </div>
-            <div class="order-row">
-                <span class="order-label">Tổng thanh toán</span>
-                <span class="order-value order-total">{{ number_format($order->final_amount, 0, ',', '.') }} đ</span>
-            </div>
+            @endif
         </div>
         
         <div class="result-actions">
@@ -176,7 +190,7 @@
                 Xem kho đồ
             </a>
             <a href="{{ route('marketplace.index') }}" class="btn-continue">
-                <i class="fas fa-store"></i>
+                <i class="fas fa-shopping-bag"></i>
                 Tiếp tục mua
             </a>
         </div>

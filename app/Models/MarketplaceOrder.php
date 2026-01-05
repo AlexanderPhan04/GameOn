@@ -22,10 +22,7 @@ class MarketplaceOrder extends Model
         'status',
         'payment_status',
         'payment_method',
-        'vnpay_transaction_no',
-        'vnpay_bank_code',
-        'zalopay_trans_id',
-        'zalopay_zp_trans_id',
+        'payos_transaction_id',
         'paid_at',
         'notes',
     ];

@@ -18,7 +18,6 @@ use App\Http\Controllers\TournamentManagementController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\MarketplaceController;
 use App\Http\Controllers\Admin\MarketplaceController as AdminMarketplaceController;
-use App\Http\Controllers\ZalopayController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -286,23 +285,19 @@ Route::prefix('admin/marketplace')->name('admin.marketplace.')->middleware(['aut
     Route::patch('/{id}/toggle-status', [AdminMarketplaceController::class, 'toggleStatus'])->name('toggleStatus');
 });
 
-// Payment Routes - VNPay Integration (deprecated)
+// Payment Routes - PayOS Integration
 Route::prefix('payment')->name('payment.')->group(function () {
-    // Tạo đơn hàng và chuyển hướng đến VNPay
-    Route::post('/vnpay/create', [PaymentController::class, 'createPayment'])->name('vnpay.create');
+    // Tạo link thanh toán PayOS
+    Route::post('/payos/create', [PaymentController::class, 'createPayment'])->name('payos.create');
 
-    // Callback từ VNPay sau khi thanh toán
-    Route::get('/vnpay/return', [PaymentController::class, 'vnpayReturn'])->name('vnpay.return');
+    // Callback từ PayOS sau khi thanh toán thành công
+    Route::get('/payos/success', [PaymentController::class, 'handleSuccess'])->name('success');
 
-    // IPN (Instant Payment Notification) từ VNPay
-    Route::post('/vnpay/ipn', [PaymentController::class, 'vnpayIpn'])->name('vnpay.ipn');
+    // Callback từ PayOS khi hủy thanh toán
+    Route::get('/payos/cancel', [PaymentController::class, 'handleCancel'])->name('cancel');
 
-    // Query transaction từ VNPay
-    Route::post('/vnpay/query', [PaymentController::class, 'queryTransaction'])->name('vnpay.query');
-    
-    // ZaloPay Routes
-    Route::post('/zalopay/callback', [ZalopayController::class, 'callback'])->name('zalopay.callback');
-    Route::get('/zalopay/return', [ZalopayController::class, 'return'])->name('zalopay.return');
+    // Webhook từ PayOS (IPN)
+    Route::post('/payos/webhook', [PaymentController::class, 'webhook'])->name('payos.webhook');
 });
 
 // Marketplace Routes
@@ -319,7 +314,4 @@ Route::prefix('marketplace')->name('marketplace.')->group(function () {
     Route::post('/inventory/{id}/equip', [MarketplaceController::class, 'equipItem'])->name('equipItem')->middleware('auth.session');
     Route::post('/donate/{userId}', [MarketplaceController::class, 'donate'])->name('donate')->middleware('auth.session');
     
-    // Payment result pages
-    Route::get('/payment/success/{order}', [ZalopayController::class, 'success'])->name('payment.success');
-    Route::get('/payment/failed/{order}', [ZalopayController::class, 'failed'])->name('payment.failed');
 });

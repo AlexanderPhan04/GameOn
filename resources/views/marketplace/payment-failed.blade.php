@@ -136,13 +136,13 @@
         </div>
         
         <h1 class="result-title">Thanh toán thất bại</h1>
-        <p class="result-desc">Giao dịch không thành công hoặc đã bị hủy. Vui lòng thử lại.</p>
+        <p class="result-desc">{{ $message ?? 'Giao dịch không thành công hoặc đã bị hủy. Vui lòng thử lại.' }}</p>
         
-        @if($order)
+        @if(isset($orderCode))
         <div class="order-info">
             <div class="order-row">
                 <span class="order-label">Mã đơn hàng</span>
-                <span class="order-value">{{ $order->order_id }}</span>
+                <span class="order-value">{{ $orderCode }}</span>
             </div>
         </div>
         @endif

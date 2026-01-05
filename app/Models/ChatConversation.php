@@ -246,7 +246,10 @@ class ChatConversation extends Model
      */
     public function getLastMessagePreviewAttribute()
     {
-        $lastMessage = $this->messages()->latest()->first();
+        $lastMessage = ChatMessage::where('conversation_id', $this->id)
+            ->whereNull('deleted_at')
+            ->orderBy('created_at', 'desc')
+            ->first();
 
         if (! $lastMessage) {
             return 'No messages yet';

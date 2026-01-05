@@ -27,11 +27,12 @@ class ChatController extends Controller
         }
 
         // Get conversations directly using query builder
+        // Order by last_message_at descending, with nulls at the end
         $conversations = ChatConversation::whereHas('participants', function ($query) use ($user) {
             $query->where('user_id', $user->id);
         })
             ->with(['participants.user'])
-            ->orderBy('last_message_at', 'desc')
+            ->orderByRaw('last_message_at IS NULL, last_message_at DESC')
             ->limit(20)
             ->get();
 
@@ -147,6 +148,15 @@ class ChatController extends Controller
 
             // Broadcast message to all participants via WebSocket
             broadcast(new MessageSent($message))->toOthers();
+
+            // Send notification to other participants
+            $otherParticipants = $conversation->participants()
+                ->where('user_id', '!=', $user->id)
+                ->pluck('user_id');
+            
+            foreach ($otherParticipants as $participantId) {
+                broadcast(new \App\Events\NewChatNotification($participantId, $message));
+            }
 
             return response()->json([
                 'success' => true,
@@ -557,17 +567,25 @@ class ChatController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string|max:1000',
-            'user_ids' => 'required|array|min:2|max:50',
+            'user_ids' => 'nullable|array|max:50',
             'user_ids.*' => 'exists:users,id',
             'avatar' => 'nullable|image|max:2048',
         ]);
 
         $user = Auth::user();
-        $userIds = $request->user_ids;
+        $userIds = $request->user_ids ?? [];
 
         // Add current user to the list if not included
         if (! in_array($user->id, $userIds)) {
             $userIds[] = $user->id;
+        }
+
+        // Need at least 2 participants for a group
+        if (count($userIds) < 2) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Vui lòng thêm ít nhất 1 thành viên khác vào nhóm'
+            ], 422);
         }
 
         DB::beginTransaction();

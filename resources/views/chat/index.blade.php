@@ -111,21 +111,6 @@
 </style>
 <style>
     .chat-main { flex: 1; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #000814, #000022, #0d1b2a); position: relative; overflow: hidden; width: 100%; }
-    .welcome-box { text-align: center; z-index: 2; padding: 2rem; width: 100%; max-width: 600px; margin: 0 auto; }
-    .welcome-icon { width: 120px; height: 120px; margin: 0 auto 2rem; background: linear-gradient(135deg, #0d1b2a, #000022); border: 2px solid rgba(0, 229, 255, 0.3); border-radius: 30px; display: flex; align-items: center; justify-content: center; position: relative; box-shadow: 0 0 50px rgba(0, 229, 255, 0.2); }
-    .welcome-icon i { font-size: 3rem; color: #00E5FF; }
-    .welcome-icon::after { content: ''; position: absolute; inset: -8px; border: 2px solid rgba(0, 229, 255, 0.3); border-radius: 36px; animation: pulse-ring 2s ease-out infinite; }
-    @keyframes pulse-ring { 0% { transform: scale(1); opacity: 0.5; } 100% { transform: scale(1.15); opacity: 0; } }
-    .welcome-title { font-family: 'Rajdhani', sans-serif; font-size: 2.25rem; font-weight: 700; color: #00E5FF; margin-bottom: 0.75rem; }
-    .welcome-desc { color: #94a3b8; font-size: 1rem; max-width: 450px; margin: 0 auto 2rem; line-height: 1.6; }
-    .welcome-actions { display: flex; align-items: center; justify-content: center; gap: 1rem; flex-wrap: wrap; }
-    .action-btn { display: inline-flex; align-items: center; gap: 0.6rem; padding: 0.875rem 1.5rem; border-radius: 12px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; border: none; }
-    .action-btn.primary { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff; box-shadow: 0 4px 25px rgba(139, 92, 246, 0.4); }
-    .action-btn.primary:hover { transform: translateY(-3px); box-shadow: 0 8px 35px rgba(139, 92, 246, 0.5); }
-    .action-btn.secondary { background: linear-gradient(135deg, #000055, #000077); color: #00E5FF; border: 1px solid rgba(0, 229, 255, 0.3); }
-    .action-btn.secondary:hover { background: rgba(0, 229, 255, 0.1); box-shadow: 0 0 25px rgba(0, 229, 255, 0.3); }
-    .floating-orb { position: absolute; border-radius: 50%; background: radial-gradient(circle, rgba(0, 229, 255, 0.15), transparent 70%); animation: float 8s ease-in-out infinite; }
-    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-30px); } }
     
     .modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(8px); z-index: 9998; display: none; }
     .modal-overlay.show { display: block; }
@@ -204,17 +189,7 @@
         </div>
     </aside>
     <main class="chat-main">
-        <div class="welcome-box">
-            <div class="welcome-icon"><i class="fas fa-comments"></i></div>
-            <h2 class="welcome-title">Chào mừng đến Global Chat</h2>
-            <p class="welcome-desc">Chọn cuộc trò chuyện để bắt đầu nhắn tin hoặc tìm kiếm người dùng để tạo chat mới.</p>
-            <div class="welcome-actions">
-                <button class="action-btn primary" id="openModalBtn3"><i class="fas fa-users"></i> Tạo nhóm chat</button>
-                <button class="action-btn secondary" onclick="document.getElementById('userSearch').focus()"><i class="fas fa-search"></i> Tìm kiếm user</button>
-            </div>
-        </div>
-        <div class="floating-orb" style="width:200px;height:200px;top:10%;left:5%;"></div>
-        <div class="floating-orb" style="width:150px;height:150px;bottom:20%;right:10%;animation-delay:2s;"></div>
+        <!-- Empty state - select a conversation -->
     </main>
 </div>
 
@@ -257,7 +232,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     const overlay = document.getElementById('modalOverlay');
     const container = document.getElementById('modalContainer');
-    const openBtns = document.querySelectorAll('#openModalBtn, #openModalBtn2, #openModalBtn3');
+    const openBtns = document.querySelectorAll('#openModalBtn, #openModalBtn2');
     const closeBtns = document.querySelectorAll('#closeModalBtn, #cancelModalBtn');
     const groupName = document.getElementById('groupName');
     const submitBtn = document.getElementById('submitGroupBtn');

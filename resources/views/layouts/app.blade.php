@@ -2550,22 +2550,22 @@
             </button>
             <div class="topbar-search">
                 @auth
-                <div id="header-search" class="relative">
-                    <button type="button" class="px-3 py-1.5 text-sm bg-white text-gray-800 rounded hover:bg-gray-100 transition-colors" id="searchToggle" title="{{ __('app.search.search') }}" aria-expanded="false">
+                <div id="navbarSearchWrapper" class="relative">
+                    <button type="button" class="px-3 py-1.5 text-sm bg-white text-gray-800 rounded hover:bg-gray-100 transition-colors" id="navbarSearchToggle" title="{{ __('app.search.search') }}" aria-expanded="false">
                         <i class="fas fa-magnifying-glass"></i>
                     </button>
-                    <div id="searchBox" class="absolute right-0 top-full mt-2" style="display:none; z-index: 100000;">
+                    <div id="navbarSearchBox" class="absolute right-0 top-full mt-2" style="display:none; z-index: 100000;">
                         <div class="search-panel">
                             <div class="search-input-wrap">
                                 <i class="fas fa-magnifying-glass text-gray-500"></i>
-                                <input id="searchInput" class="search-input" placeholder="{{ __('app.search.search_users_teams_tournaments_games') }}" />
-                                <div id="searchLoading" class="search-loading"></div>
-                                <button id="searchClear" class="search-clear" title="{{ __('app.search.clear') }}"><i class="fas fa-xmark"></i></button>
+                                <input id="navbarSearchInput" class="search-input" placeholder="{{ __('app.search.search_users_teams_tournaments_games') }}" />
+                                <div id="navbarSearchLoading" class="search-loading"></div>
+                                <button id="navbarSearchClear" class="search-clear" title="{{ __('app.search.clear') }}"><i class="fas fa-xmark"></i></button>
                                 <span class="ml-2 hidden md:inline text-gray-500" title="{{ __('app.search.shortcut') }}"><span class="search-kbd">/</span> <span class="search-kbd">Enter</span></span>
                             </div>
-                            <div id="searchResults" class="search-results"></div>
-                            <div class="p-2 border-top" id="searchFooter" style="display:none;">
-                                <a id="searchSeeAll" class="block w-full px-3 py-1.5 text-sm border border-blue-500 text-blue-500 rounded hover:bg-blue-500 hover:text-white transition-colors text-center">{{ __('app.search.see_all_results') }}</a>
+                            <div id="navbarSearchResults" class="search-results"></div>
+                            <div class="p-2 border-top" id="navbarSearchFooter" style="display:none;">
+                                <a id="navbarSearchSeeAll" class="block w-full px-3 py-1.5 text-sm border border-blue-500 text-blue-500 rounded hover:bg-blue-500 hover:text-white transition-colors text-center">{{ __('app.search.see_all_results') }}</a>
                             </div>
                         </div>
                     </div>
@@ -2652,19 +2652,19 @@
 
                     <!-- Search -->
                     @auth
-                    <div class="relative hidden md:block">
-                        <button type="button" class="gameon-nav-link" id="searchToggle" style="border: none; background: none; cursor: pointer;">
+                    <div class="relative" id="navbarSearchWrapper">
+                        <button type="button" class="gameon-nav-link" id="navbarSearchToggle" style="border: none; background: none; cursor: pointer;" title="{{ __('app.search.search') }}">
                             <i class="fas fa-magnifying-glass"></i>
                         </button>
-                        <div id="searchBox" class="absolute right-0 top-full mt-2" style="display:none; z-index: 100000;">
+                        <div id="navbarSearchBox" class="absolute right-0 top-full mt-2" style="display:none; z-index: 100000;">
                             <div class="search-panel">
                                 <div class="search-input-wrap">
                                     <i class="fas fa-magnifying-glass text-gray-500"></i>
-                                    <input id="searchInput" class="search-input" placeholder="{{ __('app.search.search_users_teams_tournaments_games') }}" />
-                                    <div id="searchLoading" class="search-loading"></div>
-                                    <button id="searchClear" class="search-clear" title="{{ __('app.search.clear') }}"><i class="fas fa-xmark"></i></button>
+                                    <input id="navbarSearchInput" class="search-input" placeholder="{{ __('app.search.search_users_teams_tournaments_games') }}" />
+                                    <div id="navbarSearchLoading" class="search-loading"></div>
+                                    <button id="navbarSearchClear" class="search-clear" title="{{ __('app.search.clear') }}"><i class="fas fa-xmark"></i></button>
                                 </div>
-                                <div id="searchResults" class="search-results"></div>
+                                <div id="navbarSearchResults" class="search-results"></div>
                             </div>
                         </div>
                     </div>
@@ -3384,15 +3384,16 @@
 
         // No bootstrap confirm modal anymore; SweetAlert2 is used.
 
-        // Header search interactions
+        // Navbar search interactions (for all users)
         (function(){
-            const toggle = document.getElementById('searchToggle');
-            const box = document.getElementById('searchBox');
-            const input = document.getElementById('searchInput');
-            const results = document.getElementById('searchResults');
-            const loading = document.getElementById('searchLoading');
-            const clearBtn = document.getElementById('searchClear');
-            const searchSeeAll = document.getElementById('searchSeeAll');
+            const toggle = document.getElementById('navbarSearchToggle');
+            const box = document.getElementById('navbarSearchBox');
+            const input = document.getElementById('navbarSearchInput');
+            const results = document.getElementById('navbarSearchResults');
+            const loading = document.getElementById('navbarSearchLoading');
+            const clearBtn = document.getElementById('navbarSearchClear');
+            const footer = document.getElementById('navbarSearchFooter');
+            const seeAll = document.getElementById('navbarSearchSeeAll');
             if(!toggle) return;
 
             let originalParent = null;
@@ -3400,191 +3401,80 @@
             
             const openBox = ()=>{
                 if(!box) return;
-                // Get toggle button position
                 const toggleRect = toggle.getBoundingClientRect();
-                const toggleLeft = toggleRect.left;
-                const toggleTop = toggleRect.top;
-                
-                // Move to body to avoid any overflow/stacking issues
                 if(!originalParent){ originalParent = box.parentElement; }
                 if(box.parentElement !== document.body){ document.body.appendChild(box); }
                 
-                // Check if mobile (screen width <= 768px)
                 const isMobile = window.innerWidth <= 768;
                 
                 if(isMobile) {
-                    // On mobile: full width with margins
                     box.style.position = 'fixed';
-                    box.style.top = toggleTop + toggleRect.height + 10 + 'px';
+                    box.style.top = toggleRect.top + toggleRect.height + 10 + 'px';
                     box.style.left = '10px';
                     box.style.right = '10px';
                     box.style.width = 'auto';
-                    box.style.minWidth = 'auto';
-                    box.style.transform = 'scale(0.3)';
-                    box.style.opacity = '0';
-                    box.style.display = 'block';
-                    box.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
-                    
-                    // Set flag immediately
-                    isSearchOpen = true;
-                    toggle.setAttribute('aria-expanded','true');
-                    
-                    // Animate to final position
-                    setTimeout(() => {
-                        box.style.transform = 'scale(1)';
-                        box.style.opacity = '1';
-                    }, 10);
                 } else {
-                    // Desktop: calculate position relative to toggle button
-                    const searchBoxWidth = 560; // Default width from CSS
-                    const spacing = 10; // Space between button and search box
-                    let leftPosition = toggleLeft - searchBoxWidth - spacing;
-                    
-                    // Check if search box would overflow on the left, if so, position to the right
-                    if(leftPosition < 10) {
-                        leftPosition = toggleRect.right + spacing;
-                        // If still doesn't fit, center it
-                        if(leftPosition + searchBoxWidth > window.innerWidth - 10) {
-                            leftPosition = (window.innerWidth - searchBoxWidth) / 2;
-                        }
+                    const searchBoxWidth = 560;
+                    let leftPosition = toggleRect.left - searchBoxWidth - 10;
+                    if(leftPosition < 10) leftPosition = toggleRect.right + 10;
+                    if(leftPosition + searchBoxWidth > window.innerWidth - 10) {
+                        leftPosition = (window.innerWidth - searchBoxWidth) / 2;
                     }
-                    
-                    // Set initial position at toggle button (small and transparent)
                     box.style.position = 'fixed';
-                    box.style.top = toggleTop + 'px';
-                    box.style.left = toggleLeft + 'px';
+                    box.style.top = toggleRect.top + 'px';
+                    box.style.left = leftPosition + 'px';
                     box.style.right = 'auto';
                     box.style.width = '';
-                    box.style.minWidth = '';
-                    box.style.transform = 'scale(0.3)';
-                    box.style.opacity = '0';
-                    box.style.display = 'block';
-                    box.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
-                    
-                    // Set flag immediately
-                    isSearchOpen = true;
-                    toggle.setAttribute('aria-expanded','true');
-                    
-                    // Animate to final position (left of toggle button)
-                    setTimeout(() => {
-                        box.style.top = toggleTop + 'px';
-                        box.style.left = leftPosition + 'px';
-                        box.style.transform = 'scale(1)';
-                        box.style.opacity = '1';
-                    }, 10);
                 }
                 
-                setTimeout(()=>input && input.focus(), 350);
-            }
-            const closeBox = ()=>{ 
-                if(!box) return;
-                
-                // Set flag immediately
-                isSearchOpen = false;
-                
-                // Get toggle button position for closing animation
-                const toggleRect = toggle.getBoundingClientRect();
-                const toggleLeft = toggleRect.left;
-                const toggleTop = toggleRect.top;
-                
-                // Check if mobile
-                const isMobile = window.innerWidth <= 768;
-                
-                // Animate back to toggle button
-                if(isMobile) {
-                    box.style.transform = 'scale(0.3)';
-                    box.style.opacity = '0';
-                } else {
-                    box.style.top = toggleTop + 'px';
-                    box.style.left = toggleLeft + 'px';
-                    box.style.transform = 'scale(0.3)';
-                    box.style.opacity = '0';
-                }
+                box.style.transform = 'scale(0.3)';
+                box.style.opacity = '0';
+                box.style.display = 'block';
+                box.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+                isSearchOpen = true;
+                toggle.setAttribute('aria-expanded','true');
                 
                 setTimeout(() => {
+                    box.style.transform = 'scale(1)';
+                    box.style.opacity = '1';
+                }, 10);
+                setTimeout(()=>input && input.focus(), 350);
+            };
+            
+            const closeBox = ()=>{ 
+                if(!box) return;
+                isSearchOpen = false;
+                box.style.transform = 'scale(0.3)';
+                box.style.opacity = '0';
+                setTimeout(() => {
                     box.style.display = 'none';
-                    // Reset mobile-specific styles
-                    if(isMobile) {
-                        box.style.left = '';
-                        box.style.right = '';
-                        box.style.width = '';
-                        box.style.minWidth = '';
-                    }
                     toggle.setAttribute('aria-expanded','false'); 
                     if(originalParent && box.parentElement === document.body){ 
                         originalParent.appendChild(box); 
                     }
                 }, 300);
-            }
-
-            // Flag to prevent document click from interfering with toggle
-            let isToggling = false;
-            
-            // Helper function to check if box is actually visible
-            const isBoxVisible = () => {
-                if(!box) return false;
-                const style = window.getComputedStyle(box);
-                return style.display !== 'none' && style.opacity !== '0';
             };
-            
-            toggle && toggle.addEventListener('click', function(e){
+
+            toggle.addEventListener('click', function(e){
                 e.preventDefault();
                 e.stopPropagation();
-                e.stopImmediatePropagation();
-                if(!box) return;
-                
-                // Prevent document click from interfering
-                isToggling = true;
-                
-                // Check actual state instead of just flag
-                const currentlyOpen = isBoxVisible() || isSearchOpen;
-                
-                // Toggle search box based on current state
-                if(currentlyOpen) {
-                    closeBox();
-                } else {
-                    openBox();
-                    // If already has query text, trigger a search immediately
-                    if (input && input.value.trim() !== '') {
-                        triggerSearch(input.value.trim());
-                    }
-                }
-                
-                // Reset flag after animation completes (longer timeout to ensure document click doesn't interfere)
-                setTimeout(() => {
-                    isToggling = false;
-                }, 400);
+                if(isSearchOpen) closeBox(); else openBox();
             });
             
-            // Close search box when clicking anywhere outside
             document.addEventListener('click', function(e){
-                // Don't interfere if we're toggling
-                if(isToggling) return;
-                
-                // Check if box is actually visible
-                if(!box || !isBoxVisible() || !isSearchOpen) return;
-                
-                // Don't close if clicking inside search box
-                if(box.contains(e.target)) return;
-                
-                // Don't close if clicking on the toggle button (handled separately above)
-                const headerSearch = document.getElementById('header-search');
-                if((toggle && toggle.contains(e.target)) || (headerSearch && headerSearch.contains(e.target))) {
-                    return;
-                }
-                
-                // Close for all other clicks
+                if(!box || !isSearchOpen) return;
+                if(box.contains(e.target) || toggle.contains(e.target)) return;
                 closeBox();
             });
             
-            // Close on Escape key
             document.addEventListener('keydown', function(e){ 
-                if(e.key === 'Escape' && box && isSearchOpen){
-                    closeBox();
+                if(e.key === 'Escape' && isSearchOpen) closeBox();
+                // Keyboard shortcut: '/' to focus search
+                if(e.key === '/' && !e.ctrlKey && !e.metaKey && !e.altKey && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA'){
+                    e.preventDefault(); openBox(); input && input.focus();
                 }
             });
 
-            let lastQuery = '';
             let timer;
             function triggerSearch(q){
                 if(loading) loading.style.display = 'inline-block';
@@ -3594,30 +3484,24 @@
                     .catch(()=>{})
                     .finally(()=>{ if(loading) loading.style.display = 'none'; });
             }
+            
             input && input.addEventListener('input', function(){
                 const q = this.value.trim();
                 clearTimeout(timer);
-                if(q === ''){ results.innerHTML=''; return; }
+                if(q === ''){ results.innerHTML=''; if(footer) footer.style.display='none'; return; }
                 timer = setTimeout(()=>{ triggerSearch(q); }, 250);
             });
 
             clearBtn && clearBtn.addEventListener('click', function(){
-                if(!input) return; input.value=''; results.innerHTML=''; input.focus();
+                if(!input) return; input.value=''; results.innerHTML=''; if(footer) footer.style.display='none'; input.focus();
             });
 
-            // Keyboard shortcut: '/' to focus search
-            document.addEventListener('keydown', function(e){
-                if(e.key === '/' && !e.ctrlKey && !e.metaKey && !e.altKey){
-                    e.preventDefault(); openBox(); input && input.focus();
-                }
-            });
-
-            // Enter behavior: default -> full results page; hold Ctrl/Shift to open first result
             input && input.addEventListener('keydown', function(e){
                 if(e.key === 'Enter'){
                     e.preventDefault();
-                    const q = (input && input.value.trim()) || '';
-                    const first = results.querySelector('.result-item, .list-group-item-action');
+                    const q = input.value.trim();
+                    const first = results.querySelector('.result-item');
+                    // Ctrl/Shift + Enter: open first result
                     if((e.ctrlKey || e.shiftKey) && first){
                         const href = first.getAttribute('href');
                         if(href && href !== '#') { window.location.href = href; return; }
@@ -3638,6 +3522,7 @@
                     </a>`).join('');
                 return `<div class="result-section-title">${title}</div>${links}`;
             }
+            
             function renderResults(data){
                 const i18n = {
                     users: "{{ __('app.search.users') }}",
@@ -3651,21 +3536,19 @@
                     section(i18n.teams, data.teams, '#22c55e') +
                     section(i18n.tournaments, data.tournaments, '#f59e0b') +
                     section(i18n.games, data.games, '#a78bfa');
-                results.innerHTML = html || `<div class=\"empty-state\"><i class=\"fas fa-search\"></i> ${i18n.empty}</div>`;
-                const footer = document.getElementById('searchFooter');
-                const seeAll = document.getElementById('searchSeeAll');
+                results.innerHTML = html || `<div class="empty-state"><i class="fas fa-search"></i> ${i18n.empty}</div>`;
+                
+                // Update footer "See all results"
                 if(footer && seeAll){
                     const q = input ? input.value.trim() : '';
                     footer.style.display = q ? 'block' : 'none';
                     seeAll.setAttribute('href', `{{ route('search.view') }}?q=${encodeURIComponent(q)}`);
                 }
-                // mark first item for Enter navigation
-                const first = results.querySelector('.result-item');
+                
+                // Mark first item for Enter navigation
                 results.querySelectorAll('.result-item').forEach((el, idx)=>{
                     el.classList.toggle('active-result', idx===0);
                 });
-                
-                // User results now redirect directly to profile pages
             }
 
             function iconByType(type){
@@ -3676,7 +3559,8 @@
                 return String(str).replace(/[&<>"]/g, s=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[s]));
             }
         })();
-        
+
+
         // Admin Sidebar Toggle
         document.addEventListener('DOMContentLoaded', function() {
             const sidebar = document.getElementById('adminSidebar');

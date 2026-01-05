@@ -108,12 +108,14 @@
     -   Group conversations
     -   Message reactions
     -   Online status tracking
-    -   Typing indicators
+    -   Typing indicators (real-time via WebSocket)
     -   Message edit and delete
     -   Conversation history
     -   Read receipts
     -   User blocking
     -   Message reporting
+    -   **Real-time WebSocket** powered by Laravel Reverb
+    -   File & image attachments
 
 -   **Admin Panel**
 
@@ -171,6 +173,8 @@
 -   **Authentication**: Laravel Session Auth + Google OAuth (Laravel Socialite)
 -   **Payment Gateway**: VNPay Integration
 -   **ORM**: Eloquent
+-   **WebSocket**: Laravel Reverb (Real-time broadcasting)
+-   **Broadcasting**: Laravel Echo + Pusher JS
 
 ### Frontend
 
@@ -303,6 +307,47 @@ VNPAY_EXPIRE_MINUTES=15
 
 For production, see [VNPAY_SETUP.md](VNPAY_SETUP.md) for detailed configuration.
 
+### 7. Configure Real-time Chat (Laravel Reverb)
+
+For real-time chat functionality with WebSocket:
+
+1. Install Laravel Reverb:
+
+```bash
+composer require laravel/reverb
+php artisan reverb:install
+npm install --save-dev laravel-echo pusher-js
+```
+
+2. Add to `.env`:
+
+```env
+# Broadcasting
+BROADCAST_CONNECTION=reverb
+
+# Reverb Configuration
+REVERB_APP_ID=your-app-id
+REVERB_APP_KEY=your-app-key
+REVERB_APP_SECRET=your-app-secret
+REVERB_HOST="localhost"
+REVERB_PORT=8080
+REVERB_SCHEME=http
+
+# Vite (Frontend)
+VITE_REVERB_APP_KEY="${REVERB_APP_KEY}"
+VITE_REVERB_HOST="${REVERB_HOST}"
+VITE_REVERB_PORT="${REVERB_PORT}"
+VITE_REVERB_SCHEME="${REVERB_SCHEME}"
+```
+
+3. Build frontend assets:
+
+```bash
+npm run build
+```
+
+For detailed setup, see [docs/REVERB_SETUP.md](docs/REVERB_SETUP.md).
+
 ## 🏃 Running the Application
 
 ### Development Server
@@ -329,6 +374,19 @@ npm run dev
 composer dev
 ```
 
+**Option 4: With Real-time Chat (Laravel Reverb)**
+
+```bash
+# Terminal 1: Start Laravel server
+php artisan serve
+
+# Terminal 2: Start Vite dev server
+npm run dev
+
+# Terminal 3: Start Reverb WebSocket server
+php artisan reverb:start
+```
+
 Navigate to `http://localhost:8000/`
 
 ### Production Build
@@ -341,6 +399,18 @@ npm run build
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
+```
+
+### Production with Reverb (WebSocket)
+
+For production deployment with real-time chat:
+
+```bash
+# Start Reverb as daemon
+php artisan reverb:start --daemon
+
+# Or use Supervisor (recommended)
+# See docs/REVERB_SETUP.md for Supervisor configuration
 ```
 
 ## 📁 Project Structure
@@ -381,6 +451,10 @@ MarketPlace/
 │   │   │   └── TrackLastLogin.php
 │   │   ├── DTOs/                 # Data Transfer Objects
 │   │   └── Results/              # Result objects
+│   ├── Events/                   # Broadcast events
+│   │   ├── MessageSent.php       # New message event
+│   │   ├── UserTyping.php        # Typing indicator event
+│   │   └── MessageDeleted.php    # Message deleted event
 │   ├── Models/                   # Eloquent models
 │   │   ├── AdminInvitation.php
 │   │   ├── AdminPermission.php
@@ -751,6 +825,15 @@ icacls bootstrap\cache /grant Users:F /T
 -   Verify conversation participants
 -   Check database for message records
 
+**Issue: Real-time chat not working (WebSocket)**
+
+-   Ensure Reverb server is running: `php artisan reverb:start`
+-   Check BROADCAST_CONNECTION=reverb in `.env`
+-   Verify VITE*REVERB*\* variables in `.env`
+-   Rebuild frontend: `npm run build`
+-   Check browser console for WebSocket connection errors
+-   Verify `routes/channels.php` authorization
+
 ## 📞 Support
 
 For issues, questions, or contributions, please open an issue on the GitHub repository.
@@ -764,7 +847,7 @@ For issues, questions, or contributions, please open an issue on the GitHub repo
 -   ✅ Team management system
 -   ✅ Tournament management
 -   ✅ Honor/Voting system
--   ✅ Real-time chat system
+-   ✅ Real-time chat system with WebSocket (Laravel Reverb)
 -   ✅ Social posts and interactions
 -   ✅ Marketplace with VNPay integration
 -   ✅ Donation system
@@ -772,6 +855,7 @@ For issues, questions, or contributions, please open an issue on the GitHub repo
 -   ✅ Multi-language support
 -   ✅ Email verification and password reset
 -   ✅ Google OAuth integration
+-   ✅ Real-time WebSocket notifications (Chat)
 
 ### In Progress 🚧
 
@@ -781,7 +865,7 @@ For issues, questions, or contributions, please open an issue on the GitHub repo
 
 ### Planned 📋
 
--   [ ] Real-time WebSocket notifications
+-   [ ] Real-time WebSocket notifications (System-wide)
 -   [ ] Mobile app (React Native)
 -   [ ] Live streaming integration
 -   [ ] API documentation (Swagger/OpenAPI)
@@ -808,8 +892,10 @@ For issues, questions, or contributions, please open an issue on the GitHub repo
 ## 📚 Additional Resources
 
 -   [VNPay Setup Guide](VNPAY_SETUP.md) - Detailed VNPay integration guide
+-   [Laravel Reverb Setup Guide](docs/REVERB_SETUP.md) - Real-time WebSocket chat setup
 -   [Database Documentation](docs/DDD_DATABASE_REPORT.md) - Database structure and relationships
 -   [Laravel Documentation](https://laravel.com/docs/12.x) - Official Laravel docs
+-   [Laravel Reverb Documentation](https://laravel.com/docs/12.x/reverb) - Official Reverb docs
 -   [Tailwind CSS Documentation](https://tailwindcss.com/docs) - Tailwind CSS guide
 
 ## 🔒 Security

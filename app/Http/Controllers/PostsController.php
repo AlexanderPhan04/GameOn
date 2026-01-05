@@ -133,6 +133,55 @@ class PostsController extends Controller
         return back();
     }
 
+    public function getComments(Request $request, Post $post)
+    {
+        $offset = $request->input('offset', 0);
+        $limit = $request->input('limit', 10);
+        
+        $comments = PostComment::with(['user', 'replies.user', 'reactions'])
+            ->where('post_id', $post->id)
+            ->whereNull('parent_id')
+            ->orderBy('created_at', 'asc')
+            ->skip($offset)
+            ->take($limit)
+            ->get();
+        
+        $data = $comments->map(function ($c) {
+            $myReaction = auth()->check() 
+                ? optional($c->reactions->firstWhere('user_id', auth()->id()))->type 
+                : null;
+                
+            return [
+                'id' => $c->id,
+                'content' => $c->content,
+                'user_name' => $c->user->name ?? 'User',
+                'user_avatar' => get_avatar_url($c->user?->avatar),
+                'user_id' => $c->user_id,
+                'created_at' => $c->created_at->diffForHumans(),
+                'likes_count' => $c->likes_count ?? 0,
+                'my_reaction' => $myReaction,
+                'replies' => $c->replies->map(function ($reply) use ($c) {
+                    $myReplyReaction = auth()->check() 
+                        ? optional($reply->reactions->firstWhere('user_id', auth()->id()))->type 
+                        : null;
+                    return [
+                        'id' => $reply->id,
+                        'content' => $reply->content,
+                        'user_name' => $reply->user->name ?? 'User',
+                        'user_avatar' => get_avatar_url($reply->user?->avatar),
+                        'user_id' => $reply->user_id,
+                        'parent_user_name' => $c->user->name ?? 'User',
+                        'created_at' => $reply->created_at->diffForHumans(),
+                        'likes_count' => $reply->likes_count ?? 0,
+                        'my_reaction' => $myReplyReaction,
+                    ];
+                }),
+            ];
+        });
+        
+        return response()->json(['comments' => $data]);
+    }
+
     public function toggleCommentLike(PostComment $comment)
     {
         $userId = Auth::id();
@@ -263,7 +312,7 @@ class PostsController extends Controller
                 'user' => [
                     'id' => optional($p->user)->id,
                     'name' => optional($p->user)->name,
-                    'avatar' => optional($p->user) && $p->user->avatar ? asset('uploads/' . $p->user->avatar) : asset('images/default-avatar.png'),
+                    'avatar' => get_avatar_url(optional($p->user)->avatar),
                 ],
             ];
         });

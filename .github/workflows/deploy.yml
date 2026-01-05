@@ -27,7 +27,7 @@ jobs:
         run: cp .env.example .env
 
       - name: Generate APP_KEY
-        run: php artisan key:generate
+        run: php artisan key:generate          
 
       - name: Run PHPUnit tests
         run: vendor/bin/phpunit
@@ -51,14 +51,20 @@ jobs:
           npm install
           npm run build
 
-      - name: Deploy via SFTP
-        uses: wlixcc/SFTP-Deploy-Action@v1.2.4
+      - name: Upload via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          port: 22
-          local_path: "./*"
-          remote_path: "/www/wwwroot/gameon.dovanhoc.com/"
-          sftpArgs: "-o ConnectTimeout=60"
-          delete_remote_files: false
+          local-dir: ./
+          server-dir: /
+          dangerous-clean-slate: false
+          exclude: |
+            **/node_modules/**
+            **/vendor/**
+            **/.git/**
+            **/.github/**
+            **/tests/**
+            **/drawByAlex/**
+            **/docs/**

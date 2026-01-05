@@ -214,6 +214,8 @@ return [
         'join_professional_gaming_community' => 'Tham gia cộng đồng game thủ chuyên nghiệp ngay hôm nay và khám phá tiềm năng vô hạn của bạn!',
         'register_free' => 'Đăng ký miễn phí',
         'start_now' => 'Bắt đầu ngay',
+        'development_team' => 'Đội Ngũ Phát Triển',
+        'development_team_description' => 'Những người đứng sau sự thành công của hệ thống Game On.',
         'contributed_by' => 'Đóng góp bởi',
         'developer' => 'Nhà phát triển',
         'developer_description' => 'Phát triển và duy trì hệ thống',

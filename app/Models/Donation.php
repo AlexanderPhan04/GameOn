@@ -13,6 +13,7 @@ class Donation extends Model
     protected $fillable = [
         'transaction_id',
         'donation_id',
+        'order_code',
         'donor_id',
         'recipient_id',
         'amount',
@@ -20,8 +21,7 @@ class Donation extends Model
         'status',
         'payment_status',
         'payment_method',
-        'vnpay_transaction_no',
-        'vnpay_bank_code',
+        'payos_transaction_id',
         'paid_at',
         'is_anonymous',
     ];

@@ -15,12 +15,12 @@ return new class extends Migration
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->enum('type', ['deposit', 'withdrawal', 'purchase', 'donation', 'refund'])->notNull();
+            $table->string('type')->notNull(); // deposit, withdrawal, purchase, donation, refund
             $table->decimal('amount', 15, 2)->notNull();
             $table->string('currency', 10)->default('VND');
-            $table->enum('payment_method', ['vnpay', 'momo', 'credit_card', 'wallet'])->notNull();
-            $table->string('payment_gateway_ref')->nullable()->comment('Mã giao dịch VNPAY/Momo');
-            $table->enum('status', ['pending', 'completed', 'failed', 'refunded'])->default('pending');
+            $table->string('payment_method')->notNull(); // payos, momo, credit_card, wallet
+            $table->string('payment_gateway_ref')->nullable()->comment('Mã giao dịch PayOS/Momo');
+            $table->string('status')->default('pending'); // pending, completed, failed, refunded
             $table->text('description')->nullable();
             $table->timestamps();
 

@@ -513,4 +513,52 @@ class MarketplaceController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Lịch sử đơn hàng
+     */
+    public function orderHistory()
+    {
+        $orders = MarketplaceOrder::where('user_id', Auth::id())
+            ->with(['items.product'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
+        return view('marketplace.order-history', compact('orders'));
+    }
+
+    /**
+     * Chi tiết đơn hàng
+     */
+    public function orderDetail($orderCode)
+    {
+        $order = MarketplaceOrder::where('user_id', Auth::id())
+            ->where('order_id', $orderCode)
+            ->with(['items.product', 'user'])
+            ->firstOrFail();
+
+        return view('marketplace.order-detail', compact('order'));
+    }
+
+    /**
+     * Xuất hóa đơn PDF
+     */
+    public function downloadInvoice($orderCode)
+    {
+        $order = MarketplaceOrder::where('user_id', Auth::id())
+            ->where('order_id', $orderCode)
+            ->with(['items.product', 'user'])
+            ->firstOrFail();
+
+        // Chỉ cho xuất hóa đơn khi đã thanh toán
+        if (!$order->isPaid()) {
+            return redirect()->route('marketplace.orderDetail', $orderCode)
+                ->with('error', 'Chỉ có thể xuất hóa đơn cho đơn hàng đã thanh toán');
+        }
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('marketplace.invoice', compact('order'));
+        $pdf->setPaper('A4', 'portrait');
+        
+        return $pdf->download('hoa-don-' . $order->order_id . '.pdf');
+    }
 }

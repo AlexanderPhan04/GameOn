@@ -590,6 +590,7 @@ return [
         'sticker' => 'Sticker',
         'game_item' => 'Vật phẩm',
         'inventory' => 'Kho đồ',
+        'order_history' => 'Lịch sử đơn hàng',
         'payment_success' => 'Thanh toán thành công',
         'payment_success_desc' => 'Cảm ơn bạn đã mua hàng. Đơn hàng của bạn đã được xử lý.',
         'order_code' => 'Mã đơn hàng',

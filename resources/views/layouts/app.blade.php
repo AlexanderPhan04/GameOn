@@ -3270,6 +3270,12 @@
                                 </a>
                             </li>
                             <li class="list-none">
+                                <a href="{{ route('marketplace.orders') }}" class="gameon-dropdown-item">
+                                    <i class="fas fa-receipt"></i>
+                                    <span>{{ __('app.marketplace.order_history') }}</span>
+                                </a>
+                            </li>
+                            <li class="list-none">
                                 <a href="{{ route('profile.show') }}" class="gameon-dropdown-item">
                                     <i class="fas fa-id-card"></i>
                                     <span>{{ __('app.profile.personal_info') }}</span>
@@ -3482,6 +3488,12 @@
                     <a href="{{ route('marketplace.inventory') }}" class="mobile-menu-item {{ Request::is('marketplace/inventory*') ? 'active' : '' }}">
                         <i class="fas fa-box"></i>
                         <span>{{ __('app.marketplace.inventory') }}</span>
+                    </a>
+                    @endif
+                    @if(Route::has('marketplace.orders'))
+                    <a href="{{ route('marketplace.orders') }}" class="mobile-menu-item {{ Request::is('marketplace/orders*') ? 'active' : '' }}">
+                        <i class="fas fa-receipt"></i>
+                        <span>{{ __('app.marketplace.order_history') }}</span>
                     </a>
                     @endif
                     @if(Route::has('profile.show'))

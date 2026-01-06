@@ -315,4 +315,8 @@ Route::prefix('marketplace')->name('marketplace.')->group(function () {
     Route::post('/inventory/{id}/equip', [MarketplaceController::class, 'equipItem'])->name('equipItem')->middleware('auth.session');
     Route::post('/donate/{userId}', [MarketplaceController::class, 'donate'])->name('donate')->middleware('auth.session');
     
+    // Order History & Invoice
+    Route::get('/orders', [MarketplaceController::class, 'orderHistory'])->name('orders')->middleware('auth.session');
+    Route::get('/orders/{orderCode}', [MarketplaceController::class, 'orderDetail'])->name('orderDetail')->middleware('auth.session');
+    Route::get('/orders/{orderCode}/invoice', [MarketplaceController::class, 'downloadInvoice'])->name('invoice')->middleware('auth.session');
 });

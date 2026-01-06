@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <title>Hóa đơn #{{ $order->order_id }}</title>
+    <title>Hoa don #{{ $order->order_id }}</title>
     <style>
         @page {
             margin: 20px;
@@ -217,16 +217,16 @@
                     <td style="width: 50%; vertical-align: top;">
                         <div class="logo">GAME <span>ON</span></div>
                         <div class="company-info">
-                            <p>Nền tảng Gaming Chuyên nghiệp</p>
+                            <p>Pro Gaming Platform</p>
                             <p>support@gameon.alexstudio.id.vn</p>
                         </div>
                     </td>
                     <td style="width: 50%; vertical-align: top;">
-                        <div class="invoice-title">HÓA ĐƠN</div>
+                        <div class="invoice-title">INVOICE</div>
                         <div class="invoice-number">#{{ $order->order_id }}</div>
                         <div class="invoice-date">{{ $order->created_at->format('d/m/Y H:i') }}</div>
                         <div style="text-align: right; margin-top: 5px;">
-                            <span class="status-badge">ĐÃ THANH TOÁN</span>
+                            <span class="status-badge">PAID</span>
                         </div>
                     </td>
                 </tr>
@@ -237,15 +237,15 @@
         <table class="info-table">
             <tr>
                 <td>
-                    <h3>Khách hàng</h3>
+                    <h3>Customer</h3>
                     <p class="name">{{ $order->user->name }}</p>
                     <p>{{ $order->user->email }}</p>
                 </td>
                 <td>
-                    <h3>Thanh toán</h3>
-                    <p><strong>Phương thức:</strong> PayOS</p>
-                    <p><strong>Mã GD:</strong> {{ $order->order_code ?? 'N/A' }}</p>
-                    <p><strong>Thời gian:</strong> {{ $order->updated_at->format('H:i d/m/Y') }}</p>
+                    <h3>Payment</h3>
+                    <p><strong>Method:</strong> PayOS</p>
+                    <p><strong>Transaction:</strong> {{ $order->order_code ?? 'N/A' }}</p>
+                    <p><strong>Date:</strong> {{ $order->updated_at->format('H:i d/m/Y') }}</p>
                 </td>
             </tr>
         </table>
@@ -254,21 +254,21 @@
         <table class="items-table">
             <thead>
                 <tr>
-                    <th style="width: 50%;">Sản phẩm</th>
-                    <th style="width: 17%;">Đơn giá</th>
-                    <th style="width: 13%;">SL</th>
-                    <th style="width: 20%;">Thành tiền</th>
+                    <th style="width: 50%;">Product</th>
+                    <th style="width: 17%;">Price</th>
+                    <th style="width: 13%;">Qty</th>
+                    <th style="width: 20%;">Total</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($order->items as $item)
                 <tr>
                     <td>
-                        <span class="item-name">{{ $item->product->name ?? 'Sản phẩm' }}</span>
+                        <span class="item-name">{{ $item->product->name ?? 'Product' }}</span>
                     </td>
-                    <td>{{ number_format($item->price - ($item->discount_price ?? 0), 0, ',', '.') }}đ</td>
+                    <td>{{ number_format($item->price - ($item->discount_price ?? 0), 0, ',', '.') }} VND</td>
                     <td>{{ $item->quantity }}</td>
-                    <td>{{ number_format($item->subtotal, 0, ',', '.') }}đ</td>
+                    <td>{{ number_format($item->subtotal, 0, ',', '.') }} VND</td>
                 </tr>
                 @endforeach
             </tbody>
@@ -277,33 +277,33 @@
         <!-- Summary -->
         <table class="summary-table">
             <tr>
-                <td class="label">Tạm tính:</td>
-                <td class="value">{{ number_format($order->total_amount, 0, ',', '.') }}đ</td>
+                <td class="label">Subtotal:</td>
+                <td class="value">{{ number_format($order->total_amount, 0, ',', '.') }} VND</td>
             </tr>
             @if($order->discount_amount > 0)
             <tr>
-                <td class="label">Giảm giá:</td>
-                <td class="value">-{{ number_format($order->discount_amount, 0, ',', '.') }}đ</td>
+                <td class="label">Discount:</td>
+                <td class="value">-{{ number_format($order->discount_amount, 0, ',', '.') }} VND</td>
             </tr>
             @endif
             <tr class="total">
-                <td class="label">TỔNG CỘNG:</td>
-                <td class="value">{{ number_format($order->final_amount, 0, ',', '.') }}đ</td>
+                <td class="label">TOTAL:</td>
+                <td class="value">{{ number_format($order->final_amount, 0, ',', '.') }} VND</td>
             </tr>
         </table>
         
         <!-- Payment Info -->
         <div class="payment-info">
-            <h4>Thông tin giao dịch</h4>
-            <p>Đơn hàng đã được thanh toán thành công qua cổng thanh toán PayOS.</p>
-            <p>Các vật phẩm đã được thêm vào kho đồ của bạn và có thể sử dụng ngay.</p>
-            <p>Liên hệ: support@gameon.alexstudio.id.vn</p>
+            <h4>Transaction Info</h4>
+            <p>Payment completed successfully via PayOS payment gateway.</p>
+            <p>Items have been added to your inventory and are ready to use.</p>
+            <p>Contact: support@gameon.alexstudio.id.vn</p>
         </div>
         
         <!-- Footer -->
         <div class="footer">
-            <p>Cảm ơn bạn đã mua hàng tại Game On!</p>
-            <p>Hóa đơn tạo tự động - {{ now()->format('d/m/Y H:i:s') }}</p>
+            <p>Thank you for shopping at Game On!</p>
+            <p>Auto-generated invoice - {{ now()->format('d/m/Y H:i:s') }}</p>
         </div>
     </div>
 </body>

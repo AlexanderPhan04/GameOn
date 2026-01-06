@@ -135,13 +135,13 @@
             <i class="fas fa-times"></i>
         </div>
         
-        <h1 class="result-title">Thanh toán thất bại</h1>
-        <p class="result-desc">{{ $message ?? 'Giao dịch không thành công hoặc đã bị hủy. Vui lòng thử lại.' }}</p>
+        <h1 class="result-title">{{ __('app.marketplace.payment_failed') }}</h1>
+        <p class="result-desc">{{ $message ?? __('app.marketplace.payment_failed_desc') }}</p>
         
         @if(isset($orderCode))
         <div class="order-info">
             <div class="order-row">
-                <span class="order-label">Mã đơn hàng</span>
+                <span class="order-label">{{ __('app.marketplace.order_code') }}</span>
                 <span class="order-value">{{ $orderCode }}</span>
             </div>
         </div>
@@ -150,11 +150,11 @@
         <div class="result-actions">
             <a href="{{ route('marketplace.cart') }}" class="btn-retry">
                 <i class="fas fa-redo"></i>
-                Thử lại
+                {{ __('app.marketplace.retry') }}
             </a>
             <a href="{{ route('marketplace.index') }}" class="btn-back">
                 <i class="fas fa-store"></i>
-                Về cửa hàng
+                {{ __('app.marketplace.back_to_store') }}
             </a>
         </div>
     </div>

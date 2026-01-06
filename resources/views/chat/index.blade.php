@@ -171,6 +171,20 @@
 @endpush
 
 @section('content')
+@if(session('error'))
+<div class="alert-error" id="sessionError" style="position:fixed;top:80px;left:50%;transform:translateX(-50%);z-index:9999;background:linear-gradient(135deg, rgba(239, 68, 68, 0.95), rgba(220, 38, 38, 0.95));border:1px solid rgba(239. 68, 68, 0.5);border-radius:12px;padding:1rem 1.5rem;color:#fff;font-weight:500;display:flex;align-items:center;gap:0.75rem;box-shadow:0 10px 40px rgba(239, 68, 68, 0.3);animation:slideDown 0.3s ease;">
+    <i class="fas fa-exclamation-circle"></i>
+    <span>{{ session('error') }}</span>
+    <button onclick="document.getElementById('sessionError').remove()" style="background:none;border:none;color:rgba(255,255,255,0.7);cursor:pointer;margin-left:0.5rem;"><i class="fas fa-times"></i></button>
+</div>
+<style>
+@keyframes slideDown {
+    from { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+    to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+</style>
+<script>setTimeout(() => { const el = document.getElementById('sessionError'); if(el) el.remove(); }, 5000);</script>
+@endif
 <div class="chat-page">
     <aside class="chat-sidebar">
         <div class="sidebar-header">

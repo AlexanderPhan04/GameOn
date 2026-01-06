@@ -3270,6 +3270,12 @@
                                 </a>
                             </li>
                             <li class="list-none">
+                                <a href="{{ route('marketplace.orders') }}" class="gameon-dropdown-item">
+                                    <i class="fas fa-receipt"></i>
+                                    <span>{{ __('app.marketplace.order_history') }}</span>
+                                </a>
+                            </li>
+                            <li class="list-none">
                                 <a href="{{ route('profile.show') }}" class="gameon-dropdown-item">
                                     <i class="fas fa-id-card"></i>
                                     <span>{{ __('app.profile.personal_info') }}</span>
@@ -3482,6 +3488,12 @@
                     <a href="{{ route('marketplace.inventory') }}" class="mobile-menu-item {{ Request::is('marketplace/inventory*') ? 'active' : '' }}">
                         <i class="fas fa-box"></i>
                         <span>{{ __('app.marketplace.inventory') }}</span>
+                    </a>
+                    @endif
+                    @if(Route::has('marketplace.orders'))
+                    <a href="{{ route('marketplace.orders') }}" class="mobile-menu-item {{ Request::is('marketplace/orders*') ? 'active' : '' }}">
+                        <i class="fas fa-receipt"></i>
+                        <span>{{ __('app.marketplace.order_history') }}</span>
                     </a>
                     @endif
                     @if(Route::has('profile.show'))
@@ -4783,6 +4795,79 @@
     @endauth
 
     @stack('scripts')
+    
+    @auth
+    <!-- Notification Permission Request -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Check if browser supports notifications and hasn't been asked recently
+        if (!('Notification' in window)) return;
+        if (Notification.permission === 'granted') return;
+        if (Notification.permission === 'denied') return;
+        
+        // Check if already asked in this session
+        const lastAsked = localStorage.getItem('notificationAsked');
+        const now = Date.now();
+        if (lastAsked && (now - parseInt(lastAsked)) < 86400000) return; // Don't ask again for 24h
+        
+        // Show custom prompt after 2 seconds
+        setTimeout(function() {
+            showNotificationPrompt();
+        }, 2000);
+        
+        function showNotificationPrompt() {
+            const overlay = document.createElement('div');
+            overlay.id = 'notification-prompt-overlay';
+            overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:99999;display:flex;align-items:center;justify-content:center;animation:fadeIn 0.3s ease;';
+            
+            overlay.innerHTML = `
+                <div style="background:linear-gradient(135deg,#0d1b2a,#1a1a2e);border:1px solid rgba(0,229,255,0.3);border-radius:20px;padding:2rem;max-width:400px;text-align:center;box-shadow:0 25px 60px rgba(0,0,0,0.5);animation:slideUp 0.3s ease;">
+                    <div style="width:70px;height:70px;margin:0 auto 1.5rem;background:linear-gradient(135deg,#6366f1,#8b5cf6);border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                        <i class="fas fa-bell" style="font-size:28px;color:white;"></i>
+                    </div>
+                    <h3 style="color:#fff;font-family:'Rajdhani',sans-serif;font-size:1.5rem;margin-bottom:0.75rem;">Bật thông báo</h3>
+                    <p style="color:#94a3b8;font-size:0.95rem;line-height:1.5;margin-bottom:1.5rem;">Nhận thông báo khi có tin nhắn mới hoặc cập nhật quan trọng từ GameOn!</p>
+                    <div style="display:flex;gap:1rem;justify-content:center;">
+                        <button id="notif-deny" style="padding:0.75rem 1.5rem;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:10px;color:#94a3b8;font-weight:600;cursor:pointer;">Để sau</button>
+                        <button id="notif-allow" style="padding:0.75rem 1.5rem;background:linear-gradient(135deg,#6366f1,#8b5cf6);border:none;border-radius:10px;color:white;font-weight:600;cursor:pointer;box-shadow:0 4px 15px rgba(99,102,241,0.4);">Cho phép</button>
+                    </div>
+                </div>
+                <style>
+                    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+                    @keyframes slideUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+                </style>
+            `;
+            
+            document.body.appendChild(overlay);
+            
+            document.getElementById('notif-allow').onclick = function() {
+                Notification.requestPermission().then(function(permission) {
+                    if (permission === 'granted') {
+                        new Notification('Thông báo đã được bật!', {
+                            body: 'Bạn sẽ nhận thông báo khi có tin nhắn mới.',
+                            icon: '/logo_remove_bg.png'
+                        });
+                    }
+                });
+                localStorage.setItem('notificationAsked', Date.now().toString());
+                overlay.remove();
+            };
+            
+            document.getElementById('notif-deny').onclick = function() {
+                localStorage.setItem('notificationAsked', Date.now().toString());
+                overlay.remove();
+            };
+            
+            overlay.onclick = function(e) {
+                if (e.target === overlay) {
+                    localStorage.setItem('notificationAsked', Date.now().toString());
+                    overlay.remove();
+                }
+            };
+        }
+    });
+    </script>
+    @endauth
 </body>
 
 </html>

@@ -942,10 +942,112 @@
             gap: 0.5rem;
         }
 
-        /* Language Dropdown Styles - using Tailwind, minimal custom CSS */
+        /* Language Dropdown Styles */
         #languageDropdownMenu.show,
         #languageDropdownMobileMenu.show {
             display: block !important;
+        }
+        
+        .language-dropdown-container {
+            background: linear-gradient(135deg, rgba(13, 27, 42, 0.98), rgba(0, 0, 34, 0.98));
+            border: 1px solid rgba(0, 229, 255, 0.2);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 229, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .language-dropdown-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid rgba(0, 229, 255, 0.1);
+            color: #fff;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+        
+        .language-dropdown-header i {
+            color: #00E5FF;
+        }
+        
+        .language-dropdown-list {
+            padding: 0.5rem;
+        }
+        
+        .language-item {
+            display: flex;
+            align-items: center;
+            gap: 0.875rem;
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            margin-bottom: 0.25rem;
+        }
+        
+        .language-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .language-item:hover {
+            background: rgba(0, 229, 255, 0.1);
+        }
+        
+        .language-item.active {
+            background: rgba(0, 229, 255, 0.15);
+        }
+        
+        .language-flag {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        
+        .language-flag .flag-icon {
+            font-size: 1.25rem;
+        }
+        
+        .language-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.125rem;
+        }
+        
+        .language-name {
+            color: #fff;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        
+        .language-code {
+            color: #64748b;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+        
+        .language-item.active .language-name {
+            color: #00E5FF;
+        }
+        
+        .language-check {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00E5FF, #0099cc);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000;
+            font-size: 0.7rem;
         }
 
         .gameon-user-avatar {
@@ -1502,6 +1604,13 @@
             transition: all 0.3s;
             position: relative;
             margin-left: 8px;
+        }
+        
+        /* Hide mobile icons on desktop */
+        @media (min-width: 1024px) {
+            .mobile-icon-btn {
+                display: none !important;
+            }
         }
         
         .mobile-icon-btn:first-child {
@@ -2808,9 +2917,9 @@
                             </li>
                             @if(Auth::user()->isSuperAdmin())
                             <li class="menu-item {{ Request::is('admin/admins*') ? 'active' : '' }}">
-                                <a href="{{ route('admin.admins.index') }}" class="menu-link" title="Quản lý Admin">
+                                <a href="{{ route('admin.admins.index') }}" class="menu-link" title="{{ __('app.nav.manage_admin') }}">
                                     <i class="fas fa-user-shield"></i>
-                                    <span>Quản lý Admin</span>
+                                    <span>{{ __('app.nav.manage_admin') }}</span>
                                 </a>
                             </li>
                             @endif
@@ -2821,9 +2930,9 @@
                                 </a>
                             </li>
                             <li class="menu-item {{ Request::is('admin/marketplace*') ? 'active' : '' }}">
-                                <a href="{{ route('admin.marketplace.index') }}" class="menu-link" title="Quản lý Marketplace">
+                                <a href="{{ route('admin.marketplace.index') }}" class="menu-link" title="{{ __('app.nav.manage_marketplace') }}">
                                     <i class="fas fa-store"></i>
-                                    <span>Quản lý Marketplace</span>
+                                    <span>{{ __('app.nav.manage_marketplace') }}</span>
                                 </a>
                             </li>
                         </ul>
@@ -2843,9 +2952,9 @@
                         </a>
                     </li>
                     <li class="menu-item">
-                        <a href="{{ route('marketplace.inventory') }}" class="menu-link" title="Kho đồ">
+                        <a href="{{ route('marketplace.inventory') }}" class="menu-link" title="{{ __('app.marketplace.inventory') }}">
                             <i class="fas fa-box"></i>
-                            <span>Kho đồ</span>
+                            <span>{{ __('app.marketplace.inventory') }}</span>
                         </a>
                     </li>
                     <li class="menu-item">
@@ -2881,21 +2990,37 @@
                             <i class="fas fa-chevron-up text-xs ml-auto opacity-60"></i>
                         </button>
                         <div class="absolute bottom-full left-0 right-0 mb-2 hidden z-50" id="sidebarLanguageMenu">
-                            <div class="bg-[#0d1b2a] border border-[rgba(0,229,255,0.3)] rounded-lg overflow-hidden" style="box-shadow: 0 -10px 40px rgba(0,0,0,0.5), 0 0 15px rgba(0,229,255,0.1);">
-                                <a class="language-switch flex items-center gap-3 px-4 py-3 text-white no-underline hover:bg-[rgba(0,229,255,0.15)] transition-all {{ app()->getLocale() === 'en' ? 'bg-[rgba(0,229,255,0.1)] text-[#00E5FF]' : '' }}" href="#" data-locale="en">
-                                    <span class="w-7 h-5 rounded overflow-hidden flex items-center justify-center bg-white text-[10px] font-bold text-blue-600">EN</span>
-                                    <span class="flex-1 text-sm font-medium">English</span>
-                                    @if(app()->getLocale() === 'en')
-                                        <i class="fas fa-check text-[#00E5FF] text-sm"></i>
-                                    @endif
-                                </a>
-                                <a class="language-switch flex items-center gap-3 px-4 py-3 text-white no-underline hover:bg-[rgba(0,229,255,0.15)] transition-all {{ app()->getLocale() === 'vi' ? 'bg-[rgba(0,229,255,0.1)] text-[#00E5FF]' : '' }}" href="#" data-locale="vi">
-                                    <span class="w-7 h-5 rounded overflow-hidden flex items-center justify-center bg-red-600 text-[10px] font-bold text-yellow-300">VI</span>
-                                    <span class="flex-1 text-sm font-medium">Tiếng Việt</span>
-                                    @if(app()->getLocale() === 'vi')
-                                        <i class="fas fa-check text-[#00E5FF] text-sm"></i>
-                                    @endif
-                                </a>
+                            <div class="language-dropdown-container">
+                                <div class="language-dropdown-list">
+                                    <a class="language-item language-switch {{ app()->getLocale() === 'en' ? 'active' : '' }}" href="#" data-locale="en">
+                                        <div class="language-flag">
+                                            <span class="flag-icon">🇺🇸</span>
+                                        </div>
+                                        <div class="language-info">
+                                            <span class="language-name">English</span>
+                                            <span class="language-code">EN</span>
+                                        </div>
+                                        @if(app()->getLocale() === 'en')
+                                        <div class="language-check">
+                                            <i class="fas fa-check"></i>
+                                        </div>
+                                        @endif
+                                    </a>
+                                    <a class="language-item language-switch {{ app()->getLocale() === 'vi' ? 'active' : '' }}" href="#" data-locale="vi">
+                                        <div class="language-flag">
+                                            <span class="flag-icon">🇻🇳</span>
+                                        </div>
+                                        <div class="language-info">
+                                            <span class="language-name">Tiếng Việt</span>
+                                            <span class="language-code">VI</span>
+                                        </div>
+                                        @if(app()->getLocale() === 'vi')
+                                        <div class="language-check">
+                                            <i class="fas fa-check"></i>
+                                        </div>
+                                        @endif
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -2990,29 +3115,49 @@
                             <i class="fas fa-globe"></i>
                             <span class="text-sm">{{ strtoupper(app()->getLocale()) }}</span>
                         </button>
-                        <div class="absolute right-0 top-full mt-2 hidden z-[10000]" id="languageDropdownMenu" aria-labelledby="languageDropdownToggle" style="min-width: 150px;">
-                            <div class="bg-[#0d1b2a] border border-[rgba(0,229,255,0.3)] rounded-lg overflow-hidden" style="box-shadow: 0 10px 40px rgba(0,0,0,0.5), 0 0 15px rgba(0,229,255,0.1);">
-                                <a class="language-switch flex items-center gap-3 px-4 py-3 text-white no-underline transition-all hover:bg-[rgba(0,229,255,0.15)] {{ app()->getLocale() === 'en' ? 'bg-[rgba(0,229,255,0.1)] text-[#00E5FF]' : '' }}" href="#" data-locale="en">
-                                    <span class="w-7 h-5 rounded overflow-hidden flex items-center justify-center bg-white text-[10px] font-bold text-blue-600">EN</span>
-                                    <span class="flex-1 text-sm font-medium">English</span>
-                                    @if(app()->getLocale() === 'en')
-                                        <i class="fas fa-check text-[#00E5FF] text-sm"></i>
-                                    @endif
-                                </a>
-                                <a class="language-switch flex items-center gap-3 px-4 py-3 text-white no-underline transition-all hover:bg-[rgba(0,229,255,0.15)] {{ app()->getLocale() === 'vi' ? 'bg-[rgba(0,229,255,0.1)] text-[#00E5FF]' : '' }}" href="#" data-locale="vi">
-                                    <span class="w-7 h-5 rounded overflow-hidden flex items-center justify-center bg-red-600 text-[10px] font-bold text-yellow-300">VI</span>
-                                    <span class="flex-1 text-sm font-medium">Tiếng Việt</span>
-                                    @if(app()->getLocale() === 'vi')
-                                        <i class="fas fa-check text-[#00E5FF] text-sm"></i>
-                                    @endif
-                                </a>
+                        <div class="absolute right-0 top-full mt-2 hidden z-[10000]" id="languageDropdownMenu" aria-labelledby="languageDropdownToggle" style="min-width: 200px;">
+                            <div class="language-dropdown-container">
+                                <div class="language-dropdown-header">
+                                    <i class="fas fa-globe"></i>
+                                    <span>{{ __('app.language.select_language') ?? 'Select Language' }}</span>
+                                </div>
+                                <div class="language-dropdown-list">
+                                    <a class="language-item language-switch {{ app()->getLocale() === 'en' ? 'active' : '' }}" href="#" data-locale="en">
+                                        <div class="language-flag">
+                                            <span class="flag-icon">🇺🇸</span>
+                                        </div>
+                                        <div class="language-info">
+                                            <span class="language-name">English</span>
+                                            <span class="language-code">EN</span>
+                                        </div>
+                                        @if(app()->getLocale() === 'en')
+                                        <div class="language-check">
+                                            <i class="fas fa-check"></i>
+                                        </div>
+                                        @endif
+                                    </a>
+                                    <a class="language-item language-switch {{ app()->getLocale() === 'vi' ? 'active' : '' }}" href="#" data-locale="vi">
+                                        <div class="language-flag">
+                                            <span class="flag-icon">🇻🇳</span>
+                                        </div>
+                                        <div class="language-info">
+                                            <span class="language-name">Tiếng Việt</span>
+                                            <span class="language-code">VI</span>
+                                        </div>
+                                        @if(app()->getLocale() === 'vi')
+                                        <div class="language-check">
+                                            <i class="fas fa-check"></i>
+                                        </div>
+                                        @endif
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Search -->
                     @auth
-                    <div class="relative" id="navbarSearchWrapper">
+                    <div class="relative hidden lg:block" id="navbarSearchWrapper">
                         <button type="button" class="gameon-nav-link" id="navbarSearchToggle" style="border: none; background: none; cursor: pointer;" title="{{ __('app.search.search') }}">
                             <i class="fas fa-magnifying-glass"></i>
                         </button>
@@ -3032,7 +3177,7 @@
 
                     <!-- Cart Icon -->
                     @auth
-                    <a href="{{ route('marketplace.cart') }}" class="gameon-nav-link cart-icon-btn" style="position: relative;" title="Giỏ hàng">
+                    <a href="{{ route('marketplace.cart') }}" class="gameon-nav-link cart-icon-btn hidden lg:flex" style="position: relative;" title="{{ __('app.nav.cart') }}">
                         <i class="fas fa-shopping-cart"></i>
                         @php
                             $cartCount = session('cart') ? count(session('cart')) : 0;
@@ -3045,20 +3190,20 @@
 
                     <!-- Notification Bell -->
                     @auth
-                    <div class="relative" id="notificationBell">
-                        <button type="button" class="gameon-nav-link notification-bell-btn" id="notificationToggle" style="border: none; background: none; cursor: pointer; position: relative;" title="Thông báo">
+                    <div class="relative hidden lg:block" id="notificationBell">
+                        <button type="button" class="gameon-nav-link notification-bell-btn" id="notificationToggle" style="border: none; background: none; cursor: pointer; position: relative;" title="{{ __('app.notifications.title') }}">
                             <i class="fas fa-bell"></i>
                             <span class="notification-badge" id="notificationCount" style="display: none;">0</span>
                         </button>
                         <div id="notificationDropdown" class="notification-dropdown-desktop hidden">
                             <div class="notification-dropdown-header">
-                                <span>Thông báo</span>
-                                <button id="markAllRead" class="notification-mark-read-btn">Đọc tất cả</button>
+                                <span>{{ __('app.notifications.title') }}</span>
+                                <button id="markAllRead" class="notification-mark-read-btn">{{ __('app.notifications.mark_all_read') }}</button>
                             </div>
                             <div id="notificationList" class="notification-dropdown-list">
                                 <div class="notification-empty-state">
                                     <i class="fas fa-bell-slash"></i>
-                                    <span>Không có thông báo mới</span>
+                                    <span>{{ __('app.notifications.no_notifications') }}</span>
                                 </div>
                             </div>
                         </div>
@@ -3121,7 +3266,7 @@
                             <li class="list-none">
                                 <a href="{{ route('marketplace.inventory') }}" class="gameon-dropdown-item">
                                     <i class="fas fa-box"></i>
-                                    <span>Kho đồ</span>
+                                    <span>{{ __('app.marketplace.inventory') }}</span>
                                 </a>
                             </li>
                             <li class="list-none">
@@ -3167,7 +3312,7 @@
                             <li class="list-none">
                                 <a href="{{ route('admin.admins.index') }}" class="gameon-dropdown-item">
                                     <i class="fas fa-user-shield"></i>
-                                    <span>Quản lý Admin</span>
+                                    <span>{{ __('app.nav.manage_admin') }}</span>
                                 </a>
                             </li>
                             @endif
@@ -3204,12 +3349,12 @@
                     <div class="flex items-center gap-3 lg:hidden">
                         @auth
                         <!-- Mobile Search -->
-                        <button type="button" class="mobile-icon-btn" id="mobileSearchToggle" title="Tìm kiếm">
+                        <button type="button" class="mobile-icon-btn" id="mobileSearchToggle" title="{{ __('app.search.search') }}">
                             <i class="fas fa-magnifying-glass"></i>
                         </button>
                         
                         <!-- Mobile Cart -->
-                        <a href="{{ route('marketplace.cart') }}" class="mobile-icon-btn" style="position: relative;" title="Giỏ hàng">
+                        <a href="{{ route('marketplace.cart') }}" class="mobile-icon-btn" style="position: relative;" title="{{ __('app.nav.cart') }}">
                             <i class="fas fa-shopping-cart"></i>
                             @php
                                 $mobileCartCount = session('cart') ? count(session('cart')) : 0;
@@ -3255,13 +3400,13 @@
                         </button>
                         <div class="mobile-notification-dropdown" id="mobileNotificationDropdown">
                             <div class="mobile-notification-header">
-                                <span>Thông báo</span>
-                                <button id="mobileMarkAllRead" class="mobile-mark-all-read">Đọc tất cả</button>
+                                <span>{{ __('app.notifications.title') }}</span>
+                                <button id="mobileMarkAllRead" class="mobile-mark-all-read">{{ __('app.notifications.mark_all_read') }}</button>
                             </div>
                             <div class="mobile-notification-list" id="mobileNotificationList">
                                 <div class="mobile-notification-empty">
                                     <i class="fas fa-bell-slash"></i>
-                                    <span>Không có thông báo mới</span>
+                                    <span>{{ __('app.notifications.no_notifications') }}</span>
                                 </div>
                             </div>
                         </div>
@@ -3297,7 +3442,7 @@
                 <nav class="mobile-menu-nav">
                     <a href="{{ route('home') }}" class="mobile-menu-item {{ Request::is('/') || Request::is('home') ? 'active' : '' }}">
                         <i class="fas fa-home"></i>
-                        <span>Trang chủ</span>
+                        <span>{{ __('app.nav.home') }}</span>
                     </a>
                     <a href="{{ route('dashboard') }}" class="mobile-menu-item {{ Request::is('dashboard*') ? 'active' : '' }}">
                         <i class="fas fa-gauge-high"></i>
@@ -3336,7 +3481,7 @@
                     @if(Route::has('marketplace.inventory'))
                     <a href="{{ route('marketplace.inventory') }}" class="mobile-menu-item {{ Request::is('marketplace/inventory*') ? 'active' : '' }}">
                         <i class="fas fa-box"></i>
-                        <span>Kho đồ</span>
+                        <span>{{ __('app.marketplace.inventory') }}</span>
                     </a>
                     @endif
                     @if(Route::has('profile.show'))
@@ -3370,7 +3515,7 @@
                     @if(Auth::user()->isSuperAdmin())
                     <a href="{{ route('admin.admins.index') }}" class="mobile-menu-item">
                         <i class="fas fa-user-shield"></i>
-                        <span>Quản lý Admin</span>
+                        <span>{{ __('app.nav.manage_admin') }}</span>
                     </a>
                     @endif
                 </nav>
@@ -3379,7 +3524,7 @@
                 <div class="mobile-menu-divider"></div>
                 
                 <!-- Language Switcher -->
-                <div class="mobile-menu-section-title">Ngôn ngữ</div>
+                <div class="mobile-menu-section-title">{{ __('app.language.language') }}</div>
                 <div class="mobile-language-switcher">
                     <a href="#" class="mobile-lang-btn language-switch {{ app()->getLocale() === 'vi' ? 'active' : '' }}" data-locale="vi">
                         <i class="fas fa-flag"></i> VI
@@ -3405,7 +3550,7 @@
                 <nav class="mobile-menu-nav">
                     <a href="/" class="mobile-menu-item {{ Request::is('/') ? 'active' : '' }}">
                         <i class="fas fa-home"></i>
-                        <span>Trang chủ</span>
+                        <span>{{ __('app.nav.home') }}</span>
                     </a>
                     @if(Route::has('tournaments.index'))
                     <a href="{{ route('tournaments.index') }}" class="mobile-menu-item {{ Request::is('tournaments*') ? 'active' : '' }}">
@@ -3418,7 +3563,7 @@
                 <div class="mobile-menu-divider"></div>
                 
                 <!-- Language Switcher -->
-                <div class="mobile-menu-section-title">Ngôn ngữ</div>
+                <div class="mobile-menu-section-title">{{ __('app.language.language') }}</div>
                 <div class="mobile-language-switcher">
                     <a href="#" class="mobile-lang-btn language-switch {{ app()->getLocale() === 'vi' ? 'active' : '' }}" data-locale="vi">
                         <i class="fas fa-flag"></i> VI

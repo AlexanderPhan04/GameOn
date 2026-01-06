@@ -481,8 +481,8 @@
                 <i class="fas fa-shopping-cart"></i>
             </div>
             <div class="cart-header-text">
-                <h1>Giỏ hàng</h1>
-                <p>{{ count($items) }} sản phẩm trong giỏ hàng</p>
+                <h1>{{ __('app.marketplace.cart') }}</h1>
+                <p>{{ __('app.marketplace.cart_items_count', ['count' => count($items)]) }}</p>
             </div>
         </div>
         
@@ -492,8 +492,8 @@
         <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 12px; padding: 1rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
             <i class="fas fa-exclamation-triangle" style="color: #ef4444; font-size: 1.25rem;"></i>
             <div>
-                <p style="color: #fff; margin: 0; font-weight: 600;">Một số vật phẩm đang bị hạn chế</p>
-                <p style="color: #94a3b8; margin: 0; font-size: 0.85rem;">Các vật phẩm này sẽ không được tính vào đơn hàng. Bạn có thể xóa hoặc giữ lại chờ mở bán.</p>
+                <p style="color: #fff; margin: 0; font-weight: 600;">{{ __('app.marketplace.restricted_items_warning') }}</p>
+                <p style="color: #94a3b8; margin: 0; font-size: 0.85rem;">{{ __('app.marketplace.restricted_items_desc') }}</p>
             </div>
         </div>
         @endif
@@ -504,7 +504,7 @@
                 @if($item['is_restricted'] ?? false)
                 <div class="restricted-badge">
                     <i class="fas fa-ban"></i>
-                    Đang hạn chế
+                    {{ __('app.marketplace.restricted') }}
                 </div>
                 <div class="restricted-overlay"></div>
                 @endif
@@ -522,9 +522,9 @@
                 <div class="cart-item-info">
                     <h3 class="cart-item-name">{{ $item['product']->name }}</h3>
                     <span class="cart-item-type">
-                        @if($item['product']->type == 'theme') Giao diện
-                        @elseif($item['product']->type == 'sticker') Sticker
-                        @elseif($item['product']->type == 'game_item') Vật phẩm
+                        @if($item['product']->type == 'theme') {{ __('app.marketplace.theme') }}
+                        @elseif($item['product']->type == 'sticker') {{ __('app.marketplace.sticker') }}
+                        @elseif($item['product']->type == 'game_item') {{ __('app.marketplace.game_item') }}
                         @else {{ ucfirst($item['product']->type) }}
                         @endif
                     </span>
@@ -563,14 +563,14 @@
                 <div class="cart-item-price">
                     @if($item['is_restricted'] ?? false)
                     <div class="price-unit" style="text-decoration: line-through; color: #64748b;">{{ number_format($item['product']->current_price ?? $item['product']->price, 0, ',', '.') }} đ</div>
-                    <div class="price-subtotal" style="color: #ef4444; font-size: 0.9rem;">Không khả dụng</div>
+                    <div class="price-subtotal" style="color: #ef4444; font-size: 0.9rem;">{{ __('app.marketplace.unavailable') }}</div>
                     @else
                     <div class="price-unit">{{ number_format($item['product']->current_price ?? $item['product']->price, 0, ',', '.') }} đ</div>
                     <div class="price-subtotal">{{ number_format($item['subtotal'], 0, ',', '.') }} đ</div>
                     @endif
                 </div>
                 
-                <button class="cart-item-remove" data-id="{{ $item['product']->id }}" title="Xóa">
+                <button class="cart-item-remove" data-id="{{ $item['product']->id }}" title="{{ __('app.marketplace.remove') }}">
                     <i class="fas fa-trash"></i>
                 </button>
             </div>
@@ -579,28 +579,28 @@
         
         <div class="cart-summary">
             <div class="summary-row">
-                <span class="summary-label">Tạm tính ({{ collect($items)->where('is_restricted', false)->count() }} sản phẩm khả dụng)</span>
+                <span class="summary-label">{{ __('app.marketplace.subtotal', ['count' => collect($items)->where('is_restricted', false)->count()]) }}</span>
                 <span class="summary-value">{{ number_format($total, 0, ',', '.') }} đ</span>
             </div>
             <div class="summary-row">
-                <span class="summary-total-label">Tổng cộng</span>
+                <span class="summary-total-label">{{ __('app.marketplace.total') }}</span>
                 <span class="summary-total-value">{{ number_format($total, 0, ',', '.') }} đ</span>
             </div>
             
             <div class="cart-actions">
                 <a href="{{ route('marketplace.index') }}" class="btn-continue">
                     <i class="fas fa-arrow-left"></i>
-                    Tiếp tục mua
+                    {{ __('app.marketplace.continue_shopping') }}
                 </a>
                 @if($total > 0)
                 <a href="{{ route('marketplace.checkout') }}" class="btn-checkout">
                     <i class="fas fa-credit-card"></i>
-                    Thanh toán ngay
+                    {{ __('app.marketplace.checkout_now') }}
                 </a>
                 @else
                 <button class="btn-checkout" disabled style="opacity: 0.5; cursor: not-allowed;">
                     <i class="fas fa-credit-card"></i>
-                    Không có sản phẩm khả dụng
+                    {{ __('app.marketplace.no_available_items') }}
                 </button>
                 @endif
             </div>
@@ -611,11 +611,11 @@
             <div class="empty-icon">
                 <i class="fas fa-shopping-cart"></i>
             </div>
-            <h3 class="empty-title">Giỏ hàng trống</h3>
-            <p class="empty-desc">Bạn chưa thêm sản phẩm nào vào giỏ hàng</p>
+            <h3 class="empty-title">{{ __('app.marketplace.empty_cart') }}</h3>
+            <p class="empty-desc">{{ __('app.marketplace.empty_cart_desc') }}</p>
             <a href="{{ route('marketplace.index') }}" class="btn-shop">
                 <i class="fas fa-store"></i>
-                Mua sắm ngay
+                {{ __('app.marketplace.shop_now') }}
             </a>
         </div>
         @endif

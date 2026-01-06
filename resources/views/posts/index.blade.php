@@ -1123,15 +1123,15 @@
                     </div>
                     <div class="stats-right">
                         <span class="stats-count" data-toggle-comments="{{ $post->id }}">
-                            <span id="comments-count-{{ $post->id }}">{{ $post->comments_count }}</span> bình luận
+                            <span id="comments-count-{{ $post->id }}">{{ $post->comments_count }}</span> {{ __('app.feed.comments') }}
                         </span>
                         <span class="stats-count {{ auth()->id() === $post->user_id && ($post->shares_count ?? 0) > 0 ? 'clickable' : '' }}" 
                               @if(auth()->id() === $post->user_id && ($post->shares_count ?? 0) > 0)
                               data-shares-modal="{{ $post->id }}"
                               onclick="openSharesModal({{ $post->id }})"
-                              title="Xem ai đã chia sẻ"
+                              title="{{ __('app.feed.view_who_shared') }}"
                               @endif>
-                            <span id="shares-count-{{ $post->id }}">{{ $post->shares_count ?? 0 }}</span> chia sẻ
+                            <span id="shares-count-{{ $post->id }}">{{ $post->shares_count ?? 0 }}</span> {{ __('app.feed.shares') }}
                         </span>
                     </div>
                 </div>
@@ -1143,7 +1143,7 @@
                         $hasLiked = $currentUserId ? $post->likes->contains('user_id', $currentUserId) : false;
                         $reactionType = $myReaction->type ?? ($hasLiked ? 'like' : null);
                         $hasReacted = (bool) $reactionType;
-                        $reactionTextMap = ['like'=>'Thích','love'=>'Yêu thích','haha'=>'Haha','wow'=>'Wow','sad'=>'Buồn','angry'=>'Phẫn nộ'];
+                        $reactionTextMap = ['like'=>__('app.feed.like'),'love'=>__('app.feed.love'),'haha'=>__('app.feed.haha'),'wow'=>__('app.feed.wow'),'sad'=>__('app.feed.sad'),'angry'=>__('app.feed.angry')];
                         $reactionIconMap = ['like'=>'far fa-thumbs-up','love'=>'fas fa-heart','haha'=>'fas fa-laugh','wow'=>'fas fa-surprise','sad'=>'fas fa-sad-tear','angry'=>'fas fa-angry'];
                     @endphp
                     
@@ -1153,26 +1153,26 @@
                                 data-post-id="{{ $post->id }}"
                                 data-reaction="{{ $reactionType ?? '' }}">
                             <i class="{{ $reactionIconMap[$reactionType] ?? 'far fa-thumbs-up' }}"></i>
-                            <span>{{ $reactionTextMap[$reactionType] ?? 'Thích' }}</span>
+                            <span>{{ $reactionTextMap[$reactionType] ?? __('app.feed.like') }}</span>
                         </button>
                         <div class="reactions-popover" data-for-post="{{ $post->id }}">
-                            <div class="reaction like" data-type="like" title="Thích"><i class="far fa-thumbs-up"></i></div>
-                            <div class="reaction love" data-type="love" title="Yêu thích"><i class="fas fa-heart"></i></div>
-                            <div class="reaction haha" data-type="haha" title="Haha"><i class="fas fa-laugh"></i></div>
-                            <div class="reaction wow" data-type="wow" title="Wow"><i class="fas fa-surprise"></i></div>
-                            <div class="reaction sad" data-type="sad" title="Buồn"><i class="fas fa-sad-tear"></i></div>
-                            <div class="reaction angry" data-type="angry" title="Phẫn nộ"><i class="fas fa-angry"></i></div>
+                            <div class="reaction like" data-type="like" title="{{ __('app.feed.like') }}"><i class="far fa-thumbs-up"></i></div>
+                            <div class="reaction love" data-type="love" title="{{ __('app.feed.love') }}"><i class="fas fa-heart"></i></div>
+                            <div class="reaction haha" data-type="haha" title="{{ __('app.feed.haha') }}"><i class="fas fa-laugh"></i></div>
+                            <div class="reaction wow" data-type="wow" title="{{ __('app.feed.wow') }}"><i class="fas fa-surprise"></i></div>
+                            <div class="reaction sad" data-type="sad" title="{{ __('app.feed.sad') }}"><i class="fas fa-sad-tear"></i></div>
+                            <div class="reaction angry" data-type="angry" title="{{ __('app.feed.angry') }}"><i class="fas fa-angry"></i></div>
                         </div>
                     </div>
 
                     <button class="action-btn" data-toggle-comments="{{ $post->id }}">
                         <i class="far fa-comment"></i>
-                        <span>Bình luận</span>
+                        <span>{{ __('app.feed.comment') }}</span>
                     </button>
 
                     <button type="button" class="action-btn" onclick="openShareModal({{ $post->id }})">
                         <i class="far fa-share-square"></i>
-                        <span>Chia sẻ</span>
+                        <span>{{ __('app.feed.share') }}</span>
                     </button>
                 </div>
 
@@ -1204,7 +1204,7 @@
                             data-total="{{ $totalComments }}"
                             onclick="loadMoreComments({{ $post->id }}, this)"
                             style="width: 100%; padding: 0.75rem; background: transparent; border: 1px dashed rgba(0,229,255,0.3); border-radius: 8px; color: #00E5FF; cursor: pointer; font-size: 0.85rem; margin-bottom: 0.75rem; transition: all 0.2s;">
-                        <i class="fas fa-comments"></i> Xem thêm {{ $totalComments - $initialLimit }} bình luận khác
+                        <i class="fas fa-comments"></i> {{ __('app.feed.view_more_comments', ['count' => $totalComments - $initialLimit]) }}
                     </button>
                     @endif
                     
@@ -1220,27 +1220,30 @@
                             </div>
                             <div class="comment-actions">
                                 <span class="comment-time">{{ $c->created_at->diffForHumans() }}</span>
-                                @php $myCReaction = auth()->check() ? optional($c->reactions->firstWhere('user_id', auth()->id()))->type : null; @endphp
+                                @php 
+                                    $myCReaction = auth()->check() ? optional($c->reactions->firstWhere('user_id', auth()->id()))->type : null;
+                                    $commentReactionTextMap = ['like'=>__('app.feed.like'),'love'=>__('app.feed.love'),'haha'=>__('app.feed.haha'),'wow'=>__('app.feed.wow'),'sad'=>__('app.feed.sad'),'angry'=>__('app.feed.angry')];
+                                @endphp
                                 <div class="comment-like-wrapper">
                                     <span class="comment-action comment-like-btn {{ $myCReaction ? 'reacted-'.$myCReaction : '' }}"
                                           data-react-endpoint="{{ route('comments.react',$c) }}"
                                           data-comment-id="{{ $c->id }}"
                                           data-reaction="{{ $myCReaction ?? '' }}">
-                                        {{ $myCReaction ? (['like'=>'Thích','love'=>'Yêu thích','haha'=>'Haha','wow'=>'Wow','sad'=>'Buồn','angry'=>'Phẫn nộ'][$myCReaction] ?? 'Thích') : 'Thích' }}
+                                        {{ $myCReaction ? ($commentReactionTextMap[$myCReaction] ?? __('app.feed.like')) : __('app.feed.like') }}
                                     </span>
                                     <div class="comment-reactions-popover">
-                                        <div class="reaction like" data-type="like" title="Thích"><i class="far fa-thumbs-up"></i></div>
-                                        <div class="reaction love" data-type="love" title="Yêu thích"><i class="fas fa-heart"></i></div>
-                                        <div class="reaction haha" data-type="haha" title="Haha"><i class="fas fa-laugh"></i></div>
-                                        <div class="reaction wow" data-type="wow" title="Wow"><i class="fas fa-surprise"></i></div>
-                                        <div class="reaction sad" data-type="sad" title="Buồn"><i class="fas fa-sad-tear"></i></div>
-                                        <div class="reaction angry" data-type="angry" title="Phẫn nộ"><i class="fas fa-angry"></i></div>
+                                        <div class="reaction like" data-type="like" title="{{ __('app.feed.like') }}"><i class="far fa-thumbs-up"></i></div>
+                                        <div class="reaction love" data-type="love" title="{{ __('app.feed.love') }}"><i class="fas fa-heart"></i></div>
+                                        <div class="reaction haha" data-type="haha" title="{{ __('app.feed.haha') }}"><i class="fas fa-laugh"></i></div>
+                                        <div class="reaction wow" data-type="wow" title="{{ __('app.feed.wow') }}"><i class="fas fa-surprise"></i></div>
+                                        <div class="reaction sad" data-type="sad" title="{{ __('app.feed.sad') }}"><i class="fas fa-sad-tear"></i></div>
+                                        <div class="reaction angry" data-type="angry" title="{{ __('app.feed.angry') }}"><i class="fas fa-angry"></i></div>
                                     </div>
                                 </div>
                                 <span class="comment-likes-count {{ $c->likes_count > 0 ? '' : 'hidden' }}" id="comment-likes-{{ $c->id }}">
                                     <i class="far fa-thumbs-up"></i> <span class="count">{{ $c->likes_count }}</span>
                                 </span>
-                                <span class="comment-action reply-btn" data-comment-id="{{ $c->id }}" data-comment-author="{{ $c->user->name ?? 'User' }}" data-post-id="{{ $post->id }}">Trả lời</span>
+                                <span class="comment-action reply-btn" data-comment-id="{{ $c->id }}" data-comment-author="{{ $c->user->name ?? 'User' }}" data-post-id="{{ $post->id }}">{{ __('app.feed.reply') }}</span>
                             </div>
                             
                             {{-- Show replies --}}
@@ -1263,21 +1266,21 @@
                                                       data-react-endpoint="{{ route('comments.react', $reply) }}"
                                                       data-comment-id="{{ $reply->id }}"
                                                       data-reaction="{{ $myReplyReaction ?? '' }}">
-                                                    {{ $myReplyReaction ? (['like'=>'Thích','love'=>'Yêu thích','haha'=>'Haha','wow'=>'Wow','sad'=>'Buồn','angry'=>'Phẫn nộ'][$myReplyReaction] ?? 'Thích') : 'Thích' }}
+                                                    {{ $myReplyReaction ? ($commentReactionTextMap[$myReplyReaction] ?? __('app.feed.like')) : __('app.feed.like') }}
                                                 </span>
                                                 <div class="comment-reactions-popover small">
-                                                    <div class="reaction like" data-type="like" title="Thích"><i class="far fa-thumbs-up"></i></div>
-                                                    <div class="reaction love" data-type="love" title="Yêu thích"><i class="fas fa-heart"></i></div>
-                                                    <div class="reaction haha" data-type="haha" title="Haha"><i class="fas fa-laugh"></i></div>
-                                                    <div class="reaction wow" data-type="wow" title="Wow"><i class="fas fa-surprise"></i></div>
-                                                    <div class="reaction sad" data-type="sad" title="Buồn"><i class="fas fa-sad-tear"></i></div>
-                                                    <div class="reaction angry" data-type="angry" title="Phẫn nộ"><i class="fas fa-angry"></i></div>
+                                                    <div class="reaction like" data-type="like" title="{{ __('app.feed.like') }}"><i class="far fa-thumbs-up"></i></div>
+                                                    <div class="reaction love" data-type="love" title="{{ __('app.feed.love') }}"><i class="fas fa-heart"></i></div>
+                                                    <div class="reaction haha" data-type="haha" title="{{ __('app.feed.haha') }}"><i class="fas fa-laugh"></i></div>
+                                                    <div class="reaction wow" data-type="wow" title="{{ __('app.feed.wow') }}"><i class="fas fa-surprise"></i></div>
+                                                    <div class="reaction sad" data-type="sad" title="{{ __('app.feed.sad') }}"><i class="fas fa-sad-tear"></i></div>
+                                                    <div class="reaction angry" data-type="angry" title="{{ __('app.feed.angry') }}"><i class="fas fa-angry"></i></div>
                                                 </div>
                                             </div>
                                             <span class="comment-likes-count {{ $reply->likes_count > 0 ? '' : 'hidden' }}" id="comment-likes-{{ $reply->id }}" style="font-size:0.7rem;">
                                                 <i class="far fa-thumbs-up"></i> <span class="count">{{ $reply->likes_count }}</span>
                                             </span>
-                                            <span class="comment-action reply-btn" data-comment-id="{{ $c->id }}" data-comment-author="{{ $reply->user->name ?? 'User' }}" data-post-id="{{ $post->id }}" style="font-size:0.75rem;">Trả lời</span>
+                                            <span class="comment-action reply-btn" data-comment-id="{{ $c->id }}" data-comment-author="{{ $reply->user->name ?? 'User' }}" data-post-id="{{ $post->id }}" style="font-size:0.75rem;">{{ __('app.feed.reply') }}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -1350,13 +1353,13 @@
 <div class="modal-overlay" id="editModal{{ $post->id }}">
     <div class="modal-content" onclick="event.stopPropagation()">
         <div class="modal-header">
-            <h3 class="modal-title">Chỉnh sửa bài viết{{ $post->shared_post_id ? ' chia sẻ' : '' }}</h3>
+            <h3 class="modal-title">{{ $post->shared_post_id ? __('app.feed.edit_shared_post') : __('app.feed.edit_post') }}</h3>
             <button class="modal-close" onclick="closeEditModal({{ $post->id }})"><i class="fas fa-times"></i></button>
         </div>
         <form method="POST" action="{{ route('posts.update',$post) }}" enctype="multipart/form-data">
             @csrf @method('PUT')
             <div class="modal-body" style="padding: 1.25rem; max-height: 60vh; overflow-y: auto;">
-                <textarea class="composer-textarea" name="content" rows="4" style="width: 100%; min-height: 100px; background: rgba(0,0,85,0.3); border: 1px solid rgba(0,229,255,0.2); border-radius: 8px; padding: 1rem; color: #fff; font-family: 'Inter', sans-serif; font-size: 1rem; resize: vertical; box-sizing: border-box;" placeholder="{{ $post->shared_post_id ? 'Nhập nội dung chia sẻ...' : 'Nhập nội dung bài viết...' }}">{{ $post->content }}</textarea>
+                <textarea class="composer-textarea" name="content" rows="4" style="width: 100%; min-height: 100px; background: rgba(0,0,85,0.3); border: 1px solid rgba(0,229,255,0.2); border-radius: 8px; padding: 1rem; color: #fff; font-family: 'Inter', sans-serif; font-size: 1rem; resize: vertical; box-sizing: border-box;" placeholder="{{ $post->shared_post_id ? __('app.feed.enter_share_content') : __('app.feed.enter_content') }}">{{ $post->content }}</textarea>
                 
                 @if(!$post->shared_post_id)
                 {{-- Existing Media - only for non-shared posts --}}
@@ -1408,14 +1411,14 @@
 <div class="modal-overlay" id="shareModal">
     <div class="modal-content" onclick="event.stopPropagation()">
         <div class="modal-header">
-            <h3 class="modal-title">Chia sẻ bài viết</h3>
+            <h3 class="modal-title">{{ __('app.feed.share_post') }}</h3>
             <button class="modal-close" onclick="closeShareModal()"><i class="fas fa-times"></i></button>
         </div>
         <form method="POST" action="{{ route('posts.store') }}" id="shareForm">
             @csrf
             <input type="hidden" name="shared_post_id" id="sharePostId" value="">
             <div class="modal-body" style="padding: 1.25rem;">
-                <textarea class="composer-textarea" name="content" rows="3" placeholder="Viết gì đó về bài viết này..." style="width: 100%; min-height: 80px; background: rgba(0,0,85,0.3); border: 1px solid rgba(0,229,255,0.2); border-radius: 8px; padding: 1rem; color: #fff; font-family: 'Inter', sans-serif; font-size: 1rem; resize: vertical; box-sizing: border-box;"></textarea>
+                <textarea class="composer-textarea" name="content" rows="3" placeholder="{{ __('app.feed.enter_share_content') }}" style="width: 100%; min-height: 80px; background: rgba(0,0,85,0.3); border: 1px solid rgba(0,229,255,0.2); border-radius: 8px; padding: 1rem; color: #fff; font-family: 'Inter', sans-serif; font-size: 1rem; resize: vertical; box-sizing: border-box;"></textarea>
                 
                 {{-- Preview of shared post --}}
                 <div id="sharePreview" style="margin-top: 1rem; padding: 1rem; background: rgba(0,0,85,0.2); border: 1px solid rgba(0,229,255,0.1); border-radius: 8px;">
@@ -1431,7 +1434,7 @@
             </div>
             <div class="modal-footer">
                 <button type="submit" class="submit-btn">
-                    <i class="fas fa-share"></i> Chia sẻ ngay
+                    <i class="fas fa-share"></i> {{ __('app.feed.share_now') }}
                 </button>
             </div>
         </form>
@@ -1463,18 +1466,18 @@
 <div class="modal-overlay" id="sharesListModal">
     <div class="modal-content" style="max-width:450px" onclick="event.stopPropagation()">
         <div class="modal-header">
-            <h3 class="modal-title"><i class="fas fa-share-alt"></i> Người đã chia sẻ</h3>
+            <h3 class="modal-title"><i class="fas fa-share-alt"></i> {{ __('app.feed.shared_by') }}</h3>
             <button class="modal-close" onclick="closeSharesListModal()"><i class="fas fa-times"></i></button>
         </div>
         <div class="modal-body" style="padding: 0; max-height: 400px; overflow-y: auto;">
             <div id="sharesListLoading" style="text-align: center; padding: 2rem; color: #94a3b8;">
                 <i class="fas fa-spinner fa-spin" style="font-size: 1.5rem; margin-bottom: 0.5rem;"></i>
-                <p style="margin: 0;">Đang tải...</p>
+                <p style="margin: 0;">{{ __('app.common.loading') }}</p>
             </div>
             <div id="sharesListContent" style="display: none;"></div>
             <div id="sharesListEmpty" style="display: none; text-align: center; padding: 2rem; color: #64748b;">
                 <i class="fas fa-share" style="font-size: 2rem; margin-bottom: 0.5rem; opacity: 0.5;"></i>
-                <p style="margin: 0;">Chưa có ai chia sẻ bài viết này.</p>
+                <p style="margin: 0;">{{ __('app.feed.no_shares_yet') }}</p>
             </div>
         </div>
     </div>
@@ -1482,6 +1485,18 @@
 
 @push('scripts')
 <script>
+// Translation strings for JavaScript
+const feedTranslations = {
+    like: @json(__('app.feed.like')),
+    love: @json(__('app.feed.love')),
+    haha: @json(__('app.feed.haha')),
+    wow: @json(__('app.feed.wow')),
+    sad: @json(__('app.feed.sad')),
+    angry: @json(__('app.feed.angry')),
+    comments: @json(__('app.feed.comments')),
+    shares: @json(__('app.feed.shares'))
+};
+
 // Modal functions
 function openComposerModal() {
     document.getElementById('composerModal').classList.add('show');
@@ -1619,13 +1634,13 @@ async function loadMoreComments(postId, button) {
         if (data.comments && data.comments.length > 0) {
             const commentsList = document.getElementById('comments-list-' + postId);
             const currentUserId = {{ auth()->id() ?? 'null' }};
-            const reactionTextMap = { like: 'Thích', love: 'Yêu thích', haha: 'Haha', wow: 'Wow', sad: 'Buồn', angry: 'Phẫn nộ' };
+            const reactionTextMap = feedTranslations;
             
             // Build HTML for new comments and prepend
             const commentsHtml = data.comments.map(c => {
                 const profileUrl = c.user_id === currentUserId ? '/profile' : `/profile/${c.user_id}`;
                 const reactionClass = c.my_reaction ? `reacted-${c.my_reaction}` : '';
-                const reactionText = c.my_reaction ? (reactionTextMap[c.my_reaction] || 'Thích') : 'Thích';
+                const reactionText = c.my_reaction ? (reactionTextMap[c.my_reaction] || feedTranslations.like) : feedTranslations.like;
                 
                 let repliesHtml = '';
                 if (c.replies && c.replies.length > 0) {
@@ -1634,7 +1649,7 @@ async function loadMoreComments(postId, button) {
                             ${c.replies.map(reply => {
                                 const replyProfileUrl = reply.user_id === currentUserId ? '/profile' : `/profile/${reply.user_id}`;
                                 const replyReactionClass = reply.my_reaction ? `reacted-${reply.my_reaction}` : '';
-                                const replyReactionText = reply.my_reaction ? (reactionTextMap[reply.my_reaction] || 'Thích') : 'Thích';
+                                const replyReactionText = reply.my_reaction ? (reactionTextMap[reply.my_reaction] || feedTranslations.like) : feedTranslations.like;
                                 return `
                                     <div class="comment-item reply-item" style="margin-bottom: 0.5rem;">
                                         <div class="comment-avatar" style="width:28px;height:28px;">
@@ -1822,7 +1837,7 @@ document.querySelectorAll('.visibility-option').forEach(opt => {
 });
 
 // Reactions
-const reactionTextMap = { like: 'Thích', love: 'Yêu thích', haha: 'Haha', wow: 'Wow', sad: 'Buồn', angry: 'Phẫn nộ' };
+const reactionTextMap = feedTranslations;
 const reactionIconMap = { like: 'far fa-thumbs-up', love: 'fas fa-heart', haha: 'fas fa-laugh', wow: 'fas fa-surprise', sad: 'fas fa-sad-tear', angry: 'fas fa-angry' };
 
 document.querySelectorAll('.like-wrapper').forEach(wrapper => {
@@ -1867,7 +1882,7 @@ document.querySelectorAll('.like-wrapper').forEach(wrapper => {
         button.dataset.reaction = type;
         const icon = button.querySelector('i');
         icon.className = reactionIconMap[type] || 'far fa-thumbs-up';
-        button.querySelector('span').textContent = reactionTextMap[type] || 'Thích';
+        button.querySelector('span').textContent = reactionTextMap[type] || feedTranslations.like;
         
         ['like','love','haha','wow','sad','angry'].forEach(t => button.classList.remove('reacted-'+t));
         if (type) button.classList.add('reacted-' + type);
@@ -2134,7 +2149,7 @@ function attachReplyListeners() {
 
 // Comment Reaction Handler with Popover
 function attachCommentReactionListeners() {
-    const reactionTextMap = { like: 'Thích', love: 'Yêu thích', haha: 'Haha', wow: 'Wow', sad: 'Buồn', angry: 'Phẫn nộ' };
+    const reactionTextMap = feedTranslations;
     const reactionClasses = ['reacted-like', 'reacted-love', 'reacted-haha', 'reacted-wow', 'reacted-sad', 'reacted-angry'];
     
     document.querySelectorAll('.comment-like-wrapper').forEach(wrapper => {
@@ -2216,7 +2231,7 @@ function attachCommentReactionListeners() {
                 } else {
                     button.dataset.reaction = type;
                     button.classList.add('reacted-' + type);
-                    button.textContent = reactionTextMap[type] || 'Thích';
+                    button.textContent = reactionTextMap[type] || feedTranslations.like;
                     // Increase count if new reaction
                     if (!currentReaction && likesCountEl) {
                         likesCountEl.classList.remove('hidden');

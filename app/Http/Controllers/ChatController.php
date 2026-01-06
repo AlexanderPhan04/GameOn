@@ -46,9 +46,14 @@ class ChatController extends Controller
     {
         $user = Auth::user();
 
-        // Check if user is participant
+        // Check if user is authenticated
+        if (!$user) {
+            return redirect()->route('auth.login');
+        }
+
+        // Check if user is participant - redirect to chat list instead of showing 403
         if (! $conversation->hasParticipant($user->id)) {
-            abort(403, 'You are not a participant in this conversation');
+            return redirect()->route('chat.index')->with('error', 'Bạn không phải là thành viên của cuộc trò chuyện này.');
         }
 
         // Mark as read

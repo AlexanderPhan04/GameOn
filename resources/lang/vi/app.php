@@ -16,6 +16,44 @@ return [
         'posts' => 'Bài viết',
         'profile' => 'Thông tin cá nhân',
         'logout' => 'Đăng xuất',
+        'cart' => 'Giỏ hàng',
+        'marketplace' => 'Cửa hàng',
+        'manage_admin' => 'Quản lý Admin',
+        'manage_marketplace' => 'Quản lý Marketplace',
+        'home' => 'Trang chủ',
+    ],
+
+    // Feed / Posts
+    'feed' => [
+        'whats_on_your_mind' => 'Bạn đang nghĩ gì?',
+        'create_post' => 'Tạo bài viết',
+        'post' => 'Đăng',
+        'delete' => 'Xóa',
+        'comment' => 'Bình luận',
+        'reply' => 'Trả lời',
+        'comments' => 'bình luận',
+        'reactions' => 'lượt thích',
+        'shares' => 'chia sẻ',
+        'share' => 'Chia sẻ',
+        'share_now' => 'Chia sẻ ngay',
+        'share_post' => 'Chia sẻ bài viết',
+        'shared_by' => 'Người đã chia sẻ',
+        'no_shares_yet' => 'Chưa có ai chia sẻ bài viết này.',
+        'write_comment' => 'Viết bình luận...',
+        'send' => 'Gửi',
+        'like' => 'Thích',
+        'love' => 'Yêu thích',
+        'haha' => 'Haha',
+        'wow' => 'Wow',
+        'sad' => 'Buồn',
+        'angry' => 'Phẫn nộ',
+        'view_who_shared' => 'Xem ai đã chia sẻ',
+        'view_more_comments' => 'Xem thêm :count bình luận khác',
+        'edit_post' => 'Chỉnh sửa bài viết',
+        'edit_shared_post' => 'Chỉnh sửa bài viết chia sẻ',
+        'enter_content' => 'Nhập nội dung bài viết...',
+        'enter_share_content' => 'Nhập nội dung chia sẻ...',
+        'ago' => 'trước',
     ],
 
     // Authentication
@@ -507,6 +545,19 @@ return [
         'inactive' => 'Không hoạt động',
     ],
 
+    // Notifications
+    'notifications' => [
+        'title' => 'Thông báo',
+        'mark_all_read' => 'Đọc tất cả',
+        'no_notifications' => 'Không có thông báo mới',
+    ],
+
+    // Language
+    'language' => [
+        'select_language' => 'Chọn ngôn ngữ',
+        'language' => 'Ngôn ngữ',
+    ],
+
     // Maintenance
     'maintenance' => [
         'title' => 'Bảo trì hệ thống',
@@ -516,5 +567,38 @@ return [
         'system_maintenance' => 'Hệ thống đang bảo trì',
         'system_back_online' => 'Hệ thống đã hoạt động trở lại',
         'still_maintenance' => 'Hệ thống vẫn đang bảo trì',
+    ],
+
+    // Marketplace
+    'marketplace' => [
+        'cart' => 'Giỏ hàng',
+        'cart_items_count' => ':count sản phẩm trong giỏ hàng',
+        'restricted_items_warning' => 'Một số vật phẩm đang bị hạn chế',
+        'restricted_items_desc' => 'Các vật phẩm này sẽ không được tính vào đơn hàng. Bạn có thể xóa hoặc giữ lại chờ mở bán.',
+        'restricted' => 'Đang hạn chế',
+        'unavailable' => 'Không khả dụng',
+        'subtotal' => 'Tạm tính (:count sản phẩm khả dụng)',
+        'total' => 'Tổng cộng',
+        'continue_shopping' => 'Tiếp tục mua',
+        'checkout_now' => 'Thanh toán ngay',
+        'no_available_items' => 'Không có sản phẩm khả dụng',
+        'empty_cart' => 'Giỏ hàng trống',
+        'empty_cart_desc' => 'Bạn chưa thêm sản phẩm nào vào giỏ hàng',
+        'shop_now' => 'Mua sắm ngay',
+        'remove' => 'Xóa',
+        'theme' => 'Giao diện',
+        'sticker' => 'Sticker',
+        'game_item' => 'Vật phẩm',
+        'inventory' => 'Kho đồ',
+        'payment_success' => 'Thanh toán thành công',
+        'payment_success_desc' => 'Cảm ơn bạn đã mua hàng. Đơn hàng của bạn đã được xử lý.',
+        'order_code' => 'Mã đơn hàng',
+        'amount' => 'Số tiền',
+        'view_inventory' => 'Xem kho đồ',
+        'continue_shopping_btn' => 'Tiếp tục mua',
+        'payment_failed' => 'Thanh toán thất bại',
+        'payment_failed_desc' => 'Giao dịch không thành công hoặc đã bị hủy. Vui lòng thử lại.',
+        'retry' => 'Thử lại',
+        'back_to_store' => 'Về cửa hàng',
     ],
 ];

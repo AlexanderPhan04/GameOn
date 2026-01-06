@@ -303,15 +303,20 @@ Route::prefix('payment')->name('payment.')->group(function () {
 // Marketplace Routes
 Route::prefix('marketplace')->name('marketplace.')->group(function () {
     Route::get('/', [MarketplaceController::class, 'index'])->name('index');
-    Route::get('/product/{id}', [MarketplaceController::class, 'show'])->name('show');
-    Route::post('/cart/{id}', [MarketplaceController::class, 'addToCart'])->name('addToCart');
+    Route::get('/product', fn() => redirect()->route('marketplace.index')); // Redirect if no slug provided
+    Route::get('/product/{product}', [MarketplaceController::class, 'show'])->name('show');
+    Route::post('/cart/{id}', [MarketplaceController::class, 'addToCart'])->name('addToCart')->middleware('auth.session');
     Route::get('/cart', [MarketplaceController::class, 'cart'])->name('cart');
-    Route::patch('/cart/{id}', [MarketplaceController::class, 'updateCartQuantity'])->name('updateCartQuantity');
-    Route::delete('/cart/{id}', [MarketplaceController::class, 'removeFromCart'])->name('removeFromCart');
+    Route::patch('/cart/{id}', [MarketplaceController::class, 'updateCartQuantity'])->name('updateCartQuantity')->middleware('auth.session');
+    Route::delete('/cart/{id}', [MarketplaceController::class, 'removeFromCart'])->name('removeFromCart')->middleware('auth.session');
     Route::get('/checkout', [MarketplaceController::class, 'checkout'])->name('checkout')->middleware('auth.session');
     Route::post('/process-payment', [MarketplaceController::class, 'processPayment'])->name('processPayment')->middleware('auth.session');
     Route::get('/inventory', [MarketplaceController::class, 'inventory'])->name('inventory')->middleware('auth.session');
     Route::post('/inventory/{id}/equip', [MarketplaceController::class, 'equipItem'])->name('equipItem')->middleware('auth.session');
     Route::post('/donate/{userId}', [MarketplaceController::class, 'donate'])->name('donate')->middleware('auth.session');
     
+    // Order History & Invoice
+    Route::get('/orders', [MarketplaceController::class, 'orderHistory'])->name('orders')->middleware('auth.session');
+    Route::get('/orders/{orderCode}', [MarketplaceController::class, 'orderDetail'])->name('orderDetail')->middleware('auth.session');
+    Route::get('/orders/{orderCode}/invoice', [MarketplaceController::class, 'downloadInvoice'])->name('invoice')->middleware('auth.session');
 });

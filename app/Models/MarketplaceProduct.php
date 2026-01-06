@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 class MarketplaceProduct extends Model
 {
@@ -12,6 +13,7 @@ class MarketplaceProduct extends Model
 
     protected $fillable = [
         'name',
+        'slug',
         'description',
         'type',
         'category',
@@ -43,6 +45,60 @@ class MarketplaceProduct extends Model
         'metadata' => 'array',
         'sort_order' => 'integer',
     ];
+
+    /**
+     * Boot the model
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($product) {
+            if (empty($product->slug)) {
+                $product->slug = static::generateUniqueSlug($product->name);
+            }
+        });
+
+        static::updating(function ($product) {
+            // Regenerate slug if name changed and slug not manually set
+            if ($product->isDirty('name') && !$product->isDirty('slug')) {
+                $product->slug = static::generateUniqueSlug($product->name, $product->id);
+            }
+        });
+    }
+
+    /**
+     * Generate unique slug
+     */
+    public static function generateUniqueSlug(string $name, ?int $exceptId = null): string
+    {
+        $baseSlug = Str::slug($name);
+        $slug = $baseSlug;
+        $counter = 1;
+
+        $query = static::where('slug', $slug);
+        if ($exceptId) {
+            $query->where('id', '!=', $exceptId);
+        }
+
+        while ($query->exists()) {
+            $slug = $baseSlug . '-' . $counter++;
+            $query = static::where('slug', $slug);
+            if ($exceptId) {
+                $query->where('id', '!=', $exceptId);
+            }
+        }
+
+        return $slug;
+    }
+
+    /**
+     * Get route key name for route model binding
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
 
     /**
      * Người tạo sản phẩm

@@ -587,7 +587,7 @@
             </div>
             <div class="related-grid">
                 @foreach($relatedProducts as $related)
-                <a href="{{ route('marketplace.show', $related->id) }}" class="related-card">
+                <a href="{{ route('marketplace.show', $related) }}" class="related-card">
                     <div class="related-card-image">
                         @if($related->thumbnail)
                             <img src="{{ asset('uploads/' . $related->thumbnail) }}" alt="{{ $related->name }}">
@@ -647,19 +647,39 @@ document.addEventListener('DOMContentLoaded', function() {
                     headers: {
                         'X-CSRF-TOKEN': '{{ csrf_token() }}',
                         'Content-Type': 'application/json',
+                        'Accept': 'application/json',
                     },
                     body: JSON.stringify({ quantity: quantity })
                 });
+                
+                // Check if redirected (unauthenticated) - fetch follows redirects automatically
+                if (response.redirected) {
+                    showToast('Vui lòng đăng nhập để thêm vào giỏ hàng!', 'error');
+                    setTimeout(() => window.location.href = '{{ route("auth.login") }}', 1500);
+                    return;
+                }
+                
+                // Check for auth error (401) or other errors
+                if (response.status === 401 || response.status === 403) {
+                    showToast('Vui lòng đăng nhập để thêm vào giỏ hàng!', 'error');
+                    setTimeout(() => window.location.href = '{{ route("auth.login") }}', 1500);
+                    return;
+                }
                 
                 const data = await response.json();
                 
                 if (data.success) {
                     showToast('Đã thêm vào giỏ hàng!', 'success');
+                    // Update cart badge in navbar
+                    if (data.cart_count) {
+                        updateCartBadge(data.cart_count);
+                    }
                 } else {
                     showToast(data.message || 'Có lỗi xảy ra', 'error');
                 }
             } catch (error) {
-                showToast('Có lỗi xảy ra', 'error');
+                console.error('Add to cart error:', error);
+                showToast('Có lỗi xảy ra, vui lòng thử lại', 'error');
             } finally {
                 addToCartBtn.disabled = false;
                 addToCartBtn.innerHTML = originalText;

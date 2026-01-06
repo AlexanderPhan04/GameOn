@@ -59,10 +59,8 @@ class MarketplaceController extends Controller
     /**
      * Hiển thị chi tiết sản phẩm
      */
-    public function show($id)
+    public function show(MarketplaceProduct $product)
     {
-        $product = MarketplaceProduct::findOrFail($id);
-
         if (!$product->is_active) {
             abort(404);
         }

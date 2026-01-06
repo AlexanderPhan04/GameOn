@@ -371,7 +371,7 @@
         @if($products->count() > 0)
         <div class="products-grid">
             @foreach($products as $product)
-            <a href="{{ route('marketplace.show', $product->id) }}" class="product-card">
+            <a href="{{ route('marketplace.show', $product) }}" class="product-card">
                 <div class="product-image">
                     @if($product->thumbnail)
                         <img src="{{ asset('uploads/' . $product->thumbnail) }}" alt="{{ $product->name }}">

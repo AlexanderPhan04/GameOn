@@ -22,6 +22,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Register middleware aliases
         $middleware->alias([
+            'auth.session' => \App\Http\Middleware\SessionAuthMiddleware::class,
             'track.login' => \App\Http\Middleware\TrackLastLogin::class,
             'check.participant.role' => \App\Http\Middleware\CheckParticipantRole::class,
         ]);

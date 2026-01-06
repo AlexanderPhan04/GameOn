@@ -592,6 +592,7 @@ return [
         'sticker' => 'Sticker',
         'game_item' => 'Game Item',
         'inventory' => 'Inventory',
+        'order_history' => 'Order History',
         'payment_success' => 'Payment Successful',
         'payment_success_desc' => 'Thank you for your purchase. Your order has been processed.',
         'order_code' => 'Order Code',

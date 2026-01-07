@@ -396,9 +396,68 @@
         </a>
     </div>
 
+    {{-- Pending Invitations --}}
+    @if(isset($pendingInvitations) && $pendingInvitations->count() > 0)
+    <div class="invitations-section" style="margin-bottom: 2rem;">
+        <div class="section-title" style="border-color: rgba(245, 158, 11, 0.3);">
+            <i class="fas fa-envelope" style="color: #f59e0b;"></i>
+            <h2>Lời mời tham gia đội ({{ $pendingInvitations->count() }})</h2>
+        </div>
+        <div class="teams-grid">
+            @foreach($pendingInvitations as $invitation)
+            <div class="team-card" style="border-color: rgba(245, 158, 11, 0.3);">
+                <div class="team-card-image">
+                    @if($invitation->team->logo_url)
+                        <img src="{{ $invitation->team->logo_url }}" alt="{{ $invitation->team->name }}">
+                    @else
+                        <div class="team-card-image-placeholder">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    @endif
+                    <div class="captain-badge" style="background: linear-gradient(135deg, #6366f1, #8b5cf6);">
+                        <i class="fas fa-envelope"></i>
+                        Lời mời
+                    </div>
+                </div>
+                <div class="team-card-body">
+                    <h3 class="team-card-name">{{ $invitation->team->name }}</h3>
+                    <p class="team-card-desc">
+                        <i class="fas fa-user" style="color: #00E5FF;"></i>
+                        Được mời bởi: <strong style="color: #00E5FF;">{{ $invitation->inviter->display_name }}</strong>
+                    </p>
+                    <div class="team-card-meta">
+                        <div class="meta-item">
+                            <i class="fas fa-users"></i>
+                            {{ $invitation->team->members->count() ?? 0 }}/{{ $invitation->team->max_members ?? '∞' }} thành viên
+                        </div>
+                        <div class="meta-item">
+                            <i class="fas fa-clock"></i>
+                            {{ $invitation->created_at->diffForHumans() }}
+                        </div>
+                    </div>
+                    @if($invitation->team->game)
+                    <div class="team-card-tags">
+                        <span class="tag-game">{{ $invitation->team->game->name }}</span>
+                    </div>
+                    @endif
+                </div>
+                <div class="team-card-footer">
+                    <button type="button" class="btn-team btn-team-view" style="background: rgba(34, 197, 94, 0.1); border-color: rgba(34, 197, 94, 0.3); color: #22c55e;" onclick="acceptInvitation({{ $invitation->id }})">
+                        <i class="fas fa-check"></i> Chấp nhận
+                    </button>
+                    <button type="button" class="btn-team btn-team-leave" onclick="declineInvitation({{ $invitation->id }})">
+                        <i class="fas fa-times"></i> Từ chối
+                    </button>
+                </div>
+            </div>
+            @endforeach
+        </div>
+    </div>
+    @endif
+
     @php
-        $myTeamsAsCaptain = $teams->where('captain_id', Auth::id());
-        $myTeamsAsMember = Auth::user()->teams->where('captain_id', '!=', Auth::id());
+        $myTeamsAsCaptain = $myTeams->where('captain_id', Auth::id());
+        $myTeamsAsMember = $myTeams->where('captain_id', '!=', Auth::id());
     @endphp
 
     @if($myTeamsAsCaptain->count() > 0)
@@ -530,4 +589,113 @@
     </div>
     @endif
 </div>
+
+@push('scripts')
+<script>
+function acceptInvitation(invitationId) {
+    fetch(`{{ url('team-invitations') }}/${invitationId}/accept`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            if (data.redirect) {
+                window.location.href = data.redirect;
+            } else {
+                location.reload();
+            }
+        } else {
+            alert(data.message || 'Có lỗi xảy ra');
+        }
+    });
+}
+
+function declineInvitation(invitationId) {
+    if (!confirm('Bạn có chắc muốn từ chối lời mời này?')) return;
+    
+    fetch(`{{ url('team-invitations') }}/${invitationId}/decline`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert(data.message || 'Có lỗi xảy ra');
+        }
+    });
+}
+
+// Realtime: Listen for new team invitations
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof Echo !== 'undefined') {
+        Echo.private(`user.{{ Auth::id() }}`)
+            .listen('.team.invitation', (e) => {
+                console.log('New team invitation received:', e);
+                // Show notification toast
+                showInvitationNotification(e.invitation);
+                // Reload page to show new invitation
+                setTimeout(() => location.reload(), 2000);
+            });
+    }
+});
+
+function showInvitationNotification(invitation) {
+    // Create toast notification
+    const toast = document.createElement('div');
+    toast.style.cssText = `
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        background: linear-gradient(135deg, #0d1b2a, #000022);
+        border: 1px solid rgba(245, 158, 11, 0.5);
+        border-radius: 12px;
+        padding: 1rem 1.5rem;
+        color: #fff;
+        z-index: 99999;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        animation: slideIn 0.3s ease;
+        max-width: 350px;
+    `;
+    toast.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #f59e0b, #d97706); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-envelope" style="color: #fff;"></i>
+            </div>
+            <div>
+                <div style="font-weight: 600; margin-bottom: 4px;">Lời mời tham gia đội</div>
+                <div style="font-size: 0.85rem; color: #94a3b8;">
+                    <strong style="color: #00E5FF;">${invitation.inviter.name}</strong> mời bạn tham gia đội <strong style="color: #f59e0b;">${invitation.team.name}</strong>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Add animation style
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    `;
+    document.head.appendChild(style);
+    document.body.appendChild(toast);
+    
+    // Remove after 5 seconds
+    setTimeout(() => {
+        toast.style.animation = 'slideIn 0.3s ease reverse';
+        setTimeout(() => toast.remove(), 300);
+    }, 5000);
+}
+</script>
+@endpush
 @endsection

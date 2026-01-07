@@ -311,7 +311,7 @@
         display: flex; align-items: center; justify-content: space-between;
     }
     .modal-title-custom { color: #FFFFFF; font-size: 1.1rem; font-weight: 600; }
-    .modal-body-custom { padding: 1.5rem; color: #94a3b8; max-height: 400px; overflow-y: auto; }
+    .modal-body-custom { padding: 1.5rem; color: #94a3b8; max-height: 400px; overflow-y: auto; overflow-x: hidden; }
     .modal-footer-custom {
         padding: 1rem 1.5rem;
         border-top: 1px solid rgba(0, 229, 255, 0.1);
@@ -329,6 +329,7 @@
         color: #FFFFFF;
         font-size: 0.9rem;
         outline: none;
+        box-sizing: border-box;
     }
     .search-input:focus { border-color: #00E5FF; }
     .search-input::placeholder { color: #64748b; }

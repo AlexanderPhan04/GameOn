@@ -112,6 +112,11 @@ Route::middleware(['auth.session'])->group(function () {
         Route::post('/teams/{team}/remove-member', [TeamController::class, 'removeMember'])->name('teams.remove-member');
         Route::get('/teams/{team}/chat', [TeamController::class, 'getMessages'])->name('teams.chat.get');
         Route::post('/teams/{team}/chat', [TeamController::class, 'sendMessage'])->name('teams.chat.send');
+        
+        // Team invitations
+        Route::post('/team-invitations/{invitation}/accept', [TeamController::class, 'acceptInvitation'])->name('teams.invitation.accept');
+        Route::post('/team-invitations/{invitation}/decline', [TeamController::class, 'declineInvitation'])->name('teams.invitation.decline');
+        Route::get('/my-invitations', [TeamController::class, 'myInvitations'])->name('teams.my-invitations');
     });
 });
 

@@ -4811,10 +4811,71 @@
                             url: `/chat/conversation/${e.conversation_id}`
                         });
                     })
+                    .listen('.team.invitation', (e) => {
+                        // New team invitation received
+                        addNotification({
+                            message: `<strong>${e.invitation.inviter.name}</strong> mời bạn tham gia đội <strong style="color:#f59e0b;">${e.invitation.team.name}</strong>`,
+                            avatar: e.invitation.team.logo,
+                            icon: 'users',
+                            url: '/teams'
+                        });
+                        
+                        // Show toast notification
+                        showTeamInvitationToast(e.invitation);
+                    })
                     .listen('.status.changed', (e) => {
                         // User status has been changed by admin
                         showUserStatusPopup(e.status, e.status_display, e.message);
                     });
+            }
+            
+            // Show toast for team invitation
+            function showTeamInvitationToast(invitation) {
+                const toast = document.createElement('div');
+                toast.className = 'team-invitation-toast';
+                toast.innerHTML = `
+                    <div style="display:flex;align-items:center;gap:12px;">
+                        <div style="width:45px;height:45px;background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                            <i class="fas fa-envelope" style="color:#fff;font-size:1.1rem;"></i>
+                        </div>
+                        <div style="flex:1;">
+                            <div style="font-weight:600;color:#fff;margin-bottom:4px;">Lời mời tham gia đội</div>
+                            <div style="font-size:0.85rem;color:#94a3b8;">
+                                <strong style="color:#00E5FF;">${invitation.inviter.name}</strong> mời bạn tham gia đội <strong style="color:#f59e0b;">${invitation.team.name}</strong>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="/teams" style="display:block;margin-top:12px;text-align:center;padding:8px 16px;background:linear-gradient(135deg,#6366f1,#8b5cf6);border-radius:8px;color:#fff;text-decoration:none;font-weight:600;font-size:0.85rem;">
+                        Xem lời mời
+                    </a>
+                `;
+                toast.style.cssText = `
+                    position:fixed;top:80px;right:20px;
+                    background:linear-gradient(135deg,#0d1b2a,#000022);
+                    border:1px solid rgba(245,158,11,0.5);
+                    border-radius:16px;padding:1rem;
+                    color:#fff;z-index:99999;
+                    box-shadow:0 10px 40px rgba(0,0,0,0.5);
+                    max-width:350px;
+                    animation:toastSlideIn 0.3s ease;
+                `;
+                
+                if (!document.getElementById('toast-animation-style')) {
+                    const style = document.createElement('style');
+                    style.id = 'toast-animation-style';
+                    style.textContent = `
+                        @keyframes toastSlideIn { from{transform:translateX(100%);opacity:0;} to{transform:translateX(0);opacity:1;} }
+                        @keyframes toastSlideOut { from{transform:translateX(0);opacity:1;} to{transform:translateX(100%);opacity:0;} }
+                    `;
+                    document.head.appendChild(style);
+                }
+                
+                document.body.appendChild(toast);
+                
+                setTimeout(() => {
+                    toast.style.animation = 'toastSlideOut 0.3s ease forwards';
+                    setTimeout(() => toast.remove(), 300);
+                }, 8000);
             }
             
             // Show popup when user status is changed

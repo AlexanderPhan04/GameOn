@@ -4559,6 +4559,21 @@
         });
     </script>
 
+    <!-- User Status Check Script -->
+    @auth
+    <script>
+        // Check user status on page load and sync with server
+        (function() {
+            const userStatus = '{{ Auth::user()->status }}';
+            if (['suspended', 'banned', 'deleted'].includes(userStatus)) {
+                sessionStorage.setItem('userRestricted', userStatus);
+            } else {
+                sessionStorage.removeItem('userRestricted');
+            }
+        })();
+    </script>
+    @endauth
+
     <!-- Notification Bell Script -->
     @auth
     <script>
@@ -4795,8 +4810,145 @@
                             icon: 'comment',
                             url: `/chat/conversation/${e.conversation_id}`
                         });
+                    })
+                    .listen('.status.changed', (e) => {
+                        // User status has been changed by admin
+                        showUserStatusPopup(e.status, e.status_display, e.message);
                     });
             }
+            
+            // Show popup when user status is changed
+            function showUserStatusPopup(status, statusDisplay, message) {
+                // Remove existing popup if any
+                const existingPopup = document.getElementById('user-status-popup');
+                if (existingPopup) existingPopup.remove();
+                
+                const isRestricted = ['suspended', 'banned', 'deleted'].includes(status);
+                const iconClass = isRestricted ? 'fa-exclamation-triangle' : 'fa-check-circle';
+                const iconColor = isRestricted ? '#ef4444' : '#22c55e';
+                const borderColor = isRestricted ? 'rgba(239,68,68,0.5)' : 'rgba(34,197,94,0.5)';
+                
+                const popup = document.createElement('div');
+                popup.id = 'user-status-popup';
+                popup.innerHTML = `
+                    <div class="status-popup-overlay">
+                        <div class="status-popup-content" style="border-color:${borderColor}">
+                            <div class="status-popup-icon" style="background:${iconColor}20;color:${iconColor}">
+                                <i class="fas ${iconClass}"></i>
+                            </div>
+                            <h3 class="status-popup-title">Trạng thái tài khoản: ${statusDisplay}</h3>
+                            <p class="status-popup-message">${message}</p>
+                            ${isRestricted ? '<p class="status-popup-note">Bạn vẫn có thể xem nội dung và chat với quản trị viên để được hỗ trợ.</p>' : ''}
+                            <div class="status-popup-actions">
+                                ${isRestricted ? '<a href="/chat" class="status-popup-btn-secondary"><i class="fas fa-comments"></i> Chat với Admin</a>' : ''}
+                                <button class="status-popup-btn" onclick="closeStatusPopup(${isRestricted})">
+                                    ${isRestricted ? 'Tôi đã hiểu' : 'Đóng'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <style>
+                        .status-popup-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:999999;display:flex;align-items:center;justify-content:center;animation:fadeIn 0.3s ease;backdrop-filter:blur(4px);}
+                        .status-popup-content{background:linear-gradient(135deg,#0d1b2a,#1a1a2e);border:2px solid;border-radius:20px;padding:2rem;max-width:420px;text-align:center;box-shadow:0 25px 60px rgba(0,0,0,0.5);animation:slideUp 0.3s ease;}
+                        .status-popup-icon{width:70px;height:70px;margin:0 auto 1.5rem;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;}
+                        .status-popup-title{color:#fff;font-family:'Rajdhani',sans-serif;font-size:1.4rem;margin:0 0 1rem;font-weight:700;}
+                        .status-popup-message{color:#94a3b8;font-size:0.95rem;line-height:1.6;margin:0 0 1rem;}
+                        .status-popup-note{color:#22c55e;font-size:0.85rem;margin:0 0 1.5rem;padding:0.75rem;background:rgba(34,197,94,0.1);border-radius:8px;border:1px solid rgba(34,197,94,0.2);}
+                        .status-popup-actions{display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;}
+                        .status-popup-btn{padding:0.75rem 1.5rem;background:linear-gradient(135deg,#6366f1,#8b5cf6);border:none;border-radius:10px;color:white;font-weight:600;cursor:pointer;font-size:0.9rem;transition:all 0.3s ease;text-decoration:none;display:inline-flex;align-items:center;gap:0.5rem;}
+                        .status-popup-btn:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(99,102,241,0.4);}
+                        .status-popup-btn-secondary{padding:0.75rem 1.5rem;background:rgba(0,229,255,0.1);border:1px solid rgba(0,229,255,0.3);border-radius:10px;color:#00E5FF;font-weight:600;cursor:pointer;font-size:0.9rem;transition:all 0.3s ease;text-decoration:none;display:inline-flex;align-items:center;gap:0.5rem;}
+                        .status-popup-btn-secondary:hover{background:rgba(0,229,255,0.2);color:#fff;}
+                        @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+                        @keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+                    </style>
+                `;
+                document.body.appendChild(popup);
+                
+                // Store restricted status in session storage
+                if (isRestricted) {
+                    sessionStorage.setItem('userRestricted', status);
+                } else {
+                    sessionStorage.removeItem('userRestricted');
+                }
+            }
+            
+            window.closeStatusPopup = function(isRestricted) {
+                const popup = document.getElementById('user-status-popup');
+                if (popup) popup.remove();
+                
+                // If user was activated, reload to refresh permissions
+                if (!isRestricted) {
+                    window.location.reload();
+                }
+            };
+            
+            // Check if user is restricted on page load
+            function checkUserRestriction() {
+                const restrictedStatus = sessionStorage.getItem('userRestricted');
+                if (restrictedStatus && ['suspended', 'banned', 'deleted'].includes(restrictedStatus)) {
+                    // Block form submissions and button clicks (except chat with admin)
+                    document.addEventListener('submit', function(e) {
+                        if (!isAllowedAction(e.target)) {
+                            blockRestrictedAction(e);
+                        }
+                    }, true);
+                    document.addEventListener('click', function(e) {
+                        const target = e.target.closest('button, a.btn, .btn-neon, input[type="submit"]');
+                        if (target && !target.closest('#user-status-popup') && !isAllowedAction(target)) {
+                            blockRestrictedAction(e);
+                        }
+                    }, true);
+                }
+            }
+            
+            // Check if action is allowed for restricted users
+            function isAllowedAction(element) {
+                // Always allow if on chat page
+                if (window.location.pathname.startsWith('/chat')) {
+                    return true;
+                }
+                
+                // Allow navigation to chat
+                const link = element.closest('a');
+                if (link) {
+                    const href = link.href || link.getAttribute('href') || '';
+                    if (href.includes('/chat')) {
+                        return true;
+                    }
+                }
+                
+                // Allow closing modals/popups
+                if (element.closest('.modal-close, .btn-close, [data-dismiss], [data-bs-dismiss]')) {
+                    return true;
+                }
+                
+                return false;
+            }
+            
+            function blockRestrictedAction(e) {
+                const restrictedStatus = sessionStorage.getItem('userRestricted');
+                if (!restrictedStatus) return;
+                
+                // Allow navigation links (not buttons styled as links)
+                if (e.target.tagName === 'A' && !e.target.classList.contains('btn') && !e.target.classList.contains('btn-neon')) return;
+                
+                // Check if this is an allowed action
+                if (isAllowedAction(e.target)) return;
+                
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const statusDisplay = restrictedStatus === 'suspended' ? 'Tạm khóa' : 
+                                     restrictedStatus === 'banned' ? 'Cấm vĩnh viễn' : 'Đã xóa';
+                const message = restrictedStatus === 'suspended' ? 
+                    'Tài khoản của bạn đang bị tạm khóa. Bạn không thể thực hiện thao tác này.' :
+                    'Tài khoản của bạn đã bị cấm. Bạn không thể thực hiện thao tác này.';
+                    
+                showUserStatusPopup(restrictedStatus, statusDisplay, message);
+            }
+            
+            checkUserRestriction();
             
             setupEchoNotifications();
             

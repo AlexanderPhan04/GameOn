@@ -180,9 +180,26 @@ class UserManagementController extends Controller
         }
         $validated = $request->validate([
             'status' => 'required|in:active,suspended,banned,deleted',
+            'suspended_from' => 'nullable|date',
+            'suspended_until' => 'nullable|date|after_or_equal:suspended_from',
         ]);
 
-        $user->update(['status' => $validated['status']]);
+        $updateData = ['status' => $validated['status']];
+        
+        // Handle suspend dates
+        if ($validated['status'] === 'suspended') {
+            $updateData['suspended_from'] = $validated['suspended_from'] ?? now();
+            $updateData['suspended_until'] = $validated['suspended_until'] ?? null;
+        } else {
+            // Clear suspend dates when status is not suspended
+            $updateData['suspended_from'] = null;
+            $updateData['suspended_until'] = null;
+        }
+
+        $user->update($updateData);
+
+        // Broadcast event to notify user in realtime
+        event(new \App\Events\UserStatusChanged($user));
 
         // Get status display name
         $statusNames = [
@@ -255,11 +272,17 @@ class UserManagementController extends Controller
             'delete' => 'deleted',
         };
 
-        $count = User::whereIn('id', $userIds)->update(['status' => $status]);
+        User::whereIn('id', $userIds)->update(['status' => $status]);
+
+        // Broadcast event to each affected user
+        $affectedUsers = User::whereIn('id', $userIds)->get();
+        foreach ($affectedUsers as $user) {
+            event(new \App\Events\UserStatusChanged($user));
+        }
 
         return response()->json([
             'success' => true,
-            'message' => "Đã cập nhật {$count} người dùng",
+            'message' => "Đã cập nhật " . count($userIds) . " người dùng",
         ]);
     }
 

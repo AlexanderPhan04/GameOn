@@ -41,6 +41,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'user_role',
         'status',
         'is_verified_gamer',
+        'suspended_from',
+        'suspended_until',
     ];
 
     /**
@@ -63,6 +65,8 @@ class User extends Authenticatable implements MustVerifyEmail
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'suspended_from' => 'datetime',
+            'suspended_until' => 'datetime',
         ];
     }
 

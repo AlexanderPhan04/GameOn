@@ -3,8 +3,48 @@
 @section('title', __('app.profile.manage_users'))
 
 @push('styles')
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
 <style>
     .users-container { background: #000814; min-height: 100vh; }
+
+    /* Flatpickr Custom Theme */
+    .flatpickr-calendar {
+        background: linear-gradient(145deg, #0d1b2a 0%, #000022 100%) !important;
+        border: 1px solid rgba(0, 229, 255, 0.3) !important;
+        border-radius: 12px !important;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5) !important;
+    }
+    .flatpickr-months { background: transparent !important; }
+    .flatpickr-month { color: #00E5FF !important; }
+    .flatpickr-current-month .flatpickr-monthDropdown-months,
+    .flatpickr-current-month input.cur-year { color: #00E5FF !important; font-weight: 600; }
+    .flatpickr-monthDropdown-months { background: #0d1b2a !important; }
+    .flatpickr-monthDropdown-months option { background: #0d1b2a !important; }
+    .flatpickr-weekdays { background: transparent !important; }
+    .flatpickr-weekday { color: #64748b !important; font-weight: 600; }
+    .flatpickr-days { background: transparent !important; }
+    .flatpickr-day { color: #e2e8f0 !important; border-radius: 8px !important; }
+    .flatpickr-day:hover { background: rgba(0, 229, 255, 0.2) !important; border-color: transparent !important; }
+    .flatpickr-day.selected, .flatpickr-day.selected:hover { 
+        background: linear-gradient(135deg, #00E5FF, #0099cc) !important; 
+        border-color: transparent !important; 
+        color: #000 !important;
+        font-weight: 600;
+    }
+    .flatpickr-day.today { border-color: #00E5FF !important; }
+    .flatpickr-day.prevMonthDay, .flatpickr-day.nextMonthDay { color: #475569 !important; }
+    .flatpickr-prev-month, .flatpickr-next-month { fill: #00E5FF !important; }
+    .flatpickr-prev-month:hover svg, .flatpickr-next-month:hover svg { fill: #FFFFFF !important; }
+    .flatpickr-time { border-top: 1px solid rgba(0, 229, 255, 0.2) !important; }
+    .flatpickr-time input { color: #e2e8f0 !important; background: transparent !important; }
+    .flatpickr-time input:hover, .flatpickr-time input:focus { background: rgba(0, 229, 255, 0.1) !important; }
+    .flatpickr-time .flatpickr-am-pm { color: #00E5FF !important; background: transparent !important; }
+    .flatpickr-time .flatpickr-am-pm:hover { background: rgba(0, 229, 255, 0.2) !important; }
+    .numInputWrapper span { border-color: rgba(0, 229, 255, 0.3) !important; }
+    .numInputWrapper span:hover { background: rgba(0, 229, 255, 0.2) !important; }
+    .numInputWrapper span.arrowUp:after { border-bottom-color: #00E5FF !important; }
+    .numInputWrapper span.arrowDown:after { border-top-color: #00E5FF !important; }
 
     /* Hero Section */
     .users-hero {
@@ -80,6 +120,7 @@
         color: #FFFFFF;
         font-size: 0.85rem;
         transition: all 0.3s ease;
+        box-sizing: border-box;
     }
     .filter-input:focus, .filter-select:focus {
         outline: none;
@@ -87,6 +128,8 @@
         box-shadow: 0 0 10px rgba(0, 229, 255, 0.2);
     }
     .filter-input::placeholder { color: #64748b; }
+    .filter-input[type="datetime-local"] { max-width: 100%; }
+    .filter-input[type="datetime-local"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
     .filter-select option { background: #0d1b2a; color: #FFFFFF; }
     .input-icon-wrapper { position: relative; }
     .input-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #64748b; font-size: 0.85rem; }
@@ -443,12 +486,29 @@
 
 <!-- Confirmation Modal -->
 <div class="modal-overlay" id="confirmModal">
-    <div class="modal-content-custom" style="max-width: 380px;">
+    <div class="modal-content-custom" style="max-width: 420px;">
         <div class="modal-header-custom">
             <h5 class="modal-title-custom" id="confirmModalTitle">{{ __('app.users.confirm_action') }}</h5>
             <button type="button" class="btn-action" onclick="closeConfirmModal()"><i class="fas fa-times"></i></button>
         </div>
-        <div class="modal-body-custom" id="confirmModalBody">{{ __('app.users.confirm_action_message') }}</div>
+        <div class="modal-body-custom">
+            <div id="confirmModalBody">{{ __('app.users.confirm_action_message') }}</div>
+            <!-- Suspend Date Range -->
+            <div id="suspendDateRange" style="display: none; margin-top: 1rem;">
+                <div style="margin-bottom: 1rem;">
+                    <label class="filter-label"><i class="fas fa-calendar-alt" style="margin-right: 6px;"></i>Ngày bắt đầu</label>
+                    <input type="text" class="filter-input" id="suspendStartDate" placeholder="Chọn ngày bắt đầu" readonly>
+                </div>
+                <div>
+                    <label class="filter-label"><i class="fas fa-calendar-check" style="margin-right: 6px;"></i>Ngày kết thúc</label>
+                    <input type="text" class="filter-input" id="suspendEndDate" placeholder="Chọn ngày kết thúc (tùy chọn)" readonly>
+                </div>
+                <div class="warning-box" style="margin-top: 1rem;">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Để trống ngày kết thúc nếu muốn suspend vô thời hạn</span>
+                </div>
+            </div>
+        </div>
         <div class="modal-footer-custom">
             <button type="button" class="btn-modal btn-modal-cancel" onclick="closeConfirmModal()">{{ __('app.common.cancel') }}</button>
             <button type="button" class="btn-modal btn-modal-danger" id="confirmActionBtn">{{ __('app.common.confirm') }}</button>
@@ -470,7 +530,11 @@
 @endsection
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vn.js"></script>
 <script>
+let startDatePicker, endDatePicker;
+
 document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('selectAll').addEventListener('change', function() {
         document.querySelectorAll('.user-checkbox').forEach(cb => cb.checked = this.checked);
@@ -479,6 +543,30 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.user-checkbox').forEach(cb => cb.addEventListener('change', updateBulkActionButton));
     document.querySelectorAll('.filter-select').forEach(select => {
         select.addEventListener('change', function() { document.getElementById('filterForm').submit(); });
+    });
+    
+    // Initialize Flatpickr
+    const flatpickrConfig = {
+        enableTime: true,
+        dateFormat: "d/m/Y H:i",
+        time_24hr: true,
+        locale: "vn",
+        allowInput: true,
+        disableMobile: true
+    };
+    
+    startDatePicker = flatpickr("#suspendStartDate", {
+        ...flatpickrConfig,
+        onChange: function(selectedDates) {
+            if (selectedDates[0] && endDatePicker) {
+                endDatePicker.set('minDate', selectedDates[0]);
+            }
+        }
+    });
+    
+    endDatePicker = flatpickr("#suspendEndDate", {
+        ...flatpickrConfig,
+        minDate: null
     });
 });
 
@@ -529,11 +617,29 @@ function changeStatus(userId, status) {
         'deleted': '{{ __("app.common.delete") }}'
     };
     document.getElementById('confirmModalBody').innerHTML = `Bạn có chắc chắn muốn <strong style="color: #00E5FF;">${statusText[status]}</strong> người dùng này?`;
+    
+    // Show/hide date range for suspend
+    const dateRangeDiv = document.getElementById('suspendDateRange');
+    if (status === 'suspended') {
+        dateRangeDiv.style.display = 'block';
+        // Set default start date to now using Flatpickr
+        if (startDatePicker) {
+            startDatePicker.setDate(new Date(), true);
+            endDatePicker.clear();
+            endDatePicker.set('minDate', new Date());
+        }
+    } else {
+        dateRangeDiv.style.display = 'none';
+    }
+    
     document.getElementById('confirmModal').classList.add('active');
 }
 
 function closeConfirmModal() {
     document.getElementById('confirmModal').classList.remove('active');
+    document.getElementById('suspendDateRange').style.display = 'none';
+    if (startDatePicker) startDatePicker.clear();
+    if (endDatePicker) endDatePicker.clear();
     pendingStatusChange = null;
 }
 
@@ -541,10 +647,20 @@ document.getElementById('confirmActionBtn').addEventListener('click', function()
     if (!pendingStatusChange) return;
     const { userId, status } = pendingStatusChange;
     
+    let bodyData = { status: status };
+    
+    // Add suspend dates if status is suspended
+    if (status === 'suspended') {
+        const startDate = startDatePicker ? startDatePicker.selectedDates[0] : null;
+        const endDate = endDatePicker ? endDatePicker.selectedDates[0] : null;
+        if (startDate) bodyData.suspended_from = startDate.toISOString();
+        if (endDate) bodyData.suspended_until = endDate.toISOString();
+    }
+    
     fetch(`{{ url('admin/users') }}/${userId}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-        body: JSON.stringify({ status: status })
+        body: JSON.stringify(bodyData)
     }).then(r => r.json()).then(data => {
         if (data.success) location.reload();
         else alert(data.message || 'Error');

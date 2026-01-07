@@ -3281,6 +3281,12 @@
                                     <span>{{ __('app.profile.personal_info') }}</span>
                                 </a>
                             </li>
+                            <li class="list-none">
+                                <a href="{{ route('profile.settings') }}" class="gameon-dropdown-item">
+                                    <i class="fas fa-cog"></i>
+                                    <span>{{ __('app.profile.account_settings') }}</span>
+                                </a>
+                            </li>
                             
                             <!-- Admin Section -->
                             @if(Auth::user()->user_role === 'admin' || Auth::user()->user_role === 'super_admin')
@@ -3497,9 +3503,15 @@
                     </a>
                     @endif
                     @if(Route::has('profile.show'))
-                    <a href="{{ route('profile.show') }}" class="mobile-menu-item {{ Request::is('profile*') ? 'active' : '' }}">
+                    <a href="{{ route('profile.show') }}" class="mobile-menu-item {{ Request::is('profile') ? 'active' : '' }}">
                         <i class="fas fa-id-card"></i>
                         <span>{{ __('app.profile.personal_info') }}</span>
+                    </a>
+                    @endif
+                    @if(Route::has('profile.settings'))
+                    <a href="{{ route('profile.settings') }}" class="mobile-menu-item {{ Request::is('profile/settings*') ? 'active' : '' }}">
+                        <i class="fas fa-cog"></i>
+                        <span>{{ __('app.profile.account_settings') }}</span>
                     </a>
                     @endif
                 </nav>

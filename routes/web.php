@@ -113,6 +113,7 @@ Route::middleware(['auth.session'])->group(function () {
 // Profile routes - outside middleware to ensure routes are always available
 Route::middleware(['auth.session', 'track.login'])->prefix('profile')->name('profile.')->group(function () {
     Route::get('/', [ProfileController::class, 'show'])->name('show');
+    Route::get('/settings', [ProfileController::class, 'settings'])->name('settings');
     Route::get('/edit', [ProfileController::class, 'edit'])->name('edit');
     Route::put('/update', [ProfileController::class, 'update'])->name('update');
     Route::get('/change-password', [ProfileController::class, 'changePassword'])->name('change-password');

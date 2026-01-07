@@ -450,7 +450,7 @@
                         <p class="hero-subtitle">Cập nhật thông tin cá nhân của bạn</p>
                     </div>
                 </div>
-                <a href="{{ route('profile.show', auth()->user()) }}" class="btn-neon">
+                <a href="{{ route('profile.show') }}" class="btn-neon">
                     <i class="fa-solid fa-arrow-left"></i>
                     Quay lại
                 </a>
@@ -477,7 +477,7 @@
                 <div class="form-card-body">
                     <div class="avatar-upload">
                         <div class="avatar-preview">
-                            <img src="{{ auth()->user()->getDisplayAvatar() }}" alt="Avatar" id="avatar-preview-img">
+                            <img src="{{ $user->getDisplayAvatar() }}" alt="Avatar" id="avatar-preview-img">
                         </div>
                         <div>
                             <button type="button" class="avatar-upload-btn" id="open-avatar-modal">
@@ -513,7 +513,7 @@
                         <button type="button" class="avatar-tab active" data-tab="upload">
                             <i class="fa-solid fa-upload"></i> Tải lên
                         </button>
-                        @if(auth()->user()->profile?->google_avatar)
+                        @if($user->profile?->google_avatar)
                         <button type="button" class="avatar-tab" data-tab="social">
                             <i class="fab fa-google"></i> Mạng xã hội
                         </button>
@@ -543,11 +543,11 @@
                     </div>
 
                     <!-- Tab Content: Social Media -->
-                    @if(auth()->user()->profile?->google_avatar)
+                    @if($user->profile?->google_avatar)
                     <div class="avatar-tab-content" id="tab-social">
                         <div class="social-avatars">
                             <div class="social-avatar-option" data-type="google">
-                                <img src="{{ auth()->user()->profile->google_avatar }}" alt="Google Avatar">
+                                <img src="{{ $user->profile->google_avatar }}" alt="Google Avatar">
                                 <div class="social-label">
                                     <i class="fab fa-google"></i> Google
                                 </div>
@@ -588,27 +588,27 @@
                     <div class="form-grid">
                         <div class="form-group">
                             <label class="form-label">Tên hiển thị *</label>
-                            <input type="text" name="name" class="form-input" value="{{ old('name', auth()->user()->name) }}" required>
+                            <input type="text" name="name" class="form-input" value="{{ old('name', $user->name) }}" required>
                             @error('name')
                                 <p class="text-red-400 text-sm mt-1">{{ $message }}</p>
                             @enderror
                         </div>
                         <div class="form-group">
                             <label class="form-label">ID App</label>
-                            <input type="text" class="form-input" value="{{ auth()->user()->profile?->id_app ?? 'Chưa có' }}" readonly style="opacity: 0.7; cursor: not-allowed;">
+                            <input type="text" class="form-input" value="{{ $user->profile?->id_app ?? 'Chưa có' }}" readonly style="opacity: 0.7; cursor: not-allowed;">
                             <p class="text-xs text-gray-500 mt-1">Mã định danh hệ thống, không thể thay đổi</p>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Email *</label>
-                        <input type="email" name="email" class="form-input" value="{{ old('email', auth()->user()->email) }}" required>
+                        <input type="email" name="email" class="form-input" value="{{ old('email', $user->email) }}" required>
                         @error('email')
                             <p class="text-red-400 text-sm mt-1">{{ $message }}</p>
                         @enderror
                     </div>
                     <div class="form-group">
                         <label class="form-label">Giới thiệu bản thân</label>
-                        <textarea name="bio" class="form-input form-textarea" placeholder="Viết vài dòng về bản thân...">{{ old('bio', auth()->user()->profile->bio ?? '') }}</textarea>
+                        <textarea name="bio" class="form-input form-textarea" placeholder="Viết vài dòng về bản thân...">{{ old('bio', $user->profile->bio ?? '') }}</textarea>
                         @error('bio')
                             <p class="text-red-400 text-sm mt-1">{{ $message }}</p>
                         @enderror
@@ -630,7 +630,7 @@
                                 @foreach($games as $game)
                                 <option value="{{ $game->name }}" 
                                     data-image="{{ $game->logo_url }}"
-                                    {{ old('favorite_game', auth()->user()->favorite_game) == $game->name ? 'selected' : '' }}>
+                                    {{ old('favorite_game', $user->favorite_game) == $game->name ? 'selected' : '' }}>
                                     {{ $game->name }}
                                 </option>
                                 @endforeach
@@ -638,12 +638,12 @@
                         </div>
                         <div class="form-group">
                             <label class="form-label">Rank hiện tại</label>
-                            <input type="text" name="current_rank" class="form-input" value="{{ old('current_rank', auth()->user()->current_rank) }}" placeholder="VD: Diamond, Master...">
+                            <input type="text" name="current_rank" class="form-input" value="{{ old('current_rank', $user->current_rank) }}" placeholder="VD: Diamond, Master...">
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Team/Clan</label>
-                        <input type="text" name="team" class="form-input" value="{{ old('team', auth()->user()->team) }}" placeholder="Tên team hoặc clan của bạn">
+                        <input type="text" name="team" class="form-input" value="{{ old('team', $user->team) }}" placeholder="Tên team hoặc clan của bạn">
                     </div>
                 </div>
             </div>
@@ -658,8 +658,8 @@
                         <label class="form-label">Google</label>
                         <div class="social-input-group">
                             <div class="social-icon"><i class="fa-brands fa-google"></i></div>
-                            @if(auth()->user()->google_id)
-                                <input type="text" class="form-input" value="{{ auth()->user()->google_email ?? auth()->user()->email }}" readonly style="opacity: 0.7; cursor: not-allowed;">
+                            @if($user->google_id)
+                                <input type="text" class="form-input" value="{{ $user->google_email ?? $user->email }}" readonly style="opacity: 0.7; cursor: not-allowed;">
                                 <span style="color: #10b981; font-size: 0.85rem; display: flex; align-items: center; gap: 0.3rem; margin-left: 0.75rem;">
                                     <i class="fa-solid fa-check-circle"></i> Đã liên kết
                                 </span>
@@ -674,42 +674,12 @@
                 </div>
             </div>
 
-            <div class="form-card">
-                <div class="form-card-header">
-                    <i class="fa-solid fa-lock"></i>
-                    <h3>Đổi mật khẩu</h3>
-                </div>
-                <div class="form-card-body">
-                    <p class="text-sm text-gray-400 mb-4">Để trống nếu không muốn thay đổi mật khẩu</p>
-                    <div class="form-group">
-                        <label class="form-label">Mật khẩu hiện tại</label>
-                        <input type="password" name="current_password" class="form-input" placeholder="••••••••">
-                        @error('current_password')
-                            <p class="text-red-400 text-sm mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label class="form-label">Mật khẩu mới</label>
-                            <input type="password" name="password" class="form-input" placeholder="••••••••">
-                            @error('password')
-                                <p class="text-red-400 text-sm mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Xác nhận mật khẩu mới</label>
-                            <input type="password" name="password_confirmation" class="form-input" placeholder="••••••••">
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <div class="flex items-center justify-between">
                 <button type="submit" class="btn-neon btn-neon-primary">
                     <i class="fa-solid fa-floppy-disk"></i>
                     Lưu thay đổi
                 </button>
-                <a href="{{ route('profile.show', auth()->user()) }}" class="btn-neon">
+                <a href="{{ route('profile.show') }}" class="btn-neon">
                     <i class="fa-solid fa-xmark"></i>
                     Hủy bỏ
                 </a>
@@ -823,16 +793,22 @@
         });
     });
 
-    // System Avatar Selection
-    document.querySelectorAll('.system-avatar-option').forEach(option => {
-        option.addEventListener('click', function() {
+    // System Avatar Selection - Use event delegation for dynamic elements
+    document.getElementById('tab-system').addEventListener('click', function(e) {
+        const option = e.target.closest('.system-avatar-option');
+        if (option) {
             document.querySelectorAll('.social-avatar-option, .system-avatar-option').forEach(el => el.classList.remove('selected'));
-            this.classList.add('selected');
-            selectedType = 'system';
-            selectedSystemAvatar = this.dataset.avatar;
+            option.classList.add('selected');
             selectedFile = null;
-            removeUploadPreview();
-        });
+            // Clear upload preview without resetting selectedType
+            document.getElementById('upload-zone').style.display = 'block';
+            document.getElementById('upload-preview').style.display = 'none';
+            modalFileInput.value = '';
+            // Set these AFTER clearing
+            selectedType = 'system';
+            selectedSystemAvatar = option.dataset.avatar;
+            console.log('System avatar clicked:', selectedSystemAvatar, 'selectedType:', selectedType);
+        }
     });
 
     // Confirm Selection
@@ -841,6 +817,10 @@
         const avatarInput = document.getElementById('avatar-input');
         const resetGoogleInput = document.getElementById('reset-google-avatar');
         const systemAvatarInput = document.getElementById('system-avatar-input');
+        
+        console.log('confirmAvatarSelection called');
+        console.log('selectedType:', selectedType);
+        console.log('selectedSystemAvatar:', selectedSystemAvatar);
         
         // Clear all inputs first
         resetGoogleInput.value = '';
@@ -868,6 +848,7 @@
             
         } else if (selectedType === 'system' && selectedSystemAvatar) {
             systemAvatarInput.value = selectedSystemAvatar;
+            console.log('System avatar set to:', systemAvatarInput.value);
             const systemImg = document.querySelector('.system-avatar-option.selected img');
             if (systemImg) {
                 avatarPreview.src = systemImg.src;
@@ -875,6 +856,11 @@
         }
         
         closeAvatarModal();
+        
+        // Verify value after modal close
+        setTimeout(() => {
+            console.log('After close - system_avatar value:', document.getElementById('system-avatar-input').value);
+        }, 100);
     }
 </script>
 @endpush

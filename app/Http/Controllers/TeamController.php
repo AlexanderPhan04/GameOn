@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\TeamMemberChanged;
+use App\Events\TeamMessageSent;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -55,7 +57,7 @@ class TeamController extends Controller
             'description' => 'nullable|string|max:1000',
             'game_id' => 'nullable|exists:games,id',
             'max_members' => 'nullable|integer|min:2|max:20',
-            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
         ]);
 
         $logoUrl = null;
@@ -90,7 +92,7 @@ class TeamController extends Controller
      */
     public function show(Team $team)
     {
-        $team->load(['captain', 'members.user', 'creator']);
+        $team->load(['captain', 'members', 'creator', 'game']);
 
         return view('teams.show', compact('team'));
     }
@@ -115,7 +117,7 @@ class TeamController extends Controller
         $request->validate([
             'name' => 'required|string|max:255|unique:teams,name,' . $team->id,
             'description' => 'nullable|string|max:1000',
-            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
         ]);
 
         $logoUrl = $team->logo_url;
@@ -292,5 +294,180 @@ class TeamController extends Controller
         ]);
 
         return back()->with('success', "Đã mời {$user->name} vào đội thành công!");
+    }
+
+    /**
+     * Search users to add to team
+     */
+    public function searchUsers(Request $request, Team $team)
+    {
+        $this->authorize('update', $team);
+
+        $query = $request->get('q', '');
+
+        if (strlen($query) < 2) {
+            return response()->json(['users' => []]);
+        }
+
+        // Get existing member IDs
+        $existingMemberIds = $team->members->pluck('id')->toArray();
+
+        $users = User::where('user_role', 'participant')
+            ->where('status', 'active')
+            ->whereNotIn('id', $existingMemberIds)
+            ->where(function ($q) use ($query) {
+                $q->where('name', 'like', "%{$query}%")
+                    ->orWhere('email', 'like', "%{$query}%");
+            })
+            ->limit(10)
+            ->get()
+            ->map(function ($user) {
+                return [
+                    'id' => $user->id,
+                    'name' => $user->display_name,
+                    'email' => $user->email,
+                    'avatar' => $user->avatar ? get_avatar_url($user->avatar) : null,
+                ];
+            });
+
+        return response()->json(['users' => $users]);
+    }
+
+    /**
+     * Add member to team
+     */
+    public function addMember(Request $request, Team $team)
+    {
+        $this->authorize('update', $team);
+
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+        ]);
+
+        $user = User::findOrFail($request->user_id);
+
+        // Check if already a member
+        if ($team->members->contains($user->id)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Người dùng đã là thành viên của đội',
+            ]);
+        }
+
+        // Check max members
+        if ($team->members->count() >= ($team->max_members ?? 10)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Đội đã đủ số lượng thành viên tối đa',
+            ]);
+        }
+
+        $team->members()->attach($user->id, [
+            'role' => 'member',
+            'status' => 'active',
+            'joined_at' => now(),
+        ]);
+
+        // Broadcast member added event
+        event(new TeamMemberChanged($team, $user, 'added'));
+
+        return response()->json([
+            'success' => true,
+            'message' => "Đã thêm {$user->display_name} vào đội",
+        ]);
+    }
+
+    /**
+     * Remove member from team
+     */
+    public function removeMember(Request $request, Team $team)
+    {
+        $this->authorize('update', $team);
+
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+        ]);
+
+        $userId = $request->user_id;
+
+        // Cannot remove captain
+        if ($userId == $team->captain_id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Không thể xóa đội trưởng khỏi đội',
+            ]);
+        }
+
+        $user = User::findOrFail($userId);
+        $team->members()->detach($userId);
+
+        // Broadcast member removed event
+        event(new TeamMemberChanged($team, $user, 'removed'));
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Đã xóa thành viên khỏi đội',
+        ]);
+    }
+
+    /**
+     * Get team chat messages
+     */
+    public function getMessages(Team $team)
+    {
+        // Check if user is a member
+        if (!$team->members->contains(Auth::id())) {
+            return response()->json(['messages' => []]);
+        }
+
+        $messages = \App\Models\TeamMessage::where('team_id', $team->id)
+            ->with('user')
+            ->orderBy('created_at', 'asc')
+            ->limit(50)
+            ->get()
+            ->map(function ($msg) {
+                return [
+                    'id' => $msg->id,
+                    'message' => $msg->message,
+                    'time' => $msg->created_at->format('H:i'),
+                    'user' => [
+                        'id' => $msg->user->id,
+                        'name' => $msg->user->display_name,
+                        'avatar' => $msg->user->avatar ? get_avatar_url($msg->user->avatar) : null,
+                    ],
+                ];
+            });
+
+        return response()->json(['messages' => $messages]);
+    }
+
+    /**
+     * Send chat message
+     */
+    public function sendMessage(Request $request, Team $team)
+    {
+        // Check if user is a member
+        if (!$team->members->contains(Auth::id())) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Bạn không phải là thành viên của đội',
+            ]);
+        }
+
+        $request->validate([
+            'message' => 'required|string|max:500',
+        ]);
+
+        $message = \App\Models\TeamMessage::create([
+            'team_id' => $team->id,
+            'user_id' => Auth::id(),
+            'message' => $request->message,
+        ]);
+
+        // Load user relationship and broadcast
+        $message->load('user');
+        event(new TeamMessageSent($message));
+
+        return response()->json(['success' => true]);
     }
 }

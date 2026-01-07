@@ -75,6 +75,9 @@ class UserManagementController extends Controller
             }
         }
 
+        // Load relationships
+        $user->load(['profile', 'activity']);
+
         // If request asks for partial (offcanvas) or is AJAX, return fragment only
         if (request()->ajax() || request()->boolean('partial')) {
             return view('admin.users.partials.detail', compact('user'));

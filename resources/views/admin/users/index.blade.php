@@ -493,7 +493,11 @@ function viewUser(id) {
     document.getElementById('userDetailsOffcanvas').classList.add('active');
     document.getElementById('userDetailsContent').innerHTML = '<div style="text-align: center; padding: 2rem;"><i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #00E5FF;"></i><p style="margin-top: 1rem; color: #94a3b8;">Đang tải...</p></div>';
     
-    fetch(`{{ url('admin/users') }}/${id}`)
+    fetch(`{{ url('admin/users') }}/${id}?partial=1`, {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
         .then(r => r.text())
         .then(html => {
             const parser = new DOMParser();

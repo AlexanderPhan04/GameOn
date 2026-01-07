@@ -34,8 +34,9 @@ class ProfileController extends Controller
     public function edit()
     {
         $user = Auth::user();
+        $games = \App\Models\Game::active()->orderBy('name')->get();
 
-        return view('profile.edit', compact('user'));
+        return view('profile.edit', compact('user', 'games'));
     }
 
     public function update(Request $request)

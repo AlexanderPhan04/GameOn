@@ -625,7 +625,16 @@
                     <div class="form-grid">
                         <div class="form-group">
                             <label class="form-label">Game yêu thích</label>
-                            <input type="text" name="favorite_game" class="form-input" value="{{ old('favorite_game', auth()->user()->favorite_game) }}" placeholder="VD: Valorant, LMHT...">
+                            <select name="favorite_game" class="form-input game-select" id="game-select">
+                                <option value="">-- Chọn game --</option>
+                                @foreach($games as $game)
+                                <option value="{{ $game->name }}" 
+                                    data-image="{{ $game->logo_url }}"
+                                    {{ old('favorite_game', auth()->user()->favorite_game) == $game->name ? 'selected' : '' }}>
+                                    {{ $game->name }}
+                                </option>
+                                @endforeach
+                            </select>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Rank hiện tại</label>

@@ -40,7 +40,7 @@ class ProfileController extends Controller
 
     public function update(Request $request)
     {
-        $user = User::find(Auth::id());
+        $user = User::with('profile')->find(Auth::id());
         $authUser = User::find(Auth::id()); // Ensure we get User model instance
 
         $validationRules = [
@@ -67,9 +67,10 @@ class ProfileController extends Controller
 
         $request->validate($validationRules);
 
-        $data = $request->only([
+        // Separate user data and profile data
+        $userData = $request->only(['email']);
+        $profileData = $request->only([
             'full_name',
-            'email',
             'bio',
             'date_of_birth',
             'phone',
@@ -87,25 +88,62 @@ class ProfileController extends Controller
                     ])->withInput();
                 }
 
-                $data['user_role'] = $request->user_role;
+                $userData['user_role'] = $request->user_role;
             }
         }
 
-        // Handle avatar upload
-        if ($request->hasFile('avatar')) {
-            // Delete old avatar if exists
-            if ($user->avatar) {
-                Storage::disk('public')->delete($user->avatar);
+        // Handle reset to Google avatar
+        if ($request->has('reset_to_google_avatar') && $request->reset_to_google_avatar) {
+            $googleAvatar = $user->profile?->google_avatar;
+            if ($googleAvatar) {
+                $currentAvatar = $user->profile?->avatar;
+                
+                // Delete old local avatar if exists
+                if ($currentAvatar && !filter_var($currentAvatar, FILTER_VALIDATE_URL) && !str_starts_with($currentAvatar, 'system/')) {
+                    Storage::disk('public')->delete($currentAvatar);
+                }
+                
+                $profileData['avatar'] = $googleAvatar;
+            }
+        }
+        // Handle system avatar selection
+        elseif ($request->has('system_avatar') && $request->system_avatar) {
+            $currentAvatar = $user->profile?->avatar;
+            
+            // Delete old local avatar if exists (but not system avatars)
+            if ($currentAvatar && !filter_var($currentAvatar, FILTER_VALIDATE_URL) && !str_starts_with($currentAvatar, 'system/')) {
+                Storage::disk('public')->delete($currentAvatar);
+            }
+            
+            // Store system avatar path (e.g., "system/avatar_1.png")
+            $profileData['avatar'] = $request->system_avatar;
+        }
+        // Handle avatar upload - save to user_profiles table
+        elseif ($request->hasFile('avatar')) {
+            $currentAvatar = $user->profile?->avatar;
+            
+            // Delete old avatar if exists and is a local file (not a URL or system avatar)
+            if ($currentAvatar && !filter_var($currentAvatar, FILTER_VALIDATE_URL) && !str_starts_with($currentAvatar, 'system/')) {
+                Storage::disk('public')->delete($currentAvatar);
             }
 
             $avatarPath = $request->file('avatar')->store('avatars', 'public');
-            $data['avatar'] = $avatarPath;
+            $profileData['avatar'] = $avatarPath;
         }
 
-        $user->update($data);
+        // Update user table (email, user_role)
+        $user->update($userData);
+
+        // Update or create user_profiles table (full_name, bio, avatar, etc.)
+        if ($user->profile) {
+            $user->profile->update($profileData);
+        } else {
+            $profileData['user_id'] = $user->id;
+            \App\Models\UserProfile::create($profileData);
+        }
 
         $message = 'Thông tin cá nhân đã được cập nhật thành công!';
-        if (isset($data['user_role']) && $data['user_role'] !== $user->getOriginal('user_role')) {
+        if (isset($userData['user_role']) && $userData['user_role'] !== $user->getOriginal('user_role')) {
             $message .= ' Vai trò đã được thay đổi.';
         }
 

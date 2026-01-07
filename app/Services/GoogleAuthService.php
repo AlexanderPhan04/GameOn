@@ -124,6 +124,7 @@ class GoogleAuthService
                 'user_id' => $user->id,
                 'full_name' => $googleName,
                 'avatar' => $googleAvatar,
+                'google_avatar' => $googleAvatar, // Store original Google avatar for reset
                 'id_app' => $idApp,
             ]);
 
@@ -182,12 +183,20 @@ class GoogleAuthService
         }
 
         $currentAvatar = $user->profile->avatar;
+        $updateData = [];
         
-        // Only update if user has no avatar or current is a URL (Google avatar)
+        // Always update google_avatar to keep it fresh
+        if ($user->profile->google_avatar !== $googleAvatar) {
+            $updateData['google_avatar'] = $googleAvatar;
+        }
+        
+        // Only update avatar if user has no avatar or current is a URL (Google avatar)
         if (!$currentAvatar || filter_var($currentAvatar, FILTER_VALIDATE_URL)) {
-            $user->profile->update([
-                'avatar' => $googleAvatar,
-            ]);
+            $updateData['avatar'] = $googleAvatar;
+        }
+
+        if (!empty($updateData)) {
+            $user->profile->update($updateData);
 
             Log::info('Google avatar synced for user', [
                 'user_id' => $user->id,

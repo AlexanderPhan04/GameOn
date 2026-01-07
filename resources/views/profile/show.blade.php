@@ -128,7 +128,6 @@
     }
     .icon-cyan { background: linear-gradient(135deg, #06b6d4, #0891b2); }
     .icon-purple { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
-    .icon-green { background: linear-gradient(135deg, #22c55e, #16a34a); }
     .card-title { font-family: 'Rajdhani', sans-serif; font-size: 1.15rem; font-weight: 700; color: #FFFFFF; margin: 0; }
     .card-subtitle { color: #64748b; font-size: 0.85rem; margin: 0.25rem 0 0 0; }
     .profile-card-body { padding: 1.5rem; }
@@ -147,25 +146,6 @@
     .bio-header i { color: #8b5cf6; }
     .bio-header h4 { color: #FFFFFF; font-size: 1rem; font-weight: 600; margin: 0; }
     .bio-content { color: #94a3b8; font-size: 0.9rem; line-height: 1.6; background: rgba(0, 0, 0, 0.2); padding: 1rem; border-radius: 10px; border-left: 3px solid #8b5cf6; }
-
-    /* Settings Menu */
-    .settings-menu { display: flex; flex-direction: column; gap: 0.5rem; }
-    .setting-item {
-        display: flex; align-items: center; gap: 1rem;
-        padding: 1rem 1.25rem;
-        background: rgba(0, 0, 0, 0.2);
-        border: 1px solid rgba(0, 229, 255, 0.05);
-        border-radius: 12px;
-        text-decoration: none;
-        transition: all 0.3s ease;
-        cursor: pointer;
-    }
-    .setting-item:hover { background: rgba(0, 229, 255, 0.05); border-color: rgba(0, 229, 255, 0.2); transform: translateX(5px); }
-    .setting-icon { width: 40px; height: 40px; border-radius: 10px; background: rgba(0, 229, 255, 0.1); display: flex; align-items: center; justify-content: center; color: #00E5FF; }
-    .setting-content { flex: 1; }
-    .setting-title { color: #FFFFFF; font-weight: 600; font-size: 0.95rem; }
-    .setting-description { color: #64748b; font-size: 0.8rem; margin-top: 0.2rem; }
-    .setting-item > i.fa-chevron-right { color: #64748b; }
 
     /* Team Item */
     .team-item {
@@ -364,54 +344,6 @@
         </div>
         @endif
 
-        <!-- Account Settings Card -->
-        <div class="profile-card">
-            <div class="profile-card-header">
-                <div class="card-header-left">
-                    <div class="card-icon icon-green"><i class="fas fa-cog"></i></div>
-                    <div>
-                        <h3 class="card-title">{{ __('app.profile.account_settings') }}</h3>
-                        <p class="card-subtitle">{{ __('app.profile.account_settings_description') }}</p>
-                    </div>
-                </div>
-            </div>
-            <div class="profile-card-body">
-                <div class="settings-menu">
-                    <a href="{{ route('profile.edit') }}" class="setting-item">
-                        <div class="setting-icon"><i class="fas fa-edit"></i></div>
-                        <div class="setting-content">
-                            <div class="setting-title">{{ __('app.common.edit') }} {{ __('app.profile.personal_info') }}</div>
-                            <div class="setting-description">{{ __('app.profile.update_personal_info') }}</div>
-                        </div>
-                        <i class="fas fa-chevron-right"></i>
-                    </a>
-                    <a href="{{ route('profile.change-password') }}" class="setting-item">
-                        <div class="setting-icon"><i class="fas fa-key"></i></div>
-                        <div class="setting-content">
-                            <div class="setting-title">{{ __('app.profile.change_password') }}</div>
-                            <div class="setting-description">{{ __('app.profile.update_password_security') }}</div>
-                        </div>
-                        <i class="fas fa-chevron-right"></i>
-                    </a>
-                    <div class="setting-item">
-                        <div class="setting-icon"><i class="fas fa-shield-alt"></i></div>
-                        <div class="setting-content">
-                            <div class="setting-title">{{ __('app.profile.security') }}</div>
-                            <div class="setting-description">{{ __('app.profile.two_factor_auth') }}</div>
-                        </div>
-                        <i class="fas fa-chevron-right"></i>
-                    </div>
-                    <div class="setting-item">
-                        <div class="setting-icon"><i class="fas fa-bell"></i></div>
-                        <div class="setting-content">
-                            <div class="setting-title">{{ __('app.profile.notifications') }}</div>
-                            <div class="setting-description">{{ __('app.profile.notification_settings') }}</div>
-                        </div>
-                        <i class="fas fa-chevron-right"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 </div>
 @endsection

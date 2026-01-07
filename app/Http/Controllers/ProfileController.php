@@ -13,7 +13,7 @@ class ProfileController extends Controller
 {
     public function show()
     {
-        $user = User::with(['teams' => function ($query) {
+        $user = User::with(['profile', 'teams' => function ($query) {
             $query->withPivot(['role', 'status', 'joined_at'])
                 ->where('team_members.status', 'active');
         }])->find(Auth::id());
@@ -21,19 +21,29 @@ class ProfileController extends Controller
         return view('profile.show', compact('user'));
     }
 
-    public function showUser($id)
+    public function settings()
+    {
+        $user = User::with(['profile', 'teams' => function ($query) {
+            $query->withPivot(['role', 'status', 'joined_at'])
+                ->where('team_members.status', 'active');
+        }])->find(Auth::id());
+
+        return view('profile.settings', compact('user'));
+    }
+
+    public function showUser($appId)
     {
         $user = User::with(['teams' => function ($query) {
             $query->withPivot(['role', 'status', 'joined_at'])
                 ->where('team_members.status', 'active');
-        }])->findOrFail($id);
+        }])->where('app_id', $appId)->firstOrFail();
 
         return view('profile.show-user', compact('user'));
     }
 
     public function edit()
     {
-        $user = Auth::user();
+        $user = User::with('profile')->find(Auth::id());
         $games = \App\Models\Game::active()->orderBy('name')->get();
 
         return view('profile.edit', compact('user', 'games'));
@@ -44,8 +54,17 @@ class ProfileController extends Controller
         $user = User::with('profile')->find(Auth::id());
         $authUser = User::find(Auth::id()); // Ensure we get User model instance
 
+        // Debug: Log request data
+        \Log::info('Profile Update Request', [
+            'system_avatar' => $request->system_avatar,
+            'has_system_avatar' => $request->has('system_avatar'),
+            'reset_to_google_avatar' => $request->reset_to_google_avatar,
+            'has_file_avatar' => $request->hasFile('avatar'),
+            'all_input' => $request->except(['_token', '_method', 'password', 'password_confirmation', 'current_password']),
+        ]);
+
         $validationRules = [
-            'full_name' => 'required|string|max:255',
+            'name' => 'required|string|max:255',
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
             'bio' => 'nullable|string|max:500',
             'date_of_birth' => 'nullable|date|before:today',
@@ -71,12 +90,16 @@ class ProfileController extends Controller
         // Separate user data and profile data
         $userData = $request->only(['email']);
         $profileData = $request->only([
-            'full_name',
             'bio',
             'date_of_birth',
             'phone',
             'country',
         ]);
+        
+        // Map 'name' to 'full_name' for profile
+        if ($request->has('name')) {
+            $profileData['full_name'] = $request->name;
+        }
 
         // Handle user_role update (only for admins and with restrictions)
         if ($authUser->isAdmin() && $request->has('user_role')) {

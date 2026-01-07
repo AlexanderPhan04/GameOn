@@ -2,7 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\TeamInvitationSent;
+use App\Events\TeamMemberChanged;
+use App\Events\TeamMessageSent;
 use App\Models\Team;
+use App\Models\TeamInvitation;
 use App\Models\User;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
@@ -18,10 +22,23 @@ class TeamController extends Controller
      */
     public function index()
     {
-        // Get teams where user is captain
-        $teamsAsCaptain = Team::with(['captain', 'members', 'game'])
-            ->where('captain_id', Auth::id())
+        // Get teams where user is member
+        $myTeams = Team::with(['captain', 'members', 'game'])
+            ->whereHas('members', function ($query) {
+                $query->where('user_id', Auth::id());
+            })
             ->where('status', 'active')
+            ->get();
+
+        // Get pending invitations for current user
+        $pendingInvitations = TeamInvitation::with(['team.captain', 'team.game', 'inviter'])
+            ->where('user_id', Auth::id())
+            ->where('status', 'pending')
+            ->where(function ($query) {
+                $query->whereNull('expires_at')
+                    ->orWhere('expires_at', '>', now());
+            })
+            ->orderBy('created_at', 'desc')
             ->get();
 
         // Get all teams for display
@@ -29,10 +46,9 @@ class TeamController extends Controller
             ->where('status', 'active')
             ->paginate(12);
 
-        // Merge teams as captain and all teams for pagination compatibility
         $teams = $allTeams;
 
-        return view('teams.index', compact('teams'));
+        return view('teams.index', compact('teams', 'myTeams', 'pendingInvitations'));
     }
 
     /**
@@ -55,7 +71,7 @@ class TeamController extends Controller
             'description' => 'nullable|string|max:1000',
             'game_id' => 'nullable|exists:games,id',
             'max_members' => 'nullable|integer|min:2|max:20',
-            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
         ]);
 
         $logoUrl = null;
@@ -90,7 +106,7 @@ class TeamController extends Controller
      */
     public function show(Team $team)
     {
-        $team->load(['captain', 'members.user', 'creator']);
+        $team->load(['captain', 'members', 'creator', 'game']);
 
         return view('teams.show', compact('team'));
     }
@@ -115,7 +131,7 @@ class TeamController extends Controller
         $request->validate([
             'name' => 'required|string|max:255|unique:teams,name,' . $team->id,
             'description' => 'nullable|string|max:1000',
-            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
         ]);
 
         $logoUrl = $team->logo_url;
@@ -292,5 +308,296 @@ class TeamController extends Controller
         ]);
 
         return back()->with('success', "Đã mời {$user->name} vào đội thành công!");
+    }
+
+    /**
+     * Search users to add to team
+     */
+    public function searchUsers(Request $request, Team $team)
+    {
+        $this->authorize('update', $team);
+
+        $query = $request->get('q', '');
+
+        if (strlen($query) < 2) {
+            return response()->json(['users' => []]);
+        }
+
+        // Get existing member IDs
+        $existingMemberIds = $team->members->pluck('id')->toArray();
+
+        $users = User::where('user_role', 'participant')
+            ->where('status', 'active')
+            ->whereNotIn('id', $existingMemberIds)
+            ->where(function ($q) use ($query) {
+                $q->where('name', 'like', "%{$query}%")
+                    ->orWhere('email', 'like', "%{$query}%");
+            })
+            ->limit(10)
+            ->get()
+            ->map(function ($user) {
+                return [
+                    'id' => $user->id,
+                    'name' => $user->display_name,
+                    'email' => $user->email,
+                    'avatar' => $user->avatar ? get_avatar_url($user->avatar) : null,
+                ];
+            });
+
+        return response()->json(['users' => $users]);
+    }
+
+    /**
+     * Send invitation to join team (instead of adding directly)
+     */
+    public function addMember(Request $request, Team $team)
+    {
+        $this->authorize('update', $team);
+
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+        ]);
+
+        $user = User::findOrFail($request->user_id);
+
+        // Check if already a member
+        if ($team->members->contains($user->id)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Người dùng đã là thành viên của đội',
+            ]);
+        }
+
+        // Check if already has pending invitation
+        $existingInvitation = TeamInvitation::where('team_id', $team->id)
+            ->where('user_id', $user->id)
+            ->where('status', 'pending')
+            ->first();
+
+        if ($existingInvitation) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Đã gửi lời mời cho người dùng này rồi',
+            ]);
+        }
+
+        // Check max members
+        if ($team->members->count() >= ($team->max_members ?? 10)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Đội đã đủ số lượng thành viên tối đa',
+            ]);
+        }
+
+        // Create invitation
+        $invitation = TeamInvitation::create([
+            'team_id' => $team->id,
+            'user_id' => $user->id,
+            'invited_by' => Auth::id(),
+            'status' => 'pending',
+            'expires_at' => now()->addDays(7),
+        ]);
+
+        // Load relationships and broadcast
+        $invitation->load(['team', 'inviter']);
+        event(new TeamInvitationSent($invitation));
+
+        return response()->json([
+            'success' => true,
+            'message' => "Đã gửi lời mời đến {$user->display_name}",
+        ]);
+    }
+
+    /**
+     * Remove member from team
+     */
+    public function removeMember(Request $request, Team $team)
+    {
+        $this->authorize('update', $team);
+
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+        ]);
+
+        $userId = $request->user_id;
+
+        // Cannot remove captain
+        if ($userId == $team->captain_id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Không thể xóa đội trưởng khỏi đội',
+            ]);
+        }
+
+        $user = User::findOrFail($userId);
+        $team->members()->detach($userId);
+
+        // Broadcast member removed event
+        event(new TeamMemberChanged($team, $user, 'removed'));
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Đã xóa thành viên khỏi đội',
+        ]);
+    }
+
+    /**
+     * Get team chat messages
+     */
+    public function getMessages(Team $team)
+    {
+        // Check if user is a member
+        if (!$team->members->contains(Auth::id())) {
+            return response()->json(['messages' => []]);
+        }
+
+        $messages = \App\Models\TeamMessage::where('team_id', $team->id)
+            ->with('user')
+            ->orderBy('created_at', 'asc')
+            ->limit(50)
+            ->get()
+            ->map(function ($msg) {
+                return [
+                    'id' => $msg->id,
+                    'message' => $msg->message,
+                    'time' => $msg->created_at->format('H:i'),
+                    'user' => [
+                        'id' => $msg->user->id,
+                        'name' => $msg->user->display_name,
+                        'avatar' => $msg->user->avatar ? get_avatar_url($msg->user->avatar) : null,
+                    ],
+                ];
+            });
+
+        return response()->json(['messages' => $messages]);
+    }
+
+    /**
+     * Send chat message
+     */
+    public function sendMessage(Request $request, Team $team)
+    {
+        // Check if user is a member
+        if (!$team->members->contains(Auth::id())) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Bạn không phải là thành viên của đội',
+            ]);
+        }
+
+        $request->validate([
+            'message' => 'required|string|max:500',
+        ]);
+
+        $message = \App\Models\TeamMessage::create([
+            'team_id' => $team->id,
+            'user_id' => Auth::id(),
+            'message' => $request->message,
+        ]);
+
+        // Load user relationship and broadcast
+        $message->load('user');
+        event(new TeamMessageSent($message));
+
+        return response()->json(['success' => true]);
+    }
+
+    /**
+     * Get pending invitations for current user
+     */
+    public function myInvitations()
+    {
+        $invitations = TeamInvitation::with(['team', 'inviter'])
+            ->where('user_id', Auth::id())
+            ->where('status', 'pending')
+            ->where(function ($query) {
+                $query->whereNull('expires_at')
+                    ->orWhere('expires_at', '>', now());
+            })
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json(['invitations' => $invitations]);
+    }
+
+    /**
+     * Accept team invitation
+     */
+    public function acceptInvitation(TeamInvitation $invitation)
+    {
+        // Check if invitation belongs to current user
+        if ($invitation->user_id !== Auth::id()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Bạn không có quyền thực hiện hành động này',
+            ], 403);
+        }
+
+        // Check if invitation is still valid
+        if (!$invitation->isPending()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lời mời đã hết hạn hoặc không còn hiệu lực',
+            ]);
+        }
+
+        $team = $invitation->team;
+
+        // Check if already a member
+        if ($team->members->contains(Auth::id())) {
+            $invitation->update(['status' => 'accepted']);
+            return response()->json([
+                'success' => false,
+                'message' => 'Bạn đã là thành viên của đội này',
+            ]);
+        }
+
+        // Check max members
+        if ($team->members->count() >= ($team->max_members ?? 10)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Đội đã đủ số lượng thành viên tối đa',
+            ]);
+        }
+
+        // Add to team
+        $team->members()->attach(Auth::id(), [
+            'role' => 'member',
+            'status' => 'active',
+            'joined_at' => now(),
+        ]);
+
+        // Update invitation status
+        $invitation->update(['status' => 'accepted']);
+
+        // Broadcast member added
+        event(new TeamMemberChanged($team, Auth::user(), 'added'));
+
+        return response()->json([
+            'success' => true,
+            'message' => "Bạn đã tham gia đội {$team->name}",
+            'redirect' => route('teams.show', $team->id),
+        ]);
+    }
+
+    /**
+     * Decline team invitation
+     */
+    public function declineInvitation(TeamInvitation $invitation)
+    {
+        // Check if invitation belongs to current user
+        if ($invitation->user_id !== Auth::id()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Bạn không có quyền thực hiện hành động này',
+            ], 403);
+        }
+
+        $invitation->update(['status' => 'declined']);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Đã từ chối lời mời',
+        ]);
     }
 }

@@ -63,3 +63,17 @@ Broadcast::channel('conversation.{conversationId}.presence', function ($user, $c
 Broadcast::channel('marketplace', function () {
     return true;
 });
+
+/**
+ * Private channel for team chat and notifications
+ * Only team members can listen to this channel
+ */
+Broadcast::channel('team.{teamId}', function ($user, $teamId) {
+    $team = \App\Models\Team::find($teamId);
+    
+    if (!$team) {
+        return false;
+    }
+    
+    return $team->members->contains($user->id);
+});

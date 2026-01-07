@@ -63,6 +63,23 @@ class ChatService
         array $data,
         ?UploadedFile $attachment = null
     ): array {
+        // Check if user is restricted (suspended/banned)
+        if (in_array($sender->status, ['suspended', 'banned', 'deleted'])) {
+            // Check if conversation has admin/super_admin
+            $hasAdmin = $conversation->participants()
+                ->whereHas('user', function ($query) {
+                    $query->whereIn('user_role', ['admin', 'super_admin']);
+                })
+                ->exists();
+            
+            if (!$hasAdmin) {
+                return [
+                    'success' => false,
+                    'message' => 'Tài khoản của bạn đang bị hạn chế. Bạn chỉ có thể chat với quản trị viên.',
+                ];
+            }
+        }
+
         // Check participant status
         $participant = $conversation->participants()
             ->where('user_id', $sender->id)

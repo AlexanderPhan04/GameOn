@@ -71,15 +71,55 @@ class Game extends Model
      */
     public function getLogoUrlAttribute()
     {
-        return $this->image_url;
+        $imageUrl = $this->attributes['image_url'] ?? null;
+        
+        if (!$imageUrl) {
+            return null;
+        }
+        
+        // Check if it's already a full URL
+        if (filter_var($imageUrl, FILTER_VALIDATE_URL)) {
+            return $imageUrl;
+        }
+        
+        // Images are stored in public/uploads/
+        return asset('uploads/' . $imageUrl);
     }
 
     /**
-     * Get banner URL
+     * Get logo (alias for logo_url)
+     */
+    public function getLogoAttribute()
+    {
+        return $this->logo_url;
+    }
+
+    /**
+     * Get banner URL with full path
      */
     public function getBannerUrlAttribute()
     {
-        return $this->attributes['banner_url'] ?? null;
+        $banner = $this->attributes['banner_url'] ?? null;
+        
+        if (!$banner) {
+            return null;
+        }
+        
+        // Check if it's already a full URL
+        if (filter_var($banner, FILTER_VALIDATE_URL)) {
+            return $banner;
+        }
+        
+        // Images are stored in public/uploads/
+        return asset('uploads/' . $banner);
+    }
+
+    /**
+     * Get banner (alias for banner_url)
+     */
+    public function getBannerAttribute()
+    {
+        return $this->banner_url;
     }
 
     /**

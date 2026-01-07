@@ -448,7 +448,7 @@
                                 'type' => 'user',
                                 'items' => $users,
                                 'link' => function($u) use ($user) { 
-                                    return ($u->id == $user->id) ? route('profile.show') : route('profile.show-user', $u->id);
+                                    return ($u->id == $user->id) ? route('profile.show') : route('profile.show-user', $u->app_id);
                                 }
                             ];
                         }

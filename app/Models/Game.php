@@ -82,7 +82,8 @@ class Game extends Model
             return $imageUrl;
         }
         
-        return asset('storage/' . $imageUrl);
+        // Images are stored in public/uploads/
+        return asset('uploads/' . $imageUrl);
     }
 
     /**
@@ -109,7 +110,8 @@ class Game extends Model
             return $banner;
         }
         
-        return asset('storage/' . $banner);
+        // Images are stored in public/uploads/
+        return asset('uploads/' . $banner);
     }
 
     /**

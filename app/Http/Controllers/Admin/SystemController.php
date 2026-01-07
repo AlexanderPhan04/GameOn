@@ -3,13 +3,22 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Game;
+use App\Models\Team;
+use App\Models\Tournament;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * SystemController - Admin system management
+ * Refactored to use Eloquent models where possible
+ */
 class SystemController extends Controller
 {
     /**
@@ -42,9 +51,6 @@ class SystemController extends Controller
             'cache_enabled' => 'boolean',
         ]);
 
-        // Here you would typically update .env file or database settings
-        // For now, we'll just show success message
-
         return redirect()->back()->with('success', 'Cài đặt hệ thống đã được cập nhật thành công!');
     }
 
@@ -57,7 +63,6 @@ class SystemController extends Controller
             'theme' => 'required|in:light,dark,auto',
         ]);
 
-        // Store theme preference in session
         session(['theme' => $request->theme]);
 
         return response()->json([
@@ -77,8 +82,6 @@ class SystemController extends Controller
         if (file_exists($logPath)) {
             $logContent = file_get_contents($logPath);
             $logLines = array_reverse(explode("\n", $logContent));
-
-            // Get last 100 log entries
             $logs = array_slice(array_filter($logLines), 0, 100);
         }
 
@@ -101,24 +104,19 @@ class SystemController extends Controller
     public function createBackup()
     {
         try {
-            $backupName = 'backup_'.date('Y-m-d_H-i-s').'.sql';
-            $backupPath = storage_path('app/backups/'.$backupName);
+            $backupName = 'backup_' . date('Y-m-d_H-i-s') . '.sql';
+            $backupPath = storage_path('app/backups/' . $backupName);
 
-            // Create backups directory if it doesn't exist
-            if (! Storage::disk('local')->exists('backups')) {
+            if (!Storage::disk('local')->exists('backups')) {
                 Storage::disk('local')->makeDirectory('backups');
             }
 
-            // Get database configuration
             $database = config('database.connections.mysql.database');
             $username = config('database.connections.mysql.username');
             $password = config('database.connections.mysql.password');
             $host = config('database.connections.mysql.host');
 
-            // Create mysqldump command
             $command = "mysqldump -h {$host} -u {$username} -p{$password} {$database} > {$backupPath}";
-
-            // Execute backup (in production, use proper backup tools)
             exec($command, $output, $returnCode);
 
             if ($returnCode === 0 && file_exists($backupPath)) {
@@ -126,7 +124,7 @@ class SystemController extends Controller
 
                 return response()->json([
                     'success' => true,
-                    'message' => 'Backup database thành công! File: '.$backupName,
+                    'message' => 'Backup database thành công! File: ' . $backupName,
                     'file' => $backupName,
                 ]);
             } else {
@@ -137,7 +135,7 @@ class SystemController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Backup thất bại: '.$e->getMessage(),
+                'message' => 'Backup thất bại: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -161,10 +159,7 @@ class SystemController extends Controller
             }
         }
 
-        // Sort by creation time (newest first)
-        usort($backups, function ($a, $b) {
-            return $b['created_at']->timestamp - $a['created_at']->timestamp;
-        });
+        usort($backups, fn($a, $b) => $b['created_at']->timestamp - $a['created_at']->timestamp);
 
         return view('admin.system.backups', compact('backups'));
     }
@@ -174,62 +169,63 @@ class SystemController extends Controller
      */
     public function downloadBackup($filename)
     {
-        $filePath = 'backups/'.$filename;
+        $filePath = 'backups/' . $filename;
 
-        if (! Storage::disk('local')->exists($filePath)) {
+        if (!Storage::disk('local')->exists($filePath)) {
             abort(404, 'Backup file not found');
         }
 
-        return response()->download(storage_path('app/'.$filePath));
+        return response()->download(storage_path('app/' . $filePath));
     }
 
     /**
-     * Generate analytics report
+     * Generate analytics report - Using Eloquent models
      */
     public function analytics()
     {
         try {
             $stats = [
                 'users' => [
-                    'total' => DB::table('users')->count(),
-                    'active' => DB::table('users')->where('status', 'active')->count(),
-                    'suspended' => DB::table('users')->where('status', 'suspended')->count(),
-                    'banned' => DB::table('users')->where('status', 'banned')->count(),
-                    'new_this_month' => DB::table('users')->whereMonth('created_at', now()->month)->count(),
+                    'total' => User::count(),
+                    'active' => User::where('status', 'active')->count(),
+                    'suspended' => User::where('status', 'suspended')->count(),
+                    'banned' => User::where('status', 'banned')->count(),
+                    'new_this_month' => User::whereMonth('created_at', now()->month)->count(),
                 ],
                 'teams' => [
-                    'total' => $this->safeTableCount('teams'),
-                    'active' => $this->safeStatusCount('teams', 'active'),
-                    'new_this_month' => $this->safeMonthCount('teams'),
+                    'total' => $this->safeModelCount(Team::class),
+                    'active' => $this->safeModelStatusCount(Team::class, 'active'),
+                    'new_this_month' => $this->safeModelMonthCount(Team::class),
                 ],
                 'tournaments' => [
-                    'total' => $this->safeTableCount('tournaments'),
-                    'active' => $this->safeStatusCount('tournaments', 'active'),
-                    'completed' => $this->safeStatusCount('tournaments', 'completed'),
-                    'new_this_month' => $this->safeMonthCount('tournaments'),
+                    'total' => $this->safeModelCount(Tournament::class),
+                    'active' => $this->safeModelStatusCount(Tournament::class, 'active'),
+                    'completed' => $this->safeModelStatusCount(Tournament::class, 'completed'),
+                    'new_this_month' => $this->safeModelMonthCount(Tournament::class),
                 ],
                 'games' => [
-                    'total' => $this->safeTableCount('games'),
-                    'active' => $this->safeStatusCount('games', 'active'),
+                    'total' => $this->safeModelCount(Game::class),
+                    'active' => $this->safeModelStatusCount(Game::class, 'active'),
                 ],
             ];
 
-            // User registration trend (last 12 months)
+            // User registration trend (last 12 months) - Using Eloquent
             $userTrend = [];
             for ($i = 11; $i >= 0; $i--) {
                 $date = now()->subMonths($i);
                 $userTrend[] = [
                     'month' => $date->format('M Y'),
-                    'count' => DB::table('users')->whereYear('created_at', $date->year)
-                        ->whereMonth('created_at', $date->month)->count(),
+                    'count' => User::whereYear('created_at', $date->year)
+                        ->whereMonth('created_at', $date->month)
+                        ->count(),
                 ];
             }
 
             return view('admin.system.analytics', compact('stats', 'userTrend'));
         } catch (\Exception $e) {
-            Log::error('Analytics error: '.$e->getMessage());
+            Log::error('Analytics error: ' . $e->getMessage());
 
-            return back()->with('error', 'Có lỗi khi tải dữ liệu analytics: '.$e->getMessage());
+            return back()->with('error', 'Có lỗi khi tải dữ liệu analytics: ' . $e->getMessage());
         }
     }
 
@@ -251,7 +247,7 @@ class SystemController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Lỗi khi xóa cache: '.$e->getMessage(),
+                'message' => 'Lỗi khi xóa cache: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -282,7 +278,7 @@ class SystemController extends Controller
             $database = config('database.connections.mysql.database');
             $result = DB::select("SELECT ROUND(SUM(data_length + index_length) / 1024 / 1024, 1) AS 'db_size' FROM information_schema.tables WHERE table_schema='{$database}'");
 
-            return $result[0]->db_size.' MB';
+            return $result[0]->db_size . ' MB';
         } catch (\Exception $e) {
             return 'Unknown';
         }
@@ -299,19 +295,18 @@ class SystemController extends Controller
             $bytes /= 1024;
         }
 
-        return round($bytes, $precision).' '.$units[$i];
+        return round($bytes, $precision) . ' ' . $units[$i];
     }
 
     /**
-     * Safely count table records
+     * Safely count model records using Eloquent
      */
-    private function safeTableCount($tableName)
+    private function safeModelCount(string $modelClass): int
     {
         try {
-            if (DB::getSchemaBuilder()->hasTable($tableName)) {
-                return DB::table($tableName)->count();
+            if (class_exists($modelClass)) {
+                return $modelClass::count();
             }
-
             return 0;
         } catch (\Exception $e) {
             return 0;
@@ -319,18 +314,14 @@ class SystemController extends Controller
     }
 
     /**
-     * Safely count records by status
+     * Safely count model records by status using Eloquent
      */
-    private function safeStatusCount($tableName, $status)
+    private function safeModelStatusCount(string $modelClass, string $status): int
     {
         try {
-            if (
-                DB::getSchemaBuilder()->hasTable($tableName) &&
-                DB::getSchemaBuilder()->hasColumn($tableName, 'status')
-            ) {
-                return DB::table($tableName)->where('status', $status)->count();
+            if (class_exists($modelClass)) {
+                return $modelClass::where('status', $status)->count();
             }
-
             return 0;
         } catch (\Exception $e) {
             return 0;
@@ -338,18 +329,14 @@ class SystemController extends Controller
     }
 
     /**
-     * Safely count records created this month
+     * Safely count model records created this month using Eloquent
      */
-    private function safeMonthCount($tableName)
+    private function safeModelMonthCount(string $modelClass): int
     {
         try {
-            if (
-                DB::getSchemaBuilder()->hasTable($tableName) &&
-                DB::getSchemaBuilder()->hasColumn($tableName, 'created_at')
-            ) {
-                return DB::table($tableName)->whereMonth('created_at', now()->month)->count();
+            if (class_exists($modelClass)) {
+                return $modelClass::whereMonth('created_at', now()->month)->count();
             }
-
             return 0;
         } catch (\Exception $e) {
             return 0;

@@ -458,6 +458,26 @@ class AuthController extends Controller
                             'google_email' => $googleUser->getEmail(),
                         ]);
                 }
+                
+                // Always sync Google avatar to user_profiles
+                $googleAvatar = $googleUser->getAvatar();
+                if ($googleAvatar && $user->profile) {
+                    // Only update if avatar is a Google URL or user has no avatar
+                    $currentAvatar = $user->profile->avatar;
+                    if (!$currentAvatar || filter_var($currentAvatar, FILTER_VALIDATE_URL)) {
+                        DB::table('user_profiles')
+                            ->where('user_id', $user->id)
+                            ->update([
+                                'avatar' => $googleAvatar,
+                                'updated_at' => now(),
+                            ]);
+                        
+                        Log::info('Google avatar synced for existing user', [
+                            'user_id' => $user->id,
+                            'avatar_url' => substr($googleAvatar, 0, 50) . '...',
+                        ]);
+                    }
+                }
             } else {
                 // Kiểm tra dữ liệu Google trước khi tạo user
                 $googleName = $googleUser->getName();
@@ -880,6 +900,21 @@ class AuthController extends Controller
                     'google_id' => $googleUser->getId(),
                     'google_email' => $googleUser->getEmail(),
                 ]);
+            
+            // Sync Google avatar to user_profiles
+            $googleAvatar = $googleUser->getAvatar();
+            if ($googleAvatar && $user->profile) {
+                $currentAvatar = $user->profile->avatar;
+                // Only update if user has no avatar or current is a URL (Google avatar)
+                if (!$currentAvatar || filter_var($currentAvatar, FILTER_VALIDATE_URL)) {
+                    DB::table('user_profiles')
+                        ->where('user_id', $user->id)
+                        ->update([
+                            'avatar' => $googleAvatar,
+                            'updated_at' => now(),
+                        ]);
+                }
+            }
 
             Log::info('Google account linked', [
                 'user_id' => $user->id,

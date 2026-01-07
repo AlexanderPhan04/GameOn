@@ -500,6 +500,61 @@
         border-width: 0.15em;
     }
     
+    /* Password input wrapper with toggle */
+    .password-wrapper {
+        position: relative;
+        width: 100%;
+        margin: 4px 0 8px 0;
+    }
+    
+    .password-wrapper input {
+        margin: 0 !important;
+        padding-right: 45px !important;
+    }
+    
+    .password-toggle {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: transparent !important;
+        border: none !important;
+        color: #94a3b8;
+        cursor: pointer;
+        padding: 0 !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: color 0.3s ease;
+        font-size: 16px;
+        margin: 0 !important;
+        width: auto !important;
+        min-width: auto !important;
+        max-width: none !important;
+        box-shadow: none !important;
+        outline: none !important;
+        border-radius: 0 !important;
+    }
+    
+    .password-toggle:hover {
+        color: #00E5FF;
+        transform: translateY(-50%) !important;
+        box-shadow: none !important;
+        background: transparent !important;
+        border: none !important;
+    }
+    
+    .password-toggle:focus {
+        outline: none !important;
+        box-shadow: none !important;
+        border: none !important;
+        background: transparent !important;
+    }
+    
+    .password-toggle i {
+        pointer-events: none;
+    }
+    
     button:disabled {
         opacity: 0.6;
         cursor: not-allowed;
@@ -614,7 +669,12 @@
             
             <input type="email" id="login_email" name="email" placeholder="{{ __('app.auth.email') }}" required>
             
-            <input type="password" id="login_password" name="password" placeholder="{{ __('app.auth.password') }}" required>
+            <div class="password-wrapper">
+                <input type="password" id="login_password" name="password" placeholder="{{ __('app.auth.password') }}" required>
+                <button type="button" class="password-toggle" data-target="login_password" aria-label="Toggle password visibility">
+                    <i class="fas fa-eye"></i>
+                </button>
+            </div>
             
             <div class="form-check">
                 <input type="checkbox" class="form-check-input" id="remember" name="remember">
@@ -668,9 +728,19 @@
             
             <input type="email" id="email" name="email" placeholder="Email *" required>
             
-            <input type="password" id="password" name="password" placeholder="{{ __('app.auth.password') }} *" required>
+            <div class="password-wrapper">
+                <input type="password" id="password" name="password" placeholder="{{ __('app.auth.password') }} *" required>
+                <button type="button" class="password-toggle" data-target="password" aria-label="Toggle password visibility">
+                    <i class="fas fa-eye"></i>
+                </button>
+            </div>
             
-            <input type="password" id="confirm_password" name="confirm_password" placeholder="{{ __('app.auth.confirm_password') }} *" required>
+            <div class="password-wrapper">
+                <input type="password" id="confirm_password" name="confirm_password" placeholder="{{ __('app.auth.confirm_password') }} *" required>
+                <button type="button" class="password-toggle" data-target="confirm_password" aria-label="Toggle password visibility">
+                    <i class="fas fa-eye"></i>
+                </button>
+            </div>
             
             <button type="submit" id="registerBtn">
                 <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
@@ -776,6 +846,26 @@
                 container.classList.remove('active');
             });
         }
+
+        // Password visibility toggle
+        document.querySelectorAll('.password-toggle').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.dataset.target;
+                const input = document.getElementById(targetId);
+                const icon = this.querySelector('i');
+                
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                } else {
+                    input.type = 'password';
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                }
+            });
+        });
 
         // Password confirmation validation
         if (confirmPassword) {

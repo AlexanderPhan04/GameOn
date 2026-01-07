@@ -21,18 +21,13 @@ class UserProfile extends Model
         'date_of_birth',
         'phone',
         'country',
-        'gaming_nickname',
-        'team_preference',
         'id_app',
-        'description',
-        'upgraded_to_participant_at',
         'is_verified',
         'verified_at',
     ];
 
     protected $casts = [
         'date_of_birth' => 'date',
-        'upgraded_to_participant_at' => 'datetime',
         'is_verified' => 'boolean',
         'verified_at' => 'datetime',
     ];

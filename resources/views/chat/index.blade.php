@@ -210,7 +210,7 @@
             <div class="conversations-list">
                 @forelse($conversations as $conversation)
                 @php $unreadCount = $conversation->getUnreadCount(auth()->id()); @endphp
-                <a href="{{ route('chat.show', $conversation) }}" class="conversation-item {{ request()->route('conversation')?->id == $conversation->id ? 'active' : '' }} {{ $unreadCount > 0 ? 'has-unread' : '' }}">
+                <a href="{{ route('chat.show', $conversation) }}" class="conversation-item {{ request()->route('conversation')?->slug == $conversation->slug ? 'active' : '' }} {{ $unreadCount > 0 ? 'has-unread' : '' }}">
                     <img src="{{ $conversation->getDisplayAvatar(auth()->id()) }}" class="conversation-avatar">
                     <div class="conversation-info">
                         <div class="conversation-name">{{ $conversation->getDisplayName(auth()->id()) }}</div>
@@ -399,7 +399,8 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!conversationsList) return;
         
         // Find existing conversation item
-        let convItem = conversationsList.querySelector(`a[href*="/chat/conversation/${conversationId}"]`);
+        // Note: conversationId might be slug or id depending on event
+        let convItem = conversationsList.querySelector(`a[href*="/chat/conversation/"]`);
         
         if (convItem) {
             // Update preview text

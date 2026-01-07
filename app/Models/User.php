@@ -283,8 +283,12 @@ class User extends Authenticatable implements MustVerifyEmail
             if (filter_var($avatar, FILTER_VALIDATE_URL)) {
                 return $avatar;
             }
-            // Local file path
-            return asset('uploads/' . $avatar);
+            // System avatar path (e.g., "system/avatar_1.png")
+            if (str_starts_with($avatar, 'system/')) {
+                return asset('images/system-avatars/' . str_replace('system/', '', $avatar));
+            }
+            // Local uploaded file path
+            return asset('storage/' . $avatar);
         }
 
         // Generate avatar using UI Avatars API with user's initials

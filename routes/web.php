@@ -118,7 +118,7 @@ Route::middleware(['auth.session', 'track.login'])->prefix('profile')->name('pro
     Route::get('/change-password', [ProfileController::class, 'changePassword'])->name('change-password');
     Route::put('/update-password', [ProfileController::class, 'updatePassword'])->name('update-password');
     Route::get('/search-users', [ProfileController::class, 'searchUsers'])->name('search-users');
-    Route::get('/user/{id}', [ProfileController::class, 'showUser'])->name('show-user');
+    Route::get('/{appId}', [ProfileController::class, 'showUser'])->name('show-user');
 });
 
 // Game Management Routes (Admin only)

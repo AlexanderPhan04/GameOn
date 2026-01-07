@@ -608,7 +608,7 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label">Giới thiệu bản thân</label>
-                        <textarea name="bio" class="form-input form-textarea" placeholder="Viết vài dòng về bản thân...">{{ old('bio', auth()->user()->bio) }}</textarea>
+                        <textarea name="bio" class="form-input form-textarea" placeholder="Viết vài dòng về bản thân...">{{ old('bio', auth()->user()->profile->bio ?? '') }}</textarea>
                         @error('bio')
                             <p class="text-red-400 text-sm mt-1">{{ $message }}</p>
                         @enderror

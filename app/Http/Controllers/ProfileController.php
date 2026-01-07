@@ -21,12 +21,12 @@ class ProfileController extends Controller
         return view('profile.show', compact('user'));
     }
 
-    public function showUser($id)
+    public function showUser($appId)
     {
         $user = User::with(['teams' => function ($query) {
             $query->withPivot(['role', 'status', 'joined_at'])
                 ->where('team_members.status', 'active');
-        }])->findOrFail($id);
+        }])->where('app_id', $appId)->firstOrFail();
 
         return view('profile.show-user', compact('user'));
     }

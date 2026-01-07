@@ -3157,7 +3157,7 @@
 
                     <!-- Search -->
                     @auth
-                    <div class="relative hidden lg:block" id="navbarSearchWrapper">
+                    <div class="relative" id="navbarSearchWrapper">
                         <button type="button" class="gameon-nav-link" id="navbarSearchToggle" style="border: none; background: none; cursor: pointer;" title="{{ __('app.search.search') }}">
                             <i class="fas fa-magnifying-glass"></i>
                         </button>
@@ -3177,7 +3177,7 @@
 
                     <!-- Cart Icon -->
                     @auth
-                    <a href="{{ route('marketplace.cart') }}" class="gameon-nav-link cart-icon-btn hidden lg:flex" style="position: relative;" title="{{ __('app.nav.cart') }}">
+                    <a href="{{ route('marketplace.cart') }}" class="gameon-nav-link cart-icon-btn" style="position: relative;" title="{{ __('app.nav.cart') }}">
                         <i class="fas fa-shopping-cart"></i>
                         @php
                             $cartCount = session('cart') ? count(session('cart')) : 0;
@@ -3190,7 +3190,7 @@
 
                     <!-- Notification Bell -->
                     @auth
-                    <div class="relative hidden lg:block" id="notificationBell">
+                    <div class="relative" id="notificationBell">
                         <button type="button" class="gameon-nav-link notification-bell-btn" id="notificationToggle" style="border: none; background: none; cursor: pointer; position: relative;" title="{{ __('app.notifications.title') }}">
                             <i class="fas fa-bell"></i>
                             <span class="notification-badge" id="notificationCount" style="display: none;">0</span>

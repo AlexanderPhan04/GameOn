@@ -520,7 +520,7 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const convId = {{ $conversation->id }};
+    const convSlug = '{{ $conversation->slug }}';
     const msgContainer = document.getElementById('messages-container');
     const msgList = document.getElementById('messages-list');
     const msgInput = document.getElementById('message-input');
@@ -725,7 +725,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (file) formData.append('attachment', file);
         
         try {
-            const res = await fetch(`/chat/conversation/${convId}/send`, { method: 'POST', body: formData });
+            const res = await fetch(`/chat/conversation/${convSlug}/send`, { method: 'POST', body: formData });
             const data = await res.json();
             if (data.success && data.message) {
                 // Build message HTML from JSON response (matching message.blade.php structure)
@@ -836,7 +836,7 @@ document.addEventListener('DOMContentLoaded', function() {
             icon: 'sign-out-alt',
             onConfirm: async () => {
                 try {
-                    const res = await fetch(`/chat/conversation/${convId}/leave`, {
+                    const res = await fetch(`/chat/conversation/${convSlug}/leave`, {
                         method: 'DELETE',
                         headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
                     });
@@ -865,7 +865,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 icon: 'trash',
                 onConfirm: async () => {
                     try {
-                        const res = await fetch(`/chat/conversation/${convId}/clear-history`, {
+                        const res = await fetch(`/chat/conversation/${convSlug}/clear-history`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
                         });

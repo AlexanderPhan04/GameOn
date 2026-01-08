@@ -107,18 +107,29 @@ Route::middleware(['auth.session'])->group(function () {
         Route::post('/teams/{team}/transfer-captain', [TeamController::class, 'transferCaptain'])->name('teams.transfer-captain');
         Route::post('/teams/{team}/kick-member', [TeamController::class, 'kickMember'])->name('teams.kick-member');
         Route::post('/teams/{team}/invite-member', [TeamController::class, 'inviteMember'])->name('teams.invite-member');
+        Route::get('/teams/{team}/search-users', [TeamController::class, 'searchUsers'])->name('teams.search-users');
+        Route::post('/teams/{team}/add-member', [TeamController::class, 'addMember'])->name('teams.add-member');
+        Route::post('/teams/{team}/remove-member', [TeamController::class, 'removeMember'])->name('teams.remove-member');
+        Route::get('/teams/{team}/chat', [TeamController::class, 'getMessages'])->name('teams.chat.get');
+        Route::post('/teams/{team}/chat', [TeamController::class, 'sendMessage'])->name('teams.chat.send');
+        
+        // Team invitations
+        Route::post('/team-invitations/{invitationId}/accept', [TeamController::class, 'acceptInvitation'])->name('teams.invitation.accept');
+        Route::post('/team-invitations/{invitationId}/decline', [TeamController::class, 'declineInvitation'])->name('teams.invitation.decline');
+        Route::get('/my-invitations', [TeamController::class, 'myInvitations'])->name('teams.my-invitations');
     });
 });
 
 // Profile routes - outside middleware to ensure routes are always available
 Route::middleware(['auth.session', 'track.login'])->prefix('profile')->name('profile.')->group(function () {
     Route::get('/', [ProfileController::class, 'show'])->name('show');
+    Route::get('/settings', [ProfileController::class, 'settings'])->name('settings');
     Route::get('/edit', [ProfileController::class, 'edit'])->name('edit');
     Route::put('/update', [ProfileController::class, 'update'])->name('update');
     Route::get('/change-password', [ProfileController::class, 'changePassword'])->name('change-password');
     Route::put('/update-password', [ProfileController::class, 'updatePassword'])->name('update-password');
     Route::get('/search-users', [ProfileController::class, 'searchUsers'])->name('search-users');
-    Route::get('/user/{id}', [ProfileController::class, 'showUser'])->name('show-user');
+    Route::get('/{appId}', [ProfileController::class, 'showUser'])->name('show-user');
 });
 
 // Game Management Routes (Admin only)
@@ -215,6 +226,16 @@ Route::middleware(['auth.session'])->prefix('chat')->name('chat.')->group(functi
 Route::prefix('api')->middleware(['auth.session'])->group(function () {
     Route::post('/user/heartbeat', [ChatController::class, 'heartbeat'])->name('api.user.heartbeat');
     Route::get('/conversation/{conversation}/participants/status', [ChatController::class, 'getParticipantsStatus'])->name('api.conversation.participants.status');
+});
+
+// Notification routes
+Route::prefix('notifications')->name('notifications.')->middleware(['auth.session'])->group(function () {
+    Route::get('/', [\App\Http\Controllers\NotificationController::class, 'index'])->name('index');
+    Route::get('/unread-count', [\App\Http\Controllers\NotificationController::class, 'unreadCount'])->name('unread-count');
+    Route::post('/{id}/read', [\App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('read');
+    Route::post('/mark-all-read', [\App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('mark-all-read');
+    Route::delete('/{id}', [\App\Http\Controllers\NotificationController::class, 'destroy'])->name('destroy');
+    Route::delete('/', [\App\Http\Controllers\NotificationController::class, 'clearAll'])->name('clear-all');
 });
 
 // Posts routes (basic placeholder)

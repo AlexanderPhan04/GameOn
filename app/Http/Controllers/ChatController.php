@@ -82,6 +82,16 @@ class ChatController extends Controller
             return response()->json(['error' => 'Cannot start conversation with yourself'], 400);
         }
 
+        // Check if user is restricted - can only chat with admin/super_admin
+        if (in_array($currentUser->status, ['suspended', 'banned', 'deleted'])) {
+            $otherUser = User::find($otherUserId);
+            if (!in_array($otherUser->user_role, ['admin', 'super_admin'])) {
+                return response()->json([
+                    'error' => 'Tài khoản của bạn đang bị hạn chế. Bạn chỉ có thể chat với quản trị viên.',
+                ], 403);
+            }
+        }
+
         $conversation = $this->chatService->getOrCreatePrivateConversation(
             $currentUser->id,
             $otherUserId

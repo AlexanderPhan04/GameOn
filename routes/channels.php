@@ -63,3 +63,20 @@ Broadcast::channel('conversation.{conversationId}.presence', function ($user, $c
 Broadcast::channel('marketplace', function () {
     return true;
 });
+
+/**
+ * Private channel for team chat and notifications
+ * All authenticated users can listen to this channel for realtime team updates
+ * Chat functionality is still restricted by controller logic
+ */
+Broadcast::channel('team.{teamId}', function ($user, $teamId) {
+    $team = \App\Models\Team::find($teamId);
+    
+    if (!$team) {
+        return false;
+    }
+    
+    // Allow all authenticated users to subscribe for realtime updates
+    // This enables viewers of the team page to see member changes
+    return true;
+});

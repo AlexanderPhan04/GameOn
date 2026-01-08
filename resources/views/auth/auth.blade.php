@@ -486,12 +486,104 @@
         color: #94a3b8;
     }
 
+    /* Custom Alert Styles for Auth Page */
     .alert {
-        margin-bottom: 20px;
+        margin-bottom: 15px;
         font-size: 13px;
         width: 100%;
         max-width: 100%;
         box-sizing: border-box;
+        border-radius: 10px;
+        padding: 12px 16px;
+        border: 1px solid;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        animation: slideIn 0.3s ease-out;
+    }
+    
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .alert-success {
+        background: rgba(16, 185, 129, 0.15);
+        border-color: rgba(16, 185, 129, 0.4);
+        color: #10b981;
+    }
+    
+    .alert-success::before {
+        content: '\f058';
+        font-family: 'Font Awesome 6 Free';
+        font-weight: 900;
+        font-size: 16px;
+    }
+    
+    .alert-danger {
+        background: rgba(239, 68, 68, 0.15);
+        border-color: rgba(239, 68, 68, 0.4);
+        color: #ef4444;
+    }
+    
+    .alert-danger::before {
+        content: '\f057';
+        font-family: 'Font Awesome 6 Free';
+        font-weight: 900;
+        font-size: 16px;
+    }
+    
+    .alert-warning {
+        background: rgba(245, 158, 11, 0.15);
+        border-color: rgba(245, 158, 11, 0.4);
+        color: #f59e0b;
+    }
+    
+    .alert-warning::before {
+        content: '\f071';
+        font-family: 'Font Awesome 6 Free';
+        font-weight: 900;
+        font-size: 16px;
+    }
+    
+    .alert-info {
+        background: rgba(0, 229, 255, 0.15);
+        border-color: rgba(0, 229, 255, 0.4);
+        color: #00E5FF;
+    }
+    
+    .alert-info::before {
+        content: '\f05a';
+        font-family: 'Font Awesome 6 Free';
+        font-weight: 900;
+        font-size: 16px;
+    }
+    
+    .alert .btn-close {
+        filter: invert(1);
+        opacity: 0.6;
+        margin-left: auto;
+        padding: 0;
+        background-size: 10px;
+    }
+    
+    .alert .btn-close:hover {
+        opacity: 1;
+    }
+    
+    .alert .alert-content {
+        flex: 1;
+    }
+    
+    .alert .alert-content strong {
+        display: block;
+        margin-bottom: 2px;
     }
 
     .spinner-border-sm {
@@ -652,15 +744,6 @@
                 <a href="{{ route('auth.google') }}" class="icon" title="Google">
                     <i class="fab fa-google"></i>
                 </a>
-                <a href="#" class="icon" title="Facebook">
-                    <i class="fab fa-facebook-f"></i>
-                </a>
-                <a href="#" class="icon" title="GitHub">
-                    <i class="fab fa-github"></i>
-                </a>
-                <a href="#" class="icon" title="LinkedIn">
-                    <i class="fab fa-linkedin-in"></i>
-                </a>
             </div>
             
             <span>{{ __('app.common.or') }} {{ __('app.auth.use_email_password') }}</span>
@@ -708,15 +791,6 @@
             <div class="social-icons">
                 <a href="{{ route('auth.google') }}" class="icon" title="Google">
                     <i class="fab fa-google"></i>
-                </a>
-                <a href="#" class="icon" title="Facebook">
-                    <i class="fab fa-facebook-f"></i>
-                </a>
-                <a href="#" class="icon" title="GitHub">
-                    <i class="fab fa-github"></i>
-                </a>
-                <a href="#" class="icon" title="LinkedIn">
-                    <i class="fab fa-linkedin-in"></i>
                 </a>
             </div>
             
@@ -972,29 +1046,44 @@
         });
 
         function showAlert(container, message, type) {
+            // Clear previous alerts
+            container.innerHTML = '';
+            
             const alert = document.createElement('div');
             alert.className = `alert alert-${type} alert-dismissible fade show`;
             alert.innerHTML = `
-                ${message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                <span class="alert-content">${message}</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             `;
             container.appendChild(alert);
+            
+            // Auto dismiss success alerts after 3 seconds
+            if (type === 'success') {
+                setTimeout(() => {
+                    alert.classList.remove('show');
+                    setTimeout(() => alert.remove(), 150);
+                }, 3000);
+            }
         }
 
         function showVerificationAlert(container, message, email) {
+            // Clear previous alerts
+            container.innerHTML = '';
+            
             const alert = document.createElement('div');
             alert.className = 'alert alert-warning alert-dismissible fade show';
+            alert.style.flexDirection = 'column';
+            alert.style.alignItems = 'flex-start';
+            alert.style.gap = '8px';
             alert.innerHTML = `
-                <div class="d-flex align-items-center justify-content-between">
-                    <div>
-                        <strong><i class="fas fa-exclamation-triangle"></i> ${translations.email_not_verified}</strong><br>
-                        ${message}
-                    </div>
-                    <button type="button" class="btn btn-sm btn-outline-warning" onclick="resendVerificationEmail('${email}')">
-                        ${translations.resend_email}
+                <div class="alert-content" style="width: 100%;">
+                    <strong>${translations.email_not_verified}</strong>
+                    <p style="margin: 5px 0; font-size: 12px; color: #d97706;">${message}</p>
+                    <button type="button" class="btn btn-sm" style="background: rgba(245, 158, 11, 0.2); border: 1px solid #f59e0b; color: #f59e0b; font-size: 11px; padding: 4px 12px; border-radius: 6px; margin-top: 5px;" onclick="resendVerificationEmail('${email}')">
+                        <i class="fas fa-paper-plane me-1"></i>${translations.resend_email}
                     </button>
                 </div>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="position: absolute; top: 10px; right: 10px;"></button>
             `;
             container.appendChild(alert);
         }

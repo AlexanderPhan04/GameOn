@@ -455,7 +455,7 @@
                                 <div class="file-upload-text">
                                     <strong>Click để chọn</strong> hoặc kéo thả file vào đây
                                 </div>
-                                <div class="file-upload-hint">JPG, PNG, GIF - Tối đa 2MB</div>
+                                <div class="file-upload-hint">JPG, PNG, GIF - Tối đa 5MB</div>
                                 <input type="file" 
                                        class="file-upload-input" 
                                        name="logo" 

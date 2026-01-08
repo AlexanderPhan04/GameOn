@@ -411,12 +411,14 @@
                             <span class="filter-badge">{{ $counts['tournaments'] }}</span>
                         </a>
                         
+                        @if($isAdmin ?? false)
                         <a class="filter-item {{ $current==='games' ? 'active' : '' }}" href="{{ route('search.view',['q'=>$q,'type'=>'games']) }}">
                             <span class="filter-item-left">
                                 <i class="fas fa-gamepad"></i> Game
                             </span>
-                            <span class="filter-badge">{{ $counts['games'] }}</span>
+                            <span class="filter-badge">{{ $counts['games'] ?? 0 }}</span>
                         </a>
+                        @endif
                     </div>
                 </div>
             </aside>
@@ -448,7 +450,11 @@
                                 'type' => 'user',
                                 'items' => $users,
                                 'link' => function($u) use ($user) { 
-                                    return ($u->id == $user->id) ? route('profile.show') : route('profile.show-user', $u->app_id);
+                                    if ($user && $u->id == $user->id) {
+                                        return route('profile.show');
+                                    }
+                                    $idApp = $u->profile?->id_app;
+                                    return $idApp ? route('profile.show-user', $idApp) : '#';
                                 }
                             ];
                         }
@@ -472,14 +478,14 @@
                                 'link' => function($t) { return route('tournaments.show', $t->id); }
                             ];
                         }
-                        if($games->count()) {
+                        if(($isAdmin ?? false) && $games->count()) {
                             $hasResults = true;
                             $blocks[] = [
                                 'title' => 'Game',
                                 'icon' => 'fa-gamepad',
                                 'type' => 'game',
                                 'items' => $games,
-                                'link' => function($g) { return '#'; }
+                                'link' => function($g) { return route('admin.games.show', $g->id); }
                             ];
                         }
                     @endphp

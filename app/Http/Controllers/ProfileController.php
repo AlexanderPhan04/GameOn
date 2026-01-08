@@ -33,17 +33,22 @@ class ProfileController extends Controller
 
     public function showUser($appId)
     {
-        $user = User::with(['teams' => function ($query) {
+        $user = User::with(['profile', 'teams' => function ($query) {
             $query->withPivot(['role', 'status', 'joined_at'])
                 ->where('team_members.status', 'active');
-        }])->where('app_id', $appId)->firstOrFail();
+        }])->whereHas('profile', function ($query) use ($appId) {
+            $query->where('id_app', $appId);
+        })->firstOrFail();
 
         return view('profile.show-user', compact('user'));
     }
 
     public function edit()
     {
-        $user = User::with('profile')->find(Auth::id());
+        $user = User::with(['profile', 'teams' => function ($query) {
+            $query->withPivot(['role', 'status', 'joined_at'])
+                ->where('team_members.status', 'active');
+        }])->find(Auth::id());
         $games = \App\Models\Game::active()->orderBy('name')->get();
 
         return view('profile.edit', compact('user', 'games'));

@@ -5135,6 +5135,9 @@
     });
     </script>
     @endauth
+    
+    {{-- Chat Widget --}}
+    @include('partials.chat-widget')
 </body>
 
 </html>

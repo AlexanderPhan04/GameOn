@@ -193,6 +193,12 @@ Route::get('/register', function () {
 Route::middleware(['auth.session'])->prefix('chat')->name('chat.')->group(function () {
     // Main chat interface
     Route::get('/', [ChatController::class, 'index'])->name('index');
+    
+    // Widget API routes
+    Route::get('/conversations', [ChatController::class, 'getConversations'])->name('conversations');
+    Route::get('/unread-count', [ChatController::class, 'getUnreadCount'])->name('unread-count');
+    Route::get('/{conversation}/messages', [ChatController::class, 'getMessagesForWidget'])->name('widget.messages');
+    Route::post('/{conversation}/send', [ChatController::class, 'sendFromWidget'])->name('widget.send');
 
     // Conversation routes
     Route::get('/conversation/{conversation}', [ChatController::class, 'show'])->name('show');

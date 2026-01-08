@@ -19,16 +19,25 @@ class TeamInvitationSent implements ShouldBroadcastNow
     public function __construct(TeamInvitation $invitation)
     {
         $this->userId = $invitation->user_id;
+        $team = $invitation->team;
+        
         $this->invitation = [
             'id' => $invitation->id,
             'team' => [
-                'id' => $invitation->team->id,
-                'name' => $invitation->team->name,
-                'logo' => $invitation->team->logo_url,
+                'id' => $team->id,
+                'name' => $team->name,
+                'logo' => $team->logo_url,
+                'members_count' => $team->members()->count(),
+                'max_members' => $team->max_members,
+                'game' => $team->game ? [
+                    'id' => $team->game->id,
+                    'name' => $team->game->name,
+                ] : null,
             ],
             'inviter' => [
                 'id' => $invitation->inviter->id,
                 'name' => $invitation->inviter->display_name,
+                'display_name' => $invitation->inviter->display_name,
             ],
             'created_at' => $invitation->created_at->diffForHumans(),
         ];

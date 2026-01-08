@@ -4,6 +4,17 @@
 
 @push('styles')
 <style>
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
     .teams-page {
         min-height: calc(100vh - 64px);
         background: linear-gradient(180deg, #000814 0%, #0d1b2a 100%);
@@ -563,9 +574,9 @@
                 <a href="{{ route('teams.show', $team->id) }}" class="btn-team btn-team-view">
                     <i class="fas fa-eye"></i> Xem
                 </a>
-                <form action="{{ route('teams.leave', $team->id) }}" method="POST" style="flex: 1; display: flex;">
+                <form id="leaveTeamForm-{{ $team->id }}" action="{{ route('teams.leave', $team->id) }}" method="POST" style="flex: 1; display: flex;">
                     @csrf
-                    <button type="submit" class="btn-team btn-team-leave" style="width: 100%;" onclick="return confirm('Bạn có chắc muốn rời khỏi đội này?')">
+                    <button type="button" class="btn-team btn-team-leave" style="width: 100%;" onclick="showLeaveTeamModal({{ $team->id }})">
                         <i class="fas fa-sign-out-alt"></i> Rời đội
                     </button>
                 </form>
@@ -592,6 +603,130 @@
 
 @push('scripts')
 <script>
+// Custom Confirm Modal
+let customConfirmCallback = null;
+let leaveTeamId = null;
+
+function showCustomConfirm(options) {
+    // Remove existing modal if any
+    const existing = document.getElementById('customConfirmModal');
+    if (existing) existing.remove();
+    
+    customConfirmCallback = options.onConfirm || null;
+    
+    const modal = document.createElement('div');
+    modal.id = 'customConfirmModal';
+    modal.className = 'modal-overlay';
+    modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(4px);z-index:99999;display:flex;align-items:center;justify-content:center;animation:fadeIn 0.3s ease;';
+    modal.innerHTML = `
+        <div style="background:linear-gradient(145deg,#0d1b2a,#000022);border:1px solid rgba(0,229,255,0.3);border-radius:20px;width:100%;max-width:420px;overflow:hidden;animation:slideUp 0.3s ease;">
+            <div style="padding:1.25rem 1.5rem;border-bottom:1px solid rgba(0,229,255,0.1);display:flex;align-items:center;justify-content:space-between;">
+                <h5 style="color:#fff;font-size:1.1rem;font-weight:600;display:flex;align-items:center;gap:10px;margin:0;">
+                    <i class="fas fa-exclamation-triangle" style="color:#f59e0b;"></i>
+                    <span>${options.title || 'Xác nhận'}</span>
+                </h5>
+                <button type="button" onclick="closeCustomConfirm()" style="background:none;border:none;color:#94a3b8;cursor:pointer;font-size:1rem;padding:5px;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div style="padding:1.5rem;text-align:center;">
+                <div style="width:70px;height:70px;margin:0 auto 1.5rem;background:linear-gradient(135deg,rgba(239,68,68,0.2),rgba(239,68,68,0.1));border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                    <i class="fas fa-${options.icon || 'exclamation-triangle'}" style="font-size:1.75rem;color:${options.iconColor || '#ef4444'};"></i>
+                </div>
+                <p style="color:#e2e8f0;font-size:1rem;margin-bottom:0.5rem;">${options.message || 'Bạn có chắc chắn?'}</p>
+                <p style="color:#64748b;font-size:0.85rem;">${options.subMessage || ''}</p>
+            </div>
+            <div style="padding:1rem 1.5rem;border-top:1px solid rgba(0,229,255,0.1);display:flex;gap:1rem;justify-content:center;">
+                <button type="button" onclick="closeCustomConfirm()" style="min-width:100px;background:linear-gradient(135deg,#000055,#000077);color:#00E5FF;border:1px solid rgba(0,229,255,0.4);padding:0.6rem 1.25rem;border-radius:10px;font-size:0.85rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:8px;">
+                    <i class="fas fa-times"></i> Hủy
+                </button>
+                <button type="button" onclick="confirmCustomAction()" style="min-width:100px;background:linear-gradient(135deg,#000055,#000077);color:#ef4444;border:1px solid rgba(239,68,68,0.4);padding:0.6rem 1.25rem;border-radius:10px;font-size:0.85rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:8px;">
+                    <i class="fas fa-check"></i> ${options.btnText || 'Xác nhận'}
+                </button>
+            </div>
+        </div>
+        <style>@keyframes fadeIn{from{opacity:0}to{opacity:1}}@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}</style>
+    `;
+    
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) closeCustomConfirm();
+    });
+    
+    document.body.appendChild(modal);
+}
+
+function closeCustomConfirm() {
+    const modal = document.getElementById('customConfirmModal');
+    if (modal) {
+        modal.style.animation = 'fadeOut 0.2s ease forwards';
+        setTimeout(() => modal.remove(), 200);
+    }
+    customConfirmCallback = null;
+}
+
+function confirmCustomAction() {
+    if (customConfirmCallback) {
+        customConfirmCallback();
+    }
+    closeCustomConfirm();
+}
+
+function showLeaveTeamModal(teamId) {
+    leaveTeamId = teamId;
+    showCustomConfirm({
+        title: 'Rời khỏi đội',
+        message: 'Bạn có chắc chắn muốn rời khỏi đội này?',
+        subMessage: 'Bạn sẽ cần được mời lại nếu muốn tham gia lại.',
+        icon: 'sign-out-alt',
+        iconColor: '#f59e0b',
+        btnText: 'Rời đội',
+        onConfirm: function() {
+            const form = document.getElementById('leaveTeamForm-' + leaveTeamId);
+            if (form) form.submit();
+        }
+    });
+}
+
+// Toast Notifications
+function showErrorToast(message) {
+    showToast(message, 'error');
+}
+
+function showSuccessToast(message) {
+    showToast(message, 'success');
+}
+
+function showToast(message, type = 'info') {
+    const colors = {
+        error: { border: 'rgba(239,68,68,0.5)', icon: 'times-circle', iconColor: '#ef4444' },
+        success: { border: 'rgba(34,197,94,0.5)', icon: 'check-circle', iconColor: '#22c55e' },
+        info: { border: 'rgba(0,229,255,0.5)', icon: 'info-circle', iconColor: '#00E5FF' }
+    };
+    const config = colors[type] || colors.info;
+    
+    const toast = document.createElement('div');
+    toast.style.cssText = `position:fixed;top:80px;right:20px;background:linear-gradient(135deg,#0d1b2a,#000022);border:1px solid ${config.border};border-radius:12px;padding:1rem 1.5rem;color:#fff;z-index:99999;box-shadow:0 10px 40px rgba(0,0,0,0.5);max-width:400px;animation:toastSlideIn 0.3s ease;display:flex;align-items:center;gap:12px;`;
+    toast.innerHTML = `
+        <i class="fas fa-${config.icon}" style="font-size:1.25rem;color:${config.iconColor};"></i>
+        <span style="flex:1;font-size:0.9rem;">${message}</span>
+        <button onclick="this.parentElement.remove()" style="background:none;border:none;color:#64748b;cursor:pointer;padding:5px;"><i class="fas fa-times"></i></button>
+    `;
+    
+    if (!document.getElementById('toast-animation-style')) {
+        const style = document.createElement('style');
+        style.id = 'toast-animation-style';
+        style.textContent = `@keyframes toastSlideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}@keyframes toastSlideOut{from{transform:translateX(0);opacity:1}to{transform:translateX(100%);opacity:0}}`;
+        document.head.appendChild(style);
+    }
+    
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.style.animation = 'toastSlideOut 0.3s ease forwards';
+        setTimeout(() => toast.remove(), 300);
+    }, 5000);
+}
+
 function acceptInvitation(invitationId) {
     fetch(`{{ url('team-invitations') }}/${invitationId}/accept`, {
         method: 'POST',
@@ -615,7 +750,21 @@ function acceptInvitation(invitationId) {
 }
 
 function declineInvitation(invitationId) {
-    if (!confirm('Bạn có chắc muốn từ chối lời mời này?')) return;
+    const capturedInvitationId = invitationId; // Capture in closure
+    showCustomConfirm({
+        title: 'Từ chối lời mời',
+        message: 'Bạn có chắc chắn muốn từ chối lời mời này?',
+        subMessage: 'Bạn sẽ cần được mời lại nếu muốn tham gia đội.',
+        icon: 'times-circle',
+        iconColor: '#ef4444',
+        btnText: 'Từ chối',
+        onConfirm: function() {
+            executeDeclineInvitation(capturedInvitationId);
+        }
+    });
+}
+
+function executeDeclineInvitation(invitationId) {
     
     fetch(`{{ url('team-invitations') }}/${invitationId}/decline`, {
         method: 'POST',
@@ -661,7 +810,7 @@ function declineInvitation(invitationId) {
     })
     .catch(error => {
         console.error('Error declining invitation:', error);
-        alert('Có lỗi xảy ra khi từ chối lời mời. Vui lòng thử lại.');
+        showErrorToast('Có lỗi xảy ra khi từ chối lời mời: ' + error.message);
     });
 }
 
@@ -670,61 +819,120 @@ document.addEventListener('DOMContentLoaded', function() {
     if (typeof Echo !== 'undefined') {
         Echo.private(`user.{{ Auth::id() }}`)
             .listen('.team.invitation', (e) => {
-                console.log('New team invitation received:', e);
-                // Show notification toast only - no auto reload
-                showInvitationNotification(e.invitation);
-                // User can manually refresh or click the toast to see the invitation
+                // Only add invitation card to DOM (toast is handled by global notification in layout)
+                addInvitationCard(e.invitation);
             });
     }
 });
 
-function showInvitationNotification(invitation) {
-    // Create toast notification
-    const toast = document.createElement('div');
-    toast.style.cssText = `
-        position: fixed;
-        top: 80px;
-        right: 20px;
-        background: linear-gradient(135deg, #0d1b2a, #000022);
-        border: 1px solid rgba(245, 158, 11, 0.5);
-        border-radius: 12px;
-        padding: 1rem 1.5rem;
-        color: #fff;
-        z-index: 99999;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-        animation: slideIn 0.3s ease;
-        max-width: 350px;
-    `;
-    toast.innerHTML = `
-        <div style="display: flex; align-items: center; gap: 12px;">
-            <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #f59e0b, #d97706); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
-                <i class="fas fa-envelope" style="color: #fff;"></i>
+function addInvitationCard(invitation) {
+    // Check if invitations section exists, if not create it
+    let invitationsSection = document.querySelector('.invitations-section');
+    
+    if (!invitationsSection) {
+        // Create the section - use .teams-page instead of .teams-container
+        const mainContent = document.querySelector('.teams-page');
+        if (!mainContent) return;
+        
+        // Find the header to insert after it
+        const header = mainContent.querySelector('.teams-header');
+        
+        invitationsSection = document.createElement('div');
+        invitationsSection.className = 'invitations-section';
+        invitationsSection.style.marginBottom = '2rem';
+        invitationsSection.innerHTML = `
+            <div class="section-title" style="border-color: rgba(245, 158, 11, 0.3);">
+                <i class="fas fa-envelope" style="color: #f59e0b;"></i>
+                <h2>Lời mời tham gia đội (0)</h2>
             </div>
-            <div>
-                <div style="font-weight: 600; margin-bottom: 4px;">Lời mời tham gia đội</div>
-                <div style="font-size: 0.85rem; color: #94a3b8;">
-                    <strong style="color: #00E5FF;">${invitation.inviter.name}</strong> mời bạn tham gia đội <strong style="color: #f59e0b;">${invitation.team.name}</strong>
+            <div class="teams-grid"></div>
+        `;
+        
+        // Insert after header
+        if (header && header.nextSibling) {
+            mainContent.insertBefore(invitationsSection, header.nextSibling);
+        } else {
+            mainContent.insertBefore(invitationsSection, mainContent.firstChild);
+        }
+        
+        // Also hide empty state if exists
+        const emptyState = mainContent.querySelector('.empty-state');
+        if (emptyState) {
+            emptyState.style.display = 'none';
+        }
+    }
+    
+    const teamsGrid = invitationsSection.querySelector('.teams-grid');
+    if (!teamsGrid) return;
+    
+    // Check if card already exists
+    if (document.querySelector(`[data-invitation-id="${invitation.id}"]`)) return;
+    
+    // Create new card
+    const card = document.createElement('div');
+    card.className = 'team-card';
+    card.setAttribute('data-invitation-id', invitation.id);
+    card.style.borderColor = 'rgba(245, 158, 11, 0.3)';
+    card.style.animation = 'fadeInUp 0.5s ease';
+    
+    const logoHtml = invitation.team.logo 
+        ? `<img src="${invitation.team.logo}" alt="${invitation.team.name}">`
+        : `<div class="team-card-image-placeholder"><i class="fas fa-users"></i></div>`;
+    
+    const inviterName = invitation.inviter.display_name || invitation.inviter.name || 'Ai đó';
+    const memberCount = invitation.team.members_count || '?';
+    const maxMembers = invitation.team.max_members || '∞';
+    const gameName = invitation.team.game ? invitation.team.game.name : null;
+    
+    card.innerHTML = `
+        <div class="team-card-image">
+            ${logoHtml}
+            <div class="captain-badge" style="background: linear-gradient(135deg, #6366f1, #8b5cf6);">
+                <i class="fas fa-envelope"></i>
+                Lời mời
+            </div>
+        </div>
+        <div class="team-card-body">
+            <h3 class="team-card-name">${invitation.team.name}</h3>
+            <p class="team-card-desc">
+                <i class="fas fa-user" style="color: #00E5FF;"></i>
+                Được mời bởi: <strong style="color: #00E5FF;">${inviterName}</strong>
+            </p>
+            <div class="team-card-meta">
+                <div class="meta-item">
+                    <i class="fas fa-users"></i>
+                    ${memberCount}/${maxMembers} thành viên
+                </div>
+                <div class="meta-item">
+                    <i class="fas fa-clock"></i>
+                    Vừa xong
                 </div>
             </div>
+            ${gameName ? `<div class="team-card-tags"><span class="tag-game">${gameName}</span></div>` : ''}
+        </div>
+        <div class="team-card-footer">
+            <button type="button" class="btn-team btn-team-view" style="background: rgba(34, 197, 94, 0.1); border-color: rgba(34, 197, 94, 0.3); color: #22c55e;" onclick="acceptInvitation(${invitation.id})">
+                <i class="fas fa-check"></i> Chấp nhận
+            </button>
+            <button type="button" class="btn-team btn-team-leave" onclick="declineInvitation(${invitation.id})">
+                <i class="fas fa-times"></i> Từ chối
+            </button>
         </div>
     `;
     
-    // Add animation style
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-    `;
-    document.head.appendChild(style);
-    document.body.appendChild(toast);
+    // Add to beginning of grid
+    teamsGrid.insertBefore(card, teamsGrid.firstChild);
     
-    // Remove after 5 seconds
-    setTimeout(() => {
-        toast.style.animation = 'slideIn 0.3s ease reverse';
-        setTimeout(() => toast.remove(), 300);
-    }, 5000);
+    // Update count
+    updateInvitationCount();
+}
+
+function updateInvitationCount() {
+    const countEl = document.querySelector('.invitations-section .section-title h2');
+    if (countEl) {
+        const count = document.querySelectorAll('[data-invitation-id]').length;
+        countEl.textContent = `Lời mời tham gia đội (${count})`;
+    }
 }
 </script>
 @endpush

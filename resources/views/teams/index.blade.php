@@ -405,7 +405,7 @@
         </div>
         <div class="teams-grid">
             @foreach($pendingInvitations as $invitation)
-            <div class="team-card" style="border-color: rgba(245, 158, 11, 0.3);">
+            <div class="team-card" data-invitation-id="{{ $invitation->id }}" style="border-color: rgba(245, 158, 11, 0.3);">
                 <div class="team-card-image">
                     @if($invitation->team->logo_url)
                         <img src="{{ $invitation->team->logo_url }}" alt="{{ $invitation->team->name }}">
@@ -621,16 +621,47 @@ function declineInvitation(invitationId) {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Accept': 'application/json'
         }
     })
-    .then(r => r.json())
+    .then(r => {
+        if (!r.ok) {
+            throw new Error(`HTTP error! status: ${r.status}`);
+        }
+        return r.json();
+    })
     .then(data => {
         if (data.success) {
-            location.reload();
+            // Remove the invitation card from DOM
+            const card = document.querySelector(`[data-invitation-id="${invitationId}"]`);
+            if (card) {
+                card.style.transition = 'all 0.3s ease';
+                card.style.opacity = '0';
+                card.style.transform = 'scale(0.9)';
+                setTimeout(() => {
+                    card.remove();
+                    // Update invitation count
+                    const countEl = document.querySelector('.invitations-section .section-title h2');
+                    if (countEl) {
+                        const remainingCards = document.querySelectorAll('[data-invitation-id]').length;
+                        if (remainingCards === 0) {
+                            document.querySelector('.invitations-section').remove();
+                        } else {
+                            countEl.textContent = `Lời mời tham gia đội (${remainingCards})`;
+                        }
+                    }
+                }, 300);
+            } else {
+                location.reload();
+            }
         } else {
             alert(data.message || 'Có lỗi xảy ra');
         }
+    })
+    .catch(error => {
+        console.error('Error declining invitation:', error);
+        alert('Có lỗi xảy ra khi từ chối lời mời. Vui lòng thử lại.');
     });
 }
 
@@ -640,10 +671,9 @@ document.addEventListener('DOMContentLoaded', function() {
         Echo.private(`user.{{ Auth::id() }}`)
             .listen('.team.invitation', (e) => {
                 console.log('New team invitation received:', e);
-                // Show notification toast
+                // Show notification toast only - no auto reload
                 showInvitationNotification(e.invitation);
-                // Reload page to show new invitation
-                setTimeout(() => location.reload(), 2000);
+                // User can manually refresh or click the toast to see the invitation
             });
     }
 });

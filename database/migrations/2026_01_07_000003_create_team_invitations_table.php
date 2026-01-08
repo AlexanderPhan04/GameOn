@@ -17,8 +17,9 @@ return new class extends Migration
             $table->timestamp('expires_at')->nullable();
             $table->timestamps();
 
-            $table->unique(['team_id', 'user_id', 'status']);
+            // Only index, no unique constraint that includes status
             $table->index(['user_id', 'status']);
+            $table->index(['team_id', 'user_id']);
         });
     }
 

@@ -219,6 +219,9 @@ class TeamController extends Controller
 
         $team->members()->detach($user->id);
 
+        // Broadcast member left event for realtime updates
+        event(new TeamMemberChanged($team, $user, 'removed'));
+
         return back()->with('success', 'Bạn đã rời khỏi đội!');
     }
 
@@ -400,6 +403,16 @@ class TeamController extends Controller
 
         // Load relationships and broadcast
         $invitation->load(['team', 'inviter']);
+        
+        // Create notification in database
+        \App\Models\Notification::createTeamInvitation($user->id, [
+            'inviter_name' => Auth::user()->display_name,
+            'team_name' => $team->name,
+            'team_logo' => $team->logo_url,
+            'team_id' => $team->id,
+            'invitation_id' => $invitation->id,
+        ]);
+        
         event(new TeamInvitationSent($invitation));
 
         return response()->json([
@@ -523,81 +536,109 @@ class TeamController extends Controller
     /**
      * Accept team invitation
      */
-    public function acceptInvitation(TeamInvitation $invitation)
+    public function acceptInvitation($id)
     {
-        // Check if invitation belongs to current user
-        if ($invitation->user_id !== Auth::id()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Bạn không có quyền thực hiện hành động này',
-            ], 403);
-        }
+        try {
+            $invitation = TeamInvitation::findOrFail($id);
+            
+            // Check if invitation belongs to current user
+            if ((int) $invitation->user_id !== (int) Auth::id()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Bạn không có quyền thực hiện hành động này',
+                ], 403);
+            }
 
-        // Check if invitation is still valid
-        if (!$invitation->isPending()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Lời mời đã hết hạn hoặc không còn hiệu lực',
+            // Check if invitation is still valid
+            if (!$invitation->isPending()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Lời mời đã hết hạn hoặc không còn hiệu lực',
+                ]);
+            }
+
+            $team = $invitation->team;
+
+            // Check if already a member
+            if ($team->members->contains(Auth::id())) {
+                $invitation->update(['status' => 'accepted']);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Bạn đã là thành viên của đội này',
+                ]);
+            }
+
+            // Check max members
+            if ($team->members->count() >= ($team->max_members ?? 10)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Đội đã đủ số lượng thành viên tối đa',
+                ]);
+            }
+
+            // Add to team
+            $team->members()->attach(Auth::id(), [
+                'role' => 'member',
+                'status' => 'active',
+                'joined_at' => now(),
             ]);
-        }
 
-        $team = $invitation->team;
-
-        // Check if already a member
-        if ($team->members->contains(Auth::id())) {
+            // Update invitation status
             $invitation->update(['status' => 'accepted']);
+
+            // Broadcast member added
+            event(new TeamMemberChanged($team, Auth::user(), 'added'));
+
+            return response()->json([
+                'success' => true,
+                'message' => "Bạn đã tham gia đội {$team->name}",
+                'redirect' => route('teams.show', $team->id),
+            ]);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Bạn đã là thành viên của đội này',
-            ]);
-        }
-
-        // Check max members
-        if ($team->members->count() >= ($team->max_members ?? 10)) {
+                'message' => 'Lời mời không tồn tại',
+            ], 404);
+        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Đội đã đủ số lượng thành viên tối đa',
-            ]);
+                'message' => 'Có lỗi xảy ra: ' . $e->getMessage(),
+            ], 500);
         }
-
-        // Add to team
-        $team->members()->attach(Auth::id(), [
-            'role' => 'member',
-            'status' => 'active',
-            'joined_at' => now(),
-        ]);
-
-        // Update invitation status
-        $invitation->update(['status' => 'accepted']);
-
-        // Broadcast member added
-        event(new TeamMemberChanged($team, Auth::user(), 'added'));
-
-        return response()->json([
-            'success' => true,
-            'message' => "Bạn đã tham gia đội {$team->name}",
-            'redirect' => route('teams.show', $team->id),
-        ]);
     }
 
     /**
      * Decline team invitation
      */
-    public function declineInvitation(TeamInvitation $invitation)
+    public function declineInvitation($id)
     {
-        // Check if invitation belongs to current user
-        if ($invitation->user_id !== Auth::id()) {
+        try {
+            $invitation = TeamInvitation::findOrFail($id);
+            
+            // Check if invitation belongs to current user
+            if ((int) $invitation->user_id !== (int) Auth::id()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Bạn không có quyền thực hiện hành động này',
+                ], 403);
+            }
+
+            $invitation->update(['status' => 'declined']);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Đã từ chối lời mời',
+            ]);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Bạn không có quyền thực hiện hành động này',
-            ], 403);
+                'message' => 'Lời mời không tồn tại',
+            ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Có lỗi xảy ra: ' . $e->getMessage(),
+            ], 500);
         }
-
-        $invitation->update(['status' => 'declined']);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Đã từ chối lời mời',
-        ]);
     }
 }

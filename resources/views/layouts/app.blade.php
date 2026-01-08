@@ -4640,10 +4640,24 @@
             }
             
             function markAllAsRead() {
-                notifications.forEach(n => n.read = true);
-                unreadCount = 0;
-                updateBadge();
-                renderNotifications();
+                fetch('/notifications/mark-all-read', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        notifications.forEach(n => n.read = true);
+                        unreadCount = 0;
+                        updateBadge();
+                        renderNotifications();
+                    }
+                })
+                .catch(err => console.error('Error marking all as read:', err));
             }
             
             // Update badge (both desktop and mobile)
@@ -5013,8 +5027,36 @@
             
             setupEchoNotifications();
             
-            // Initial render
-            renderNotifications();
+            // Load notifications from database
+            loadNotificationsFromDB();
+            
+            // Function to load notifications from database
+            function loadNotificationsFromDB() {
+                fetch('/notifications', {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success && data.notifications) {
+                        notifications = data.notifications.map(n => ({
+                            id: n.id,
+                            message: n.message,
+                            avatar: n.data?.avatar || null,
+                            icon: n.data?.icon || 'bell',
+                            url: n.data?.url || '#',
+                            time: n.time,
+                            read: n.read
+                        }));
+                        unreadCount = notifications.filter(n => !n.read).length;
+                        updateBadge();
+                        renderNotifications();
+                    }
+                })
+                .catch(err => console.error('Error loading notifications:', err));
+            }
         });
     </script>
     @endauth

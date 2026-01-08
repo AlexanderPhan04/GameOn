@@ -114,8 +114,8 @@ Route::middleware(['auth.session'])->group(function () {
         Route::post('/teams/{team}/chat', [TeamController::class, 'sendMessage'])->name('teams.chat.send');
         
         // Team invitations
-        Route::post('/team-invitations/{invitation}/accept', [TeamController::class, 'acceptInvitation'])->name('teams.invitation.accept');
-        Route::post('/team-invitations/{invitation}/decline', [TeamController::class, 'declineInvitation'])->name('teams.invitation.decline');
+        Route::post('/team-invitations/{invitationId}/accept', [TeamController::class, 'acceptInvitation'])->name('teams.invitation.accept');
+        Route::post('/team-invitations/{invitationId}/decline', [TeamController::class, 'declineInvitation'])->name('teams.invitation.decline');
         Route::get('/my-invitations', [TeamController::class, 'myInvitations'])->name('teams.my-invitations');
     });
 });
@@ -226,6 +226,16 @@ Route::middleware(['auth.session'])->prefix('chat')->name('chat.')->group(functi
 Route::prefix('api')->middleware(['auth.session'])->group(function () {
     Route::post('/user/heartbeat', [ChatController::class, 'heartbeat'])->name('api.user.heartbeat');
     Route::get('/conversation/{conversation}/participants/status', [ChatController::class, 'getParticipantsStatus'])->name('api.conversation.participants.status');
+});
+
+// Notification routes
+Route::prefix('notifications')->name('notifications.')->middleware(['auth.session'])->group(function () {
+    Route::get('/', [\App\Http\Controllers\NotificationController::class, 'index'])->name('index');
+    Route::get('/unread-count', [\App\Http\Controllers\NotificationController::class, 'unreadCount'])->name('unread-count');
+    Route::post('/{id}/read', [\App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('read');
+    Route::post('/mark-all-read', [\App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('mark-all-read');
+    Route::delete('/{id}', [\App\Http\Controllers\NotificationController::class, 'destroy'])->name('destroy');
+    Route::delete('/', [\App\Http\Controllers\NotificationController::class, 'clearAll'])->name('clear-all');
 });
 
 // Posts routes (basic placeholder)

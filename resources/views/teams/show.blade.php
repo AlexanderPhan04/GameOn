@@ -847,19 +847,30 @@ document.getElementById('chatInput')?.addEventListener('keypress', function(e) {
 
 // Load messages and setup realtime on page load
 @auth
+// Setup realtime for team member changes (for all viewers)
+document.addEventListener('DOMContentLoaded', function() {
+    // Setup Laravel Echo for realtime member changes
+    if (typeof Echo !== 'undefined') {
+        console.log('Setting up Echo listener for team.' + teamId);
+        Echo.private(`team.${teamId}`)
+            .listen('.member.changed', (e) => {
+                console.log('Member changed event:', e);
+                // Reload page when member is added or removed
+                location.reload();
+            });
+    }
+});
+
 @if($team->members->where('id', Auth::id())->first())
+// Additional setup for team members (chat)
 document.addEventListener('DOMContentLoaded', function() {
     loadMessages();
     
-    // Setup Laravel Echo for realtime
+    // Setup Laravel Echo for realtime chat
     if (typeof Echo !== 'undefined') {
         Echo.private(`team.${teamId}`)
             .listen('.message.sent', (e) => {
                 appendMessage(e.message);
-            })
-            .listen('.member.changed', (e) => {
-                // Reload page when member is added or removed
-                location.reload();
             });
     } else {
         // Fallback: poll every 10 seconds if Echo not available

@@ -389,8 +389,8 @@
         <div class="team-hero">
             <div class="d-flex flex-wrap align-items-center justify-content-between gap-4">
                 <div class="d-flex align-items-center gap-4">
-                    @if($team->logo_url)
-                    <img src="{{ $team->logo_url }}" class="team-logo" alt="{{ $team->name }}">
+                    @if($team->logo)
+                    <img src="{{ $team->logo }}" class="team-logo" alt="{{ $team->name }}">
                     @else
                     <div class="team-logo-fallback">
                         <i class="fas fa-users"></i>

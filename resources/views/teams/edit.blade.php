@@ -35,9 +35,9 @@
 
                         <div class="mb-3">
                             <label for="logo" class="form-label">Logo đội</label>
-                            @if($team->logo_url)
+                            @if($team->logo)
                             <div class="mb-2">
-                                <img src="{{ asset('uploads/' . $team->logo_url) }}" class="img-thumbnail" style="width: 100px; height: 100px; object-fit: cover;">
+                                <img src="{{ $team->logo }}" class="img-thumbnail" style="width: 100px; height: 100px; object-fit: cover;">
                                 <p class="small text-muted mt-1">Logo hiện tại</p>
                             </div>
                             @endif

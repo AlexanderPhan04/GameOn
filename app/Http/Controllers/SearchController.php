@@ -18,24 +18,33 @@ class SearchController extends Controller
         $q = trim((string) $request->get('q', ''));
         if ($q === '') {
             return response()->json([
-                'users' => [], 'teams' => [], 'tournaments' => [], 'games' => [],
+                'users' => [], 'teams' => [], 'tournaments' => [],
             ]);
         }
 
         $limit = (int) ($request->get('limit', 5));
         $user = Auth::user();
+        $isAdmin = $user && in_array($user->user_role, ['admin', 'super_admin']);
 
         $users = User::query()
             ->where(function ($w) use ($q) {
                 $w->where('name', 'like', "%$q%")
-                    ->orWhere('email', 'like', "%$q%");
+                    ->orWhere('email', 'like', "%$q%")
+                    ->orWhereHas('profile', function ($p) use ($q) {
+                        $p->where('id_app', 'like', "%$q%")
+                            ->orWhere('full_name', 'like', "%$q%");
+                    });
             })
-            ->with('profile:user_id,avatar')
+            ->with('profile:user_id,avatar,id_app,full_name')
             ->limit($limit)
             ->get(['id', 'name', 'email']);
 
         $teams = Team::query()
-            ->where('name', 'like', "%$q%")
+            ->where(function ($w) use ($q) {
+                $w->where('name', 'like', "%$q%")
+                    ->orWhere('name', 'like', "%" . str_replace(' ', '', $q) . "%")
+                    ->orWhere('name', 'like', "%" . str_replace(' ', '%', $q) . "%");
+            })
             ->limit($limit)
             ->get(['id', 'name']);
 
@@ -51,16 +60,27 @@ class SearchController extends Controller
                 ->get(['id', 'name']);
         }
 
-        // Prefer admin GameManagement if exists; fallback to public Game
-        $games = GameManagement::query()
-            ->where('name', 'like', "%$q%")
-            ->limit($limit)
-            ->get(['id', 'name']);
-        if ($games->isEmpty()) {
-            $games = Game::query()
-                ->where('name', 'like', "%$q%")
+        // Games only for admin
+        $games = collect();
+        if ($isAdmin) {
+            $games = GameManagement::query()
+                ->where(function ($w) use ($q) {
+                    $w->where('name', 'like', "%$q%")
+                        ->orWhere('name', 'like', "%" . str_replace(' ', '', $q) . "%")
+                        ->orWhere('name', 'like', "%" . str_replace(' ', '%', $q) . "%");
+                })
                 ->limit($limit)
                 ->get(['id', 'name']);
+            if ($games->isEmpty()) {
+                $games = Game::query()
+                    ->where(function ($w) use ($q) {
+                        $w->where('name', 'like', "%$q%")
+                            ->orWhere('name', 'like', "%" . str_replace(' ', '', $q) . "%")
+                            ->orWhere('name', 'like', "%" . str_replace(' ', '%', $q) . "%");
+                    })
+                    ->limit($limit)
+                    ->get(['id', 'name']);
+            }
         }
 
         // Build URLs to relevant index pages with search params
@@ -69,21 +89,18 @@ class SearchController extends Controller
                 $name = $item->name ?? '';
                 $base = '#';
                 if ($type === 'users') {
-                    // For users, redirect to their profile page
-                    // If it's the current user, redirect to their own profile page
-                    if ($item->id == $user->id) {
+                    if ($user && $item->id == $user->id) {
                         $base = route('profile.show');
                     } else {
-                        $base = route('profile.show-user', $item->id);
+                        $idApp = $item->profile?->id_app ?? $item->id;
+                        $base = route('profile.show-user', $idApp);
                     }
                 } elseif ($type === 'teams') {
-                    $base = route('teams.index', ['search' => $name]);
+                    $base = route('teams.show', $item->id);
                 } elseif ($type === 'tournaments') {
-                    $base = route('tournaments.index', ['search' => $name]);
+                    $base = route('tournaments.show', $item->id);
                 } elseif ($type === 'games') {
-                    $base = $user && in_array($user->user_role, ['admin', 'super_admin'])
-                        ? route('admin.games.index', ['search' => $name])
-                        : '#';
+                    $base = route('admin.games.show', $item->id);
                 }
 
                 return [
@@ -95,12 +112,17 @@ class SearchController extends Controller
             });
         };
 
-        return response()->json([
+        $result = [
             'users' => $map($users, 'users'),
             'teams' => $map($teams, 'teams'),
             'tournaments' => $map($tournaments, 'tournaments'),
-            'games' => $map($games, 'games'),
-        ]);
+        ];
+        
+        if ($isAdmin) {
+            $result['games'] = $map($games, 'games');
+        }
+
+        return response()->json($result);
     }
 
     public function view(Request $request)
@@ -109,6 +131,7 @@ class SearchController extends Controller
         $limit = (int) ($request->get('limit', 15));
         $type = $request->get('type'); // users|teams|tournaments|games|null (all)
         $user = Auth::user();
+        $isAdmin = $user && in_array($user->user_role, ['admin', 'super_admin']);
 
         $users = $teams = $tournaments = $games = collect();
 
@@ -117,14 +140,23 @@ class SearchController extends Controller
                 $users = User::query()
                     ->where(function ($w) use ($q) {
                         $w->where('name', 'like', "%$q%")
-                            ->orWhere('email', 'like', "%$q%");
+                            ->orWhere('email', 'like', "%$q%")
+                            ->orWhereHas('profile', function ($p) use ($q) {
+                                $p->where('id_app', 'like', "%$q%")
+                                    ->orWhere('full_name', 'like', "%$q%");
+                            });
                     })
-                    ->with('profile:user_id,avatar')
+                    ->with('profile:user_id,avatar,id_app,full_name')
                     ->limit($limit)
                     ->get(['id', 'name', 'email']);
             }
             if (! $type || $type === 'teams') {
-                $teams = Team::query()->where('name', 'like', "%$q%")
+                $teams = Team::query()
+                    ->where(function ($w) use ($q) {
+                        $w->where('name', 'like', "%$q%")
+                            ->orWhere('name', 'like', "%" . str_replace(' ', '', $q) . "%")
+                            ->orWhere('name', 'like', "%" . str_replace(' ', '%', $q) . "%");
+                    })
                     ->limit($limit)->get(['id', 'name']);
             }
             if (! $type || $type === 'tournaments') {
@@ -135,11 +167,22 @@ class SearchController extends Controller
                         ->limit($limit)->get(['id', 'name']);
                 }
             }
-            if (! $type || $type === 'games') {
-                $games = GameManagement::query()->where('name', 'like', "%$q%")
+            // Games only for admin
+            if ($isAdmin && (! $type || $type === 'games')) {
+                $games = GameManagement::query()
+                    ->where(function ($w) use ($q) {
+                        $w->where('name', 'like', "%$q%")
+                            ->orWhere('name', 'like', "%" . str_replace(' ', '', $q) . "%")
+                            ->orWhere('name', 'like', "%" . str_replace(' ', '%', $q) . "%");
+                    })
                     ->limit($limit)->get(['id', 'name']);
                 if ($games->isEmpty()) {
-                    $games = Game::query()->where('name', 'like', "%$q%")
+                    $games = Game::query()
+                        ->where(function ($w) use ($q) {
+                            $w->where('name', 'like', "%$q%")
+                                ->orWhere('name', 'like', "%" . str_replace(' ', '', $q) . "%")
+                                ->orWhere('name', 'like', "%" . str_replace(' ', '%', $q) . "%");
+                        })
                         ->limit($limit)->get(['id', 'name']);
                 }
             }
@@ -148,13 +191,31 @@ class SearchController extends Controller
         $counts = [
             'users' => $q === '' ? 0 : User::where(function ($w) use ($q) {
                 $w->where('name', 'like', "%$q%")
-                    ->orWhere('email', 'like', "%$q%");
+                    ->orWhere('email', 'like', "%$q%")
+                    ->orWhereHas('profile', function ($p) use ($q) {
+                        $p->where('id_app', 'like', "%$q%")
+                            ->orWhere('full_name', 'like', "%$q%");
+                    });
             })->count(),
-            'teams' => $q === '' ? 0 : Team::where('name', 'like', "%$q%")->count(),
+            'teams' => $q === '' ? 0 : Team::where(function ($w) use ($q) {
+                $w->where('name', 'like', "%$q%")
+                    ->orWhere('name', 'like', "%" . str_replace(' ', '', $q) . "%")
+                    ->orWhere('name', 'like', "%" . str_replace(' ', '%', $q) . "%");
+            })->count(),
             'tournaments' => $q === '' ? 0 : (TournamentManagement::where('name', 'like', "%$q%")->count() ?: Tournament::where('name', 'like', "%$q%")->count()),
-            'games' => $q === '' ? 0 : (GameManagement::where('name', 'like', "%$q%")->count() ?: Game::where('name', 'like', "%$q%")->count()),
         ];
+        
+        // Games count only for admin
+        if ($isAdmin) {
+            $counts['games'] = $q === '' ? 0 : (GameManagement::where(function ($w) use ($q) {
+                $w->where('name', 'like', "%$q%")
+                    ->orWhere('name', 'like', "%" . str_replace(' ', '', $q) . "%");
+            })->count() ?: Game::where(function ($w) use ($q) {
+                $w->where('name', 'like', "%$q%")
+                    ->orWhere('name', 'like', "%" . str_replace(' ', '', $q) . "%");
+            })->count());
+        }
 
-        return view('search.index', compact('q', 'type', 'users', 'teams', 'tournaments', 'games', 'counts', 'user'));
+        return view('search.index', compact('q', 'type', 'users', 'teams', 'tournaments', 'games', 'counts', 'user', 'isAdmin'));
     }
 }

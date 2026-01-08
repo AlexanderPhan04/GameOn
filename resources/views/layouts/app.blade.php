@@ -3157,7 +3157,7 @@
 
                     <!-- Search -->
                     @auth
-                    <div class="relative hidden lg:block" id="navbarSearchWrapper">
+                    <div class="relative" id="navbarSearchWrapper">
                         <button type="button" class="gameon-nav-link" id="navbarSearchToggle" style="border: none; background: none; cursor: pointer;" title="{{ __('app.search.search') }}">
                             <i class="fas fa-magnifying-glass"></i>
                         </button>
@@ -3177,7 +3177,7 @@
 
                     <!-- Cart Icon -->
                     @auth
-                    <a href="{{ route('marketplace.cart') }}" class="gameon-nav-link cart-icon-btn hidden lg:flex" style="position: relative;" title="{{ __('app.nav.cart') }}">
+                    <a href="{{ route('marketplace.cart') }}" class="gameon-nav-link cart-icon-btn" style="position: relative;" title="{{ __('app.nav.cart') }}">
                         <i class="fas fa-shopping-cart"></i>
                         @php
                             $cartCount = session('cart') ? count(session('cart')) : 0;
@@ -3190,7 +3190,7 @@
 
                     <!-- Notification Bell -->
                     @auth
-                    <div class="relative hidden lg:block" id="notificationBell">
+                    <div class="relative" id="notificationBell">
                         <button type="button" class="gameon-nav-link notification-bell-btn" id="notificationToggle" style="border: none; background: none; cursor: pointer; position: relative;" title="{{ __('app.notifications.title') }}">
                             <i class="fas fa-bell"></i>
                             <span class="notification-badge" id="notificationCount" style="display: none;">0</span>
@@ -3279,6 +3279,12 @@
                                 <a href="{{ route('profile.show') }}" class="gameon-dropdown-item">
                                     <i class="fas fa-id-card"></i>
                                     <span>{{ __('app.profile.personal_info') }}</span>
+                                </a>
+                            </li>
+                            <li class="list-none">
+                                <a href="{{ route('profile.settings') }}" class="gameon-dropdown-item">
+                                    <i class="fas fa-cog"></i>
+                                    <span>{{ __('app.profile.account_settings') }}</span>
                                 </a>
                             </li>
                             
@@ -3497,9 +3503,15 @@
                     </a>
                     @endif
                     @if(Route::has('profile.show'))
-                    <a href="{{ route('profile.show') }}" class="mobile-menu-item {{ Request::is('profile*') ? 'active' : '' }}">
+                    <a href="{{ route('profile.show') }}" class="mobile-menu-item {{ Request::is('profile') ? 'active' : '' }}">
                         <i class="fas fa-id-card"></i>
                         <span>{{ __('app.profile.personal_info') }}</span>
+                    </a>
+                    @endif
+                    @if(Route::has('profile.settings'))
+                    <a href="{{ route('profile.settings') }}" class="mobile-menu-item {{ Request::is('profile/settings*') ? 'active' : '' }}">
+                        <i class="fas fa-cog"></i>
+                        <span>{{ __('app.profile.account_settings') }}</span>
                     </a>
                     @endif
                 </nav>
@@ -4547,6 +4559,21 @@
         });
     </script>
 
+    <!-- User Status Check Script -->
+    @auth
+    <script>
+        // Check user status on page load and sync with server
+        (function() {
+            const userStatus = '{{ Auth::user()->status }}';
+            if (['suspended', 'banned', 'deleted'].includes(userStatus)) {
+                sessionStorage.setItem('userRestricted', userStatus);
+            } else {
+                sessionStorage.removeItem('userRestricted');
+            }
+        })();
+    </script>
+    @endauth
+
     <!-- Notification Bell Script -->
     @auth
     <script>
@@ -4613,10 +4640,24 @@
             }
             
             function markAllAsRead() {
-                notifications.forEach(n => n.read = true);
-                unreadCount = 0;
-                updateBadge();
-                renderNotifications();
+                fetch('/notifications/mark-all-read', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        notifications.forEach(n => n.read = true);
+                        unreadCount = 0;
+                        updateBadge();
+                        renderNotifications();
+                    }
+                })
+                .catch(err => console.error('Error marking all as read:', err));
             }
             
             // Update badge (both desktop and mobile)
@@ -4783,13 +4824,239 @@
                             icon: 'comment',
                             url: `/chat/conversation/${e.conversation_id}`
                         });
+                    })
+                    .listen('.team.invitation', (e) => {
+                        // New team invitation received
+                        addNotification({
+                            message: `<strong>${e.invitation.inviter.name}</strong> mời bạn tham gia đội <strong style="color:#f59e0b;">${e.invitation.team.name}</strong>`,
+                            avatar: e.invitation.team.logo,
+                            icon: 'users',
+                            url: '/teams'
+                        });
+                        
+                        // Show toast notification
+                        showTeamInvitationToast(e.invitation);
+                    })
+                    .listen('.status.changed', (e) => {
+                        // User status has been changed by admin
+                        showUserStatusPopup(e.status, e.status_display, e.message);
                     });
             }
             
+            // Show toast for team invitation
+            function showTeamInvitationToast(invitation) {
+                const toast = document.createElement('div');
+                toast.className = 'team-invitation-toast';
+                toast.innerHTML = `
+                    <div style="display:flex;align-items:center;gap:12px;">
+                        <div style="width:45px;height:45px;background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                            <i class="fas fa-envelope" style="color:#fff;font-size:1.1rem;"></i>
+                        </div>
+                        <div style="flex:1;">
+                            <div style="font-weight:600;color:#fff;margin-bottom:4px;">Lời mời tham gia đội</div>
+                            <div style="font-size:0.85rem;color:#94a3b8;">
+                                <strong style="color:#00E5FF;">${invitation.inviter.name}</strong> mời bạn tham gia đội <strong style="color:#f59e0b;">${invitation.team.name}</strong>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="/teams" style="display:block;margin-top:12px;text-align:center;padding:8px 16px;background:linear-gradient(135deg,#6366f1,#8b5cf6);border-radius:8px;color:#fff;text-decoration:none;font-weight:600;font-size:0.85rem;">
+                        Xem lời mời
+                    </a>
+                `;
+                toast.style.cssText = `
+                    position:fixed;top:80px;right:20px;
+                    background:linear-gradient(135deg,#0d1b2a,#000022);
+                    border:1px solid rgba(245,158,11,0.5);
+                    border-radius:16px;padding:1rem;
+                    color:#fff;z-index:99999;
+                    box-shadow:0 10px 40px rgba(0,0,0,0.5);
+                    max-width:350px;
+                    animation:toastSlideIn 0.3s ease;
+                `;
+                
+                if (!document.getElementById('toast-animation-style')) {
+                    const style = document.createElement('style');
+                    style.id = 'toast-animation-style';
+                    style.textContent = `
+                        @keyframes toastSlideIn { from{transform:translateX(100%);opacity:0;} to{transform:translateX(0);opacity:1;} }
+                        @keyframes toastSlideOut { from{transform:translateX(0);opacity:1;} to{transform:translateX(100%);opacity:0;} }
+                    `;
+                    document.head.appendChild(style);
+                }
+                
+                document.body.appendChild(toast);
+                
+                setTimeout(() => {
+                    toast.style.animation = 'toastSlideOut 0.3s ease forwards';
+                    setTimeout(() => toast.remove(), 300);
+                }, 8000);
+            }
+            
+            // Show popup when user status is changed
+            function showUserStatusPopup(status, statusDisplay, message) {
+                // Remove existing popup if any
+                const existingPopup = document.getElementById('user-status-popup');
+                if (existingPopup) existingPopup.remove();
+                
+                const isRestricted = ['suspended', 'banned', 'deleted'].includes(status);
+                const iconClass = isRestricted ? 'fa-exclamation-triangle' : 'fa-check-circle';
+                const iconColor = isRestricted ? '#ef4444' : '#22c55e';
+                const borderColor = isRestricted ? 'rgba(239,68,68,0.5)' : 'rgba(34,197,94,0.5)';
+                
+                const popup = document.createElement('div');
+                popup.id = 'user-status-popup';
+                popup.innerHTML = `
+                    <div class="status-popup-overlay">
+                        <div class="status-popup-content" style="border-color:${borderColor}">
+                            <div class="status-popup-icon" style="background:${iconColor}20;color:${iconColor}">
+                                <i class="fas ${iconClass}"></i>
+                            </div>
+                            <h3 class="status-popup-title">Trạng thái tài khoản: ${statusDisplay}</h3>
+                            <p class="status-popup-message">${message}</p>
+                            ${isRestricted ? '<p class="status-popup-note">Bạn vẫn có thể xem nội dung và chat với quản trị viên để được hỗ trợ.</p>' : ''}
+                            <div class="status-popup-actions">
+                                ${isRestricted ? '<a href="/chat" class="status-popup-btn-secondary"><i class="fas fa-comments"></i> Chat với Admin</a>' : ''}
+                                <button class="status-popup-btn" onclick="closeStatusPopup(${isRestricted})">
+                                    ${isRestricted ? 'Tôi đã hiểu' : 'Đóng'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <style>
+                        .status-popup-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:999999;display:flex;align-items:center;justify-content:center;animation:fadeIn 0.3s ease;backdrop-filter:blur(4px);}
+                        .status-popup-content{background:linear-gradient(135deg,#0d1b2a,#1a1a2e);border:2px solid;border-radius:20px;padding:2rem;max-width:420px;text-align:center;box-shadow:0 25px 60px rgba(0,0,0,0.5);animation:slideUp 0.3s ease;}
+                        .status-popup-icon{width:70px;height:70px;margin:0 auto 1.5rem;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;}
+                        .status-popup-title{color:#fff;font-family:'Rajdhani',sans-serif;font-size:1.4rem;margin:0 0 1rem;font-weight:700;}
+                        .status-popup-message{color:#94a3b8;font-size:0.95rem;line-height:1.6;margin:0 0 1rem;}
+                        .status-popup-note{color:#22c55e;font-size:0.85rem;margin:0 0 1.5rem;padding:0.75rem;background:rgba(34,197,94,0.1);border-radius:8px;border:1px solid rgba(34,197,94,0.2);}
+                        .status-popup-actions{display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;}
+                        .status-popup-btn{padding:0.75rem 1.5rem;background:linear-gradient(135deg,#6366f1,#8b5cf6);border:none;border-radius:10px;color:white;font-weight:600;cursor:pointer;font-size:0.9rem;transition:all 0.3s ease;text-decoration:none;display:inline-flex;align-items:center;gap:0.5rem;}
+                        .status-popup-btn:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(99,102,241,0.4);}
+                        .status-popup-btn-secondary{padding:0.75rem 1.5rem;background:rgba(0,229,255,0.1);border:1px solid rgba(0,229,255,0.3);border-radius:10px;color:#00E5FF;font-weight:600;cursor:pointer;font-size:0.9rem;transition:all 0.3s ease;text-decoration:none;display:inline-flex;align-items:center;gap:0.5rem;}
+                        .status-popup-btn-secondary:hover{background:rgba(0,229,255,0.2);color:#fff;}
+                        @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+                        @keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+                    </style>
+                `;
+                document.body.appendChild(popup);
+                
+                // Store restricted status in session storage
+                if (isRestricted) {
+                    sessionStorage.setItem('userRestricted', status);
+                } else {
+                    sessionStorage.removeItem('userRestricted');
+                }
+            }
+            
+            window.closeStatusPopup = function(isRestricted) {
+                const popup = document.getElementById('user-status-popup');
+                if (popup) popup.remove();
+                
+                // If user was activated, reload to refresh permissions
+                if (!isRestricted) {
+                    window.location.reload();
+                }
+            };
+            
+            // Check if user is restricted on page load
+            function checkUserRestriction() {
+                const restrictedStatus = sessionStorage.getItem('userRestricted');
+                if (restrictedStatus && ['suspended', 'banned', 'deleted'].includes(restrictedStatus)) {
+                    // Block form submissions and button clicks (except chat with admin)
+                    document.addEventListener('submit', function(e) {
+                        if (!isAllowedAction(e.target)) {
+                            blockRestrictedAction(e);
+                        }
+                    }, true);
+                    document.addEventListener('click', function(e) {
+                        const target = e.target.closest('button, a.btn, .btn-neon, input[type="submit"]');
+                        if (target && !target.closest('#user-status-popup') && !isAllowedAction(target)) {
+                            blockRestrictedAction(e);
+                        }
+                    }, true);
+                }
+            }
+            
+            // Check if action is allowed for restricted users
+            function isAllowedAction(element) {
+                // Always allow if on chat page
+                if (window.location.pathname.startsWith('/chat')) {
+                    return true;
+                }
+                
+                // Allow navigation to chat
+                const link = element.closest('a');
+                if (link) {
+                    const href = link.href || link.getAttribute('href') || '';
+                    if (href.includes('/chat')) {
+                        return true;
+                    }
+                }
+                
+                // Allow closing modals/popups
+                if (element.closest('.modal-close, .btn-close, [data-dismiss], [data-bs-dismiss]')) {
+                    return true;
+                }
+                
+                return false;
+            }
+            
+            function blockRestrictedAction(e) {
+                const restrictedStatus = sessionStorage.getItem('userRestricted');
+                if (!restrictedStatus) return;
+                
+                // Allow navigation links (not buttons styled as links)
+                if (e.target.tagName === 'A' && !e.target.classList.contains('btn') && !e.target.classList.contains('btn-neon')) return;
+                
+                // Check if this is an allowed action
+                if (isAllowedAction(e.target)) return;
+                
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const statusDisplay = restrictedStatus === 'suspended' ? 'Tạm khóa' : 
+                                     restrictedStatus === 'banned' ? 'Cấm vĩnh viễn' : 'Đã xóa';
+                const message = restrictedStatus === 'suspended' ? 
+                    'Tài khoản của bạn đang bị tạm khóa. Bạn không thể thực hiện thao tác này.' :
+                    'Tài khoản của bạn đã bị cấm. Bạn không thể thực hiện thao tác này.';
+                    
+                showUserStatusPopup(restrictedStatus, statusDisplay, message);
+            }
+            
+            checkUserRestriction();
+            
             setupEchoNotifications();
             
-            // Initial render
-            renderNotifications();
+            // Load notifications from database
+            loadNotificationsFromDB();
+            
+            // Function to load notifications from database
+            function loadNotificationsFromDB() {
+                fetch('/notifications', {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success && data.notifications) {
+                        notifications = data.notifications.map(n => ({
+                            id: n.id,
+                            message: n.message,
+                            avatar: n.data?.avatar || null,
+                            icon: n.data?.icon || 'bell',
+                            url: n.data?.url || '#',
+                            time: n.time,
+                            read: n.read
+                        }));
+                        unreadCount = notifications.filter(n => !n.read).length;
+                        updateBadge();
+                        renderNotifications();
+                    }
+                })
+                .catch(err => console.error('Error loading notifications:', err));
+            }
         });
     </script>
     @endauth

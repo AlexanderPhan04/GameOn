@@ -46,7 +46,7 @@
                             @error('logo')
                             <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
-                            <div class="form-text">Chấp nhận file JPG, PNG, GIF. Tối đa 2MB. Để trống nếu không muốn thay đổi.</div>
+                            <div class="form-text">Chấp nhận file JPG, PNG, GIF. Tối đa 5MB. Để trống nếu không muốn thay đổi.</div>
                         </div>
                         <div class="d-flex justify-content-between">
                             <a href="{{ route('teams.show', $team->id) }}" class="btn btn-secondary">

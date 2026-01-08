@@ -432,6 +432,129 @@
         transition: all 0.3s;
     }
     .btn-confirm:hover { box-shadow: 0 0 20px rgba(139, 92, 246, 0.4); }
+
+    /* Team List Styles */
+    .team-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    .team-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        background: rgba(0, 0, 20, 0.6);
+        border: 1px solid rgba(0, 229, 255, 0.2);
+        border-radius: 12px;
+        padding: 0.875rem 1rem;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+    .team-item:hover {
+        border-color: rgba(0, 229, 255, 0.5);
+        background: rgba(0, 229, 255, 0.05);
+        transform: translateX(4px);
+    }
+    .team-logo {
+        width: 44px;
+        height: 44px;
+        min-width: 44px;
+        border-radius: 10px;
+        overflow: hidden;
+        background: linear-gradient(135deg, #1e3a5f, #0d1b2a);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid rgba(0, 229, 255, 0.2);
+    }
+    .team-logo img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .team-logo i {
+        font-size: 1.25rem;
+        color: rgba(0, 229, 255, 0.5);
+    }
+    .team-info {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    .team-name {
+        color: #fff;
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+    .team-role {
+        font-size: 0.75rem;
+        padding: 0.2rem 0.6rem;
+        border-radius: 12px;
+        width: fit-content;
+    }
+    .team-role.captain {
+        background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.2));
+        color: #f59e0b;
+        border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+    .team-role.captain i {
+        font-size: 0.65rem;
+        margin-right: 0.25rem;
+    }
+    .team-role.member {
+        background: rgba(0, 229, 255, 0.1);
+        color: #00E5FF;
+        border: 1px solid rgba(0, 229, 255, 0.2);
+    }
+    .team-arrow {
+        color: #64748b;
+        font-size: 0.85rem;
+        transition: all 0.3s;
+    }
+    .team-item:hover .team-arrow {
+        color: #00E5FF;
+        transform: translateX(3px);
+    }
+    .team-manage-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #00E5FF;
+        font-size: 0.85rem;
+        margin-top: 0.75rem;
+        text-decoration: none;
+        transition: all 0.3s;
+    }
+    .team-manage-link:hover {
+        color: #fff;
+    }
+    .team-empty {
+        background: rgba(0, 0, 20, 0.6);
+        border: 1px dashed rgba(0, 229, 255, 0.2);
+        border-radius: 12px;
+        padding: 1.5rem;
+        text-align: center;
+    }
+    .team-empty-icon {
+        width: 50px;
+        height: 50px;
+        margin: 0 auto 0.75rem;
+        background: rgba(0, 229, 255, 0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .team-empty-icon i {
+        font-size: 1.25rem;
+        color: #64748b;
+    }
+    .team-empty p {
+        color: #94a3b8;
+        margin: 0 0 1rem 0;
+        font-size: 0.9rem;
+    }
 </style>
 @endpush
 
@@ -643,7 +766,45 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label">Team/Clan</label>
-                        <input type="text" name="team" class="form-input" value="{{ old('team', $user->team) }}" placeholder="Tên team hoặc clan của bạn">
+                        @if($user->teams && $user->teams->count() > 0)
+                            <div class="team-list">
+                                @foreach($user->teams as $team)
+                                <a href="{{ route('teams.show', $team->id) }}" class="team-item">
+                                    <div class="team-logo">
+                                        @if($team->logo)
+                                            <img src="{{ $team->logo }}" alt="{{ $team->name }}">
+                                        @else
+                                            <i class="fas fa-users"></i>
+                                        @endif
+                                    </div>
+                                    <div class="team-info">
+                                        <span class="team-name">{{ $team->name }}</span>
+                                        @if($team->pivot->role === 'captain')
+                                            <span class="team-role captain">
+                                                <i class="fas fa-crown"></i> Đội trưởng
+                                            </span>
+                                        @else
+                                            <span class="team-role member">Thành viên</span>
+                                        @endif
+                                    </div>
+                                    <i class="fas fa-chevron-right team-arrow"></i>
+                                </a>
+                                @endforeach
+                            </div>
+                            <a href="{{ route('teams.index') }}" class="team-manage-link">
+                                <i class="fas fa-cog"></i> Quản lý đội của bạn
+                            </a>
+                        @else
+                            <div class="team-empty">
+                                <div class="team-empty-icon">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                                <p>Bạn chưa tham gia đội nào</p>
+                                <a href="{{ route('teams.index') }}" class="btn-neon" style="padding: 0.5rem 1rem; font-size: 0.85rem;">
+                                    <i class="fas fa-plus"></i> Tạo hoặc tham gia đội
+                                </a>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>

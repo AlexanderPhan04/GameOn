@@ -545,4 +545,150 @@ class ChatController extends Controller
             'online_count' => $participants->where('is_online', true)->count(),
         ]);
     }
+
+    /**
+     * Get conversations for widget (API)
+     */
+    public function getConversations()
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+        }
+
+        $conversations = $this->chatService->getUserConversations($user);
+        
+        $totalUnread = 0;
+        $formattedConversations = $conversations->map(function ($conv) use ($user, &$totalUnread) {
+            $otherParticipant = $conv->participants
+                ->where('user_id', '!=', $user->id)
+                ->first();
+            
+            $otherUser = $otherParticipant?->user;
+            $unreadCount = $conv->getUnreadCount($user->id);
+            $totalUnread += $unreadCount;
+            
+            $isOnline = $otherUser && $otherUser->last_activity_at &&
+                $otherUser->last_activity_at->diffInMinutes(now()) <= 5;
+
+            return [
+                'id' => $conv->slug,
+                'name' => $conv->type === 'private' 
+                    ? ($otherUser?->display_name ?? $otherUser?->name ?? 'Unknown')
+                    : $conv->name,
+                'avatar' => $conv->type === 'private'
+                    ? ($otherUser?->getDisplayAvatar() ?? null)
+                    : $conv->avatar,
+                'last_message' => $conv->last_message_preview ?? null,
+                'time' => $conv->last_message_at?->diffForHumans(null, true) ?? '',
+                'unread' => $unreadCount > 0,
+                'online' => $isOnline,
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'conversations' => $formattedConversations,
+            'unread_count' => $totalUnread,
+        ]);
+    }
+
+    /**
+     * Get unread count for widget
+     */
+    public function getUnreadCount()
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return response()->json(['count' => 0]);
+        }
+
+        $count = ChatConversation::whereHas('participants', function ($q) use ($user) {
+            $q->where('user_id', $user->id);
+        })->get()->sum(function ($conv) use ($user) {
+            return $conv->getUnreadCount($user->id);
+        });
+
+        return response()->json(['count' => $count]);
+    }
+
+    /**
+     * Get messages for widget (simplified)
+     */
+    public function getMessagesForWidget(Request $request, ChatConversation $conversation)
+    {
+        $user = Auth::user();
+
+        if (!$conversation->hasParticipant($user->id)) {
+            return response()->json(['success' => false, 'error' => 'Access denied'], 403);
+        }
+
+        $limit = $request->get('limit', 20);
+
+        // Query messages directly without relationship ordering conflict
+        $messages = ChatMessage::where('conversation_id', $conversation->id)
+            ->whereNull('deleted_at')
+            ->with('sender')
+            ->orderBy('created_at', 'desc')
+            ->limit($limit)
+            ->get()
+            ->reverse()
+            ->values();
+
+        $formattedMessages = $messages->map(function ($msg) use ($user) {
+            return [
+                'id' => $msg->id,
+                'content' => $msg->content,
+                'is_mine' => $msg->sender_id === $user->id,
+                'time' => $msg->created_at->format('H:i'),
+            ];
+        });
+
+        // Mark as read
+        $conversation->markAsReadForUser($user->id);
+
+        return response()->json([
+            'success' => true,
+            'messages' => $formattedMessages,
+        ]);
+    }
+
+    /**
+     * Send message from widget (simplified)
+     */
+    public function sendFromWidget(Request $request, ChatConversation $conversation)
+    {
+        $request->validate([
+            'message' => 'required|string|max:5000',
+        ]);
+
+        $user = Auth::user();
+
+        if (!$conversation->hasParticipant($user->id)) {
+            return response()->json(['success' => false, 'error' => 'Access denied'], 403);
+        }
+
+        $result = $this->chatService->sendMessage(
+            $conversation,
+            $user,
+            ['content' => $request->message, 'type' => 'text'],
+            null
+        );
+
+        if (!$result['success']) {
+            return response()->json(['success' => false, 'error' => $result['message']], 403);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => [
+                'id' => $result['message']->id,
+                'content' => $result['message']->content,
+                'is_mine' => true,
+                'time' => $result['message']->created_at->format('H:i'),
+            ],
+        ]);
+    }
 }

@@ -410,11 +410,10 @@
                         <i class="fas fa-edit"></i>
                         <span>Chỉnh sửa</span>
                     </a>
-                    <form action="{{ route('teams.destroy', $team->id) }}" method="POST" 
-                          onsubmit="return confirm('Bạn có chắc muốn xóa đội này?')" style="display: inline;">
+                    <form id="deleteTeamForm" action="{{ route('teams.destroy', $team->id) }}" method="POST" style="display: inline;">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="btn-neon btn-neon-danger">
+                        <button type="button" class="btn-neon btn-neon-danger" onclick="showConfirmModal('deleteTeam')">
                             <i class="fas fa-trash"></i>
                             <span>Xóa đội</span>
                         </button>
@@ -566,10 +565,9 @@
                     <div class="action-title">Bạn đã là thành viên</div>
                     <div class="action-text">Bạn đang là một phần của đội này</div>
                     @if($team->captain_id !== Auth::id())
-                    <form action="{{ route('teams.leave', $team->id) }}" method="POST"
-                          onsubmit="return confirm('Bạn có chắc muốn rời khỏi đội?')">
+                    <form id="leaveTeamForm" action="{{ route('teams.leave', $team->id) }}" method="POST">
                         @csrf
-                        <button type="submit" class="btn-neon btn-neon-danger" style="width: 100%; justify-content: center;">
+                        <button type="button" class="btn-neon btn-neon-danger" style="width: 100%; justify-content: center;" onclick="showConfirmModal('leaveTeam')">
                             <i class="fas fa-sign-out-alt"></i>
                             <span>Rời khỏi đội</span>
                         </button>
@@ -630,12 +628,101 @@
         </div>
     </div>
 </div>
+
+<!-- Custom Confirm Modal -->
+<div class="modal-overlay" id="confirmModal">
+    <div class="modal-content-custom" style="max-width: 420px;">
+        <div class="modal-header-custom">
+            <h5 class="modal-title-custom" id="confirmModalTitle">
+                <i class="fas fa-exclamation-triangle me-2" style="color: #f59e0b;"></i>
+                <span>Xác nhận</span>
+            </h5>
+            <button type="button" class="btn-icon" onclick="closeConfirmModal()" style="color: #94a3b8;">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body-custom" style="text-align: center;">
+            <div style="width: 70px; height: 70px; margin: 0 auto 1.5rem; background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(239, 68, 68, 0.1)); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-exclamation-triangle" style="font-size: 1.75rem; color: #ef4444;" id="confirmModalIcon"></i>
+            </div>
+            <p id="confirmModalMessage" style="color: #e2e8f0; font-size: 1rem; margin-bottom: 0.5rem;"></p>
+            <p id="confirmModalSubMessage" style="color: #64748b; font-size: 0.85rem;"></p>
+        </div>
+        <div class="modal-footer-custom" style="justify-content: center; gap: 1rem;">
+            <button type="button" class="btn-neon" onclick="closeConfirmModal()" style="min-width: 100px;">
+                <i class="fas fa-times"></i> Hủy
+            </button>
+            <button type="button" class="btn-neon btn-neon-danger" id="confirmModalBtn" style="min-width: 100px;">
+                <i class="fas fa-check"></i> <span id="confirmModalBtnText">Xác nhận</span>
+            </button>
+        </div>
+    </div>
+</div>
 @endsection
 
 @push('scripts')
 <script>
 const teamId = {{ $team->id }};
 let removeMemberId = null;
+let currentConfirmAction = null;
+
+// Confirm Modal Functions
+const confirmModalConfig = {
+    deleteTeam: {
+        title: 'Xóa đội',
+        message: 'Bạn có chắc chắn muốn xóa đội này?',
+        subMessage: 'Hành động này không thể hoàn tác. Tất cả dữ liệu của đội sẽ bị xóa vĩnh viễn.',
+        icon: 'trash-alt',
+        iconColor: '#ef4444',
+        btnText: 'Xóa đội',
+        formId: 'deleteTeamForm'
+    },
+    leaveTeam: {
+        title: 'Rời khỏi đội',
+        message: 'Bạn có chắc chắn muốn rời khỏi đội?',
+        subMessage: 'Bạn sẽ cần được mời lại nếu muốn tham gia lại đội này.',
+        icon: 'sign-out-alt',
+        iconColor: '#f59e0b',
+        btnText: 'Rời đội',
+        formId: 'leaveTeamForm'
+    }
+};
+
+function showConfirmModal(action) {
+    const config = confirmModalConfig[action];
+    if (!config) return;
+    
+    currentConfirmAction = action;
+    
+    document.getElementById('confirmModalTitle').querySelector('span').textContent = config.title;
+    document.getElementById('confirmModalMessage').textContent = config.message;
+    document.getElementById('confirmModalSubMessage').textContent = config.subMessage;
+    document.getElementById('confirmModalIcon').className = `fas fa-${config.icon}`;
+    document.getElementById('confirmModalIcon').style.color = config.iconColor;
+    document.getElementById('confirmModalBtnText').textContent = config.btnText;
+    document.getElementById('confirmModal').classList.add('active');
+}
+
+function closeConfirmModal() {
+    document.getElementById('confirmModal').classList.remove('active');
+    currentConfirmAction = null;
+}
+
+document.getElementById('confirmModalBtn').addEventListener('click', function() {
+    if (!currentConfirmAction) return;
+    
+    const config = confirmModalConfig[currentConfirmAction];
+    const form = document.getElementById(config.formId);
+    if (form) {
+        form.submit();
+    }
+    closeConfirmModal();
+});
+
+document.getElementById('confirmModal').addEventListener('click', function(e) {
+    if (e.target === this) closeConfirmModal();
+});
+
 
 // Add Member Modal
 function openAddMemberModal() {
@@ -847,19 +934,30 @@ document.getElementById('chatInput')?.addEventListener('keypress', function(e) {
 
 // Load messages and setup realtime on page load
 @auth
+// Setup realtime for team member changes (for all viewers)
+document.addEventListener('DOMContentLoaded', function() {
+    // Setup Laravel Echo for realtime member changes
+    if (typeof Echo !== 'undefined') {
+        console.log('Setting up Echo listener for team.' + teamId);
+        Echo.private(`team.${teamId}`)
+            .listen('.member.changed', (e) => {
+                console.log('Member changed event:', e);
+                // Reload page when member is added or removed
+                location.reload();
+            });
+    }
+});
+
 @if($team->members->where('id', Auth::id())->first())
+// Additional setup for team members (chat)
 document.addEventListener('DOMContentLoaded', function() {
     loadMessages();
     
-    // Setup Laravel Echo for realtime
+    // Setup Laravel Echo for realtime chat
     if (typeof Echo !== 'undefined') {
         Echo.private(`team.${teamId}`)
             .listen('.message.sent', (e) => {
                 appendMessage(e.message);
-            })
-            .listen('.member.changed', (e) => {
-                // Reload page when member is added or removed
-                location.reload();
             });
     } else {
         // Fallback: poll every 10 seconds if Echo not available

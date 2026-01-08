@@ -27,7 +27,17 @@ class Team extends Model
     // Accessors
     public function getLogoAttribute()
     {
-        return $this->logo_url ? asset('uploads/' . $this->logo_url) : null;
+        if (!$this->logo_url) {
+            return null;
+        }
+        
+        // If it's already a full URL, return as is
+        if (filter_var($this->logo_url, FILTER_VALIDATE_URL)) {
+            return $this->logo_url;
+        }
+        
+        // Logo is stored in storage/app/public via 'public' disk
+        return asset('storage/' . $this->logo_url);
     }
 
     // Relationships

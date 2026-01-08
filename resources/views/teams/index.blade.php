@@ -418,8 +418,8 @@
             @foreach($pendingInvitations as $invitation)
             <div class="team-card" data-invitation-id="{{ $invitation->id }}" style="border-color: rgba(245, 158, 11, 0.3);">
                 <div class="team-card-image">
-                    @if($invitation->team->logo_url)
-                        <img src="{{ $invitation->team->logo_url }}" alt="{{ $invitation->team->name }}">
+                    @if($invitation->team->logo)
+                        <img src="{{ $invitation->team->logo }}" alt="{{ $invitation->team->name }}">
                     @else
                         <div class="team-card-image-placeholder">
                             <i class="fas fa-users"></i>
@@ -480,8 +480,8 @@
         @foreach($myTeamsAsCaptain as $team)
         <div class="team-card captain">
             <div class="team-card-image">
-                @if($team->logo_url)
-                    <img src="{{ asset('uploads/' . $team->logo_url) }}" alt="{{ $team->name }}">
+                @if($team->logo)
+                    <img src="{{ $team->logo }}" alt="{{ $team->name }}">
                 @else
                     <div class="team-card-image-placeholder">
                         <i class="fas fa-users"></i>
@@ -536,8 +536,8 @@
         @foreach($myTeamsAsMember as $team)
         <div class="team-card">
             <div class="team-card-image">
-                @if($team->logo_url)
-                    <img src="{{ asset('uploads/' . $team->logo_url) }}" alt="{{ $team->name }}">
+                @if($team->logo)
+                    <img src="{{ $team->logo }}" alt="{{ $team->name }}">
                 @else
                     <div class="team-card-image-placeholder">
                         <i class="fas fa-users"></i>

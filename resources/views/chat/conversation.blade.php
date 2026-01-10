@@ -936,7 +936,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Toggle notification handler
-    let notificationEnabled = localStorage.getItem(`chat_notification_${convId}`) !== 'disabled';
+    let notificationEnabled = localStorage.getItem(`chat_notification_${convSlug}`) !== 'disabled';
     const toggleNotificationBtn = document.getElementById('toggle-notification-btn');
     const notificationText = document.getElementById('notification-text');
     
@@ -957,7 +957,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (toggleNotificationBtn) {
         toggleNotificationBtn.onclick = () => {
             notificationEnabled = !notificationEnabled;
-            localStorage.setItem(`chat_notification_${convId}`, notificationEnabled ? 'enabled' : 'disabled');
+            localStorage.setItem(`chat_notification_${convSlug}`, notificationEnabled ? 'enabled' : 'disabled');
             updateNotificationUI();
             dropdownMenu.classList.remove('show');
             showToast(notificationEnabled ? 'Đã bật thông báo cho cuộc trò chuyện này' : 'Đã tắt thông báo cho cuộc trò chuyện này', notificationEnabled ? 'success' : 'info');
@@ -1055,7 +1055,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Listen for real-time events via Laravel Echo
     if (typeof window.Echo !== 'undefined') {
-        window.Echo.private(`conversation.${convId}`)
+        window.Echo.private(`conversation.${convSlug}`)
             // New message received
             .listen('.message.sent', (e) => {
                 // Don't add if it's from current user (already added when sent)
@@ -1102,7 +1102,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Fallback to polling if Echo is not available
         async function fetchNewMessages() {
             try {
-                const res = await fetch(`/chat/conversation/${convId}/messages?after_id=${lastMessageId}`);
+                const res = await fetch(`/chat/conversation/${convSlug}/messages?after_id=${lastMessageId}`);
                 const data = await res.json();
                 
                 if (data.data && data.data.length > 0) {
@@ -1130,7 +1130,7 @@ document.addEventListener('DOMContentLoaded', function() {
     msgInput.addEventListener('input', function() {
         if (!isCurrentlyTyping) {
             isCurrentlyTyping = true;
-            fetch(`/chat/conversation/${convId}/typing`, {
+            fetch(`/chat/conversation/${convSlug}/typing`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
                 body: JSON.stringify({ is_typing: true })
@@ -1140,7 +1140,7 @@ document.addEventListener('DOMContentLoaded', function() {
         clearTimeout(typingTimeout);
         typingTimeout = setTimeout(() => {
             isCurrentlyTyping = false;
-            fetch(`/chat/conversation/${convId}/typing`, {
+            fetch(`/chat/conversation/${convSlug}/typing`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
                 body: JSON.stringify({ is_typing: false })

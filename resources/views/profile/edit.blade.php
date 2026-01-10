@@ -826,7 +826,7 @@
                                 </span>
                             @else
                                 <input type="text" class="form-input" value="Chưa liên kết" readonly style="opacity: 0.5; cursor: not-allowed;">
-                                <a href="{{ route('google.redirect') }}" class="btn-neon" style="margin-left: 0.75rem; padding: 0.5rem 1rem; font-size: 0.8rem;">
+                                <a href="{{ route('auth.google.link') }}" class="btn-neon" style="margin-left: 0.75rem; padding: 0.5rem 1rem; font-size: 0.8rem;">
                                     <i class="fa-brands fa-google"></i> Liên kết
                                 </a>
                             @endif

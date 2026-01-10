@@ -28,27 +28,29 @@ Broadcast::channel('user.{userId}', function ($user, $userId) {
 /**
  * Private channel for chat conversations
  * Only participants can listen to this channel
+ * Uses slug for better security (harder to guess than sequential IDs)
  */
-Broadcast::channel('conversation.{conversationId}', function ($user, $conversationId) {
-    $conversation = ChatConversation::find($conversationId);
-    
-    if (!$conversation) {
+Broadcast::channel('conversation.{slug}', function ($user, $slug) {
+    $conversation = ChatConversation::where('slug', $slug)->first();
+
+    if (! $conversation) {
         return false;
     }
-    
+
     return $conversation->hasParticipant($user->id);
 });
 
 /**
  * Presence channel for online users in a conversation
+ * Uses slug for better security
  */
-Broadcast::channel('conversation.{conversationId}.presence', function ($user, $conversationId) {
-    $conversation = ChatConversation::find($conversationId);
-    
-    if (!$conversation || !$conversation->hasParticipant($user->id)) {
+Broadcast::channel('conversation.{slug}.presence', function ($user, $slug) {
+    $conversation = ChatConversation::where('slug', $slug)->first();
+
+    if (! $conversation || ! $conversation->hasParticipant($user->id)) {
         return false;
     }
-    
+
     return [
         'id' => $user->id,
         'name' => $user->name,
@@ -78,5 +80,21 @@ Broadcast::channel('team.{teamId}', function ($user, $teamId) {
     
     // Allow all authenticated users to subscribe for realtime updates
     // This enables viewers of the team page to see member changes
+    return true;
+});
+
+/**
+ * Public channel for honor events
+ * Anyone can listen to honor event updates
+ */
+Broadcast::channel('honor', function () {
+    return true;
+});
+
+/**
+ * Public channel for specific honor event
+ * Anyone can listen to vote updates for a specific event
+ */
+Broadcast::channel('honor.event.{eventId}', function () {
     return true;
 });

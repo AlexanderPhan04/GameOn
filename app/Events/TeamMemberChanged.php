@@ -25,7 +25,7 @@ class TeamMemberChanged implements ShouldBroadcastNow
         $this->member = [
             'id' => $user->id,
             'name' => $user->display_name,
-            'avatar' => $user->avatar ? get_avatar_url($user->avatar) : null,
+            'avatar' => $user->getDisplayAvatar(),
         ];
     }
 

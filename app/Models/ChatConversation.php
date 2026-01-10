@@ -227,7 +227,7 @@ class ChatConversation extends Model
     {
         if ($this->type === 'group') {
             if ($this->avatar) {
-                return asset('uploads/' . $this->avatar);
+                return asset('storage/' . $this->avatar);
             }
             // Generate group avatar
             $name = urlencode($this->name ?? 'Group');

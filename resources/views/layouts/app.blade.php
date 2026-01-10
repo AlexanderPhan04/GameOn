@@ -2878,37 +2878,23 @@
 
             <nav class="sidebar-nav">
                 <ul class="sidebar-menu">
+                    {{-- Dashboard --}}
                     <li class="menu-item {{ Request::is('dashboard*') ? 'active' : '' }}">
                         <a href="{{ route('dashboard') }}" class="menu-link" title="{{ __('app.nav.dashboard') }}">
                             <i class="fas fa-tachometer-alt"></i>
                             <span>{{ __('app.nav.dashboard') }}</span>
                         </a>
                     </li>
+                    
                     <li class="menu-divider"></li>
-                    <li class="menu-item has-submenu {{ Request::is('admin/tournaments*') || Request::is('admin/games*') || Request::is('admin/teams*') || Request::is('admin/users*') || Request::is('admin/honor*') || Request::is('admin/marketplace*') || Request::is('honor*') ? 'open' : '' }}" id="managerMenu">
+                    
+                    {{-- Management Section --}}
+                    <li class="menu-item has-submenu {{ Request::is('admin/tournaments*') || Request::is('admin/games*') || Request::is('admin/teams*') || Request::is('admin/users*') || Request::is('admin/admins*') ? 'open' : '' }}" id="managerMenu">
                         <a href="#" class="menu-link" onclick="event.preventDefault(); toggleSubmenu('managerMenu');" title="Manager">
                             <i class="fas fa-briefcase"></i>
                             <span>Manager</span>
                         </a>
                         <ul class="menu-submenu">
-                            <li class="menu-item {{ Request::is('admin/tournaments*') ? 'active' : '' }}">
-                                <a href="{{ route('admin.tournaments.index') }}" class="menu-link" title="{{ __('app.profile.manage_tournaments') }}">
-                                    <i class="fas fa-trophy"></i>
-                                    <span>{{ __('app.profile.manage_tournaments') }}</span>
-                                </a>
-                            </li>
-                            <li class="menu-item {{ Request::is('admin/games*') ? 'active' : '' }}">
-                                <a href="{{ route('admin.games.index') }}" class="menu-link" title="{{ __('app.profile.manage_games') }}">
-                                    <i class="fas fa-gamepad"></i>
-                                    <span>{{ __('app.profile.manage_games') }}</span>
-                                </a>
-                            </li>
-                            <li class="menu-item {{ Request::is('admin/teams*') ? 'active' : '' }}">
-                                <a href="{{ route('admin.teams.index') }}" class="menu-link" title="{{ __('app.profile.manage_teams') }}">
-                                    <i class="fas fa-users-cog"></i>
-                                    <span>{{ __('app.profile.manage_teams') }}</span>
-                                </a>
-                            </li>
                             <li class="menu-item {{ Request::is('admin/users*') ? 'active' : '' }}">
                                 <a href="{{ route('admin.users.index') }}" class="menu-link" title="{{ __('app.profile.manage_users') }}">
                                     <i class="fas fa-users"></i>
@@ -2923,40 +2909,84 @@
                                 </a>
                             </li>
                             @endif
-                            <li class="menu-item {{ Request::is('admin/honor*') || Request::is('honor*') ? 'active' : '' }}">
-                                <a href="{{ route('admin.honor.index') }}" class="menu-link" title="{{ __('app.honor.manage_title') }}">
-                                    <i class="fas fa-trophy"></i>
-                                    <span>{{ __('app.honor.manage_title') }}</span>
+                            <li class="menu-item {{ Request::is('admin/teams*') ? 'active' : '' }}">
+                                <a href="{{ route('admin.teams.index') }}" class="menu-link" title="{{ __('app.profile.manage_teams') }}">
+                                    <i class="fas fa-users-cog"></i>
+                                    <span>{{ __('app.profile.manage_teams') }}</span>
                                 </a>
                             </li>
-                            <li class="menu-item {{ Request::is('admin/marketplace*') ? 'active' : '' }}">
-                                <a href="{{ route('admin.marketplace.index') }}" class="menu-link" title="{{ __('app.nav.manage_marketplace') }}">
-                                    <i class="fas fa-store"></i>
-                                    <span>{{ __('app.nav.manage_marketplace') }}</span>
+                            <li class="menu-item {{ Request::is('admin/tournaments*') ? 'active' : '' }}">
+                                <a href="{{ route('admin.tournaments.index') }}" class="menu-link" title="{{ __('app.profile.manage_tournaments') }}">
+                                    <i class="fas fa-trophy"></i>
+                                    <span>{{ __('app.profile.manage_tournaments') }}</span>
+                                </a>
+                            </li>
+                            <li class="menu-item {{ Request::is('admin/games*') ? 'active' : '' }}">
+                                <a href="{{ route('admin.games.index') }}" class="menu-link" title="{{ __('app.profile.manage_games') }}">
+                                    <i class="fas fa-gamepad"></i>
+                                    <span>{{ __('app.profile.manage_games') }}</span>
                                 </a>
                             </li>
                         </ul>
                     </li>
+                    
+                    {{-- Store & Honor Section --}}
+                    <li class="menu-item has-submenu {{ Request::is('admin/honor*') || Request::is('honor*') || Request::is('admin/marketplace*') ? 'open' : '' }}" id="storeMenu">
+                        <a href="#" class="menu-link" onclick="event.preventDefault(); toggleSubmenu('storeMenu');" title="Store & Honor">
+                            <i class="fas fa-store"></i>
+                            <span>Store & Honor</span>
+                        </a>
+                        <ul class="menu-submenu">
+                            <li class="menu-item {{ Request::is('admin/marketplace*') ? 'active' : '' }}">
+                                <a href="{{ route('admin.marketplace.index') }}" class="menu-link" title="{{ __('app.nav.manage_marketplace') }}">
+                                    <i class="fas fa-shopping-bag"></i>
+                                    <span>{{ __('app.nav.manage_marketplace') }}</span>
+                                </a>
+                            </li>
+                            <li class="menu-item {{ Request::is('admin/honor*') || Request::is('honor*') ? 'active' : '' }}">
+                                <a href="{{ route('admin.honor.index') }}" class="menu-link" title="{{ __('app.honor.manage_title') }}">
+                                    <i class="fas fa-award"></i>
+                                    <span>{{ __('app.honor.manage_title') }}</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    
                     <li class="menu-divider"></li>
+                    
+                    {{-- System Settings --}}
                     <li class="menu-item {{ Request::is('admin/system*') || Request::is('admin/settings*') ? 'active' : '' }}">
                         <a href="{{ route('admin.system.settings') }}" class="menu-link" title="Setting">
-                            <i class="fas fa-sliders-h"></i>
+                            <i class="fas fa-cog"></i>
                             <span>Setting</span>
                         </a>
                     </li>
+                    
                     <li class="menu-divider"></li>
-                    <li class="menu-item">
+                    
+                    {{-- Personal Section --}}
+                    <li class="menu-item {{ Request::is('profile*') ? 'active' : '' }}">
                         <a href="{{ route('profile.show') }}" class="menu-link" title="{{ __('app.profile.personal_info') }}">
                             <i class="fas fa-id-card"></i>
                             <span>{{ __('app.profile.personal_info') }}</span>
                         </a>
                     </li>
-                    <li class="menu-item">
+                    <li class="menu-item {{ Request::is('marketplace/inventory*') ? 'active' : '' }}">
                         <a href="{{ route('marketplace.inventory') }}" class="menu-link" title="{{ __('app.marketplace.inventory') }}">
                             <i class="fas fa-box"></i>
                             <span>{{ __('app.marketplace.inventory') }}</span>
                         </a>
                     </li>
+                    <li class="menu-item {{ Request::is('honor*') ? 'active' : '' }}">
+                        <a href="{{ route('honor.index') }}" class="menu-link" title="{{ __('app.nav.honor') ?? 'Honor' }}">
+                            <i class="fas fa-award"></i>
+                            <span>{{ __('app.nav.honor') ?? 'Honor' }}</span>
+                        </a>
+                    </li>
+                    
+                    <li class="menu-divider"></li>
+                    
+                    {{-- Logout --}}
                     <li class="menu-item">
                         <form method="POST" action="{{ route('auth.logout') }}" class="menu-form">
                             @csrf
@@ -3276,6 +3306,12 @@
                                 </a>
                             </li>
                             <li class="list-none">
+                                <a href="{{ route('honor.index') }}" class="gameon-dropdown-item">
+                                    <i class="fas fa-award"></i>
+                                    <span>{{ __('app.nav.honor') ?? 'Honor' }}</span>
+                                </a>
+                            </li>
+                            <li class="list-none">
                                 <a href="{{ route('profile.show') }}" class="gameon-dropdown-item">
                                     <i class="fas fa-id-card"></i>
                                     <span>{{ __('app.profile.personal_info') }}</span>
@@ -3500,6 +3536,12 @@
                     <a href="{{ route('marketplace.orders') }}" class="mobile-menu-item {{ Request::is('marketplace/orders*') ? 'active' : '' }}">
                         <i class="fas fa-receipt"></i>
                         <span>{{ __('app.marketplace.order_history') }}</span>
+                    </a>
+                    @endif
+                    @if(Route::has('honor.index'))
+                    <a href="{{ route('honor.index') }}" class="mobile-menu-item {{ Request::is('honor*') ? 'active' : '' }}">
+                        <i class="fas fa-award"></i>
+                        <span>{{ __('app.nav.honor') ?? 'Honor' }}</span>
                     </a>
                     @endif
                     @if(Route::has('profile.show'))

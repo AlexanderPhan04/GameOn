@@ -28,27 +28,29 @@ Broadcast::channel('user.{userId}', function ($user, $userId) {
 /**
  * Private channel for chat conversations
  * Only participants can listen to this channel
+ * Uses slug for better security (harder to guess than sequential IDs)
  */
-Broadcast::channel('conversation.{conversationId}', function ($user, $conversationId) {
-    $conversation = ChatConversation::find($conversationId);
-    
-    if (!$conversation) {
+Broadcast::channel('conversation.{slug}', function ($user, $slug) {
+    $conversation = ChatConversation::where('slug', $slug)->first();
+
+    if (! $conversation) {
         return false;
     }
-    
+
     return $conversation->hasParticipant($user->id);
 });
 
 /**
  * Presence channel for online users in a conversation
+ * Uses slug for better security
  */
-Broadcast::channel('conversation.{conversationId}.presence', function ($user, $conversationId) {
-    $conversation = ChatConversation::find($conversationId);
-    
-    if (!$conversation || !$conversation->hasParticipant($user->id)) {
+Broadcast::channel('conversation.{slug}.presence', function ($user, $slug) {
+    $conversation = ChatConversation::where('slug', $slug)->first();
+
+    if (! $conversation || ! $conversation->hasParticipant($user->id)) {
         return false;
     }
-    
+
     return [
         'id' => $user->id,
         'name' => $user->name,

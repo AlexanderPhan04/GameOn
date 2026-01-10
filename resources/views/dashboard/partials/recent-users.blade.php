@@ -5,7 +5,10 @@
             <!-- Avatar -->
             <div class="relative flex-shrink-0">
                 @if($user->avatar)
-                <img src="{{ Storage::url($user->avatar) }}" class="w-12 h-12 rounded-xl object-cover border-2 border-[rgba(0,229,255,0.2)] group-hover:border-[#00E5FF] transition-all">
+                <img src="{{ get_avatar_url($user->avatar) }}" class="w-12 h-12 rounded-xl object-cover border-2 border-[rgba(0,229,255,0.2)] group-hover:border-[#00E5FF] transition-all" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="w-12 h-12 rounded-xl items-center justify-center bg-gradient-to-br from-[#000055] to-[#006666] border-2 border-[rgba(0,229,255,0.2)] group-hover:border-[#00E5FF] transition-all" style="display: none;">
+                    <span class="text-[#00E5FF] font-bold text-lg">{{ strtoupper(substr($user->display_name, 0, 1)) }}</span>
+                </div>
                 @else
                 <div class="w-12 h-12 rounded-xl flex items-center justify-center bg-gradient-to-br from-[#000055] to-[#006666] border-2 border-[rgba(0,229,255,0.2)] group-hover:border-[#00E5FF] transition-all">
                     <span class="text-[#00E5FF] font-bold text-lg">{{ strtoupper(substr($user->display_name, 0, 1)) }}</span>

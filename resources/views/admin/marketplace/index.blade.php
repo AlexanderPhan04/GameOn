@@ -204,9 +204,14 @@
                         <p class="hero-subtitle">Quản lý sản phẩm, giao diện và vật phẩm</p>
                     </div>
                 </div>
-                <a href="{{ route('admin.marketplace.create') }}" class="btn-neon btn-neon-purple">
-                    <i class="fas fa-plus"></i><span>Thêm sản phẩm</span>
-                </a>
+                <div class="flex gap-3 flex-wrap">
+                    <a href="{{ route('admin.marketplace.revenue') }}" class="btn-neon">
+                        <i class="fas fa-chart-line"></i><span>Báo cáo doanh thu</span>
+                    </a>
+                    <a href="{{ route('admin.marketplace.create') }}" class="btn-neon btn-neon-purple">
+                        <i class="fas fa-plus"></i><span>Thêm sản phẩm</span>
+                    </a>
+                </div>
             </div>
         </div>
 

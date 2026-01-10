@@ -82,3 +82,19 @@ Broadcast::channel('team.{teamId}', function ($user, $teamId) {
     // This enables viewers of the team page to see member changes
     return true;
 });
+
+/**
+ * Public channel for honor events
+ * Anyone can listen to honor event updates
+ */
+Broadcast::channel('honor', function () {
+    return true;
+});
+
+/**
+ * Public channel for specific honor event
+ * Anyone can listen to vote updates for a specific event
+ */
+Broadcast::channel('honor.event.{eventId}', function () {
+    return true;
+});

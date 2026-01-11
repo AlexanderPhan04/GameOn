@@ -26,7 +26,7 @@ class TeamMessageSent implements ShouldBroadcastNow
             'user' => [
                 'id' => $message->user->id,
                 'name' => $message->user->display_name,
-                'avatar' => $message->user->avatar ? get_avatar_url($message->user->avatar) : null,
+                'avatar' => $message->user->getDisplayAvatar(),
             ],
         ];
     }

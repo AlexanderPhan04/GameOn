@@ -118,13 +118,16 @@ class GoogleAuthService
                 'email_verified_at' => now(), // Google account is verified
             ]);
 
+            // Download Google avatar to local storage
+            $localAvatarPath = $this->downloadGoogleAvatar($googleAvatar, $user->id);
+
             // Create user profile using Eloquent
             $idApp = 'GGL' . str_pad($user->id, 6, '0', STR_PAD_LEFT);
             UserProfile::create([
                 'user_id' => $user->id,
                 'full_name' => $googleName,
-                'avatar' => $googleAvatar,
-                'google_avatar' => $googleAvatar, // Store original Google avatar for reset
+                'avatar' => $localAvatarPath, // Use local path instead of URL
+                'google_avatar' => $googleAvatar, // Store original Google avatar URL for reference
                 'id_app' => $idApp,
             ]);
 
@@ -185,14 +188,18 @@ class GoogleAuthService
         $currentAvatar = $user->profile->avatar;
         $updateData = [];
         
-        // Always update google_avatar to keep it fresh
+        // Always update google_avatar URL to keep it fresh for user to choose later
         if ($user->profile->google_avatar !== $googleAvatar) {
             $updateData['google_avatar'] = $googleAvatar;
         }
         
-        // Only update avatar if user has no avatar or current is a URL (Google avatar)
-        if (!$currentAvatar || filter_var($currentAvatar, FILTER_VALIDATE_URL)) {
-            $updateData['avatar'] = $googleAvatar;
+        // Only update avatar if user has no avatar or current is a Google URL (needs refresh)
+        if (!$currentAvatar || (filter_var($currentAvatar, FILTER_VALIDATE_URL) && str_contains($currentAvatar, 'googleusercontent.com'))) {
+            // Download Google avatar to local storage
+            $localAvatarPath = $this->downloadGoogleAvatar($googleAvatar, $user->id);
+            if ($localAvatarPath) {
+                $updateData['avatar'] = $localAvatarPath;
+            }
         }
 
         if (!empty($updateData)) {
@@ -203,6 +210,36 @@ class GoogleAuthService
                 'avatar_url' => substr($googleAvatar, 0, 50) . '...',
             ]);
         }
+    }
+
+    /**
+     * Download Google avatar to local storage
+     *
+     * @param string|null $googleAvatarUrl
+     * @param int $userId
+     * @return string|null Local path or null if failed
+     */
+    protected function downloadGoogleAvatar(?string $googleAvatarUrl, int $userId): ?string
+    {
+        if (!$googleAvatarUrl) {
+            return null;
+        }
+
+        try {
+            $imageContents = @file_get_contents($googleAvatarUrl);
+            if ($imageContents) {
+                $filename = 'avatars/google_' . $userId . '_' . time() . '.jpg';
+                \Illuminate\Support\Facades\Storage::disk('public')->put($filename, $imageContents);
+                return $filename;
+            }
+        } catch (\Exception $e) {
+            Log::warning('Failed to download Google avatar', [
+                'user_id' => $userId,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        return null;
     }
 
     /**

@@ -224,9 +224,7 @@ class PostsController extends Controller
                 'user' => [
                     'id' => $r->user->id,
                     'name' => $r->user->name,
-                    'avatar' => $r->user->avatar
-                        ? asset('uploads/' . $r->user->avatar)
-                        : asset('images/default-avatar.png'),
+                    'avatar' => $r->user->getDisplayAvatar(),
                 ],
             ]),
         ]);

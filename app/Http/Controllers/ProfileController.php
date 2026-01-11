@@ -121,7 +121,7 @@ class ProfileController extends Controller
             }
         }
 
-        // Handle reset to Google avatar
+        // Handle reset to Google avatar - download image to server instead of storing URL
         if ($request->has('reset_to_google_avatar') && $request->reset_to_google_avatar) {
             $googleAvatar = $user->profile?->google_avatar;
             if ($googleAvatar) {
@@ -132,7 +132,22 @@ class ProfileController extends Controller
                     Storage::disk('public')->delete($currentAvatar);
                 }
                 
-                $profileData['avatar'] = $googleAvatar;
+                // Download Google avatar to local storage
+                try {
+                    $imageContents = file_get_contents($googleAvatar);
+                    if ($imageContents) {
+                        $filename = 'avatars/google_' . $user->id . '_' . time() . '.jpg';
+                        Storage::disk('public')->put($filename, $imageContents);
+                        $profileData['avatar'] = $filename;
+                    } else {
+                        // Fallback: store URL if download fails
+                        $profileData['avatar'] = $googleAvatar;
+                    }
+                } catch (\Exception $e) {
+                    // Fallback: store URL if download fails
+                    $profileData['avatar'] = $googleAvatar;
+                    \Log::warning('Failed to download Google avatar: ' . $e->getMessage());
+                }
             }
         }
         // Handle system avatar selection

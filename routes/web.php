@@ -303,6 +303,7 @@ Route::get('/admin-invitation/{token}/reject', [\App\Http\Controllers\Admin\Admi
 // Admin Marketplace Management Routes
 Route::prefix('admin/marketplace')->name('admin.marketplace.')->middleware(['auth.session'])->group(function () {
     Route::get('/', [AdminMarketplaceController::class, 'index'])->name('index');
+    Route::get('/revenue', [AdminMarketplaceController::class, 'revenue'])->name('revenue');
     Route::get('/create', [AdminMarketplaceController::class, 'create'])->name('create');
     Route::post('/', [AdminMarketplaceController::class, 'store'])->name('store');
     Route::get('/{id}', [AdminMarketplaceController::class, 'show'])->name('show');

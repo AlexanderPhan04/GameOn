@@ -54,7 +54,12 @@ class UserProfile extends Model
             return $this->avatar;
         }
 
-        return asset('uploads/' . $this->avatar);
+        // System avatar path (e.g., "system/avatar_1.png")
+        if (str_starts_with($this->avatar, 'system/')) {
+            return asset('images/system-avatars/' . str_replace('system/', '', $this->avatar));
+        }
+
+        return asset('storage/' . $this->avatar);
     }
 
     /**
@@ -63,5 +68,25 @@ class UserProfile extends Model
     public function isVerified()
     {
         return $this->is_verified === true;
+    }
+
+    /**
+     * Check if Google avatar URL is likely valid (not expired)
+     * Note: Google avatar URLs from OAuth often expire after some time
+     */
+    public function hasValidGoogleAvatar(): bool
+    {
+        if (empty($this->google_avatar)) {
+            return false;
+        }
+
+        // Google URLs with certain patterns are known to expire
+        // We can't truly validate without making HTTP request, so we assume invalid
+        // if it's a googleusercontent URL (they expire frequently)
+        if (str_contains($this->google_avatar, 'googleusercontent.com')) {
+            return false;
+        }
+
+        return filter_var($this->google_avatar, FILTER_VALIDATE_URL) !== false;
     }
 }

@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Events\HonorEventCreated;
+use App\Events\HonorEventDeleted;
+use App\Events\HonorEventUpdated;
+use App\Events\HonorVotesReset;
 use App\Http\Controllers\Controller;
 use App\Models\Game;
 use App\Models\HonorEvent;
@@ -72,6 +76,9 @@ class HonorManagementController extends Controller
                 'created_by' => Auth::id(),
             ]);
 
+            // Broadcast event created realtime
+            broadcast(new HonorEventCreated($event));
+
             return redirect()->route('admin.honor.index')
                 ->with('success', 'Đợt vote đã được tạo thành công!');
         } catch (\Exception $e) {
@@ -137,6 +144,9 @@ class HonorManagementController extends Controller
                 'admin_weight' => $request->admin_weight,
             ]);
 
+            // Broadcast event updated realtime
+            broadcast(new HonorEventUpdated($honorEvent));
+
             return redirect()->route('admin.honor.index')
                 ->with('success', 'Đợt vote đã được cập nhật thành công!');
         } catch (\Exception $e) {
@@ -153,6 +163,9 @@ class HonorManagementController extends Controller
     {
         try {
             $honorEvent->update(['is_active' => ! $honorEvent->is_active]);
+
+            // Broadcast event updated realtime
+            broadcast(new HonorEventUpdated($honorEvent));
 
             $status = $honorEvent->is_active ? 'bật' : 'tắt';
 
@@ -176,6 +189,9 @@ class HonorManagementController extends Controller
 
             DB::commit();
 
+            // Broadcast votes reset realtime
+            broadcast(new HonorVotesReset($honorEvent));
+
             return redirect()->back()
                 ->with('success', 'Tất cả vote đã được reset thành công!');
         } catch (\Exception $e) {
@@ -194,6 +210,9 @@ class HonorManagementController extends Controller
         try {
             DB::beginTransaction();
 
+            $eventId = $honorEvent->id;
+            $eventName = $honorEvent->name;
+
             // Xóa tất cả vote trước
             HonorVote::where('honor_event_id', $honorEvent->id)->delete();
 
@@ -201,6 +220,9 @@ class HonorManagementController extends Controller
             $honorEvent->delete();
 
             DB::commit();
+
+            // Broadcast event deleted realtime
+            broadcast(new HonorEventDeleted($eventId, $eventName));
 
             return redirect()->route('admin.honor.index')
                 ->with('success', 'Đợt vote đã được xóa thành công!');
@@ -257,7 +279,7 @@ class HonorManagementController extends Controller
     {
         switch ($type) {
             case 'user':
-                return User::find($id);
+                return User::with('profile')->find($id);
             case 'team':
                 return Team::find($id);
             case 'tournament':

@@ -577,9 +577,7 @@ class ChatController extends Controller
                 'name' => $conv->type === 'private' 
                     ? ($otherUser?->display_name ?? $otherUser?->name ?? 'Unknown')
                     : $conv->name,
-                'avatar' => $conv->type === 'private'
-                    ? ($otherUser?->getDisplayAvatar() ?? null)
-                    : $conv->avatar,
+                'avatar' => $conv->getDisplayAvatar($user->id),
                 'last_message' => $conv->last_message_preview ?? null,
                 'time' => $conv->last_message_at?->diffForHumans(null, true) ?? '',
                 'unread' => $unreadCount > 0,

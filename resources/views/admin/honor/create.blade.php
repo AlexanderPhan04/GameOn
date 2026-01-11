@@ -95,21 +95,35 @@
     .form-label .required { color: #ef4444; }
     .form-input, .form-select, .form-textarea {
         width: 100%;
-        padding: 0.7rem 1rem;
+        box-sizing: border-box;
+        padding: 0.75rem 1rem;
         background: rgba(0, 0, 0, 0.3);
         border: 1px solid rgba(245, 158, 11, 0.2);
         border-radius: 10px;
         color: #FFFFFF;
         font-size: 0.9rem;
+        font-family: inherit;
         transition: all 0.3s ease;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+    }
+    .form-select {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2394a3b8' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 0.75rem center;
+        background-repeat: no-repeat;
+        background-size: 1.25em 1.25em;
+        padding-right: 2.5rem;
+        cursor: pointer;
     }
     .form-input:focus, .form-select:focus, .form-textarea:focus {
         outline: none;
         border-color: #f59e0b;
         box-shadow: 0 0 15px rgba(245, 158, 11, 0.2);
+        background: rgba(0, 0, 0, 0.4);
     }
     .form-input::placeholder, .form-textarea::placeholder { color: #64748b; }
-    .form-select option { background: #0d1b2a; color: #FFFFFF; }
+    .form-select option { background: #0d1b2a; color: #FFFFFF; padding: 0.5rem; }
     .form-hint { color: #64748b; font-size: 0.8rem; margin-top: 0.35rem; }
     .form-textarea { min-height: 100px; resize: vertical; }
 
@@ -124,17 +138,27 @@
     /* Weight Input */
     .weight-input-group { display: flex; align-items: center; gap: 0.5rem; }
     .weight-input {
-        width: 100px;
-        padding: 0.5rem 0.75rem;
+        width: 100%;
+        box-sizing: border-box;
+        padding: 0.75rem 1rem;
         background: rgba(0, 0, 0, 0.3);
         border: 1px solid rgba(245, 158, 11, 0.2);
-        border-radius: 8px;
+        border-radius: 10px;
         color: #f59e0b;
         font-size: 0.9rem;
         font-weight: 600;
-        text-align: center;
+        font-family: inherit;
+        transition: all 0.3s ease;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: textfield;
     }
-    .weight-input:focus { outline: none; border-color: #f59e0b; box-shadow: 0 0 10px rgba(245, 158, 11, 0.2); }
+    .weight-input::-webkit-outer-spin-button,
+    .weight-input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+    .weight-input:focus { outline: none; border-color: #f59e0b; box-shadow: 0 0 15px rgba(245, 158, 11, 0.2); background: rgba(0, 0, 0, 0.4); }
 
     /* Info Box */
     .info-box {

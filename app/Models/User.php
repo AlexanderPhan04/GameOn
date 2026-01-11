@@ -277,25 +277,41 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Get user's display avatar
+     * Avatar is stored locally (uploaded, system, or downloaded from Google)
+     * google_avatar column stores original Google URL for user to switch back
      */
     public function getDisplayAvatar()
     {
         $avatar = $this->profile?->avatar;
 
         if ($avatar) {
-            // Check if it's already a full URL (e.g., Google avatar)
+            // Check if it's a full URL (legacy data - Google URL stored directly)
             if (filter_var($avatar, FILTER_VALIDATE_URL)) {
+                // Google URLs expire, return default instead
+                if (str_contains($avatar, 'googleusercontent.com') || str_contains($avatar, 'google.com')) {
+                    return $this->getDefaultAvatar();
+                }
                 return $avatar;
             }
+
             // System avatar path (e.g., "system/avatar_1.png")
             if (str_starts_with($avatar, 'system/')) {
                 return asset('images/system-avatars/' . str_replace('system/', '', $avatar));
             }
-            // Local uploaded file path
+
+            // Local uploaded/downloaded file path
             return asset('storage/' . $avatar);
         }
 
-        // Generate avatar using UI Avatars API with user's initials
+        // No avatar set, return default
+        return $this->getDefaultAvatar();
+    }
+
+    /**
+     * Get default avatar URL based on user's name
+     */
+    public function getDefaultAvatar()
+    {
         $name = urlencode($this->name ?? 'User');
         return "https://ui-avatars.com/api/?name={$name}&size=128&background=667eea&color=ffffff&bold=true&format=svg";
     }

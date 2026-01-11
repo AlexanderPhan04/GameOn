@@ -411,11 +411,11 @@
         <div class="container mx-auto px-4 md:px-6 lg:px-8 xl:px-12">
             <div class="text-center mb-12">
                 <h2 class="font-display font-bold text-2xl sm:text-4xl md:text-5xl uppercase tracking-wider mb-2">
-                    Đội Ngũ <span class="text-neon">Phát Triển</span>
+                    {{ __('app.home.development_team') }}
                 </h2>
                 <div class="h-1 w-24 bg-gradient-to-r from-transparent via-brand to-transparent mx-auto"></div>
                 <p class="text-text-muted mt-4 max-w-lg mx-auto font-body text-sm sm:text-base px-4">
-                    Những người đứng sau sự thành công của hệ thống Game On.
+                    {{ __('app.home.development_team_description') }}
                 </p>
             </div>
 
@@ -581,7 +581,7 @@
                 <div class="team-card">
                     <div class="flex flex-col items-center text-center">
                         <!-- Avatar Section -->
-                        <div class="relative mb-3 sm:mb-4">
+                        <div class="relative mb-4 sm:mb-5">
                             <div class="team-avatar relative" style="border-radius: 50%; padding: 2px; background: linear-gradient(135deg, {{ $member['hover_color'] }}, transparent, {{ $member['hover_color'] }});">
                                 @if($imageExists)
                                     <img src="{{ $imagePath }}" alt="{{ $member['name'] }}" 
@@ -592,14 +592,14 @@
                                     </div>
                                 @endif
                             </div>
-                            
-                            <!-- Role Badge -->
-                            <div class="absolute -bottom-1 sm:-bottom-2 left-1/2 transform -translate-x-1/2">
-                                <div class="team-role-badge rounded-md sm:rounded-lg font-bold uppercase tracking-wider shadow-lg"
-                                     style="background: {{ $member['hover_color'] }}; color: #000; box-shadow: 0 0 15px {{ $member['hover_shadow'] }};">
-                                    {{ $member['role'] }}
-                                </div>
-                            </div>
+                        </div>
+                        
+                        <!-- Role Badge -->
+                        <div class="mb-2">
+                            <span class="team-role-badge rounded-md sm:rounded-lg font-bold uppercase tracking-wider shadow-lg inline-block"
+                                 style="background: {{ $member['hover_color'] }}; color: #000; box-shadow: 0 0 15px {{ $member['hover_shadow'] }};">
+                                {{ $member['role'] }}
+                            </span>
                         </div>
 
                         <!-- Name -->

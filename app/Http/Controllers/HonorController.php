@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\HonorVoteCast;
 use App\Models\Game;
 use App\Models\HonorEvent;
 use App\Models\HonorVote;
@@ -115,6 +116,9 @@ class HonorController extends Controller
 
             DB::commit();
 
+            // Broadcast vote event realtime
+            broadcast(new HonorVoteCast($vote, $honorEvent))->toOthers();
+
             return response()->json([
                 'success' => true,
                 'message' => 'Vote thành công!',
@@ -146,7 +150,7 @@ class HonorController extends Controller
             case 'user':
                 return User::where('user_role', 'participant')
                     ->where('id', '!=', Auth::id()) // Không vote cho chính mình
-                    ->select('id', 'name', 'display_name', 'avatar')
+                    ->with('profile')
                     ->get();
 
             case 'team':
@@ -179,7 +183,7 @@ class HonorController extends Controller
     {
         switch ($type) {
             case 'user':
-                return User::find($id);
+                return User::with('profile')->find($id);
             case 'team':
                 return Team::find($id);
             case 'tournament':

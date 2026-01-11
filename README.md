@@ -71,15 +71,17 @@
     -   Product search and filtering
     -   Admin product management
     -   Order tracking and management
+    -   **Order history with detailed view**
+    -   **PDF Invoice generation and download**
 
--   **VNPay Payment Integration**
+-   **PayOS Payment Integration**
 
     -   Secure payment gateway integration
     -   Sandbox and production environment support
     -   Order payment processing
     -   Donation payment support
     -   Payment return handling
-    -   IPN (Instant Payment Notification) support
+    -   Webhook (IPN) support
     -   Transaction query functionality
     -   Payment status tracking
 
@@ -88,7 +90,7 @@
     -   Peer-to-peer donations
     -   Anonymous donation support
     -   Donation tracking and history
-    -   VNPay payment integration
+    -   PayOS payment integration
     -   Donation message support
 
 -   **Social Features**
@@ -163,6 +165,14 @@
     -   Recent users tracking
     -   Role-based dashboard views
 
+-   **UI/UX Enhancements**
+    -   **Deep Blue Design System** (dark theme with neon cyan accents)
+    -   **Password visibility toggle** in login/register forms
+    -   **Responsive design** with mobile-first approach
+    -   **Vietnamese language email templates**
+    -   Consistent design across all auth pages
+    -   Modern glassmorphism effects
+
 ## 🛠️ Technology Stack
 
 ### Backend
@@ -171,7 +181,7 @@
 -   **PHP**: 8.2+
 -   **Database**: SQLite (default) / MySQL / PostgreSQL
 -   **Authentication**: Laravel Session Auth + Google OAuth (Laravel Socialite)
--   **Payment Gateway**: VNPay Integration
+-   **Payment Gateway**: PayOS Integration
 -   **ORM**: Eloquent
 -   **WebSocket**: Laravel Reverb (Real-time broadcasting)
 -   **Broadcasting**: Laravel Echo + Pusher JS
@@ -287,25 +297,20 @@ MAIL_FROM_ADDRESS=noreply@gameon.com
 MAIL_FROM_NAME="${APP_NAME}"
 ```
 
-### 6. Configure VNPay Payment (Optional)
+### 6. Configure PayOS Payment (Optional)
 
 For marketplace and donation payment functionality:
 
-1. Get your VNPay credentials from [VNPay Sandbox](https://sandbox.vnpayment.vn/)
+1. Get your PayOS credentials from [PayOS Dashboard](https://my.payos.vn/)
 2. Add to `.env`:
 
 ```env
-VNPAY_TMN_CODE=your_tmn_code
-VNPAY_HASH_SECRET=your_hash_secret
-VNPAY_URL=https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
-VNPAY_RETURN_URL=http://localhost:8000/payment/vnpay/return
-VNPAY_API_URL=http://sandbox.vnpayment.vn/merchant_webapi/merchant.html
-VNPAY_IPN_URL=http://localhost:8000/payment/vnpay/ipn
-VNPAY_ENVIRONMENT=sandbox
-VNPAY_EXPIRE_MINUTES=15
+PAYOS_CLIENT_ID=your_client_id
+PAYOS_API_KEY=your_api_key
+PAYOS_CHECKSUM_KEY=your_checksum_key
 ```
 
-For production, see [VNPAY_SETUP.md](VNPAY_SETUP.md) for detailed configuration.
+For more information, see [PayOS Documentation](https://payos.vn/docs/).
 
 ### 7. Configure Real-time Chat (Laravel Reverb)
 
@@ -651,13 +656,16 @@ User::create([
 -   `GET /marketplace/inventory` - User inventory
 -   `POST /marketplace/inventory/{id}/equip` - Equip item
 -   `POST /marketplace/donate/{userId}` - Donate to user
+-   `GET /marketplace/order-history` - View order history
+-   `GET /marketplace/order/{id}` - View order details
+-   `GET /marketplace/order/{id}/invoice` - Download PDF invoice
 
-### Payment (VNPay)
+### Payment (PayOS)
 
--   `POST /payment/vnpay/create` - Create payment
--   `GET /payment/vnpay/return` - Payment return callback
--   `POST /payment/vnpay/ipn` - Payment IPN notification
--   `POST /payment/vnpay/query` - Query transaction
+-   `POST /payment/payos/create` - Create payment link
+-   `GET /payment/payos/success` - Payment success callback
+-   `GET /payment/payos/cancel` - Payment cancel callback
+-   `POST /payment/payos/webhook` - Payment webhook (IPN)
 
 ### Admin - User Management
 
@@ -792,12 +800,12 @@ php artisan config:clear
 -   Ensure database file exists (for SQLite): `touch database/database.sqlite`
 -   Run migrations: `php artisan migrate:fresh`
 
-**Issue: VNPay payment not working**
+**Issue: PayOS payment not working**
 
--   Verify VNPay credentials in `.env`
--   Check VNPAY_RETURN_URL and VNPAY_IPN_URL are accessible
+-   Verify PayOS credentials in `.env` (CLIENT_ID, API_KEY, CHECKSUM_KEY)
+-   Check payment success/cancel callback URLs are accessible
 -   Review logs in `storage/logs/laravel.log`
--   Ensure proper hash secret configuration
+-   Test with PayOS sandbox environment
 
 **Issue: Permission denied errors**
 
@@ -849,13 +857,16 @@ For issues, questions, or contributions, please open an issue on the GitHub repo
 -   ✅ Honor/Voting system
 -   ✅ Real-time chat system with WebSocket (Laravel Reverb)
 -   ✅ Social posts and interactions
--   ✅ Marketplace with VNPay integration
+-   ✅ Marketplace with PayOS integration
 -   ✅ Donation system
 -   ✅ Admin panel with permission system
 -   ✅ Multi-language support
 -   ✅ Email verification and password reset
 -   ✅ Google OAuth integration
 -   ✅ Real-time WebSocket notifications (Chat)
+-   ✅ Order history with PDF invoice download
+-   ✅ Deep Blue Design System (dark theme)
+-   ✅ Password visibility toggle in auth forms
 
 ### In Progress 🚧
 
@@ -872,7 +883,6 @@ For issues, questions, or contributions, please open an issue on the GitHub repo
 -   [ ] Advanced tournament scheduling
 -   [ ] Team ranking system
 -   [ ] Achievement badges system
--   [ ] Enhanced marketplace features
 -   [ ] Advanced chat features (voice/video)
 -   [ ] Community forums
 
@@ -882,7 +892,8 @@ For issues, questions, or contributions, please open an issue on the GitHub repo
 -   Tailwind CSS Team
 -   Vite Team
 -   Font Awesome
--   VNPay Payment Gateway
+-   PayOS Payment Gateway
+-   Laravel Reverb (WebSocket)
 -   All contributors and testers
 
 ---
@@ -891,7 +902,7 @@ For issues, questions, or contributions, please open an issue on the GitHub repo
 
 ## 📚 Additional Resources
 
--   [VNPay Setup Guide](VNPAY_SETUP.md) - Detailed VNPay integration guide
+-   [PayOS Documentation](https://payos.vn/docs/) - PayOS integration guide
 -   [Laravel Reverb Setup Guide](docs/REVERB_SETUP.md) - Real-time WebSocket chat setup
 -   [Database Documentation](docs/DDD_DATABASE_REPORT.md) - Database structure and relationships
 -   [Laravel Documentation](https://laravel.com/docs/12.x) - Official Laravel docs
@@ -906,5 +917,5 @@ If you discover any security-related issues, please email the development team i
 
 See the project's commit history for detailed changes and updates.
 
-**Version**: 1.0.0  
-**Last Updated**: January 2026
+**Version**: 1.1.0  
+**Last Updated**: January 7, 2026

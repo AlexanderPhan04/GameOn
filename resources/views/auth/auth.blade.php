@@ -486,18 +486,165 @@
         color: #94a3b8;
     }
 
+    /* Custom Alert Styles for Auth Page */
     .alert {
-        margin-bottom: 20px;
+        margin-bottom: 15px;
         font-size: 13px;
         width: 100%;
         max-width: 100%;
         box-sizing: border-box;
+        border-radius: 10px;
+        padding: 12px 16px;
+        border: 1px solid;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        animation: slideIn 0.3s ease-out;
+    }
+    
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .alert-success {
+        background: rgba(16, 185, 129, 0.15);
+        border-color: rgba(16, 185, 129, 0.4);
+        color: #10b981;
+    }
+    
+    .alert-success::before {
+        content: '\f058';
+        font-family: 'Font Awesome 6 Free';
+        font-weight: 900;
+        font-size: 16px;
+    }
+    
+    .alert-danger {
+        background: rgba(239, 68, 68, 0.15);
+        border-color: rgba(239, 68, 68, 0.4);
+        color: #ef4444;
+    }
+    
+    .alert-danger::before {
+        content: '\f057';
+        font-family: 'Font Awesome 6 Free';
+        font-weight: 900;
+        font-size: 16px;
+    }
+    
+    .alert-warning {
+        background: rgba(245, 158, 11, 0.15);
+        border-color: rgba(245, 158, 11, 0.4);
+        color: #f59e0b;
+    }
+    
+    .alert-warning::before {
+        content: '\f071';
+        font-family: 'Font Awesome 6 Free';
+        font-weight: 900;
+        font-size: 16px;
+    }
+    
+    .alert-info {
+        background: rgba(0, 229, 255, 0.15);
+        border-color: rgba(0, 229, 255, 0.4);
+        color: #00E5FF;
+    }
+    
+    .alert-info::before {
+        content: '\f05a';
+        font-family: 'Font Awesome 6 Free';
+        font-weight: 900;
+        font-size: 16px;
+    }
+    
+    .alert .btn-close {
+        filter: invert(1);
+        opacity: 0.6;
+        margin-left: auto;
+        padding: 0;
+        background-size: 10px;
+    }
+    
+    .alert .btn-close:hover {
+        opacity: 1;
+    }
+    
+    .alert .alert-content {
+        flex: 1;
+    }
+    
+    .alert .alert-content strong {
+        display: block;
+        margin-bottom: 2px;
     }
 
     .spinner-border-sm {
         width: 1rem;
         height: 1rem;
         border-width: 0.15em;
+    }
+    
+    /* Password input wrapper with toggle */
+    .password-wrapper {
+        position: relative;
+        width: 100%;
+        margin: 4px 0 8px 0;
+    }
+    
+    .password-wrapper input {
+        margin: 0 !important;
+        padding-right: 45px !important;
+    }
+    
+    .password-toggle {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: transparent !important;
+        border: none !important;
+        color: #94a3b8;
+        cursor: pointer;
+        padding: 0 !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: color 0.3s ease;
+        font-size: 16px;
+        margin: 0 !important;
+        width: auto !important;
+        min-width: auto !important;
+        max-width: none !important;
+        box-shadow: none !important;
+        outline: none !important;
+        border-radius: 0 !important;
+    }
+    
+    .password-toggle:hover {
+        color: #00E5FF;
+        transform: translateY(-50%) !important;
+        box-shadow: none !important;
+        background: transparent !important;
+        border: none !important;
+    }
+    
+    .password-toggle:focus {
+        outline: none !important;
+        box-shadow: none !important;
+        border: none !important;
+        background: transparent !important;
+    }
+    
+    .password-toggle i {
+        pointer-events: none;
     }
     
     button:disabled {
@@ -597,15 +744,6 @@
                 <a href="{{ route('auth.google') }}" class="icon" title="Google">
                     <i class="fab fa-google"></i>
                 </a>
-                <a href="#" class="icon" title="Facebook">
-                    <i class="fab fa-facebook-f"></i>
-                </a>
-                <a href="#" class="icon" title="GitHub">
-                    <i class="fab fa-github"></i>
-                </a>
-                <a href="#" class="icon" title="LinkedIn">
-                    <i class="fab fa-linkedin-in"></i>
-                </a>
             </div>
             
             <span>{{ __('app.common.or') }} {{ __('app.auth.use_email_password') }}</span>
@@ -614,7 +752,12 @@
             
             <input type="email" id="login_email" name="email" placeholder="{{ __('app.auth.email') }}" required>
             
-            <input type="password" id="login_password" name="password" placeholder="{{ __('app.auth.password') }}" required>
+            <div class="password-wrapper">
+                <input type="password" id="login_password" name="password" placeholder="{{ __('app.auth.password') }}" required>
+                <button type="button" class="password-toggle" data-target="login_password" aria-label="Toggle password visibility">
+                    <i class="fas fa-eye"></i>
+                </button>
+            </div>
             
             <div class="form-check">
                 <input type="checkbox" class="form-check-input" id="remember" name="remember">
@@ -649,15 +792,6 @@
                 <a href="{{ route('auth.google') }}" class="icon" title="Google">
                     <i class="fab fa-google"></i>
                 </a>
-                <a href="#" class="icon" title="Facebook">
-                    <i class="fab fa-facebook-f"></i>
-                </a>
-                <a href="#" class="icon" title="GitHub">
-                    <i class="fab fa-github"></i>
-                </a>
-                <a href="#" class="icon" title="LinkedIn">
-                    <i class="fab fa-linkedin-in"></i>
-                </a>
             </div>
             
             <span>{{ __('app.common.or') }} {{ __('app.auth.use_email_registration') }}</span>
@@ -668,9 +802,19 @@
             
             <input type="email" id="email" name="email" placeholder="Email *" required>
             
-            <input type="password" id="password" name="password" placeholder="{{ __('app.auth.password') }} *" required>
+            <div class="password-wrapper">
+                <input type="password" id="password" name="password" placeholder="{{ __('app.auth.password') }} *" required>
+                <button type="button" class="password-toggle" data-target="password" aria-label="Toggle password visibility">
+                    <i class="fas fa-eye"></i>
+                </button>
+            </div>
             
-            <input type="password" id="confirm_password" name="confirm_password" placeholder="{{ __('app.auth.confirm_password') }} *" required>
+            <div class="password-wrapper">
+                <input type="password" id="confirm_password" name="confirm_password" placeholder="{{ __('app.auth.confirm_password') }} *" required>
+                <button type="button" class="password-toggle" data-target="confirm_password" aria-label="Toggle password visibility">
+                    <i class="fas fa-eye"></i>
+                </button>
+            </div>
             
             <button type="submit" id="registerBtn">
                 <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
@@ -777,6 +921,26 @@
             });
         }
 
+        // Password visibility toggle
+        document.querySelectorAll('.password-toggle').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.dataset.target;
+                const input = document.getElementById(targetId);
+                const icon = this.querySelector('i');
+                
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                } else {
+                    input.type = 'password';
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                }
+            });
+        });
+
         // Password confirmation validation
         if (confirmPassword) {
             confirmPassword.addEventListener('input', function() {
@@ -882,29 +1046,44 @@
         });
 
         function showAlert(container, message, type) {
+            // Clear previous alerts
+            container.innerHTML = '';
+            
             const alert = document.createElement('div');
             alert.className = `alert alert-${type} alert-dismissible fade show`;
             alert.innerHTML = `
-                ${message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                <span class="alert-content">${message}</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             `;
             container.appendChild(alert);
+            
+            // Auto dismiss success alerts after 3 seconds
+            if (type === 'success') {
+                setTimeout(() => {
+                    alert.classList.remove('show');
+                    setTimeout(() => alert.remove(), 150);
+                }, 3000);
+            }
         }
 
         function showVerificationAlert(container, message, email) {
+            // Clear previous alerts
+            container.innerHTML = '';
+            
             const alert = document.createElement('div');
             alert.className = 'alert alert-warning alert-dismissible fade show';
+            alert.style.flexDirection = 'column';
+            alert.style.alignItems = 'flex-start';
+            alert.style.gap = '8px';
             alert.innerHTML = `
-                <div class="d-flex align-items-center justify-content-between">
-                    <div>
-                        <strong><i class="fas fa-exclamation-triangle"></i> ${translations.email_not_verified}</strong><br>
-                        ${message}
-                    </div>
-                    <button type="button" class="btn btn-sm btn-outline-warning" onclick="resendVerificationEmail('${email}')">
-                        ${translations.resend_email}
+                <div class="alert-content" style="width: 100%;">
+                    <strong>${translations.email_not_verified}</strong>
+                    <p style="margin: 5px 0; font-size: 12px; color: #d97706;">${message}</p>
+                    <button type="button" class="btn btn-sm" style="background: rgba(245, 158, 11, 0.2); border: 1px solid #f59e0b; color: #f59e0b; font-size: 11px; padding: 4px 12px; border-radius: 6px; margin-top: 5px;" onclick="resendVerificationEmail('${email}')">
+                        <i class="fas fa-paper-plane me-1"></i>${translations.resend_email}
                     </button>
                 </div>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="position: absolute; top: 10px; right: 10px;"></button>
             `;
             container.appendChild(alert);
         }

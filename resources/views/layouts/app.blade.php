@@ -741,16 +741,313 @@
             text-align: center;
         }
 
+        /* Notification Bell Styles */
+        .notification-bell-btn {
+            position: relative;
+        }
+        
+        /* Cart Icon */
+        .cart-icon-btn {
+            position: relative;
+            text-decoration: none;
+        }
+        
+        .cart-badge {
+            position: absolute;
+            top: -4px;
+            right: -6px;
+            min-width: 18px;
+            height: 18px;
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: white;
+            font-size: 10px;
+            font-weight: 700;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 4px;
+            box-shadow: 0 2px 8px rgba(34, 197, 94, 0.5);
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            min-width: 18px;
+            height: 18px;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            font-size: 10px;
+            font-weight: 700;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 4px;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.5);
+            animation: pulse-notification 2s infinite;
+        }
+        
+        @keyframes pulse-notification {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .notification-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(0, 229, 255, 0.1);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .notification-item:hover {
+            background: rgba(0, 229, 255, 0.1);
+        }
+        
+        .notification-item.unread {
+            background: rgba(0, 229, 255, 0.05);
+        }
+        
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+        
+        .notification-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+        
+        .notification-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .notification-content {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .notification-text {
+            color: white;
+            font-size: 13px;
+            line-height: 1.4;
+            margin-bottom: 4px;
+        }
+        
+        .notification-text strong {
+            color: #00E5FF;
+        }
+        
+        .notification-time {
+            color: #64748b;
+            font-size: 11px;
+        }
+        
+        /* Desktop Notification Dropdown */
+        .notification-dropdown-desktop {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            width: 340px;
+            background: linear-gradient(180deg, #0d1b2a 0%, #000814 100%);
+            border: 1px solid rgba(0, 229, 255, 0.25);
+            border-radius: 16px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(0, 229, 255, 0.1);
+            z-index: 10000;
+            overflow: hidden;
+        }
+        
+        .notification-dropdown-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 18px;
+            background: linear-gradient(135deg, rgba(0, 0, 85, 0.4), rgba(0, 229, 255, 0.05));
+            border-bottom: 1px solid rgba(0, 229, 255, 0.15);
+        }
+        
+        .notification-dropdown-header span {
+            color: #fff;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+        }
+        
+        .notification-mark-read-btn {
+            background: none;
+            border: none;
+            color: #00E5FF;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .notification-mark-read-btn:hover {
+            color: #fff;
+            text-decoration: underline;
+        }
+        
+        .notification-dropdown-list {
+            max-height: 380px;
+            overflow-y: auto;
+        }
+        
+        .notification-dropdown-list::-webkit-scrollbar {
+            width: 4px;
+        }
+        
+        .notification-dropdown-list::-webkit-scrollbar-thumb {
+            background: rgba(0, 229, 255, 0.3);
+            border-radius: 4px;
+        }
+        
+        .notification-empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            color: #64748b;
+            gap: 12px;
+        }
+        
+        .notification-empty-state i {
+            font-size: 32px;
+            opacity: 0.4;
+            color: #00E5FF;
+        }
+        
+        .notification-empty-state span {
+            font-size: 14px;
+        }
+
         .gameon-user-menu {
             display: flex;
             align-items: center;
             gap: 0.5rem;
         }
 
-        /* Language Dropdown Styles - using Tailwind, minimal custom CSS */
+        /* Language Dropdown Styles */
         #languageDropdownMenu.show,
         #languageDropdownMobileMenu.show {
             display: block !important;
+        }
+        
+        .language-dropdown-container {
+            background: linear-gradient(135deg, rgba(13, 27, 42, 0.98), rgba(0, 0, 34, 0.98));
+            border: 1px solid rgba(0, 229, 255, 0.2);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 229, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .language-dropdown-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid rgba(0, 229, 255, 0.1);
+            color: #fff;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+        
+        .language-dropdown-header i {
+            color: #00E5FF;
+        }
+        
+        .language-dropdown-list {
+            padding: 0.5rem;
+        }
+        
+        .language-item {
+            display: flex;
+            align-items: center;
+            gap: 0.875rem;
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            margin-bottom: 0.25rem;
+        }
+        
+        .language-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .language-item:hover {
+            background: rgba(0, 229, 255, 0.1);
+        }
+        
+        .language-item.active {
+            background: rgba(0, 229, 255, 0.15);
+        }
+        
+        .language-flag {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        
+        .language-flag .flag-icon {
+            font-size: 1.25rem;
+        }
+        
+        .language-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.125rem;
+        }
+        
+        .language-name {
+            color: #fff;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        
+        .language-code {
+            color: #64748b;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+        
+        .language-item.active .language-name {
+            color: #00E5FF;
+        }
+        
+        .language-check {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00E5FF, #0099cc);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000;
+            font-size: 0.7rem;
         }
 
         .gameon-user-avatar {
@@ -944,6 +1241,119 @@
             max-height: 40px;
             object-fit: contain;
             flex-shrink: 0;
+        }
+        
+        .mobile-menu-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        /* Mobile Notification */
+        .mobile-notification-wrapper {
+            position: relative;
+        }
+        
+        .mobile-notification-btn {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 229, 255, 0.1);
+            border: 1px solid rgba(0, 229, 255, 0.3);
+            border-radius: 8px;
+            color: #00E5FF;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .mobile-notification-btn:hover {
+            background: rgba(0, 229, 255, 0.2);
+        }
+        
+        .mobile-notification-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            min-width: 16px;
+            height: 16px;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            font-size: 9px;
+            font-weight: 700;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 3px;
+        }
+        
+        .mobile-notification-dropdown {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            width: 280px;
+            max-height: 350px;
+            background: #0d1b2a;
+            border: 1px solid rgba(0, 229, 255, 0.2);
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 100;
+            overflow: hidden;
+        }
+        
+        .mobile-notification-dropdown.show {
+            display: block;
+        }
+        
+        .mobile-notification-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(0, 229, 255, 0.1);
+            background: rgba(0, 0, 85, 0.3);
+        }
+        
+        .mobile-notification-header span {
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .mobile-mark-all-read {
+            background: none;
+            border: none;
+            color: #00E5FF;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        
+        .mobile-notification-list {
+            max-height: 280px;
+            overflow-y: auto;
+        }
+        
+        .mobile-notification-empty {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 30px 20px;
+            color: #64748b;
+            gap: 8px;
+        }
+        
+        .mobile-notification-empty i {
+            font-size: 24px;
+            opacity: 0.5;
+        }
+        
+        .mobile-notification-empty span {
+            font-size: 13px;
         }
         
         .mobile-menu-close {
@@ -1178,6 +1588,59 @@
             .gameon-user-menu > .relative:not(:last-child) {
                 display: none;
             }
+        }
+        
+        /* Mobile Icon Buttons */
+        .mobile-icon-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: rgba(0, 229, 255, 0.1);
+            border: 1px solid rgba(0, 229, 255, 0.2);
+            color: #00E5FF;
+            transition: all 0.3s;
+            position: relative;
+            margin-left: 8px;
+        }
+        
+        /* Hide mobile icons on desktop */
+        @media (min-width: 1024px) {
+            .mobile-icon-btn {
+                display: none !important;
+            }
+        }
+        
+        .mobile-icon-btn:first-child {
+            margin-left: 0;
+        }
+        
+        .mobile-icon-btn:hover {
+            background: rgba(0, 229, 255, 0.2);
+            color: #fff;
+        }
+        
+        .mobile-icon-btn i {
+            font-size: 1rem;
+        }
+        
+        .mobile-cart-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            min-width: 18px;
+            height: 18px;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 4px;
         }
 
         /* Footer Styles - Comprehensive CSS to ensure proper display */
@@ -2415,19 +2878,43 @@
 
             <nav class="sidebar-nav">
                 <ul class="sidebar-menu">
+                    {{-- Dashboard --}}
                     <li class="menu-item {{ Request::is('dashboard*') ? 'active' : '' }}">
                         <a href="{{ route('dashboard') }}" class="menu-link" title="{{ __('app.nav.dashboard') }}">
                             <i class="fas fa-tachometer-alt"></i>
                             <span>{{ __('app.nav.dashboard') }}</span>
                         </a>
                     </li>
+                    
                     <li class="menu-divider"></li>
-                    <li class="menu-item has-submenu {{ Request::is('admin/tournaments*') || Request::is('admin/games*') || Request::is('admin/teams*') || Request::is('admin/users*') || Request::is('admin/honor*') || Request::is('admin/marketplace*') || Request::is('honor*') ? 'open' : '' }}" id="managerMenu">
+                    
+                    {{-- Management Section --}}
+                    <li class="menu-item has-submenu {{ Request::is('admin/tournaments*') || Request::is('admin/games*') || Request::is('admin/teams*') || Request::is('admin/users*') || Request::is('admin/admins*') ? 'open' : '' }}" id="managerMenu">
                         <a href="#" class="menu-link" onclick="event.preventDefault(); toggleSubmenu('managerMenu');" title="Manager">
                             <i class="fas fa-briefcase"></i>
                             <span>Manager</span>
                         </a>
                         <ul class="menu-submenu">
+                            <li class="menu-item {{ Request::is('admin/users*') ? 'active' : '' }}">
+                                <a href="{{ route('admin.users.index') }}" class="menu-link" title="{{ __('app.profile.manage_users') }}">
+                                    <i class="fas fa-users"></i>
+                                    <span>{{ __('app.profile.manage_users') }}</span>
+                                </a>
+                            </li>
+                            @if(Auth::user()->isSuperAdmin())
+                            <li class="menu-item {{ Request::is('admin/admins*') ? 'active' : '' }}">
+                                <a href="{{ route('admin.admins.index') }}" class="menu-link" title="{{ __('app.nav.manage_admin') }}">
+                                    <i class="fas fa-user-shield"></i>
+                                    <span>{{ __('app.nav.manage_admin') }}</span>
+                                </a>
+                            </li>
+                            @endif
+                            <li class="menu-item {{ Request::is('admin/teams*') ? 'active' : '' }}">
+                                <a href="{{ route('admin.teams.index') }}" class="menu-link" title="{{ __('app.profile.manage_teams') }}">
+                                    <i class="fas fa-users-cog"></i>
+                                    <span>{{ __('app.profile.manage_teams') }}</span>
+                                </a>
+                            </li>
                             <li class="menu-item {{ Request::is('admin/tournaments*') ? 'active' : '' }}">
                                 <a href="{{ route('admin.tournaments.index') }}" class="menu-link" title="{{ __('app.profile.manage_tournaments') }}">
                                     <i class="fas fa-trophy"></i>
@@ -2440,54 +2927,66 @@
                                     <span>{{ __('app.profile.manage_games') }}</span>
                                 </a>
                             </li>
-                            <li class="menu-item {{ Request::is('admin/teams*') ? 'active' : '' }}">
-                                <a href="{{ route('admin.teams.index') }}" class="menu-link" title="{{ __('app.profile.manage_teams') }}">
-                                    <i class="fas fa-users-cog"></i>
-                                    <span>{{ __('app.profile.manage_teams') }}</span>
+                        </ul>
+                    </li>
+                    
+                    {{-- Store & Honor Section --}}
+                    <li class="menu-item has-submenu {{ Request::is('admin/honor*') || Request::is('honor*') || Request::is('admin/marketplace*') ? 'open' : '' }}" id="storeMenu">
+                        <a href="#" class="menu-link" onclick="event.preventDefault(); toggleSubmenu('storeMenu');" title="Store & Honor">
+                            <i class="fas fa-store"></i>
+                            <span>Store & Honor</span>
+                        </a>
+                        <ul class="menu-submenu">
+                            <li class="menu-item {{ Request::is('admin/marketplace*') ? 'active' : '' }}">
+                                <a href="{{ route('admin.marketplace.index') }}" class="menu-link" title="{{ __('app.nav.manage_marketplace') }}">
+                                    <i class="fas fa-shopping-bag"></i>
+                                    <span>{{ __('app.nav.manage_marketplace') }}</span>
                                 </a>
                             </li>
-                            <li class="menu-item {{ Request::is('admin/users*') ? 'active' : '' }}">
-                                <a href="{{ route('admin.users.index') }}" class="menu-link" title="{{ __('app.profile.manage_users') }}">
-                                    <i class="fas fa-users"></i>
-                                    <span>{{ __('app.profile.manage_users') }}</span>
-                                </a>
-                            </li>
-                            @if(Auth::user()->isSuperAdmin())
-                            <li class="menu-item {{ Request::is('admin/admins*') ? 'active' : '' }}">
-                                <a href="{{ route('admin.admins.index') }}" class="menu-link" title="Quản lý Admin">
-                                    <i class="fas fa-user-shield"></i>
-                                    <span>Quản lý Admin</span>
-                                </a>
-                            </li>
-                            @endif
                             <li class="menu-item {{ Request::is('admin/honor*') || Request::is('honor*') ? 'active' : '' }}">
                                 <a href="{{ route('admin.honor.index') }}" class="menu-link" title="{{ __('app.honor.manage_title') }}">
-                                    <i class="fas fa-trophy"></i>
+                                    <i class="fas fa-award"></i>
                                     <span>{{ __('app.honor.manage_title') }}</span>
-                                </a>
-                            </li>
-                            <li class="menu-item {{ Request::is('admin/marketplace*') ? 'active' : '' }}">
-                                <a href="{{ route('admin.marketplace.index') }}" class="menu-link" title="Quản lý Marketplace">
-                                    <i class="fas fa-store"></i>
-                                    <span>Quản lý Marketplace</span>
                                 </a>
                             </li>
                         </ul>
                     </li>
+                    
                     <li class="menu-divider"></li>
+                    
+                    {{-- System Settings --}}
                     <li class="menu-item {{ Request::is('admin/system*') || Request::is('admin/settings*') ? 'active' : '' }}">
                         <a href="{{ route('admin.system.settings') }}" class="menu-link" title="Setting">
-                            <i class="fas fa-sliders-h"></i>
+                            <i class="fas fa-cog"></i>
                             <span>Setting</span>
                         </a>
                     </li>
+                    
                     <li class="menu-divider"></li>
-                    <li class="menu-item">
+                    
+                    {{-- Personal Section --}}
+                    <li class="menu-item {{ Request::is('profile*') ? 'active' : '' }}">
                         <a href="{{ route('profile.show') }}" class="menu-link" title="{{ __('app.profile.personal_info') }}">
                             <i class="fas fa-id-card"></i>
                             <span>{{ __('app.profile.personal_info') }}</span>
                         </a>
                     </li>
+                    <li class="menu-item {{ Request::is('marketplace/inventory*') ? 'active' : '' }}">
+                        <a href="{{ route('marketplace.inventory') }}" class="menu-link" title="{{ __('app.marketplace.inventory') }}">
+                            <i class="fas fa-box"></i>
+                            <span>{{ __('app.marketplace.inventory') }}</span>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ Request::is('honor*') ? 'active' : '' }}">
+                        <a href="{{ route('honor.index') }}" class="menu-link" title="{{ __('app.nav.honor') ?? 'Honor' }}">
+                            <i class="fas fa-award"></i>
+                            <span>{{ __('app.nav.honor') ?? 'Honor' }}</span>
+                        </a>
+                    </li>
+                    
+                    <li class="menu-divider"></li>
+                    
+                    {{-- Logout --}}
                     <li class="menu-item">
                         <form method="POST" action="{{ route('auth.logout') }}" class="menu-form">
                             @csrf
@@ -2521,21 +3020,37 @@
                             <i class="fas fa-chevron-up text-xs ml-auto opacity-60"></i>
                         </button>
                         <div class="absolute bottom-full left-0 right-0 mb-2 hidden z-50" id="sidebarLanguageMenu">
-                            <div class="bg-[#0d1b2a] border border-[rgba(0,229,255,0.3)] rounded-lg overflow-hidden" style="box-shadow: 0 -10px 40px rgba(0,0,0,0.5), 0 0 15px rgba(0,229,255,0.1);">
-                                <a class="language-switch flex items-center gap-3 px-4 py-3 text-white no-underline hover:bg-[rgba(0,229,255,0.15)] transition-all {{ app()->getLocale() === 'en' ? 'bg-[rgba(0,229,255,0.1)] text-[#00E5FF]' : '' }}" href="#" data-locale="en">
-                                    <span class="w-7 h-5 rounded overflow-hidden flex items-center justify-center bg-white text-[10px] font-bold text-blue-600">EN</span>
-                                    <span class="flex-1 text-sm font-medium">English</span>
-                                    @if(app()->getLocale() === 'en')
-                                        <i class="fas fa-check text-[#00E5FF] text-sm"></i>
-                                    @endif
-                                </a>
-                                <a class="language-switch flex items-center gap-3 px-4 py-3 text-white no-underline hover:bg-[rgba(0,229,255,0.15)] transition-all {{ app()->getLocale() === 'vi' ? 'bg-[rgba(0,229,255,0.1)] text-[#00E5FF]' : '' }}" href="#" data-locale="vi">
-                                    <span class="w-7 h-5 rounded overflow-hidden flex items-center justify-center bg-red-600 text-[10px] font-bold text-yellow-300">VI</span>
-                                    <span class="flex-1 text-sm font-medium">Tiếng Việt</span>
-                                    @if(app()->getLocale() === 'vi')
-                                        <i class="fas fa-check text-[#00E5FF] text-sm"></i>
-                                    @endif
-                                </a>
+                            <div class="language-dropdown-container">
+                                <div class="language-dropdown-list">
+                                    <a class="language-item language-switch {{ app()->getLocale() === 'en' ? 'active' : '' }}" href="#" data-locale="en">
+                                        <div class="language-flag">
+                                            <span class="flag-icon">🇺🇸</span>
+                                        </div>
+                                        <div class="language-info">
+                                            <span class="language-name">English</span>
+                                            <span class="language-code">EN</span>
+                                        </div>
+                                        @if(app()->getLocale() === 'en')
+                                        <div class="language-check">
+                                            <i class="fas fa-check"></i>
+                                        </div>
+                                        @endif
+                                    </a>
+                                    <a class="language-item language-switch {{ app()->getLocale() === 'vi' ? 'active' : '' }}" href="#" data-locale="vi">
+                                        <div class="language-flag">
+                                            <span class="flag-icon">🇻🇳</span>
+                                        </div>
+                                        <div class="language-info">
+                                            <span class="language-name">Tiếng Việt</span>
+                                            <span class="language-code">VI</span>
+                                        </div>
+                                        @if(app()->getLocale() === 'vi')
+                                        <div class="language-check">
+                                            <i class="fas fa-check"></i>
+                                        </div>
+                                        @endif
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -2630,22 +3145,42 @@
                             <i class="fas fa-globe"></i>
                             <span class="text-sm">{{ strtoupper(app()->getLocale()) }}</span>
                         </button>
-                        <div class="absolute right-0 top-full mt-2 hidden z-[10000]" id="languageDropdownMenu" aria-labelledby="languageDropdownToggle" style="min-width: 150px;">
-                            <div class="bg-[#0d1b2a] border border-[rgba(0,229,255,0.3)] rounded-lg overflow-hidden" style="box-shadow: 0 10px 40px rgba(0,0,0,0.5), 0 0 15px rgba(0,229,255,0.1);">
-                                <a class="language-switch flex items-center gap-3 px-4 py-3 text-white no-underline transition-all hover:bg-[rgba(0,229,255,0.15)] {{ app()->getLocale() === 'en' ? 'bg-[rgba(0,229,255,0.1)] text-[#00E5FF]' : '' }}" href="#" data-locale="en">
-                                    <span class="w-7 h-5 rounded overflow-hidden flex items-center justify-center bg-white text-[10px] font-bold text-blue-600">EN</span>
-                                    <span class="flex-1 text-sm font-medium">English</span>
-                                    @if(app()->getLocale() === 'en')
-                                        <i class="fas fa-check text-[#00E5FF] text-sm"></i>
-                                    @endif
-                                </a>
-                                <a class="language-switch flex items-center gap-3 px-4 py-3 text-white no-underline transition-all hover:bg-[rgba(0,229,255,0.15)] {{ app()->getLocale() === 'vi' ? 'bg-[rgba(0,229,255,0.1)] text-[#00E5FF]' : '' }}" href="#" data-locale="vi">
-                                    <span class="w-7 h-5 rounded overflow-hidden flex items-center justify-center bg-red-600 text-[10px] font-bold text-yellow-300">VI</span>
-                                    <span class="flex-1 text-sm font-medium">Tiếng Việt</span>
-                                    @if(app()->getLocale() === 'vi')
-                                        <i class="fas fa-check text-[#00E5FF] text-sm"></i>
-                                    @endif
-                                </a>
+                        <div class="absolute right-0 top-full mt-2 hidden z-[10000]" id="languageDropdownMenu" aria-labelledby="languageDropdownToggle" style="min-width: 200px;">
+                            <div class="language-dropdown-container">
+                                <div class="language-dropdown-header">
+                                    <i class="fas fa-globe"></i>
+                                    <span>{{ __('app.language.select_language') ?? 'Select Language' }}</span>
+                                </div>
+                                <div class="language-dropdown-list">
+                                    <a class="language-item language-switch {{ app()->getLocale() === 'en' ? 'active' : '' }}" href="#" data-locale="en">
+                                        <div class="language-flag">
+                                            <span class="flag-icon">🇺🇸</span>
+                                        </div>
+                                        <div class="language-info">
+                                            <span class="language-name">English</span>
+                                            <span class="language-code">EN</span>
+                                        </div>
+                                        @if(app()->getLocale() === 'en')
+                                        <div class="language-check">
+                                            <i class="fas fa-check"></i>
+                                        </div>
+                                        @endif
+                                    </a>
+                                    <a class="language-item language-switch {{ app()->getLocale() === 'vi' ? 'active' : '' }}" href="#" data-locale="vi">
+                                        <div class="language-flag">
+                                            <span class="flag-icon">🇻🇳</span>
+                                        </div>
+                                        <div class="language-info">
+                                            <span class="language-name">Tiếng Việt</span>
+                                            <span class="language-code">VI</span>
+                                        </div>
+                                        @if(app()->getLocale() === 'vi')
+                                        <div class="language-check">
+                                            <i class="fas fa-check"></i>
+                                        </div>
+                                        @endif
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -2665,6 +3200,41 @@
                                     <button id="navbarSearchClear" class="search-clear" title="{{ __('app.search.clear') }}"><i class="fas fa-xmark"></i></button>
                                 </div>
                                 <div id="navbarSearchResults" class="search-results"></div>
+                            </div>
+                        </div>
+                    </div>
+                    @endauth
+
+                    <!-- Cart Icon -->
+                    @auth
+                    <a href="{{ route('marketplace.cart') }}" class="gameon-nav-link cart-icon-btn" style="position: relative;" title="{{ __('app.nav.cart') }}">
+                        <i class="fas fa-shopping-cart"></i>
+                        @php
+                            $cartCount = session('cart') ? count(session('cart')) : 0;
+                        @endphp
+                        @if($cartCount > 0)
+                        <span class="cart-badge">{{ $cartCount }}</span>
+                        @endif
+                    </a>
+                    @endauth
+
+                    <!-- Notification Bell -->
+                    @auth
+                    <div class="relative" id="notificationBell">
+                        <button type="button" class="gameon-nav-link notification-bell-btn" id="notificationToggle" style="border: none; background: none; cursor: pointer; position: relative;" title="{{ __('app.notifications.title') }}">
+                            <i class="fas fa-bell"></i>
+                            <span class="notification-badge" id="notificationCount" style="display: none;">0</span>
+                        </button>
+                        <div id="notificationDropdown" class="notification-dropdown-desktop hidden">
+                            <div class="notification-dropdown-header">
+                                <span>{{ __('app.notifications.title') }}</span>
+                                <button id="markAllRead" class="notification-mark-read-btn">{{ __('app.notifications.mark_all_read') }}</button>
+                            </div>
+                            <div id="notificationList" class="notification-dropdown-list">
+                                <div class="notification-empty-state">
+                                    <i class="fas fa-bell-slash"></i>
+                                    <span>{{ __('app.notifications.no_notifications') }}</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -2724,9 +3294,33 @@
                                 </a>
                             </li>
                             <li class="list-none">
+                                <a href="{{ route('marketplace.inventory') }}" class="gameon-dropdown-item">
+                                    <i class="fas fa-box"></i>
+                                    <span>{{ __('app.marketplace.inventory') }}</span>
+                                </a>
+                            </li>
+                            <li class="list-none">
+                                <a href="{{ route('marketplace.orders') }}" class="gameon-dropdown-item">
+                                    <i class="fas fa-receipt"></i>
+                                    <span>{{ __('app.marketplace.order_history') }}</span>
+                                </a>
+                            </li>
+                            <li class="list-none">
+                                <a href="{{ route('honor.index') }}" class="gameon-dropdown-item">
+                                    <i class="fas fa-award"></i>
+                                    <span>{{ __('app.nav.honor') ?? 'Honor' }}</span>
+                                </a>
+                            </li>
+                            <li class="list-none">
                                 <a href="{{ route('profile.show') }}" class="gameon-dropdown-item">
                                     <i class="fas fa-id-card"></i>
                                     <span>{{ __('app.profile.personal_info') }}</span>
+                                </a>
+                            </li>
+                            <li class="list-none">
+                                <a href="{{ route('profile.settings') }}" class="gameon-dropdown-item">
+                                    <i class="fas fa-cog"></i>
+                                    <span>{{ __('app.profile.account_settings') }}</span>
                                 </a>
                             </li>
                             
@@ -2766,7 +3360,7 @@
                             <li class="list-none">
                                 <a href="{{ route('admin.admins.index') }}" class="gameon-dropdown-item">
                                     <i class="fas fa-user-shield"></i>
-                                    <span>Quản lý Admin</span>
+                                    <span>{{ __('app.nav.manage_admin') }}</span>
                                 </a>
                             </li>
                             @endif
@@ -2799,6 +3393,27 @@
                     </a>
                     @endauth
                     
+                    <!-- Mobile Icons (Search, Cart) -->
+                    <div class="flex items-center gap-3 lg:hidden">
+                        @auth
+                        <!-- Mobile Search -->
+                        <button type="button" class="mobile-icon-btn" id="mobileSearchToggle" title="{{ __('app.search.search') }}">
+                            <i class="fas fa-magnifying-glass"></i>
+                        </button>
+                        
+                        <!-- Mobile Cart -->
+                        <a href="{{ route('marketplace.cart') }}" class="mobile-icon-btn" style="position: relative;" title="{{ __('app.nav.cart') }}">
+                            <i class="fas fa-shopping-cart"></i>
+                            @php
+                                $mobileCartCount = session('cart') ? count(session('cart')) : 0;
+                            @endphp
+                            @if($mobileCartCount > 0)
+                            <span class="mobile-cart-badge">{{ $mobileCartCount }}</span>
+                            @endif
+                        </a>
+                        @endauth
+                    </div>
+                    
                     <!-- Mobile: Hamburger Menu Button -->
                     <button class="mobile-menu-toggle lg:hidden" id="mobileMenuToggle" aria-label="Toggle menu">
                         <span class="hamburger-line"></span>
@@ -2823,9 +3438,32 @@
                         <div class="text-slate-400 text-xs">{{ __('app.tagline') }}</div>
                     </div>
                 </div>
-                <button class="mobile-menu-close" id="mobileMenuClose" aria-label="Close menu">
-                    <i class="fas fa-times"></i>
-                </button>
+                <div class="mobile-menu-header-actions">
+                    @auth
+                    <!-- Notification Bell for Mobile -->
+                    <div class="mobile-notification-wrapper">
+                        <button class="mobile-notification-btn" id="mobileNotificationToggle">
+                            <i class="fas fa-bell"></i>
+                            <span class="mobile-notification-badge" id="mobileNotificationBadge" style="display: none;">0</span>
+                        </button>
+                        <div class="mobile-notification-dropdown" id="mobileNotificationDropdown">
+                            <div class="mobile-notification-header">
+                                <span>{{ __('app.notifications.title') }}</span>
+                                <button id="mobileMarkAllRead" class="mobile-mark-all-read">{{ __('app.notifications.mark_all_read') }}</button>
+                            </div>
+                            <div class="mobile-notification-list" id="mobileNotificationList">
+                                <div class="mobile-notification-empty">
+                                    <i class="fas fa-bell-slash"></i>
+                                    <span>{{ __('app.notifications.no_notifications') }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endauth
+                    <button class="mobile-menu-close" id="mobileMenuClose" aria-label="Close menu">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
             </div>
             
             <!-- Menu Content -->
@@ -2852,7 +3490,7 @@
                 <nav class="mobile-menu-nav">
                     <a href="{{ route('home') }}" class="mobile-menu-item {{ Request::is('/') || Request::is('home') ? 'active' : '' }}">
                         <i class="fas fa-home"></i>
-                        <span>Trang chủ</span>
+                        <span>{{ __('app.nav.home') }}</span>
                     </a>
                     <a href="{{ route('dashboard') }}" class="mobile-menu-item {{ Request::is('dashboard*') ? 'active' : '' }}">
                         <i class="fas fa-gauge-high"></i>
@@ -2883,15 +3521,39 @@
                     </a>
                     @endif
                     @if(Route::has('marketplace.index'))
-                    <a href="{{ route('marketplace.index') }}" class="mobile-menu-item {{ Request::is('marketplace*') ? 'active' : '' }}">
+                    <a href="{{ route('marketplace.index') }}" class="mobile-menu-item {{ Request::is('marketplace') ? 'active' : '' }}">
                         <i class="fas fa-store"></i>
                         <span>Marketplace</span>
                     </a>
                     @endif
+                    @if(Route::has('marketplace.inventory'))
+                    <a href="{{ route('marketplace.inventory') }}" class="mobile-menu-item {{ Request::is('marketplace/inventory*') ? 'active' : '' }}">
+                        <i class="fas fa-box"></i>
+                        <span>{{ __('app.marketplace.inventory') }}</span>
+                    </a>
+                    @endif
+                    @if(Route::has('marketplace.orders'))
+                    <a href="{{ route('marketplace.orders') }}" class="mobile-menu-item {{ Request::is('marketplace/orders*') ? 'active' : '' }}">
+                        <i class="fas fa-receipt"></i>
+                        <span>{{ __('app.marketplace.order_history') }}</span>
+                    </a>
+                    @endif
+                    @if(Route::has('honor.index'))
+                    <a href="{{ route('honor.index') }}" class="mobile-menu-item {{ Request::is('honor*') ? 'active' : '' }}">
+                        <i class="fas fa-award"></i>
+                        <span>{{ __('app.nav.honor') ?? 'Honor' }}</span>
+                    </a>
+                    @endif
                     @if(Route::has('profile.show'))
-                    <a href="{{ route('profile.show') }}" class="mobile-menu-item {{ Request::is('profile*') ? 'active' : '' }}">
+                    <a href="{{ route('profile.show') }}" class="mobile-menu-item {{ Request::is('profile') ? 'active' : '' }}">
                         <i class="fas fa-id-card"></i>
                         <span>{{ __('app.profile.personal_info') }}</span>
+                    </a>
+                    @endif
+                    @if(Route::has('profile.settings'))
+                    <a href="{{ route('profile.settings') }}" class="mobile-menu-item {{ Request::is('profile/settings*') ? 'active' : '' }}">
+                        <i class="fas fa-cog"></i>
+                        <span>{{ __('app.profile.account_settings') }}</span>
                     </a>
                     @endif
                 </nav>
@@ -2919,7 +3581,7 @@
                     @if(Auth::user()->isSuperAdmin())
                     <a href="{{ route('admin.admins.index') }}" class="mobile-menu-item">
                         <i class="fas fa-user-shield"></i>
-                        <span>Quản lý Admin</span>
+                        <span>{{ __('app.nav.manage_admin') }}</span>
                     </a>
                     @endif
                 </nav>
@@ -2928,7 +3590,7 @@
                 <div class="mobile-menu-divider"></div>
                 
                 <!-- Language Switcher -->
-                <div class="mobile-menu-section-title">Ngôn ngữ</div>
+                <div class="mobile-menu-section-title">{{ __('app.language.language') }}</div>
                 <div class="mobile-language-switcher">
                     <a href="#" class="mobile-lang-btn language-switch {{ app()->getLocale() === 'vi' ? 'active' : '' }}" data-locale="vi">
                         <i class="fas fa-flag"></i> VI
@@ -2954,7 +3616,7 @@
                 <nav class="mobile-menu-nav">
                     <a href="/" class="mobile-menu-item {{ Request::is('/') ? 'active' : '' }}">
                         <i class="fas fa-home"></i>
-                        <span>Trang chủ</span>
+                        <span>{{ __('app.nav.home') }}</span>
                     </a>
                     @if(Route::has('tournaments.index'))
                     <a href="{{ route('tournaments.index') }}" class="mobile-menu-item {{ Request::is('tournaments*') ? 'active' : '' }}">
@@ -2967,7 +3629,7 @@
                 <div class="mobile-menu-divider"></div>
                 
                 <!-- Language Switcher -->
-                <div class="mobile-menu-section-title">Ngôn ngữ</div>
+                <div class="mobile-menu-section-title">{{ __('app.language.language') }}</div>
                 <div class="mobile-language-switcher">
                     <a href="#" class="mobile-lang-btn language-switch {{ app()->getLocale() === 'vi' ? 'active' : '' }}" data-locale="vi">
                         <i class="fas fa-flag"></i> VI
@@ -3559,6 +4221,21 @@
                 return String(str).replace(/[&<>"]/g, s=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[s]));
             }
         })();
+        
+        // Mobile Search Toggle
+        (function(){
+            const mobileSearchToggle = document.getElementById('mobileSearchToggle');
+            const desktopSearchToggle = document.getElementById('navbarSearchToggle');
+            
+            if(mobileSearchToggle && desktopSearchToggle) {
+                mobileSearchToggle.addEventListener('click', function(e){
+                    e.preventDefault();
+                    e.stopPropagation();
+                    // Trigger the desktop search toggle click
+                    desktopSearchToggle.click();
+                });
+            }
+        })();
 
 
         // Admin Sidebar Toggle
@@ -3924,7 +4601,585 @@
         });
     </script>
 
+    <!-- User Status Check Script -->
+    @auth
+    <script>
+        // Check user status on page load and sync with server
+        (function() {
+            const userStatus = '{{ Auth::user()->status }}';
+            if (['suspended', 'banned', 'deleted'].includes(userStatus)) {
+                sessionStorage.setItem('userRestricted', userStatus);
+            } else {
+                sessionStorage.removeItem('userRestricted');
+            }
+        })();
+    </script>
+    @endauth
+
+    <!-- Notification Bell Script -->
+    @auth
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Desktop elements
+            const notificationToggle = document.getElementById('notificationToggle');
+            const notificationDropdown = document.getElementById('notificationDropdown');
+            const notificationCount = document.getElementById('notificationCount');
+            const notificationList = document.getElementById('notificationList');
+            const markAllReadBtn = document.getElementById('markAllRead');
+            
+            // Mobile elements
+            const mobileNotificationToggle = document.getElementById('mobileNotificationToggle');
+            const mobileNotificationDropdown = document.getElementById('mobileNotificationDropdown');
+            const mobileNotificationBadge = document.getElementById('mobileNotificationBadge');
+            const mobileNotificationList = document.getElementById('mobileNotificationList');
+            const mobileMarkAllRead = document.getElementById('mobileMarkAllRead');
+            
+            let notifications = [];
+            let unreadCount = 0;
+            
+            // Toggle desktop dropdown
+            if (notificationToggle && notificationDropdown) {
+                notificationToggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    notificationDropdown.classList.toggle('hidden');
+                });
+                
+                document.addEventListener('click', function(e) {
+                    if (!notificationToggle.contains(e.target) && !notificationDropdown.contains(e.target)) {
+                        notificationDropdown.classList.add('hidden');
+                    }
+                });
+            }
+            
+            // Toggle mobile dropdown
+            if (mobileNotificationToggle && mobileNotificationDropdown) {
+                mobileNotificationToggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    mobileNotificationDropdown.classList.toggle('show');
+                });
+                
+                document.addEventListener('click', function(e) {
+                    if (!mobileNotificationToggle.contains(e.target) && !mobileNotificationDropdown.contains(e.target)) {
+                        mobileNotificationDropdown.classList.remove('show');
+                    }
+                });
+            }
+            
+            // Mark all as read - Desktop
+            if (markAllReadBtn) {
+                markAllReadBtn.addEventListener('click', function() {
+                    markAllAsRead();
+                });
+            }
+            
+            // Mark all as read - Mobile
+            if (mobileMarkAllRead) {
+                mobileMarkAllRead.addEventListener('click', function() {
+                    markAllAsRead();
+                });
+            }
+            
+            function markAllAsRead() {
+                fetch('/notifications/mark-all-read', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        notifications.forEach(n => n.read = true);
+                        unreadCount = 0;
+                        updateBadge();
+                        renderNotifications();
+                    }
+                })
+                .catch(err => console.error('Error marking all as read:', err));
+            }
+            
+            // Update badge (both desktop and mobile)
+            function updateBadge() {
+                const displayCount = unreadCount > 99 ? '99+' : unreadCount;
+                
+                // Desktop
+                if (notificationCount) {
+                    if (unreadCount > 0) {
+                        notificationCount.textContent = displayCount;
+                        notificationCount.style.display = 'flex';
+                    } else {
+                        notificationCount.style.display = 'none';
+                    }
+                }
+                
+                // Mobile
+                if (mobileNotificationBadge) {
+                    if (unreadCount > 0) {
+                        mobileNotificationBadge.textContent = displayCount;
+                        mobileNotificationBadge.style.display = 'flex';
+                    } else {
+                        mobileNotificationBadge.style.display = 'none';
+                    }
+                }
+            }
+            
+            // Render notifications (both desktop and mobile)
+            function renderNotifications() {
+                const emptyHtml = `
+                    <div class="notification-empty-state">
+                        <i class="fas fa-bell-slash"></i>
+                        <span>Không có thông báo mới</span>
+                    </div>
+                `;
+                
+                const itemsHtml = notifications.slice(0, 10).map(n => `
+                    <div class="notification-item ${n.read ? '' : 'unread'}" data-id="${n.id}" data-url="${n.url || '#'}">
+                        <div class="notification-avatar">
+                            ${n.avatar ? `<img src="${n.avatar}" alt="">` : `<i class="fas fa-${n.icon || 'bell'}"></i>`}
+                        </div>
+                        <div class="notification-content">
+                            <div class="notification-text">${n.message}</div>
+                            <div class="notification-time">${n.time}</div>
+                        </div>
+                    </div>
+                `).join('');
+                
+                // Desktop
+                if (notificationList) {
+                    notificationList.innerHTML = notifications.length === 0 ? emptyHtml : itemsHtml;
+                    bindNotificationClicks(notificationList);
+                }
+                
+                // Mobile
+                if (mobileNotificationList) {
+                    mobileNotificationList.innerHTML = notifications.length === 0 ? emptyHtml : itemsHtml;
+                    bindNotificationClicks(mobileNotificationList);
+                }
+            }
+            
+            function bindNotificationClicks(container) {
+                container.querySelectorAll('.notification-item').forEach(item => {
+                    item.addEventListener('click', function() {
+                        const url = this.dataset.url;
+                        const id = this.dataset.id;
+                        
+                        const notif = notifications.find(n => n.id == id);
+                        if (notif && !notif.read) {
+                            notif.read = true;
+                            unreadCount = Math.max(0, unreadCount - 1);
+                            updateBadge();
+                        }
+                        
+                        if (url && url !== '#') {
+                            window.location.href = url;
+                        }
+                    });
+                });
+            }
+            
+            // Add notification
+            function addNotification(data) {
+                // Check if notification is disabled for this conversation
+                const conversationId = data.conversationId;
+                if (conversationId && localStorage.getItem(`chat_notification_${conversationId}`) === 'disabled') {
+                    // Still add to list but don't play sound or show browser notification
+                    const notif = {
+                        id: Date.now(),
+                        message: data.message,
+                        avatar: data.avatar || null,
+                        icon: data.icon || 'comment',
+                        url: data.url || '#',
+                        time: 'Vừa xong',
+                        read: false
+                    };
+                    notifications.unshift(notif);
+                    if (notifications.length > 50) notifications.pop();
+                    unreadCount++;
+                    updateBadge();
+                    renderNotifications();
+                    return;
+                }
+                
+                const notif = {
+                    id: Date.now(),
+                    message: data.message,
+                    avatar: data.avatar || null,
+                    icon: data.icon || 'comment',
+                    url: data.url || '#',
+                    time: 'Vừa xong',
+                    read: false
+                };
+                
+                notifications.unshift(notif);
+                if (notifications.length > 50) notifications.pop();
+                unreadCount++;
+                updateBadge();
+                renderNotifications();
+                
+                // Play notification sound
+                try {
+                    const audio = new Audio('/matchfound.mp3');
+                    audio.volume = 0.85;
+                    audio.play().catch(() => {});
+                } catch (e) {}
+                
+                // Show browser notification if permitted
+                if (Notification.permission === 'granted') {
+                    new Notification('Tin nhắn mới', {
+                        body: data.message.replace(/<[^>]*>/g, ''),
+                        icon: data.avatar || '/logo_remove_bg.png'
+                    });
+                } else if (Notification.permission !== 'denied') {
+                    Notification.requestPermission();
+                }
+            }
+            
+            // Listen for real-time notifications via Laravel Echo
+            function setupEchoNotifications() {
+                if (typeof window.Echo === 'undefined') {
+                    setTimeout(setupEchoNotifications, 500);
+                    return;
+                }
+                
+                const userId = {{ Auth::id() }};
+                
+                window.Echo.private(`user.${userId}`)
+                    .listen('.chat.message', (e) => {
+                        // Don't notify if sender is current user
+                        if (e.sender_id === userId) {
+                            return;
+                        }
+                        
+                        // Don't notify if on the same conversation page
+                        if (window.location.pathname.includes(`/chat/conversation/${e.conversation_id}`)) {
+                            return;
+                        }
+                        
+                        addNotification({
+                            conversationId: e.conversation_id,
+                            message: `<strong>${e.sender_name}</strong> đã gửi tin nhắn: "${e.content.substring(0, 50)}${e.content.length > 50 ? '...' : ''}"`,
+                            avatar: e.sender_avatar,
+                            icon: 'comment',
+                            url: `/chat/conversation/${e.conversation_id}`
+                        });
+                    })
+                    .listen('.team.invitation', (e) => {
+                        // New team invitation received
+                        addNotification({
+                            message: `<strong>${e.invitation.inviter.name}</strong> mời bạn tham gia đội <strong style="color:#f59e0b;">${e.invitation.team.name}</strong>`,
+                            avatar: e.invitation.team.logo,
+                            icon: 'users',
+                            url: '/teams'
+                        });
+                        
+                        // Show toast notification
+                        showTeamInvitationToast(e.invitation);
+                    })
+                    .listen('.status.changed', (e) => {
+                        // User status has been changed by admin
+                        showUserStatusPopup(e.status, e.status_display, e.message);
+                    });
+            }
+            
+            // Show toast for team invitation
+            function showTeamInvitationToast(invitation) {
+                const toast = document.createElement('div');
+                toast.className = 'team-invitation-toast';
+                toast.innerHTML = `
+                    <div style="display:flex;align-items:center;gap:12px;">
+                        <div style="width:45px;height:45px;background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                            <i class="fas fa-envelope" style="color:#fff;font-size:1.1rem;"></i>
+                        </div>
+                        <div style="flex:1;">
+                            <div style="font-weight:600;color:#fff;margin-bottom:4px;">Lời mời tham gia đội</div>
+                            <div style="font-size:0.85rem;color:#94a3b8;">
+                                <strong style="color:#00E5FF;">${invitation.inviter.name}</strong> mời bạn tham gia đội <strong style="color:#f59e0b;">${invitation.team.name}</strong>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="/teams" style="display:block;margin-top:12px;text-align:center;padding:8px 16px;background:linear-gradient(135deg,#6366f1,#8b5cf6);border-radius:8px;color:#fff;text-decoration:none;font-weight:600;font-size:0.85rem;">
+                        Xem lời mời
+                    </a>
+                `;
+                toast.style.cssText = `
+                    position:fixed;top:80px;right:20px;
+                    background:linear-gradient(135deg,#0d1b2a,#000022);
+                    border:1px solid rgba(245,158,11,0.5);
+                    border-radius:16px;padding:1rem;
+                    color:#fff;z-index:99999;
+                    box-shadow:0 10px 40px rgba(0,0,0,0.5);
+                    max-width:350px;
+                    animation:toastSlideIn 0.3s ease;
+                `;
+                
+                if (!document.getElementById('toast-animation-style')) {
+                    const style = document.createElement('style');
+                    style.id = 'toast-animation-style';
+                    style.textContent = `
+                        @keyframes toastSlideIn { from{transform:translateX(100%);opacity:0;} to{transform:translateX(0);opacity:1;} }
+                        @keyframes toastSlideOut { from{transform:translateX(0);opacity:1;} to{transform:translateX(100%);opacity:0;} }
+                    `;
+                    document.head.appendChild(style);
+                }
+                
+                document.body.appendChild(toast);
+                
+                setTimeout(() => {
+                    toast.style.animation = 'toastSlideOut 0.3s ease forwards';
+                    setTimeout(() => toast.remove(), 300);
+                }, 8000);
+            }
+            
+            // Show popup when user status is changed
+            function showUserStatusPopup(status, statusDisplay, message) {
+                // Remove existing popup if any
+                const existingPopup = document.getElementById('user-status-popup');
+                if (existingPopup) existingPopup.remove();
+                
+                const isRestricted = ['suspended', 'banned', 'deleted'].includes(status);
+                const iconClass = isRestricted ? 'fa-exclamation-triangle' : 'fa-check-circle';
+                const iconColor = isRestricted ? '#ef4444' : '#22c55e';
+                const borderColor = isRestricted ? 'rgba(239,68,68,0.5)' : 'rgba(34,197,94,0.5)';
+                
+                const popup = document.createElement('div');
+                popup.id = 'user-status-popup';
+                popup.innerHTML = `
+                    <div class="status-popup-overlay">
+                        <div class="status-popup-content" style="border-color:${borderColor}">
+                            <div class="status-popup-icon" style="background:${iconColor}20;color:${iconColor}">
+                                <i class="fas ${iconClass}"></i>
+                            </div>
+                            <h3 class="status-popup-title">Trạng thái tài khoản: ${statusDisplay}</h3>
+                            <p class="status-popup-message">${message}</p>
+                            ${isRestricted ? '<p class="status-popup-note">Bạn vẫn có thể xem nội dung và chat với quản trị viên để được hỗ trợ.</p>' : ''}
+                            <div class="status-popup-actions">
+                                ${isRestricted ? '<a href="/chat" class="status-popup-btn-secondary"><i class="fas fa-comments"></i> Chat với Admin</a>' : ''}
+                                <button class="status-popup-btn" onclick="closeStatusPopup(${isRestricted})">
+                                    ${isRestricted ? 'Tôi đã hiểu' : 'Đóng'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <style>
+                        .status-popup-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:999999;display:flex;align-items:center;justify-content:center;animation:fadeIn 0.3s ease;backdrop-filter:blur(4px);}
+                        .status-popup-content{background:linear-gradient(135deg,#0d1b2a,#1a1a2e);border:2px solid;border-radius:20px;padding:2rem;max-width:420px;text-align:center;box-shadow:0 25px 60px rgba(0,0,0,0.5);animation:slideUp 0.3s ease;}
+                        .status-popup-icon{width:70px;height:70px;margin:0 auto 1.5rem;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;}
+                        .status-popup-title{color:#fff;font-family:'Rajdhani',sans-serif;font-size:1.4rem;margin:0 0 1rem;font-weight:700;}
+                        .status-popup-message{color:#94a3b8;font-size:0.95rem;line-height:1.6;margin:0 0 1rem;}
+                        .status-popup-note{color:#22c55e;font-size:0.85rem;margin:0 0 1.5rem;padding:0.75rem;background:rgba(34,197,94,0.1);border-radius:8px;border:1px solid rgba(34,197,94,0.2);}
+                        .status-popup-actions{display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;}
+                        .status-popup-btn{padding:0.75rem 1.5rem;background:linear-gradient(135deg,#6366f1,#8b5cf6);border:none;border-radius:10px;color:white;font-weight:600;cursor:pointer;font-size:0.9rem;transition:all 0.3s ease;text-decoration:none;display:inline-flex;align-items:center;gap:0.5rem;}
+                        .status-popup-btn:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(99,102,241,0.4);}
+                        .status-popup-btn-secondary{padding:0.75rem 1.5rem;background:rgba(0,229,255,0.1);border:1px solid rgba(0,229,255,0.3);border-radius:10px;color:#00E5FF;font-weight:600;cursor:pointer;font-size:0.9rem;transition:all 0.3s ease;text-decoration:none;display:inline-flex;align-items:center;gap:0.5rem;}
+                        .status-popup-btn-secondary:hover{background:rgba(0,229,255,0.2);color:#fff;}
+                        @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+                        @keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+                    </style>
+                `;
+                document.body.appendChild(popup);
+                
+                // Store restricted status in session storage
+                if (isRestricted) {
+                    sessionStorage.setItem('userRestricted', status);
+                } else {
+                    sessionStorage.removeItem('userRestricted');
+                }
+            }
+            
+            window.closeStatusPopup = function(isRestricted) {
+                const popup = document.getElementById('user-status-popup');
+                if (popup) popup.remove();
+                
+                // If user was activated, reload to refresh permissions
+                if (!isRestricted) {
+                    window.location.reload();
+                }
+            };
+            
+            // Check if user is restricted on page load
+            function checkUserRestriction() {
+                const restrictedStatus = sessionStorage.getItem('userRestricted');
+                if (restrictedStatus && ['suspended', 'banned', 'deleted'].includes(restrictedStatus)) {
+                    // Block form submissions and button clicks (except chat with admin)
+                    document.addEventListener('submit', function(e) {
+                        if (!isAllowedAction(e.target)) {
+                            blockRestrictedAction(e);
+                        }
+                    }, true);
+                    document.addEventListener('click', function(e) {
+                        const target = e.target.closest('button, a.btn, .btn-neon, input[type="submit"]');
+                        if (target && !target.closest('#user-status-popup') && !isAllowedAction(target)) {
+                            blockRestrictedAction(e);
+                        }
+                    }, true);
+                }
+            }
+            
+            // Check if action is allowed for restricted users
+            function isAllowedAction(element) {
+                // Always allow if on chat page
+                if (window.location.pathname.startsWith('/chat')) {
+                    return true;
+                }
+                
+                // Allow navigation to chat
+                const link = element.closest('a');
+                if (link) {
+                    const href = link.href || link.getAttribute('href') || '';
+                    if (href.includes('/chat')) {
+                        return true;
+                    }
+                }
+                
+                // Allow closing modals/popups
+                if (element.closest('.modal-close, .btn-close, [data-dismiss], [data-bs-dismiss]')) {
+                    return true;
+                }
+                
+                return false;
+            }
+            
+            function blockRestrictedAction(e) {
+                const restrictedStatus = sessionStorage.getItem('userRestricted');
+                if (!restrictedStatus) return;
+                
+                // Allow navigation links (not buttons styled as links)
+                if (e.target.tagName === 'A' && !e.target.classList.contains('btn') && !e.target.classList.contains('btn-neon')) return;
+                
+                // Check if this is an allowed action
+                if (isAllowedAction(e.target)) return;
+                
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const statusDisplay = restrictedStatus === 'suspended' ? 'Tạm khóa' : 
+                                     restrictedStatus === 'banned' ? 'Cấm vĩnh viễn' : 'Đã xóa';
+                const message = restrictedStatus === 'suspended' ? 
+                    'Tài khoản của bạn đang bị tạm khóa. Bạn không thể thực hiện thao tác này.' :
+                    'Tài khoản của bạn đã bị cấm. Bạn không thể thực hiện thao tác này.';
+                    
+                showUserStatusPopup(restrictedStatus, statusDisplay, message);
+            }
+            
+            checkUserRestriction();
+            
+            setupEchoNotifications();
+            
+            // Load notifications from database
+            loadNotificationsFromDB();
+            
+            // Function to load notifications from database
+            function loadNotificationsFromDB() {
+                fetch('/notifications', {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success && data.notifications) {
+                        notifications = data.notifications.map(n => ({
+                            id: n.id,
+                            message: n.message,
+                            avatar: n.data?.avatar || null,
+                            icon: n.data?.icon || 'bell',
+                            url: n.data?.url || '#',
+                            time: n.time,
+                            read: n.read
+                        }));
+                        unreadCount = notifications.filter(n => !n.read).length;
+                        updateBadge();
+                        renderNotifications();
+                    }
+                })
+                .catch(err => console.error('Error loading notifications:', err));
+            }
+        });
+    </script>
+    @endauth
+
     @stack('scripts')
+    
+    @auth
+    <!-- Notification Permission Request -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Check if browser supports notifications and hasn't been asked recently
+        if (!('Notification' in window)) return;
+        if (Notification.permission === 'granted') return;
+        if (Notification.permission === 'denied') return;
+        
+        // Check if already asked in this session
+        const lastAsked = localStorage.getItem('notificationAsked');
+        const now = Date.now();
+        if (lastAsked && (now - parseInt(lastAsked)) < 86400000) return; // Don't ask again for 24h
+        
+        // Show custom prompt after 2 seconds
+        setTimeout(function() {
+            showNotificationPrompt();
+        }, 2000);
+        
+        function showNotificationPrompt() {
+            const overlay = document.createElement('div');
+            overlay.id = 'notification-prompt-overlay';
+            overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:99999;display:flex;align-items:center;justify-content:center;animation:fadeIn 0.3s ease;';
+            
+            overlay.innerHTML = `
+                <div style="background:linear-gradient(135deg,#0d1b2a,#1a1a2e);border:1px solid rgba(0,229,255,0.3);border-radius:20px;padding:2rem;max-width:400px;text-align:center;box-shadow:0 25px 60px rgba(0,0,0,0.5);animation:slideUp 0.3s ease;">
+                    <div style="width:70px;height:70px;margin:0 auto 1.5rem;background:linear-gradient(135deg,#6366f1,#8b5cf6);border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                        <i class="fas fa-bell" style="font-size:28px;color:white;"></i>
+                    </div>
+                    <h3 style="color:#fff;font-family:'Rajdhani',sans-serif;font-size:1.5rem;margin-bottom:0.75rem;">Bật thông báo</h3>
+                    <p style="color:#94a3b8;font-size:0.95rem;line-height:1.5;margin-bottom:1.5rem;">Nhận thông báo khi có tin nhắn mới hoặc cập nhật quan trọng từ GameOn!</p>
+                    <div style="display:flex;gap:1rem;justify-content:center;">
+                        <button id="notif-deny" style="padding:0.75rem 1.5rem;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:10px;color:#94a3b8;font-weight:600;cursor:pointer;">Để sau</button>
+                        <button id="notif-allow" style="padding:0.75rem 1.5rem;background:linear-gradient(135deg,#6366f1,#8b5cf6);border:none;border-radius:10px;color:white;font-weight:600;cursor:pointer;box-shadow:0 4px 15px rgba(99,102,241,0.4);">Cho phép</button>
+                    </div>
+                </div>
+                <style>
+                    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+                    @keyframes slideUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+                </style>
+            `;
+            
+            document.body.appendChild(overlay);
+            
+            document.getElementById('notif-allow').onclick = function() {
+                Notification.requestPermission().then(function(permission) {
+                    if (permission === 'granted') {
+                        new Notification('Thông báo đã được bật!', {
+                            body: 'Bạn sẽ nhận thông báo khi có tin nhắn mới.',
+                            icon: '/logo_remove_bg.png'
+                        });
+                    }
+                });
+                localStorage.setItem('notificationAsked', Date.now().toString());
+                overlay.remove();
+            };
+            
+            document.getElementById('notif-deny').onclick = function() {
+                localStorage.setItem('notificationAsked', Date.now().toString());
+                overlay.remove();
+            };
+            
+            overlay.onclick = function(e) {
+                if (e.target === overlay) {
+                    localStorage.setItem('notificationAsked', Date.now().toString());
+                    overlay.remove();
+                }
+            };
+        }
+    });
+    </script>
+    @endauth
+    
+    {{-- Chat Widget --}}
+    @include('partials.chat-widget')
 </body>
 
 </html>

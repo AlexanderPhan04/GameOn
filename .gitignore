@@ -13,7 +13,6 @@
 /.zed
 /auth.json
 /node_modules
-/public/build
 /public/hot
 /public/storage
 /storage/*.key
@@ -33,3 +32,4 @@ promp.txt
 docs/DDD_DATABASE_REPORT.md
 class
 docs/REVERB_SETUP.md
+.txt

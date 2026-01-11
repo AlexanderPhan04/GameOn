@@ -328,5 +328,117 @@ function deleteEvent(eventId) {
         form.submit();
     }
 }
+
+// Realtime listeners for admin
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof Echo !== 'undefined') {
+        Echo.channel('honor')
+            .listen('.event.created', (e) => {
+                console.log('New honor event created:', e);
+                showAdminNotification('success', `Sự kiện "${e.event.name}" đã được tạo`);
+                setTimeout(() => location.reload(), 2000);
+            })
+            .listen('.event.updated', (e) => {
+                console.log('Honor event updated:', e);
+                updateEventRow(e.event);
+                showAdminNotification('info', `Sự kiện "${e.event.name}" đã được cập nhật`);
+            })
+            .listen('.event.deleted', (e) => {
+                console.log('Honor event deleted:', e);
+                showAdminNotification('warning', `Sự kiện "${e.eventName}" đã bị xóa`);
+                setTimeout(() => location.reload(), 2000);
+            })
+            .listen('.vote.cast', (e) => {
+                console.log('Vote cast:', e);
+                updateVoteCountInTable(e.eventId, e.stats.event_total_votes);
+            })
+            .listen('.votes.reset', (e) => {
+                console.log('Votes reset:', e);
+                updateVoteCountInTable(e.eventId, 0);
+                showAdminNotification('warning', `Votes của sự kiện "${e.eventName}" đã được reset`);
+            });
+    }
+
+    function updateEventRow(event) {
+        const rows = document.querySelectorAll('.honor-table tbody tr');
+        rows.forEach(row => {
+            const idCell = row.querySelector('.event-id');
+            if (idCell && parseInt(idCell.textContent) === event.id) {
+                // Update name
+                const nameCell = row.querySelector('.event-name');
+                if (nameCell) nameCell.textContent = event.name;
+                
+                // Update status badge
+                const statusBadge = row.querySelector('.badge-active, .badge-paused, .badge-off');
+                if (statusBadge) {
+                    if (event.is_active) {
+                        statusBadge.className = 'badge-custom badge-active';
+                        statusBadge.textContent = '{{ __("app.honor.status_active") }}';
+                    } else {
+                        statusBadge.className = 'badge-custom badge-off';
+                        statusBadge.textContent = '{{ __("app.honor.status_off") }}';
+                    }
+                }
+                
+                // Update vote count
+                const votesNumber = row.querySelector('.votes-number');
+                if (votesNumber) votesNumber.textContent = event.total_votes;
+            }
+        });
+    }
+
+    function updateVoteCountInTable(eventId, count) {
+        const rows = document.querySelectorAll('.honor-table tbody tr');
+        rows.forEach(row => {
+            const idCell = row.querySelector('.event-id');
+            if (idCell && parseInt(idCell.textContent) === eventId) {
+                const votesNumber = row.querySelector('.votes-number');
+                if (votesNumber) {
+                    votesNumber.textContent = count;
+                    // Add animation
+                    votesNumber.style.transform = 'scale(1.2)';
+                    votesNumber.style.color = '#22c55e';
+                    setTimeout(() => {
+                        votesNumber.style.transform = 'scale(1)';
+                        votesNumber.style.color = '#f59e0b';
+                    }, 300);
+                }
+            }
+        });
+    }
+
+    function showAdminNotification(type, message) {
+        const colors = {
+            success: { bg: 'rgba(34, 197, 94, 0.1)', border: 'rgba(34, 197, 94, 0.3)', text: '#22c55e' },
+            info: { bg: 'rgba(0, 229, 255, 0.1)', border: 'rgba(0, 229, 255, 0.3)', text: '#00E5FF' },
+            warning: { bg: 'rgba(245, 158, 11, 0.1)', border: 'rgba(245, 158, 11, 0.3)', text: '#f59e0b' },
+            error: { bg: 'rgba(239, 68, 68, 0.1)', border: 'rgba(239, 68, 68, 0.3)', text: '#ef4444' }
+        };
+        const color = colors[type] || colors.info;
+        
+        const toast = document.createElement('div');
+        toast.style.cssText = `
+            position: fixed; top: 20px; right: 20px; z-index: 9999;
+            padding: 1rem 1.5rem; border-radius: 12px; min-width: 300px;
+            background: ${color.bg}; border: 1px solid ${color.border}; color: ${color.text};
+            display: flex; align-items: center; gap: 12px;
+            animation: slideIn 0.3s ease;
+        `;
+        toast.innerHTML = `
+            <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'}"></i>
+            <span>${message}</span>
+        `;
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.style.animation = 'slideOut 0.3s ease';
+            setTimeout(() => toast.remove(), 300);
+        }, 5000);
+    }
+});
 </script>
+<style>
+@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+@keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
+</style>
 @endpush

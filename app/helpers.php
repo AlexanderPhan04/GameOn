@@ -24,7 +24,12 @@ if (! function_exists('get_avatar_url')) {
             return $avatar;
         }
 
-        // Otherwise, it's a local path - use asset with storage
-        return asset('uploads/' . $avatar);
+        // System avatar path (e.g., "system/avatar_1.png")
+        if (str_starts_with($avatar, 'system/')) {
+            return asset('images/system-avatars/' . str_replace('system/', '', $avatar));
+        }
+
+        // Otherwise, it's a local path - use storage
+        return asset('storage/' . $avatar);
     }
 }

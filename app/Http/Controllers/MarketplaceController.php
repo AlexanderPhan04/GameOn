@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\CartUpdated;
 use App\Models\MarketplaceProduct;
 use App\Models\MarketplaceOrder;
 use App\Models\MarketplaceOrderItem;
 use App\Models\UserInventory;
 use App\Models\Donation;
 use App\Models\User;
-use App\Services\VnpayService;
+use App\Services\PayosService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -16,11 +17,11 @@ use Illuminate\Support\Facades\Log;
 
 class MarketplaceController extends Controller
 {
-    protected $vnpayService;
+    protected $payosService;
 
-    public function __construct(VnpayService $vnpayService)
+    public function __construct(PayosService $payosService)
     {
-        $this->vnpayService = $vnpayService;
+        $this->payosService = $payosService;
     }
 
     /**
@@ -30,17 +31,14 @@ class MarketplaceController extends Controller
     {
         $query = MarketplaceProduct::where('is_active', true);
 
-        // Lọc theo loại
         if ($request->has('type')) {
             $query->where('type', $request->type);
         }
 
-        // Lọc theo danh mục
         if ($request->has('category')) {
             $query->where('category', $request->category);
         }
 
-        // Tìm kiếm
         if ($request->has('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -49,7 +47,6 @@ class MarketplaceController extends Controller
             });
         }
 
-        // Sắp xếp
         $sortBy = $request->get('sort', 'created_at');
         $sortOrder = $request->get('order', 'desc');
         $query->orderBy($sortBy, $sortOrder);
@@ -62,15 +59,12 @@ class MarketplaceController extends Controller
     /**
      * Hiển thị chi tiết sản phẩm
      */
-    public function show($id)
+    public function show(MarketplaceProduct $product)
     {
-        $product = MarketplaceProduct::findOrFail($id);
-
         if (!$product->is_active) {
             abort(404);
         }
 
-        // Kiểm tra user đã sở hữu sản phẩm chưa
         $owned = false;
         if (Auth::check()) {
             $owned = UserInventory::where('user_id', Auth::id())
@@ -78,7 +72,6 @@ class MarketplaceController extends Controller
                 ->exists();
         }
 
-        // Sản phẩm liên quan
         $relatedProducts = MarketplaceProduct::where('is_active', true)
             ->where('id', '!=', $product->id)
             ->where('type', $product->type)
@@ -89,7 +82,7 @@ class MarketplaceController extends Controller
     }
 
     /**
-     * Thêm vào giỏ hàng (session)
+     * Thêm vào giỏ hàng
      */
     public function addToCart(Request $request, $id)
     {
@@ -119,6 +112,16 @@ class MarketplaceController extends Controller
 
         session()->put('cart', $cart);
 
+        if (Auth::check()) {
+            broadcast(new CartUpdated(
+                Auth::id(),
+                count($cart),
+                'add',
+                $product->id,
+                $product->name
+            ))->toOthers();
+        }
+
         return response()->json([
             'success' => true,
             'message' => 'Đã thêm vào giỏ hàng',
@@ -134,21 +137,30 @@ class MarketplaceController extends Controller
         $cart = session()->get('cart', []);
         $items = [];
         $total = 0;
+        $hasRestrictedItems = false;
 
         foreach ($cart as $item) {
             $product = MarketplaceProduct::find($item['id']);
-            if ($product && $product->is_active) {
-                $subtotal = $product->current_price * $item['quantity'];
+            if ($product) {
+                $isRestricted = !$product->is_active || !$product->isInStock();
+                $subtotal = $isRestricted ? 0 : $product->current_price * $item['quantity'];
+                
                 $items[] = [
                     'product' => $product,
                     'quantity' => $item['quantity'],
                     'subtotal' => $subtotal,
+                    'is_restricted' => $isRestricted,
                 ];
-                $total += $subtotal;
+                
+                if (!$isRestricted) {
+                    $total += $subtotal;
+                } else {
+                    $hasRestrictedItems = true;
+                }
             }
         }
 
-        return view('marketplace.cart', compact('items', 'total'));
+        return view('marketplace.cart', compact('items', 'total', 'hasRestrictedItems'));
     }
 
     /**
@@ -157,13 +169,84 @@ class MarketplaceController extends Controller
     public function removeFromCart($id)
     {
         $cart = session()->get('cart', []);
+        $productName = isset($cart[$id]) ? $cart[$id]['name'] : null;
         unset($cart[$id]);
         session()->put('cart', $cart);
 
+        if (Auth::check()) {
+            broadcast(new CartUpdated(
+                Auth::id(),
+                count($cart),
+                'remove',
+                $id,
+                $productName
+            ))->toOthers();
+        }
+
         return response()->json([
             'success' => true,
-            'message' => 'Đã xóa khỏi giỏ hàng'
+            'message' => 'Đã xóa khỏi giỏ hàng',
+            'cart_count' => count($cart)
         ]);
+    }
+
+    /**
+     * Cập nhật số lượng trong giỏ hàng
+     */
+    public function updateCartQuantity(Request $request, $id)
+    {
+        $request->validate([
+            'quantity' => 'required|integer|min:1'
+        ]);
+
+        $product = MarketplaceProduct::find($id);
+        if (!$product) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Sản phẩm không tồn tại'
+            ], 404);
+        }
+
+        $quantity = $request->quantity;
+
+        if ($product->stock != -1 && $quantity > $product->stock) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Số lượng vượt quá kho hàng (còn ' . $product->stock . ' sản phẩm)',
+                'max_quantity' => $product->stock
+            ], 400);
+        }
+
+        $cart = session()->get('cart', []);
+        
+        if (isset($cart[$id])) {
+            $cart[$id]['quantity'] = $quantity;
+            session()->put('cart', $cart);
+
+            $subtotal = $product->current_price * $quantity;
+            
+            $total = 0;
+            foreach ($cart as $item) {
+                $p = MarketplaceProduct::find($item['id']);
+                if ($p) {
+                    $total += $p->current_price * $item['quantity'];
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Đã cập nhật số lượng',
+                'quantity' => $quantity,
+                'subtotal' => $subtotal,
+                'total' => $total,
+                'cart_count' => count($cart)
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Sản phẩm không có trong giỏ hàng'
+        ], 404);
     }
 
     /**
@@ -180,7 +263,6 @@ class MarketplaceController extends Controller
             return redirect()->route('marketplace.index')->with('error', 'Giỏ hàng trống');
         }
 
-        // Tính tổng tiền
         $total = 0;
         $items = [];
         foreach ($cart as $item) {
@@ -204,7 +286,7 @@ class MarketplaceController extends Controller
     }
 
     /**
-     * Xử lý thanh toán
+     * Xử lý thanh toán với PayOS
      */
     public function processPayment(Request $request)
     {
@@ -213,7 +295,7 @@ class MarketplaceController extends Controller
         }
 
         $request->validate([
-            'payment_method' => 'required|in:vnpay',
+            'payment_method' => 'required|in:payos',
         ]);
 
         $cart = session()->get('cart', []);
@@ -231,17 +313,24 @@ class MarketplaceController extends Controller
             $order->final_amount = 0;
             $order->status = 'pending';
             $order->payment_status = 'pending';
-            $order->payment_method = $request->payment_method;
+            $order->payment_method = 'payos';
             $order->notes = $request->notes;
             $order->save();
 
             // Tính tổng và tạo order items
             $total = 0;
+            $payosItems = [];
             foreach ($cart as $item) {
                 $product = MarketplaceProduct::find($item['id']);
                 if ($product && $product->is_active && $product->isInStock()) {
                     $price = $product->current_price;
-                    $quantity = $item['quantity'];
+                    $quantity = (int) $item['quantity'];
+                    
+                    // Đảm bảo quantity >= 1
+                    if ($quantity < 1) {
+                        $quantity = 1;
+                    }
+                    
                     $subtotal = $price * $quantity;
 
                     $orderItem = new MarketplaceOrderItem();
@@ -254,6 +343,12 @@ class MarketplaceController extends Controller
                     $orderItem->save();
 
                     $total += $subtotal;
+                    
+                    $payosItems[] = [
+                        'name' => mb_substr($product->name, 0, 25),
+                        'quantity' => $quantity,
+                        'price' => (int) $price,
+                    ];
                 }
             }
 
@@ -261,16 +356,22 @@ class MarketplaceController extends Controller
             $order->final_amount = $total;
             $order->save();
 
-            // Tạo payment URL với VNPay
-            $paymentData = [
-                'order_id' => $order->order_id,
-                'amount' => $total,
-                'order_desc' => 'Thanh toán đơn hàng #' . $order->order_id,
-                'order_type' => 'other',
-                'language' => 'vn',
-            ];
+            // Tạo order_code cho PayOS (số nguyên duy nhất)
+            $orderCode = intval(substr(strval(microtime(true) * 10000), -8));
+            $order->order_code = $orderCode;
+            $order->save();
 
-            $paymentUrl = $this->vnpayService->createPaymentUrl($paymentData);
+            // Tạo payment link với PayOS
+            $result = $this->payosService->createPaymentLink([
+                'order_code' => $orderCode,
+                'amount' => (int) $total,
+                'description' => 'DH ' . $order->order_id,
+                'items' => $payosItems,
+                'return_url' => route('payment.success'),
+                'cancel_url' => route('payment.cancel'),
+                'buyer_name' => Auth::user()->name,
+                'buyer_email' => Auth::user()->email,
+            ]);
 
             DB::commit();
 
@@ -279,8 +380,9 @@ class MarketplaceController extends Controller
 
             return response()->json([
                 'success' => true,
-                'payment_url' => $paymentUrl,
-                'order_id' => $order->order_id
+                'payment_url' => $result['checkout_url'],
+                'order_id' => $order->order_id,
+                'order_code' => $orderCode,
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -325,7 +427,6 @@ class MarketplaceController extends Controller
         $equip = $request->get('equip', true);
 
         if ($equip) {
-            // Tháo các item cùng loại
             if ($inventory->equipment_slot) {
                 UserInventory::where('user_id', Auth::id())
                     ->where('equipment_slot', $inventory->equipment_slot)
@@ -352,7 +453,7 @@ class MarketplaceController extends Controller
     public function donate(Request $request, $userId)
     {
         $request->validate([
-            'amount' => 'required|numeric|min:1000',
+            'amount' => 'required|numeric|min:2000',
             'message' => 'nullable|string|max:500',
             'is_anonymous' => 'boolean',
         ]);
@@ -376,26 +477,32 @@ class MarketplaceController extends Controller
             $donation->is_anonymous = $request->get('is_anonymous', false);
             $donation->status = 'pending';
             $donation->payment_status = 'pending';
-            $donation->payment_method = 'vnpay';
+            $donation->payment_method = 'payos';
             $donation->save();
 
-            // Tạo payment URL
-            $paymentData = [
-                'order_id' => $donation->donation_id,
-                'amount' => $request->amount,
-                'order_desc' => 'Quyên góp cho ' . ($donation->is_anonymous ? 'Người dùng' : $recipient->name),
-                'order_type' => 'other',
-                'language' => 'vn',
-            ];
+            // Tạo order_code cho PayOS
+            $orderCode = intval(substr(strval(microtime(true) * 10000), -8));
+            $donation->order_code = $orderCode;
+            $donation->save();
 
-            $paymentUrl = $this->vnpayService->createPaymentUrl($paymentData);
+            // Tạo payment link
+            $result = $this->payosService->createPaymentLink([
+                'order_code' => $orderCode,
+                'amount' => (int) $request->amount,
+                'description' => 'Donate ' . ($donation->is_anonymous ? 'User' : $recipient->name),
+                'return_url' => route('payment.success'),
+                'cancel_url' => route('payment.cancel'),
+                'buyer_name' => Auth::user()->name,
+                'buyer_email' => Auth::user()->email,
+            ]);
 
             DB::commit();
 
             return response()->json([
                 'success' => true,
-                'payment_url' => $paymentUrl,
-                'donation_id' => $donation->donation_id
+                'payment_url' => $result['checkout_url'],
+                'donation_id' => $donation->donation_id,
+                'order_code' => $orderCode,
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -405,5 +512,53 @@ class MarketplaceController extends Controller
                 'message' => 'Có lỗi xảy ra: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    /**
+     * Lịch sử đơn hàng
+     */
+    public function orderHistory()
+    {
+        $orders = MarketplaceOrder::where('user_id', Auth::id())
+            ->with(['items.product'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
+        return view('marketplace.order-history', compact('orders'));
+    }
+
+    /**
+     * Chi tiết đơn hàng
+     */
+    public function orderDetail($orderCode)
+    {
+        $order = MarketplaceOrder::where('user_id', Auth::id())
+            ->where('order_id', $orderCode)
+            ->with(['items.product', 'user'])
+            ->firstOrFail();
+
+        return view('marketplace.order-detail', compact('order'));
+    }
+
+    /**
+     * Xuất hóa đơn PDF
+     */
+    public function downloadInvoice($orderCode)
+    {
+        $order = MarketplaceOrder::where('user_id', Auth::id())
+            ->where('order_id', $orderCode)
+            ->with(['items.product', 'user'])
+            ->firstOrFail();
+
+        // Chỉ cho xuất hóa đơn khi đã thanh toán
+        if (!$order->isPaid()) {
+            return redirect()->route('marketplace.orderDetail', $orderCode)
+                ->with('error', 'Chỉ có thể xuất hóa đơn cho đơn hàng đã thanh toán');
+        }
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('marketplace.invoice', compact('order'));
+        $pdf->setPaper('A4', 'portrait');
+        
+        return $pdf->download('hoa-don-' . $order->order_id . '.pdf');
     }
 }

@@ -107,18 +107,29 @@ Route::middleware(['auth.session'])->group(function () {
         Route::post('/teams/{team}/transfer-captain', [TeamController::class, 'transferCaptain'])->name('teams.transfer-captain');
         Route::post('/teams/{team}/kick-member', [TeamController::class, 'kickMember'])->name('teams.kick-member');
         Route::post('/teams/{team}/invite-member', [TeamController::class, 'inviteMember'])->name('teams.invite-member');
+        Route::get('/teams/{team}/search-users', [TeamController::class, 'searchUsers'])->name('teams.search-users');
+        Route::post('/teams/{team}/add-member', [TeamController::class, 'addMember'])->name('teams.add-member');
+        Route::post('/teams/{team}/remove-member', [TeamController::class, 'removeMember'])->name('teams.remove-member');
+        Route::get('/teams/{team}/chat', [TeamController::class, 'getMessages'])->name('teams.chat.get');
+        Route::post('/teams/{team}/chat', [TeamController::class, 'sendMessage'])->name('teams.chat.send');
+        
+        // Team invitations
+        Route::post('/team-invitations/{invitationId}/accept', [TeamController::class, 'acceptInvitation'])->name('teams.invitation.accept');
+        Route::post('/team-invitations/{invitationId}/decline', [TeamController::class, 'declineInvitation'])->name('teams.invitation.decline');
+        Route::get('/my-invitations', [TeamController::class, 'myInvitations'])->name('teams.my-invitations');
     });
 });
 
 // Profile routes - outside middleware to ensure routes are always available
 Route::middleware(['auth.session', 'track.login'])->prefix('profile')->name('profile.')->group(function () {
     Route::get('/', [ProfileController::class, 'show'])->name('show');
+    Route::get('/settings', [ProfileController::class, 'settings'])->name('settings');
     Route::get('/edit', [ProfileController::class, 'edit'])->name('edit');
     Route::put('/update', [ProfileController::class, 'update'])->name('update');
     Route::get('/change-password', [ProfileController::class, 'changePassword'])->name('change-password');
     Route::put('/update-password', [ProfileController::class, 'updatePassword'])->name('update-password');
     Route::get('/search-users', [ProfileController::class, 'searchUsers'])->name('search-users');
-    Route::get('/user/{id}', [ProfileController::class, 'showUser'])->name('show-user');
+    Route::get('/{appId}', [ProfileController::class, 'showUser'])->name('show-user');
 });
 
 // Game Management Routes (Admin only)
@@ -182,6 +193,12 @@ Route::get('/register', function () {
 Route::middleware(['auth.session'])->prefix('chat')->name('chat.')->group(function () {
     // Main chat interface
     Route::get('/', [ChatController::class, 'index'])->name('index');
+    
+    // Widget API routes
+    Route::get('/conversations', [ChatController::class, 'getConversations'])->name('conversations');
+    Route::get('/unread-count', [ChatController::class, 'getUnreadCount'])->name('unread-count');
+    Route::get('/{conversation}/messages', [ChatController::class, 'getMessagesForWidget'])->name('widget.messages');
+    Route::post('/{conversation}/send', [ChatController::class, 'sendFromWidget'])->name('widget.send');
 
     // Conversation routes
     Route::get('/conversation/{conversation}', [ChatController::class, 'show'])->name('show');
@@ -215,6 +232,16 @@ Route::middleware(['auth.session'])->prefix('chat')->name('chat.')->group(functi
 Route::prefix('api')->middleware(['auth.session'])->group(function () {
     Route::post('/user/heartbeat', [ChatController::class, 'heartbeat'])->name('api.user.heartbeat');
     Route::get('/conversation/{conversation}/participants/status', [ChatController::class, 'getParticipantsStatus'])->name('api.conversation.participants.status');
+});
+
+// Notification routes
+Route::prefix('notifications')->name('notifications.')->middleware(['auth.session'])->group(function () {
+    Route::get('/', [\App\Http\Controllers\NotificationController::class, 'index'])->name('index');
+    Route::get('/unread-count', [\App\Http\Controllers\NotificationController::class, 'unreadCount'])->name('unread-count');
+    Route::post('/{id}/read', [\App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('read');
+    Route::post('/mark-all-read', [\App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('mark-all-read');
+    Route::delete('/{id}', [\App\Http\Controllers\NotificationController::class, 'destroy'])->name('destroy');
+    Route::delete('/', [\App\Http\Controllers\NotificationController::class, 'clearAll'])->name('clear-all');
 });
 
 // Posts routes (basic placeholder)
@@ -276,6 +303,7 @@ Route::get('/admin-invitation/{token}/reject', [\App\Http\Controllers\Admin\Admi
 // Admin Marketplace Management Routes
 Route::prefix('admin/marketplace')->name('admin.marketplace.')->middleware(['auth.session'])->group(function () {
     Route::get('/', [AdminMarketplaceController::class, 'index'])->name('index');
+    Route::get('/revenue', [AdminMarketplaceController::class, 'revenue'])->name('revenue');
     Route::get('/create', [AdminMarketplaceController::class, 'create'])->name('create');
     Route::post('/', [AdminMarketplaceController::class, 'store'])->name('store');
     Route::get('/{id}', [AdminMarketplaceController::class, 'show'])->name('show');
@@ -285,31 +313,38 @@ Route::prefix('admin/marketplace')->name('admin.marketplace.')->middleware(['aut
     Route::patch('/{id}/toggle-status', [AdminMarketplaceController::class, 'toggleStatus'])->name('toggleStatus');
 });
 
-// Payment Routes - VNPay Integration
+// Payment Routes - PayOS Integration
 Route::prefix('payment')->name('payment.')->group(function () {
-    // Tạo đơn hàng và chuyển hướng đến VNPay
-    Route::post('/vnpay/create', [PaymentController::class, 'createPayment'])->name('vnpay.create');
+    // Tạo link thanh toán PayOS
+    Route::post('/payos/create', [PaymentController::class, 'createPayment'])->name('payos.create');
 
-    // Callback từ VNPay sau khi thanh toán
-    Route::get('/vnpay/return', [PaymentController::class, 'vnpayReturn'])->name('vnpay.return');
+    // Callback từ PayOS sau khi thanh toán thành công
+    Route::get('/payos/success', [PaymentController::class, 'handleSuccess'])->name('success');
 
-    // IPN (Instant Payment Notification) từ VNPay
-    Route::post('/vnpay/ipn', [PaymentController::class, 'vnpayIpn'])->name('vnpay.ipn');
+    // Callback từ PayOS khi hủy thanh toán
+    Route::get('/payos/cancel', [PaymentController::class, 'handleCancel'])->name('cancel');
 
-    // Query transaction từ VNPay
-    Route::post('/vnpay/query', [PaymentController::class, 'queryTransaction'])->name('vnpay.query');
+    // Webhook từ PayOS (IPN)
+    Route::post('/payos/webhook', [PaymentController::class, 'webhook'])->name('payos.webhook');
 });
 
 // Marketplace Routes
 Route::prefix('marketplace')->name('marketplace.')->group(function () {
     Route::get('/', [MarketplaceController::class, 'index'])->name('index');
-    Route::get('/product/{id}', [MarketplaceController::class, 'show'])->name('show');
-    Route::post('/cart/{id}', [MarketplaceController::class, 'addToCart'])->name('addToCart');
+    Route::get('/product', fn() => redirect()->route('marketplace.index')); // Redirect if no slug provided
+    Route::get('/product/{product}', [MarketplaceController::class, 'show'])->name('show');
+    Route::post('/cart/{id}', [MarketplaceController::class, 'addToCart'])->name('addToCart')->middleware('auth.session');
     Route::get('/cart', [MarketplaceController::class, 'cart'])->name('cart');
-    Route::delete('/cart/{id}', [MarketplaceController::class, 'removeFromCart'])->name('removeFromCart');
+    Route::patch('/cart/{id}', [MarketplaceController::class, 'updateCartQuantity'])->name('updateCartQuantity')->middleware('auth.session');
+    Route::delete('/cart/{id}', [MarketplaceController::class, 'removeFromCart'])->name('removeFromCart')->middleware('auth.session');
     Route::get('/checkout', [MarketplaceController::class, 'checkout'])->name('checkout')->middleware('auth.session');
     Route::post('/process-payment', [MarketplaceController::class, 'processPayment'])->name('processPayment')->middleware('auth.session');
     Route::get('/inventory', [MarketplaceController::class, 'inventory'])->name('inventory')->middleware('auth.session');
     Route::post('/inventory/{id}/equip', [MarketplaceController::class, 'equipItem'])->name('equipItem')->middleware('auth.session');
     Route::post('/donate/{userId}', [MarketplaceController::class, 'donate'])->name('donate')->middleware('auth.session');
+    
+    // Order History & Invoice
+    Route::get('/orders', [MarketplaceController::class, 'orderHistory'])->name('orders')->middleware('auth.session');
+    Route::get('/orders/{orderCode}', [MarketplaceController::class, 'orderDetail'])->name('orderDetail')->middleware('auth.session');
+    Route::get('/orders/{orderCode}/invoice', [MarketplaceController::class, 'downloadInvoice'])->name('invoice')->middleware('auth.session');
 });

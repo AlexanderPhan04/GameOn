@@ -16,6 +16,7 @@ return new class extends Migration
             
             // Thông tin đơn hàng
             $table->string('order_id')->unique(); // Mã đơn hàng
+            $table->string('order_code')->nullable(); // Mã PayOS
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             
             // Tổng tiền
@@ -24,13 +25,12 @@ return new class extends Migration
             $table->decimal('final_amount', 15, 2); // Tiền cuối cùng
             
             // Trạng thái
-            $table->enum('status', ['pending', 'processing', 'completed', 'cancelled', 'refunded'])->default('pending');
-            $table->enum('payment_status', ['pending', 'paid', 'failed', 'refunded'])->default('pending');
-            $table->enum('payment_method', ['vnpay', 'wallet', 'other'])->nullable();
+            $table->string('status')->default('pending'); // pending, processing, completed, cancelled, refunded
+            $table->string('payment_status')->default('pending'); // pending, paid, failed, refunded
+            $table->string('payment_method')->nullable(); // payos, wallet, other
             
-            // Thông tin thanh toán VNPay
-            $table->string('vnpay_transaction_no')->nullable();
-            $table->string('vnpay_bank_code')->nullable();
+            // Thông tin thanh toán PayOS
+            $table->string('payos_transaction_id')->nullable();
             $table->timestamp('paid_at')->nullable();
             
             // Thông tin giao hàng (nếu cần)

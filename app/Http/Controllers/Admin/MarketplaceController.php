@@ -2,12 +2,17 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Events\ProductUpdated;
 use App\Http\Controllers\Controller;
 use App\Models\MarketplaceProduct;
+use App\Models\MarketplaceOrder;
+use App\Models\MarketplaceOrderItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Carbon\Carbon;
 
 class MarketplaceController extends Controller
 {
@@ -128,6 +133,9 @@ class MarketplaceController extends Controller
 
         $product = MarketplaceProduct::create($data);
 
+        // Broadcast product created
+        broadcast(new ProductUpdated($product, 'created'));
+
         return redirect()->route('admin.marketplace.index')
             ->with('success', 'Sản phẩm đã được tạo thành công!');
     }
@@ -214,6 +222,9 @@ class MarketplaceController extends Controller
 
         $product->update($data);
 
+        // Broadcast product updated
+        broadcast(new ProductUpdated($product, 'updated'));
+
         return redirect()->route('admin.marketplace.index')
             ->with('success', 'Sản phẩm đã được cập nhật thành công!');
     }
@@ -254,10 +265,106 @@ class MarketplaceController extends Controller
         $product->is_active = !$product->is_active;
         $product->save();
 
+        // Broadcast product status change
+        broadcast(new ProductUpdated($product, $product->is_active ? 'activated' : 'deactivated'));
+
         return response()->json([
             'success' => true,
             'is_active' => $product->is_active,
             'message' => $product->is_active ? 'Sản phẩm đã được kích hoạt' : 'Sản phẩm đã được vô hiệu hóa'
         ]);
+    }
+
+    /**
+     * Display revenue report
+     */
+    public function revenue(Request $request)
+    {
+        $this->checkAdminAccess();
+
+        // Date range
+        $fromDate = $request->get('from_date', now()->startOfMonth()->format('Y-m-d'));
+        $toDate = $request->get('to_date', now()->format('Y-m-d'));
+        $status = $request->get('status');
+
+        $from = Carbon::parse($fromDate)->startOfDay();
+        $to = Carbon::parse($toDate)->endOfDay();
+
+        // Base query
+        $ordersQuery = MarketplaceOrder::whereBetween('created_at', [$from, $to]);
+        
+        if ($status) {
+            $ordersQuery->where('status', $status);
+        }
+
+        // Stats
+        $totalRevenue = (clone $ordersQuery)->where('payment_status', 'paid')->sum('final_amount');
+        $totalOrders = (clone $ordersQuery)->count();
+        $completedOrders = (clone $ordersQuery)->where('status', 'completed')->count();
+        $avgOrderValue = $totalOrders > 0 ? $totalRevenue / $totalOrders : 0;
+        
+        $totalItemsSold = MarketplaceOrderItem::whereHas('order', function($q) use ($from, $to, $status) {
+            $q->whereBetween('created_at', [$from, $to])->where('payment_status', 'paid');
+            if ($status) $q->where('status', $status);
+        })->sum('quantity');
+
+        // Previous period for comparison
+        $periodDays = $from->diffInDays($to) + 1;
+        $prevFrom = $from->copy()->subDays($periodDays);
+        $prevTo = $from->copy()->subDay();
+        $prevRevenue = MarketplaceOrder::whereBetween('created_at', [$prevFrom, $prevTo])
+            ->where('payment_status', 'paid')
+            ->sum('final_amount');
+        
+        $revenueChange = $prevRevenue > 0 ? round((($totalRevenue - $prevRevenue) / $prevRevenue) * 100, 1) : 0;
+
+        $stats = [
+            'total_revenue' => $totalRevenue,
+            'total_orders' => $totalOrders,
+            'completed_orders' => $completedOrders,
+            'avg_order_value' => $avgOrderValue,
+            'total_items_sold' => $totalItemsSold,
+            'revenue_change' => $revenueChange,
+        ];
+
+        // Chart data - daily revenue
+        $chartData = [
+            'labels' => [],
+            'revenue' => [],
+        ];
+
+        $currentDate = $from->copy();
+        while ($currentDate <= $to) {
+            $dayRevenue = MarketplaceOrder::whereDate('created_at', $currentDate)
+                ->where('payment_status', 'paid')
+                ->sum('final_amount');
+            
+            $chartData['labels'][] = $currentDate->format('d/m');
+            $chartData['revenue'][] = (float) $dayRevenue;
+            $currentDate->addDay();
+        }
+
+        // Top products
+        $topProducts = MarketplaceProduct::select('marketplace_products.*')
+            ->selectRaw('COALESCE(SUM(marketplace_order_items.quantity), 0) as total_sold')
+            ->leftJoin('marketplace_order_items', 'marketplace_products.id', '=', 'marketplace_order_items.product_id')
+            ->leftJoin('marketplace_orders', function($join) use ($from, $to) {
+                $join->on('marketplace_order_items.order_id', '=', 'marketplace_orders.id')
+                    ->whereBetween('marketplace_orders.created_at', [$from, $to])
+                    ->where('marketplace_orders.payment_status', 'paid');
+            })
+            ->groupBy('marketplace_products.id')
+            ->orderByDesc('total_sold')
+            ->limit(5)
+            ->get();
+
+        // Recent orders
+        $orders = MarketplaceOrder::with(['user', 'items'])
+            ->whereBetween('created_at', [$from, $to])
+            ->when($status, fn($q) => $q->where('status', $status))
+            ->orderByDesc('created_at')
+            ->paginate(15);
+
+        return view('admin.marketplace.revenue', compact('stats', 'chartData', 'topProducts', 'orders'));
     }
 }

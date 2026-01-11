@@ -91,16 +91,40 @@
         margin-bottom: 0.5rem; background: rgba(0, 0, 20, 0.5);
         border: 1px solid rgba(0, 229, 255, 0.1); border-radius: 14px;
         cursor: pointer; transition: all 0.3s ease; text-decoration: none;
+        position: relative;
     }
     .conversation-item:hover { background: rgba(0, 229, 255, 0.08); border-color: rgba(0, 229, 255, 0.3); transform: translateX(4px); }
     .conversation-item.active { background: rgba(0, 229, 255, 0.12); border-color: #00E5FF; }
+    .conversation-item.has-unread { 
+        background: linear-gradient(135deg, rgba(0, 229, 255, 0.08), rgba(139, 92, 246, 0.08));
+        border-color: rgba(0, 229, 255, 0.3);
+        box-shadow: 0 0 20px rgba(0, 229, 255, 0.1), inset 0 0 20px rgba(0, 229, 255, 0.03);
+    }
+    .conversation-item.has-unread::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 4px;
+        height: 60%;
+        background: linear-gradient(180deg, #00E5FF, #8b5cf6);
+        border-radius: 0 4px 4px 0;
+    }
+    .conversation-item.has-unread .conversation-name { color: #00E5FF; }
+    .conversation-item.has-unread .conversation-preview { color: #fff; font-weight: 500; }
+    .conversation-item.has-unread .conversation-time { color: #00E5FF; }
     .conversation-avatar { width: 48px; height: 48px; border-radius: 14px; border: 2px solid rgba(0, 229, 255, 0.3); object-fit: cover; }
     .conversation-info { flex: 1; min-width: 0; }
     .conversation-name { color: #fff; font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .conversation-preview { color: #94a3b8; font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .conversation-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem; }
     .conversation-time { color: #64748b; font-size: 0.7rem; }
-    .unread-badge { background: linear-gradient(135deg, #00E5FF, #0099cc); color: #000814; font-size: 0.7rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 10px; }
+    .unread-badge { background: linear-gradient(135deg, #00E5FF, #0099cc); color: #000814; font-size: 0.7rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 10px; animation: pulse-badge 2s infinite; }
+    @keyframes pulse-badge {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+    }
     
     .empty-state { text-align: center; padding: 2.5rem 1.5rem; }
     .empty-icon { width: 70px; height: 70px; margin: 0 auto 1.25rem; background: linear-gradient(135deg, rgba(0, 229, 255, 0.1), rgba(139, 92, 246, 0.1)); border: 1px solid rgba(0, 229, 255, 0.2); border-radius: 20px; display: flex; align-items: center; justify-content: center; }
@@ -108,6 +132,13 @@
     .empty-title { font-family: 'Rajdhani', sans-serif; color: #fff; font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; }
     .empty-desc { color: #64748b; font-size: 0.85rem; margin-bottom: 1.25rem; }
     .empty-btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1.25rem; background: linear-gradient(135deg, #6366f1, #8b5cf6); border: none; border-radius: 10px; color: #fff; font-size: 0.85rem; font-weight: 600; cursor: pointer; }
+    
+    @media (max-width: 768px) {
+        body:has(.chat-page) main { margin-left: 0 !important; width: 100% !important; }
+        .chat-page { flex-direction: column; }
+        .chat-sidebar { width: 100%; min-width: 100%; border-right: none; }
+        .chat-main { display: none; }
+    }
 </style>
 <style>
     .chat-main { flex: 1; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #000814, #000022, #0d1b2a); position: relative; overflow: hidden; width: 100%; }
@@ -140,6 +171,20 @@
 @endpush
 
 @section('content')
+@if(session('error'))
+<div class="alert-error" id="sessionError" style="position:fixed;top:80px;left:50%;transform:translateX(-50%);z-index:9999;background:linear-gradient(135deg, rgba(239, 68, 68, 0.95), rgba(220, 38, 38, 0.95));border:1px solid rgba(239. 68, 68, 0.5);border-radius:12px;padding:1rem 1.5rem;color:#fff;font-weight:500;display:flex;align-items:center;gap:0.75rem;box-shadow:0 10px 40px rgba(239, 68, 68, 0.3);animation:slideDown 0.3s ease;">
+    <i class="fas fa-exclamation-circle"></i>
+    <span>{{ session('error') }}</span>
+    <button onclick="document.getElementById('sessionError').remove()" style="background:none;border:none;color:rgba(255,255,255,0.7);cursor:pointer;margin-left:0.5rem;"><i class="fas fa-times"></i></button>
+</div>
+<style>
+@keyframes slideDown {
+    from { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+    to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+</style>
+<script>setTimeout(() => { const el = document.getElementById('sessionError'); if(el) el.remove(); }, 5000);</script>
+@endif
 <div class="chat-page">
     <aside class="chat-sidebar">
         <div class="sidebar-header">
@@ -164,7 +209,8 @@
             </div>
             <div class="conversations-list">
                 @forelse($conversations as $conversation)
-                <a href="{{ route('chat.show', $conversation) }}" class="conversation-item {{ request()->route('conversation')?->id == $conversation->id ? 'active' : '' }}">
+                @php $unreadCount = $conversation->getUnreadCount(auth()->id()); @endphp
+                <a href="{{ route('chat.show', $conversation) }}" class="conversation-item {{ request()->route('conversation')?->slug == $conversation->slug ? 'active' : '' }} {{ $unreadCount > 0 ? 'has-unread' : '' }}">
                     <img src="{{ $conversation->getDisplayAvatar(auth()->id()) }}" class="conversation-avatar">
                     <div class="conversation-info">
                         <div class="conversation-name">{{ $conversation->getDisplayName(auth()->id()) }}</div>
@@ -172,8 +218,8 @@
                     </div>
                     <div class="conversation-meta">
                         <span class="conversation-time">{{ $conversation->last_message_at?->diffForHumans() ?? '' }}</span>
-                        @if($conversation->getUnreadCount(auth()->id()) > 0)
-                        <span class="unread-badge">{{ $conversation->getUnreadCount(auth()->id()) }}</span>
+                        @if($unreadCount > 0)
+                        <span class="unread-badge">{{ $unreadCount }}</span>
                         @endif
                     </div>
                 </a>
@@ -323,6 +369,101 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!e.target.closest('.search-box')) searchResults.classList.remove('show');
         if (!e.target.closest('#memberSearch') && !e.target.closest('#memberResults')) memberResults.classList.remove('show');
     });
+    
+    // Real-time update conversation list via WebSocket
+    @auth
+    function setupConversationUpdates() {
+        if (typeof window.Echo === 'undefined') {
+            setTimeout(setupConversationUpdates, 500);
+            return;
+        }
+        
+        const userId = {{ Auth::id() }};
+        
+        window.Echo.private(`user.${userId}`)
+            .listen('.chat.message', (e) => {
+                // Don't update if sender is current user
+                if (e.sender_id === userId) return;
+                
+                updateConversationInList(e.conversation_id, {
+                    preview: e.content,
+                    time: 'Vừa xong',
+                    senderName: e.sender_name,
+                    incrementUnread: true
+                });
+            });
+    }
+    
+    function updateConversationInList(conversationId, data) {
+        const conversationsList = document.querySelector('.conversations-list');
+        if (!conversationsList) return;
+        
+        // Find existing conversation item
+        // Note: conversationId might be slug or id depending on event
+        let convItem = conversationsList.querySelector(`a[href*="/chat/conversation/"]`);
+        
+        if (convItem) {
+            // Update preview text
+            const preview = convItem.querySelector('.conversation-preview');
+            if (preview && data.preview) {
+                const previewText = data.preview.length > 30 ? data.preview.substring(0, 30) + '...' : data.preview;
+                preview.textContent = previewText;
+            }
+            
+            // Update time
+            const time = convItem.querySelector('.conversation-time');
+            if (time && data.time) {
+                time.textContent = data.time;
+            }
+            
+            // Add has-unread class and update badge
+            if (data.incrementUnread) {
+                convItem.classList.add('has-unread');
+                
+                let badge = convItem.querySelector('.unread-badge');
+                if (badge) {
+                    const currentCount = parseInt(badge.textContent) || 0;
+                    badge.textContent = currentCount + 1;
+                } else {
+                    const meta = convItem.querySelector('.conversation-meta');
+                    if (meta) {
+                        badge = document.createElement('span');
+                        badge.className = 'unread-badge';
+                        badge.textContent = '1';
+                        meta.appendChild(badge);
+                    }
+                }
+            }
+            
+            // Move conversation to top
+            conversationsList.insertBefore(convItem, conversationsList.firstChild);
+            
+            // Add highlight animation
+            convItem.style.animation = 'none';
+            convItem.offsetHeight; // Trigger reflow
+            convItem.style.animation = 'highlightNew 0.5s ease';
+        } else {
+            // Conversation not in list - reload page to get new conversation
+            // Or you could fetch and add it dynamically
+            location.reload();
+        }
+        
+        // Update total count badge
+        const countBadge = document.querySelector('.conversations-count');
+        if (countBadge && data.incrementUnread) {
+            // This shows total conversations, not unread - keep as is
+        }
+    }
+    
+    setupConversationUpdates();
+    @endauth
 });
 </script>
+
+<style>
+@keyframes highlightNew {
+    0% { background: rgba(0, 229, 255, 0.3); }
+    100% { background: linear-gradient(135deg, rgba(0, 229, 255, 0.08), rgba(139, 92, 246, 0.08)); }
+}
+</style>
 @endpush

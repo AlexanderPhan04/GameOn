@@ -15,6 +15,7 @@ class ChatConversation extends Model
     protected $fillable = [
         'type',
         'name',
+        'slug',
         'description',
         'avatar',
         'created_by',
@@ -28,6 +29,28 @@ class ChatConversation extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
+
+    /**
+     * Boot the model
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($conversation) {
+            if (empty($conversation->slug)) {
+                $conversation->slug = \Illuminate\Support\Str::random(12);
+            }
+        });
+    }
+
+    /**
+     * Get the route key for the model (use slug instead of id)
+     */
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
 
     /**
      * Get the creator of the conversation
@@ -204,7 +227,7 @@ class ChatConversation extends Model
     {
         if ($this->type === 'group') {
             if ($this->avatar) {
-                return asset('uploads/' . $this->avatar);
+                return asset('storage/' . $this->avatar);
             }
             // Generate group avatar
             $name = urlencode($this->name ?? 'Group');
@@ -246,7 +269,10 @@ class ChatConversation extends Model
      */
     public function getLastMessagePreviewAttribute()
     {
-        $lastMessage = $this->messages()->latest()->first();
+        $lastMessage = ChatMessage::where('conversation_id', $this->id)
+            ->whereNull('deleted_at')
+            ->orderBy('created_at', 'desc')
+            ->first();
 
         if (! $lastMessage) {
             return 'No messages yet';

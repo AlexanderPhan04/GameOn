@@ -2,18 +2,28 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\MessageDeleted;
-use App\Events\MessageSent;
 use App\Events\UserTyping;
 use App\Models\ChatConversation;
 use App\Models\ChatMessage;
 use App\Models\User;
+use App\Services\ChatService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
+/**
+ * ChatController - HTTP layer for chat functionality
+ * Business logic delegated to ChatService
+ * Refactored for proper MVC architecture
+ */
 class ChatController extends Controller
 {
+    protected ChatService $chatService;
+
+    public function __construct(ChatService $chatService)
+    {
+        $this->chatService = $chatService;
+    }
+
     /**
      * Display chat interface
      */
@@ -21,19 +31,11 @@ class ChatController extends Controller
     {
         $user = Auth::user();
 
-        // Check if user is authenticated
         if (!$user) {
             return redirect()->route('auth.login');
         }
 
-        // Get conversations directly using query builder
-        $conversations = ChatConversation::whereHas('participants', function ($query) use ($user) {
-            $query->where('user_id', $user->id);
-        })
-            ->with(['participants.user'])
-            ->orderBy('last_message_at', 'desc')
-            ->limit(20)
-            ->get();
+        $conversations = $this->chatService->getUserConversations($user);
 
         return view('chat.index', compact('conversations'));
     }
@@ -45,15 +47,17 @@ class ChatController extends Controller
     {
         $user = Auth::user();
 
-        // Check if user is participant
-        if (! $conversation->hasParticipant($user->id)) {
-            abort(403, 'You are not a participant in this conversation');
+        if (!$user) {
+            return redirect()->route('auth.login');
         }
 
-        // Mark as read
+        if (!$conversation->hasParticipant($user->id)) {
+            return redirect()->route('chat.index')
+                ->with('error', 'Bạn không phải là thành viên của cuộc trò chuyện này.');
+        }
+
         $conversation->markAsReadForUser($user->id);
 
-        // Get messages with pagination
         $messages = $conversation->messages()
             ->with('sender')
             ->orderBy('created_at', 'asc')
@@ -63,7 +67,7 @@ class ChatController extends Controller
     }
 
     /**
-     * Start new conversation or get existing one
+     * Start new conversation
      */
     public function startConversation(Request $request)
     {
@@ -78,7 +82,20 @@ class ChatController extends Controller
             return response()->json(['error' => 'Cannot start conversation with yourself'], 400);
         }
 
-        $conversation = ChatConversation::createOrGetPrivate($currentUser->id, $otherUserId);
+        // Check if user is restricted - can only chat with admin/super_admin
+        if (in_array($currentUser->status, ['suspended', 'banned', 'deleted'])) {
+            $otherUser = User::find($otherUserId);
+            if (!in_array($otherUser->user_role, ['admin', 'super_admin'])) {
+                return response()->json([
+                    'error' => 'Tài khoản của bạn đang bị hạn chế. Bạn chỉ có thể chat với quản trị viên.',
+                ], 403);
+            }
+        }
+
+        $conversation = $this->chatService->getOrCreatePrivateConversation(
+            $currentUser->id,
+            $otherUserId
+        );
 
         return response()->json([
             'success' => true,
@@ -92,89 +109,36 @@ class ChatController extends Controller
      */
     public function sendMessage(Request $request, ChatConversation $conversation)
     {
-        $user = Auth::user();
-
-        // Check if user is participant and not blocked
-        $participant = $conversation->participants()
-            ->where('user_id', $user->id)
-            ->first();
-
-        if (! $participant || $participant->is_blocked || $participant->isMuted()) {
-            return response()->json(['error' => 'You cannot send messages in this conversation'], 403);
-        }
-
         $request->validate([
             'content' => 'nullable|string|max:5000',
             'attachment' => 'nullable|file|max:10240|mimes:jpg,jpeg,png,gif,pdf,doc,docx,txt',
             'type' => 'in:text,image,file',
         ]);
 
-        DB::beginTransaction();
-        try {
-            $messageData = [
-                'conversation_id' => $conversation->id,
-                'sender_id' => $user->id,
-                'type' => $request->type ?? 'text',
-                'content' => $request->content,
-            ];
+        $user = Auth::user();
+        $attachment = $request->hasFile('attachment') ? $request->file('attachment') : null;
 
-            // Handle file attachment
-            if ($request->hasFile('attachment')) {
-                $file = $request->file('attachment');
-                $path = $file->store('chat', 'public');
+        $result = $this->chatService->sendMessage(
+            $conversation,
+            $user,
+            $request->only(['content', 'type']),
+            $attachment
+        );
 
-                $messageData['attachment_name'] = $file->getClientOriginalName();
-                $messageData['attachment_path'] = $path;
-                $messageData['attachment_type'] = $file->getClientOriginalExtension();
-                $messageData['attachment_size'] = $file->getSize();
-
-                if (in_array($messageData['attachment_type'], ['jpg', 'jpeg', 'png', 'gif', 'webp'])) {
-                    $messageData['type'] = 'image';
-                } else {
-                    $messageData['type'] = 'file';
-                }
-            }
-
-            $message = ChatMessage::create($messageData);
-
-            // Update conversation last message time
-            $conversation->update(['last_message_at' => now()]);
-
-            DB::commit();
-
-            // Load the message with sender for response
-            $message->load('sender');
-
-            // Broadcast message to all participants via WebSocket
-            broadcast(new MessageSent($message))->toOthers();
-
-            return response()->json([
-                'success' => true,
-                'message' => [
-                    'id' => $message->id,
-                    'content' => $message->content,
-                    'type' => $message->type,
-                    'sender' => [
-                        'id' => $message->sender->id,
-                        'name' => $message->sender->name,
-                        'avatar' => $message->sender->getDisplayAvatar(),
-                    ],
-                    'attachment_url' => $message->attachment_url,
-                    'attachment_name' => $message->attachment_name,
-                    'attachment_path' => $message->attachment_path,
-                    'formatted_time' => $message->formatted_time,
-                    'created_at' => $message->created_at->toISOString(),
-                ],
-            ]);
-        } catch (\Exception $e) {
-            DB::rollback();
-
-            return response()->json(['error' => 'Failed to send message'], 500);
+        if (!$result['success']) {
+            return response()->json(['error' => $result['message']], 403);
         }
+
+        $message = $result['message'];
+
+        return response()->json([
+            'success' => true,
+            'message' => $this->chatService->formatMessageForResponse($message),
+        ]);
     }
 
     /**
-     * Search users for starting conversation
+     * Search users
      */
     public function searchUsers(Request $request)
     {
@@ -182,31 +146,26 @@ class ChatController extends Controller
         $users = User::searchForChat($query, Auth::id());
 
         return response()->json([
-            'users' => $users->map(function ($user) {
-                return [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'avatar' => $user->getDisplayAvatar(),
-                    'user_role' => $user->user_role,
-                ];
-            }),
+            'users' => $users->map(fn($user) => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'avatar' => $user->getDisplayAvatar(),
+                'user_role' => $user->user_role,
+            ]),
         ]);
     }
 
     /**
-     * Add reaction to message
+     * Add reaction
      */
     public function addReaction(Request $request, ChatMessage $message)
     {
-        $request->validate([
-            'emoji' => 'required|string|max:10',
-        ]);
+        $request->validate(['emoji' => 'required|string|max:10']);
 
         $user = Auth::user();
 
-        // Check if user can access this message
-        if (! $message->conversation->hasParticipant($user->id)) {
+        if (!$message->conversation->hasParticipant($user->id)) {
             return response()->json(['error' => 'Access denied'], 403);
         }
 
@@ -219,18 +178,15 @@ class ChatController extends Controller
     }
 
     /**
-     * Toggle reaction to message
+     * Toggle reaction
      */
     public function toggleReaction(Request $request, ChatMessage $message)
     {
-        $request->validate([
-            'emoji' => 'required|string|max:10',
-        ]);
+        $request->validate(['emoji' => 'required|string|max:10']);
 
         $user = Auth::user();
 
-        // Check if user can access this message
-        if (! $message->conversation->hasParticipant($user->id)) {
+        if (!$message->conversation->hasParticipant($user->id)) {
             return response()->json(['error' => 'Access denied'], 403);
         }
 
@@ -244,38 +200,31 @@ class ChatController extends Controller
 
     /**
      * Update typing status
-     * Now broadcasts via WebSocket instead of database
      */
     public function updateTypingStatus(Request $request, ChatConversation $conversation)
     {
         $user = Auth::user();
 
-        if (! $conversation->hasParticipant($user->id)) {
+        if (!$conversation->hasParticipant($user->id)) {
             return response()->json(['error' => 'Access denied'], 403);
         }
 
-        $isTyping = $request->boolean('is_typing');
-
-        // Broadcast typing status via WebSocket
-        broadcast(new UserTyping($conversation->id, $user, $isTyping))->toOthers();
+        broadcast(new UserTyping($conversation->id, $user, $request->boolean('is_typing')))->toOthers();
 
         return response()->json(['success' => true]);
     }
 
     /**
-     * Get typing users in conversation
-     * Lưu ý: Nên dùng Redis để lưu typing status theo conversation_id
+     * Get typing users
      */
     public function getTypingUsers(ChatConversation $conversation)
     {
         $user = Auth::user();
 
-        if (! $conversation->hasParticipant($user->id)) {
+        if (!$conversation->hasParticipant($user->id)) {
             return response()->json(['error' => 'Access denied'], 403);
         }
 
-        // TODO: Nên dùng Redis để lưu typing status theo conversation_id
-        // Tạm thời lấy từ user_activities (không lý tưởng vì không có conversation_id)
         $participants = $conversation->participants()
             ->where('user_id', '!=', $user->id)
             ->with(['user.activity'])
@@ -286,51 +235,39 @@ class ChatController extends Controller
                 && $participant->user->activity->is_typing
                 && $participant->user->activity->typing_started_at
                 && $participant->user->activity->typing_started_at->gt(now()->subSeconds(5));
-        })->map(function ($participant) {
-            return [
-                'id' => $participant->user->id,
-                'name' => $participant->user->name,
-            ];
-        });
+        })->map(fn($p) => ['id' => $p->user->id, 'name' => $p->user->name]);
 
-        return response()->json([
-            'typing_users' => $typingUsers,
-        ]);
+        return response()->json(['typing_users' => $typingUsers]);
     }
 
     /**
-     * Block/unblock user in conversation
+     * Toggle block
      */
     public function toggleBlock(Request $request, ChatConversation $conversation)
     {
-        $request->validate([
-            'user_id' => 'required|exists:users,id',
-        ]);
+        $request->validate(['user_id' => 'required|exists:users,id']);
 
         $currentUser = Auth::user();
-        $targetUserId = $request->user_id;
 
-        // Check if current user is participant
-        if (! $conversation->hasParticipant($currentUser->id)) {
+        if (!$conversation->hasParticipant($currentUser->id)) {
             return response()->json(['error' => 'Access denied'], 403);
         }
 
-        // Get target user's participant record
         $targetParticipant = $conversation->participants()
-            ->where('user_id', $targetUserId)
+            ->where('user_id', $request->user_id)
             ->first();
 
-        if (! $targetParticipant) {
+        if (!$targetParticipant) {
             return response()->json(['error' => 'User is not in this conversation'], 404);
         }
 
         $isCurrentlyBlocked = $targetParticipant->is_blocked;
-        $targetParticipant->update(['is_blocked' => ! $isCurrentlyBlocked]);
+        $targetParticipant->update(['is_blocked' => !$isCurrentlyBlocked]);
 
         return response()->json([
             'success' => true,
-            'is_blocked' => ! $isCurrentlyBlocked,
-            'message' => ! $isCurrentlyBlocked ? 'User blocked successfully' : 'User unblocked successfully',
+            'is_blocked' => !$isCurrentlyBlocked,
+            'message' => !$isCurrentlyBlocked ? 'User blocked' : 'User unblocked',
         ]);
     }
 
@@ -345,7 +282,7 @@ class ChatController extends Controller
             ->where('user_id', $user->id)
             ->first();
 
-        if (! $participant) {
+        if (!$participant) {
             return response()->json(['error' => 'You are not in this conversation'], 404);
         }
 
@@ -358,31 +295,17 @@ class ChatController extends Controller
     }
 
     /**
-     * Delete message (soft delete)
+     * Delete message
      */
     public function deleteMessage(ChatMessage $message)
     {
-        $user = Auth::user();
+        $result = $this->chatService->deleteMessage($message, Auth::user());
 
-        // Only sender can delete their message
-        if ($message->sender_id !== $user->id) {
-            return response()->json(['error' => 'You can only delete your own messages'], 403);
+        if (!$result['success']) {
+            return response()->json(['error' => $result['message']], 403);
         }
 
-        $conversationId = $message->conversation_id;
-        $messageId = $message->id;
-
-        $message->update([
-            'deleted_at' => now(),
-        ]);
-
-        // Broadcast message deletion via WebSocket
-        broadcast(new MessageDeleted($conversationId, $messageId))->toOthers();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Message deleted successfully',
-        ]);
+        return response()->json($result);
     }
 
     /**
@@ -390,84 +313,44 @@ class ChatController extends Controller
      */
     public function editMessage(Request $request, ChatMessage $message)
     {
-        $request->validate([
-            'content' => 'required|string|max:5000',
-        ]);
+        $request->validate(['content' => 'required|string|max:5000']);
 
-        $user = Auth::user();
+        $result = $this->chatService->editMessage($message, Auth::user(), $request->content);
 
-        // Only sender can edit their message
-        if ($message->sender_id !== $user->id) {
-            return response()->json(['error' => 'You can only edit your own messages'], 403);
+        if (!$result['success']) {
+            return response()->json(['error' => $result['message']], 403);
         }
-
-        // Check if message is too old to edit (e.g., 15 minutes)
-        if ($message->created_at->diffInMinutes(now()) > 15) {
-            return response()->json(['error' => 'Message is too old to edit'], 403);
-        }
-
-        $message->update([
-            'content' => $request->content,
-            'is_edited' => true,
-            'edited_at' => now(),
-        ]);
 
         return response()->json([
             'success' => true,
             'message' => [
-                'id' => $message->id,
-                'content' => $message->content,
+                'id' => $result['message']->id,
+                'content' => $result['message']->content,
                 'is_edited' => true,
-                'edited_at' => $message->edited_at->toISOString(),
+                'edited_at' => $result['message']->edited_at->toISOString(),
             ],
         ]);
     }
 
     /**
-     * Get conversation messages via AJAX
+     * Get messages
      */
     public function getMessages(Request $request, ChatConversation $conversation)
     {
         $user = Auth::user();
 
-        if (! $conversation->hasParticipant($user->id)) {
+        if (!$conversation->hasParticipant($user->id)) {
             return response()->json(['error' => 'Access denied'], 403);
         }
 
-        $afterId = $request->get('after_id');
-        $page = $request->get('page', 1);
-        $perPage = $request->get('per_page', 30);
+        $result = $this->chatService->getMessages(
+            $conversation,
+            $request->get('after_id'),
+            $request->get('page', 1),
+            $request->get('per_page', 30)
+        );
 
-        $query = $conversation->messages()
-            ->with('sender')
-            ->whereNull('deleted_at');
-
-        // If after_id is provided, get messages after that ID (for real-time updates)
-        if ($afterId) {
-            $query->where('id', '>', $afterId);
-            $messages = $query->orderBy('created_at', 'asc')->limit($perPage)->get();
-            $hasMore = false;
-            $currentPage = 1;
-
-            // If no new messages found, return empty success response instead of 404
-            if ($messages->isEmpty()) {
-                return response()->json([
-                    'data' => [],
-                    'has_more' => false,
-                    'current_page' => 1,
-                    'next_page_url' => null,
-                ]);
-            }
-        } else {
-            // Normal pagination for loading older messages
-            $messages = $query->orderBy('created_at', 'asc')
-                ->paginate($perPage, ['*'], 'page', $page);
-            $hasMore = $messages->hasMorePages();
-            $currentPage = $messages->currentPage();
-            $messages = $messages->getCollection();
-        }
-
-        $formattedMessages = collect($messages)->map(function ($message) {
+        $formattedMessages = $result['messages']->map(function ($message) {
             return [
                 'id' => $message->id,
                 'content' => $message->content,
@@ -488,14 +371,16 @@ class ChatController extends Controller
 
         return response()->json([
             'data' => $formattedMessages,
-            'has_more' => $hasMore,
-            'current_page' => $currentPage,
-            'next_page_url' => $hasMore ? url()->current() . '?page=' . ($currentPage + 1) : null,
+            'has_more' => $result['has_more'],
+            'current_page' => $result['current_page'],
+            'next_page_url' => $result['has_more']
+                ? url()->current() . '?page=' . ($result['current_page'] + 1)
+                : null,
         ]);
     }
 
     /**
-     * Report inappropriate content
+     * Report message
      */
     public function reportMessage(Request $request, ChatMessage $message)
     {
@@ -506,14 +391,9 @@ class ChatController extends Controller
 
         $user = Auth::user();
 
-        // Check if user can access this message
-        if (! $message->conversation->hasParticipant($user->id)) {
+        if (!$message->conversation->hasParticipant($user->id)) {
             return response()->json(['error' => 'Access denied'], 403);
         }
-
-        // Here you would typically store the report in a reports table
-        // For now, we'll just return success
-        // You might want to create a MessageReport model and table
 
         return response()->json([
             'success' => true,
@@ -526,21 +406,18 @@ class ChatController extends Controller
      */
     public function getOnlineUsersCount()
     {
-        // For now, just count all active users
-        // Later you can implement proper online tracking
         $count = User::where('status', 'active')->count();
-
         return response()->json(['online_count' => $count]);
     }
 
     /**
-     * Mark conversation as read
+     * Mark as read
      */
     public function markAsRead(ChatConversation $conversation)
     {
         $user = Auth::user();
 
-        if (! $conversation->hasParticipant($user->id)) {
+        if (!$conversation->hasParticipant($user->id)) {
             return response()->json(['error' => 'Access denied'], 403);
         }
 
@@ -550,169 +427,81 @@ class ChatController extends Controller
     }
 
     /**
-     * Create group conversation
+     * Create group
      */
     public function createGroup(Request $request)
     {
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string|max:1000',
-            'user_ids' => 'required|array|min:2|max:50',
+            'user_ids' => 'nullable|array|max:50',
             'user_ids.*' => 'exists:users,id',
             'avatar' => 'nullable|image|max:2048',
         ]);
 
-        $user = Auth::user();
-        $userIds = $request->user_ids;
+        $avatar = $request->hasFile('avatar') ? $request->file('avatar') : null;
 
-        // Add current user to the list if not included
-        if (! in_array($user->id, $userIds)) {
-            $userIds[] = $user->id;
+        $result = $this->chatService->createGroup(
+            Auth::user(),
+            $request->only(['name', 'description', 'user_ids']),
+            $avatar
+        );
+
+        if (!$result['success']) {
+            return response()->json(['success' => false, 'message' => $result['message']], 422);
         }
 
-        DB::beginTransaction();
-        try {
-            $conversationData = [
-                'type' => 'group',
-                'name' => $request->name,
-                'description' => $request->description,
-                'created_by' => $user->id,
-                'is_active' => true,
-            ];
-
-            // Handle avatar upload
-            if ($request->hasFile('avatar')) {
-                $avatar = $request->file('avatar');
-                $path = $avatar->store('chat/avatars', 'public');
-                $conversationData['avatar'] = $path;
-            }
-
-            $conversation = ChatConversation::create($conversationData);
-
-            // Add participants
-            foreach ($userIds as $userId) {
-                $conversation->participants()->create([
-                    'user_id' => $userId,
-                    'role' => $userId == $user->id ? 'admin' : 'member',
-                    'joined_at' => now(),
-                ]);
-            }
-
-            // Send system message
-            $conversation->messages()->create([
-                'type' => 'system',
-                'content' => $user->name . ' đã tạo nhóm chat "' . $request->name . '"',
-                'sender_id' => $user->id,
-            ]);
-
-            DB::commit();
-
-            return response()->json([
-                'success' => true,
-                'conversation_id' => $conversation->id,
-                'redirect_url' => route('chat.show', $conversation),
-            ]);
-        } catch (\Exception $e) {
-            DB::rollback();
-
-            return response()->json(['error' => 'Không thể tạo nhóm chat'], 500);
-        }
+        return response()->json([
+            'success' => true,
+            'conversation_id' => $result['conversation']->id,
+            'redirect_url' => route('chat.show', $result['conversation']),
+        ]);
     }
 
     /**
-     * Delete conversation (only for group admin or private chat participants)
+     * Delete conversation
      */
     public function deleteConversation(ChatConversation $conversation)
     {
-        $user = Auth::user();
+        $result = $this->chatService->deleteConversation($conversation, Auth::user());
 
-        // Check permissions
-        if ($conversation->type === 'group') {
-            // Only group admin can delete group chat
-            $participant = $conversation->participants()
-                ->where('user_id', $user->id)
-                ->first();
-
-            if (! $participant || $participant->role !== 'admin') {
-                return response()->json(['error' => 'Chỉ admin nhóm mới có thể xóa cuộc trò chuyện'], 403);
-            }
-        } else {
-            // For private chat, only participants can delete
-            if (! $conversation->hasParticipant($user->id)) {
-                return response()->json(['error' => 'Bạn không có quyền xóa cuộc trò chuyện này'], 403);
-            }
+        if (!$result['success']) {
+            return response()->json(['error' => $result['message']], 403);
         }
 
-        DB::beginTransaction();
-        try {
-            // Soft delete all messages
-            $conversation->messages()->update(['deleted_at' => now()]);
-
-            // Remove all participants
-            $conversation->participants()->delete();
-
-            // Soft delete conversation
-            $conversation->update(['is_active' => false]);
-            $conversation->delete();
-
-            DB::commit();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Cuộc trò chuyện đã được xóa',
-                'redirect_url' => route('chat.index'),
-            ]);
-        } catch (\Exception $e) {
-            DB::rollback();
-
-            return response()->json(['error' => 'Không thể xóa cuộc trò chuyện'], 500);
-        }
+        return response()->json([
+            'success' => true,
+            'message' => $result['message'],
+            'redirect_url' => route('chat.index'),
+        ]);
     }
 
     /**
-     * Clear chat history (delete all messages)
+     * Clear history
      */
     public function clearHistory(ChatConversation $conversation)
     {
         $user = Auth::user();
 
-        if (! $conversation->hasParticipant($user->id)) {
+        if (!$conversation->hasParticipant($user->id)) {
             return response()->json(['error' => 'Bạn không có quyền xóa lịch sử chat'], 403);
         }
 
-        DB::beginTransaction();
-        try {
-            // Mark all messages as deleted
-            $conversation->messages()->update([
-                'deleted_at' => now(),
-            ]);
+        $result = $this->chatService->clearHistory($conversation);
 
-            // Do not append a system message when clearing history (silent clear per requirements)
-
-            DB::commit();
-
-            return response()->json([
-                'success' => true,
-            ]);
-        } catch (\Exception $e) {
-            DB::rollback();
-
-            return response()->json(['error' => 'Không thể xóa lịch sử chat'], 500);
+        if (!$result['success']) {
+            return response()->json(['error' => $result['message']], 500);
         }
+
+        return response()->json(['success' => true]);
     }
 
     /**
-     * Update user heartbeat (online status)
+     * Heartbeat
      */
     public function heartbeat(Request $request)
     {
-        $user = Auth::user();
-
-        // Update user's last activity timestamp
-        $user->update(['last_activity_at' => now()]);
-
-        // Store conversation_id if provided for more specific tracking
-        $conversationId = $request->get('conversation_id');
+        Auth::user()->update(['last_activity_at' => now()]);
 
         return response()->json([
             'success' => true,
@@ -721,32 +510,31 @@ class ChatController extends Controller
     }
 
     /**
-     * Get participants online status for a conversation
+     * Get participants status
      */
     public function getParticipantsStatus(ChatConversation $conversation)
     {
         $user = Auth::user();
 
-        if (! $conversation->hasParticipant($user->id)) {
+        if (!$conversation->hasParticipant($user->id)) {
             return response()->json(['error' => 'Access denied'], 403);
         }
 
-        // Get all participants except current user
         $participants = $conversation->participants()
             ->with('user')
             ->where('user_id', '!=', $user->id)
             ->get()
             ->map(function ($participant) {
-                $user = $participant->user;
-                $isOnline = $user->last_activity_at &&
-                    $user->last_activity_at->diffInMinutes(now()) <= 5; // Online if active within 5 minutes
+                $u = $participant->user;
+                $isOnline = $u->last_activity_at &&
+                    $u->last_activity_at->diffInMinutes(now()) <= 5;
 
                 return [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'avatar' => $user->getDisplayAvatar(),
+                    'id' => $u->id,
+                    'name' => $u->name,
+                    'avatar' => $u->getDisplayAvatar(),
                     'is_online' => $isOnline,
-                    'last_activity' => $user->last_activity_at ? $user->last_activity_at->toISOString() : null,
+                    'last_activity' => $u->last_activity_at?->toISOString(),
                     'role' => $participant->role,
                 ];
             });
@@ -755,6 +543,150 @@ class ChatController extends Controller
             'participants' => $participants,
             'total_count' => $participants->count(),
             'online_count' => $participants->where('is_online', true)->count(),
+        ]);
+    }
+
+    /**
+     * Get conversations for widget (API)
+     */
+    public function getConversations()
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+        }
+
+        $conversations = $this->chatService->getUserConversations($user);
+        
+        $totalUnread = 0;
+        $formattedConversations = $conversations->map(function ($conv) use ($user, &$totalUnread) {
+            $otherParticipant = $conv->participants
+                ->where('user_id', '!=', $user->id)
+                ->first();
+            
+            $otherUser = $otherParticipant?->user;
+            $unreadCount = $conv->getUnreadCount($user->id);
+            $totalUnread += $unreadCount;
+            
+            $isOnline = $otherUser && $otherUser->last_activity_at &&
+                $otherUser->last_activity_at->diffInMinutes(now()) <= 5;
+
+            return [
+                'id' => $conv->slug,
+                'name' => $conv->type === 'private' 
+                    ? ($otherUser?->display_name ?? $otherUser?->name ?? 'Unknown')
+                    : $conv->name,
+                'avatar' => $conv->getDisplayAvatar($user->id),
+                'last_message' => $conv->last_message_preview ?? null,
+                'time' => $conv->last_message_at?->diffForHumans(null, true) ?? '',
+                'unread' => $unreadCount > 0,
+                'online' => $isOnline,
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'conversations' => $formattedConversations,
+            'unread_count' => $totalUnread,
+        ]);
+    }
+
+    /**
+     * Get unread count for widget
+     */
+    public function getUnreadCount()
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return response()->json(['count' => 0]);
+        }
+
+        $count = ChatConversation::whereHas('participants', function ($q) use ($user) {
+            $q->where('user_id', $user->id);
+        })->get()->sum(function ($conv) use ($user) {
+            return $conv->getUnreadCount($user->id);
+        });
+
+        return response()->json(['count' => $count]);
+    }
+
+    /**
+     * Get messages for widget (simplified)
+     */
+    public function getMessagesForWidget(Request $request, ChatConversation $conversation)
+    {
+        $user = Auth::user();
+
+        if (!$conversation->hasParticipant($user->id)) {
+            return response()->json(['success' => false, 'error' => 'Access denied'], 403);
+        }
+
+        $limit = $request->get('limit', 20);
+
+        // Query messages directly without relationship ordering conflict
+        $messages = ChatMessage::where('conversation_id', $conversation->id)
+            ->whereNull('deleted_at')
+            ->with('sender')
+            ->orderBy('created_at', 'desc')
+            ->limit($limit)
+            ->get()
+            ->reverse()
+            ->values();
+
+        $formattedMessages = $messages->map(function ($msg) use ($user) {
+            return [
+                'id' => $msg->id,
+                'content' => $msg->content,
+                'is_mine' => $msg->sender_id === $user->id,
+                'time' => $msg->created_at->format('H:i'),
+            ];
+        });
+
+        // Mark as read
+        $conversation->markAsReadForUser($user->id);
+
+        return response()->json([
+            'success' => true,
+            'messages' => $formattedMessages,
+        ]);
+    }
+
+    /**
+     * Send message from widget (simplified)
+     */
+    public function sendFromWidget(Request $request, ChatConversation $conversation)
+    {
+        $request->validate([
+            'message' => 'required|string|max:5000',
+        ]);
+
+        $user = Auth::user();
+
+        if (!$conversation->hasParticipant($user->id)) {
+            return response()->json(['success' => false, 'error' => 'Access denied'], 403);
+        }
+
+        $result = $this->chatService->sendMessage(
+            $conversation,
+            $user,
+            ['content' => $request->message, 'type' => 'text'],
+            null
+        );
+
+        if (!$result['success']) {
+            return response()->json(['success' => false, 'error' => $result['message']], 403);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => [
+                'id' => $result['message']->id,
+                'content' => $result['message']->content,
+                'is_mine' => true,
+                'time' => $result['message']->created_at->format('H:i'),
+            ],
         ]);
     }
 }

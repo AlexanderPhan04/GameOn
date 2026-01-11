@@ -35,9 +35,9 @@
 
                         <div class="mb-3">
                             <label for="logo" class="form-label">Logo đội</label>
-                            @if($team->logo_url)
+                            @if($team->logo)
                             <div class="mb-2">
-                                <img src="{{ asset('uploads/' . $team->logo_url) }}" class="img-thumbnail" style="width: 100px; height: 100px; object-fit: cover;">
+                                <img src="{{ $team->logo }}" class="img-thumbnail" style="width: 100px; height: 100px; object-fit: cover;">
                                 <p class="small text-muted mt-1">Logo hiện tại</p>
                             </div>
                             @endif
@@ -46,7 +46,7 @@
                             @error('logo')
                             <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
-                            <div class="form-text">Chấp nhận file JPG, PNG, GIF. Tối đa 2MB. Để trống nếu không muốn thay đổi.</div>
+                            <div class="form-text">Chấp nhận file JPG, PNG, GIF. Tối đa 5MB. Để trống nếu không muốn thay đổi.</div>
                         </div>
                         <div class="d-flex justify-content-between">
                             <a href="{{ route('teams.show', $team->id) }}" class="btn btn-secondary">

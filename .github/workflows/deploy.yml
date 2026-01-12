@@ -28,8 +28,8 @@ jobs:
 
       - name: Configure .env for testing
         run: |
-          echo "DB_CONNECTION=sqlite" >> .env
-          echo "DB_DATABASE=:memory:" >> .env
+          sed -i 's/DB_CONNECTION=.*/DB_CONNECTION=sqlite/' .env
+          sed -i 's/DB_DATABASE=.*/DB_DATABASE=:memory:/' .env
 
       - name: Generate APP_KEY
         run: php artisan key:generate

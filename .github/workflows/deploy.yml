@@ -35,10 +35,10 @@ jobs:
         run: php artisan key:generate
 
       - name: Run migrations
-        run: php artisan migrate --force --verbose
+        run: php artisan migrate --force
 
       - name: Run PHPUnit tests
-        run: vendor/bin/phpunit --verbose
+        run: vendor/bin/phpunit
 
   deploy:
     if: github.ref == 'refs/heads/main'

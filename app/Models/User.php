@@ -300,6 +300,10 @@ class User extends Authenticatable implements MustVerifyEmail
             }
 
             // Local uploaded/downloaded file path
+            // Check if file exists in uploads folder (legacy) or storage
+            if (file_exists(public_path('uploads/' . $avatar))) {
+                return asset('uploads/' . $avatar);
+            }
             return asset('storage/' . $avatar);
         }
 

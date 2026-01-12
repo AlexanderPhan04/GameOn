@@ -11,11 +11,15 @@ class PayosService
 
     public function __construct()
     {
-        $this->payOS = new PayOS(
-            env('PAYOS_CLIENT_ID'),
-            env('PAYOS_API_KEY'),
-            env('PAYOS_CHECKSUM_KEY')
-        );
+        $clientId = config('services.payos.client_id') ?: env('PAYOS_CLIENT_ID');
+        $apiKey = config('services.payos.api_key') ?: env('PAYOS_API_KEY');
+        $checksumKey = config('services.payos.checksum_key') ?: env('PAYOS_CHECKSUM_KEY');
+
+        if (empty($clientId) || empty($apiKey) || empty($checksumKey)) {
+            throw new \Exception('PayOS configuration is missing. Please check PAYOS_CLIENT_ID, PAYOS_API_KEY, PAYOS_CHECKSUM_KEY in .env');
+        }
+
+        $this->payOS = new PayOS($clientId, $apiKey, $checksumKey);
     }
 
     /**

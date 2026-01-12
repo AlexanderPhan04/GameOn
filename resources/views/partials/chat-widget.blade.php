@@ -1,5 +1,7 @@
 {{-- Chat Widget - Facebook Messenger Style --}}
+{{-- Ẩn widget khi đang ở trang chat conversation để không che nút gửi --}}
 @auth
+@if(!request()->is('chat/conversation/*'))
 <div id="chat-widget" class="chat-widget">
     {{-- Chat Toggle Button --}}
     <button id="chat-toggle" class="chat-toggle-btn" title="Tin nhắn">
@@ -882,4 +884,5 @@ document.addEventListener('DOMContentLoaded', function() {
     .catch(() => {});
 });
 </script>
+@endif
 @endauth

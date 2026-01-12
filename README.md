@@ -158,6 +158,7 @@
     -   Session-based locale management
 
 -   **Dashboard Analytics**
+
     -   User statistics and growth
     -   Team performance metrics
     -   Tournament analytics
@@ -312,7 +313,90 @@ PAYOS_CHECKSUM_KEY=your_checksum_key
 
 For more information, see [PayOS Documentation](https://payos.vn/docs/).
 
-### 7. Configure Real-time Chat (Laravel Reverb)
+### 7. Configure PDF Invoice (DomPDF)
+
+For PDF invoice generation in marketplace orders:
+
+1. Install DomPDF package:
+
+```bash
+composer require barryvdh/laravel-dompdf
+```
+
+2. Publish the configuration (optional):
+
+```bash
+php artisan vendor:publish --provider="Barryvdh\DomPDF\ServiceProvider"
+```
+
+3. Configuration options in `config/dompdf.php`:
+
+```php
+'default_font' => 'dejavu sans',
+'enable_remote' => true,  // Enable loading remote images
+```
+
+The PDF invoice feature is available at `/marketplace/order/{id}/invoice`.
+
+### 8. Configure Redis (Recommended)
+
+Redis improves performance for caching and queue processing:
+
+**Windows:**
+
+1. Install Redis: https://github.com/tporadowski/redis/releases
+2. Install PHP Redis extension from https://pecl.php.net/package/redis
+3. Add `extension=redis` to `php.ini`
+
+**Linux:**
+
+```bash
+apt install redis-server php-redis -y
+systemctl start redis-server
+```
+
+**Configure `.env`:**
+
+```env
+REDIS_HOST=127.0.0.1
+REDIS_PASSWORD=null
+REDIS_PORT=6379
+
+QUEUE_CONNECTION=redis
+CACHE_STORE=redis
+```
+
+**Verify:**
+
+```bash
+redis-cli ping
+# Should return: PONG
+```
+
+### 9. Configure Laravel Pulse (Monitoring)
+
+Laravel Pulse provides real-time application monitoring:
+
+1. Install Pulse:
+
+```bash
+composer require laravel/pulse
+php artisan vendor:publish --provider="Laravel\Pulse\PulseServiceProvider"
+php artisan migrate
+```
+
+2. Access dashboard at `/pulse` (Super Admin only)
+
+3. Dashboard features:
+    - Application usage (top users, requests)
+    - Queue monitoring (jobs, failures)
+    - Cache hit/miss rates
+    - Slow queries detection
+    - Slow requests tracking
+    - Exception logging
+    - Server health (CPU, RAM, Disk)
+
+### 10. Configure Real-time Chat (Laravel Reverb)
 
 For real-time chat functionality with WebSocket:
 

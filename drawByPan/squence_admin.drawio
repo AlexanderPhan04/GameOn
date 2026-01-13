@@ -365,7 +365,7 @@
     </mxGraphModel>
   </diagram>
   <diagram id="FOkhtVQ8GEtLiGdcLGq7" name="tournament manage">
-    <mxGraphModel dx="1864" dy="1271" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="1606" dy="1118" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -515,6 +515,9 @@
         </mxCell>
         <mxCell id="_GyRoP3hcd5NBAOzt9dE-31" value="(found)" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
           <mxGeometry x="2" y="300" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="PG4GX_UZw1vxYom1I94B-1" value="admin/superadmin" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="-270" y="-30" width="120" height="30" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>

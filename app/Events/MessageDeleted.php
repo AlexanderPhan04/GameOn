@@ -14,12 +14,12 @@ class MessageDeleted implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public int $conversationId;
+    public string $conversationSlug;
     public int $messageId;
 
-    public function __construct(int $conversationId, int $messageId)
+    public function __construct(string $conversationSlug, int $messageId)
     {
-        $this->conversationId = $conversationId;
+        $this->conversationSlug = $conversationSlug;
         $this->messageId = $messageId;
     }
 
@@ -29,7 +29,7 @@ class MessageDeleted implements ShouldBroadcastNow
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('conversation.' . $this->conversationId),
+            new PrivateChannel('conversation.' . $this->conversationSlug),
         ];
     }
 

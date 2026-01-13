@@ -1,5 +1,4 @@
 <?php
-use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Admin\HonorManagementController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\AuthController;
@@ -347,12 +346,4 @@ Route::prefix('marketplace')->name('marketplace.')->group(function () {
     Route::get('/orders', [MarketplaceController::class, 'orderHistory'])->name('orders')->middleware('auth.session');
     Route::get('/orders/{orderCode}', [MarketplaceController::class, 'orderDetail'])->name('orderDetail')->middleware('auth.session');
     Route::get('/orders/{orderCode}/invoice', [MarketplaceController::class, 'downloadInvoice'])->name('invoice')->middleware('auth.session');
-
-    
-
-// Link để người dùng nhấn vào và chuyển sang Google
-Route::get('auth/google', [GoogleController::class, 'redirectToGoogle'])->name('google.login');
-
-// Link mà Google sẽ gửi thông tin về (Callback)
-Route::get('auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
 });

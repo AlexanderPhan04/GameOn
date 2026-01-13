@@ -7,6 +7,12 @@
     .posts-page {
         background: linear-gradient(180deg, #000814 0%, #0d1b2a 100%);
         min-height: 100vh;
+        padding-left: 280px; /* Space for left sidebar */
+    }
+    @media (max-width: 1200px) {
+        .posts-page {
+            padding-left: 0;
+        }
     }
     .feed-container {
         max-width: 680px;
@@ -934,6 +940,9 @@
 @endpush
 
 @section('content')
+<!-- Left Sidebar -->
+@include('posts.partials.left-sidebar')
+
 <div class="posts-page">
     <div class="feed-container">
         <h1 class="page-title">{{ __('app.nav.posts') }}</h1>

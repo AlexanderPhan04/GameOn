@@ -15,14 +15,14 @@ class UserTyping implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public int $conversationId;
+    public string $conversationSlug;
     public int $userId;
     public string $userName;
     public bool $isTyping;
 
-    public function __construct(int $conversationId, User $user, bool $isTyping = true)
+    public function __construct(string $conversationSlug, User $user, bool $isTyping = true)
     {
-        $this->conversationId = $conversationId;
+        $this->conversationSlug = $conversationSlug;
         $this->userId = $user->id;
         $this->userName = $user->name;
         $this->isTyping = $isTyping;
@@ -34,7 +34,7 @@ class UserTyping implements ShouldBroadcastNow
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('conversation.' . $this->conversationId),
+            new PrivateChannel('conversation.' . $this->conversationSlug),
         ];
     }
 

@@ -19,7 +19,7 @@ class MessageSent implements ShouldBroadcastNow
 
     public function __construct(ChatMessage $message)
     {
-        $this->message = $message->load('sender');
+        $this->message = $message->load(['sender', 'conversation']);
     }
 
     /**
@@ -28,7 +28,7 @@ class MessageSent implements ShouldBroadcastNow
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('conversation.' . $this->message->conversation_id),
+            new PrivateChannel('conversation.' . $this->message->conversation->slug),
         ];
     }
 

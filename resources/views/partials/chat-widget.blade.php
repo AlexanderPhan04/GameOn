@@ -1,5 +1,7 @@
 {{-- Chat Widget - Facebook Messenger Style --}}
+{{-- Ẩn widget khi đang ở trang chat conversation để không che nút gửi --}}
 @auth
+@if(!request()->is('chat/conversation/*'))
 <div id="chat-widget" class="chat-widget">
     {{-- Chat Toggle Button --}}
     <button id="chat-toggle" class="chat-toggle-btn" title="Tin nhắn">
@@ -534,8 +536,37 @@
         max-height: 70vh;
     }
     
+    /* Mini chat window fullscreen on mobile */
     .chat-windows {
-        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 9998;
+        pointer-events: none;
+    }
+    
+    .chat-mini-window {
+        pointer-events: auto;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        border-radius: 0 !important;
+        margin: 0 !important;
+    }
+    
+    .chat-mini-messages {
+        height: calc(100vh - 130px) !important;
+    }
+    
+    .chat-mini-input-wrapper {
+        padding: 0.75rem 1rem !important;
+        padding-bottom: calc(0.75rem + env(safe-area-inset-bottom)) !important;
     }
 }
 </style>
@@ -882,4 +913,5 @@ document.addEventListener('DOMContentLoaded', function() {
     .catch(() => {});
 });
 </script>
+@endif
 @endauth

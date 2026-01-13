@@ -300,7 +300,8 @@ class User extends Authenticatable implements MustVerifyEmail
             }
 
             // Local uploaded/downloaded file path
-            return asset('storage/' . $avatar);
+            // Use Storage facade to get correct URL based on filesystems config
+            return \Illuminate\Support\Facades\Storage::disk('public')->url($avatar);
         }
 
         // No avatar set, return default

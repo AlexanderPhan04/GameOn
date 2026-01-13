@@ -571,6 +571,7 @@
                             <select class="form-select" name="competition_type" required>
                                 <option value="team" {{ old('competition_type', 'team') === 'team' ? 'selected' : '' }}>Đội tuyển</option>
                                 <option value="individual" {{ old('competition_type') === 'individual' ? 'selected' : '' }}>Cá nhân</option>
+                                <option value="mixed" {{ old('competition_type') === 'mixed' ? 'selected' : '' }}>Hỗn hợp</option>
                             </select>
                         </div>
                         
@@ -631,17 +632,13 @@
                         </div>
                         <div class="radio-item">
                             <input type="radio" name="location_type" id="loc_lan" value="lan" {{ old('location_type') === 'lan' ? 'checked' : '' }}>
-                            <label for="loc_lan"><i class="fas fa-network-wired"></i> LAN</label>
-                        </div>
-                        <div class="radio-item">
-                            <input type="radio" name="location_type" id="loc_physical" value="physical" {{ old('location_type') === 'physical' ? 'checked' : '' }}>
-                            <label for="loc_physical"><i class="fas fa-map-marker-alt"></i> Địa điểm cụ thể</label>
+                            <label for="loc_lan"><i class="fas fa-map-marker-alt"></i> Offline (LAN/Venue)</label>
                         </div>
                     </div>
                 </div>
                 
                 <div class="form-group" id="location_address_group" style="display: none;">
-                    <label class="form-label">Địa chỉ cụ thể</label>
+                    <label class="form-label">Địa chỉ cụ thể <span class="required">*</span></label>
                     <textarea class="form-textarea" name="location_address" rows="2" placeholder="Nhập địa chỉ venue, tòa nhà, thành phố...">{{ old('location_address') }}</textarea>
                 </div>
             </div>
@@ -656,7 +653,7 @@
                                 <option value="single_elimination" {{ old('tournament_format', 'single_elimination') === 'single_elimination' ? 'selected' : '' }}>Single Elimination</option>
                                 <option value="double_elimination" {{ old('tournament_format') === 'double_elimination' ? 'selected' : '' }}>Double Elimination</option>
                                 <option value="round_robin" {{ old('tournament_format') === 'round_robin' ? 'selected' : '' }}>Round Robin</option>
-                                <option value="swiss_system" {{ old('tournament_format') === 'swiss_system' ? 'selected' : '' }}>Swiss System</option>
+                                <option value="swiss" {{ old('tournament_format') === 'swiss' ? 'selected' : '' }}>Swiss System</option>
                             </select>
                         </div>
                         
@@ -758,7 +755,7 @@
                             <label class="form-label">Trạng thái <span class="required">*</span></label>
                             <select class="form-select" name="status" required>
                                 <option value="draft" {{ old('status', 'draft') === 'draft' ? 'selected' : '' }}>Chưa mở đăng ký</option>
-                                <option value="registration_open" {{ old('status') === 'registration_open' ? 'selected' : '' }}>Đang đăng ký</option>
+                                <option value="registration" {{ old('status') === 'registration' ? 'selected' : '' }}>Đang đăng ký</option>
                                 <option value="ongoing" {{ old('status') === 'ongoing' ? 'selected' : '' }}>Đang diễn ra</option>
                                 <option value="completed" {{ old('status') === 'completed' ? 'selected' : '' }}>Đã kết thúc</option>
                             </select>
@@ -838,7 +835,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     locationRadios.forEach(radio => {
         radio.addEventListener('change', function() {
-            locationAddressGroup.style.display = (this.value === 'physical' || this.value === 'lan') ? 'block' : 'none';
+            locationAddressGroup.style.display = (this.value === 'lan') ? 'block' : 'none';
         });
     });
     

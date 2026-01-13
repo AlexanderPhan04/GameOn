@@ -32,13 +32,15 @@ class TournamentController extends Controller
             });
         }
 
-        $tournaments = $query->orderBy('start_date', 'desc')
+        // Order by schedule start_date or created_at
+        $tournaments = $query->with('schedule')
+            ->orderBy('created_at', 'desc')
             ->paginate(12);
 
         $stats = [
             'total_tournaments' => Tournament::count(),
-            'active_tournaments' => Tournament::whereIn('status', ['registration_open', 'ongoing'])->count(),
-            'upcoming_tournaments' => Tournament::where('status', 'registration_open')->count(),
+            'active_tournaments' => Tournament::whereIn('status', ['registration', 'ongoing'])->count(),
+            'upcoming_tournaments' => Tournament::where('status', 'registration')->count(),
             'completed_tournaments' => Tournament::where('status', 'completed')->count(),
         ];
 

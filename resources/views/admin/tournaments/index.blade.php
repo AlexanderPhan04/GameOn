@@ -313,7 +313,7 @@
     }
     
     .status-draft { background: rgba(100, 116, 139, 0.9); color: #FFFFFF; }
-    .status-registration_open { background: rgba(34, 197, 94, 0.9); color: #FFFFFF; box-shadow: 0 0 15px rgba(34, 197, 94, 0.5); }
+    .status-registration { background: rgba(34, 197, 94, 0.9); color: #FFFFFF; box-shadow: 0 0 15px rgba(34, 197, 94, 0.5); }
     .status-ongoing { background: rgba(59, 130, 246, 0.9); color: #FFFFFF; box-shadow: 0 0 15px rgba(59, 130, 246, 0.5); }
     .status-completed { background: rgba(139, 92, 246, 0.9); color: #FFFFFF; }
     .status-cancelled { background: rgba(239, 68, 68, 0.9); color: #FFFFFF; }
@@ -731,7 +731,7 @@
                         <select class="filter-select" name="status">
                             <option value="">{{ __('app.tournaments.all_statuses') }}</option>
                             <option value="draft" {{ request('status') === 'draft' ? 'selected' : '' }}>{{ __('app.tournaments.draft') }}</option>
-                            <option value="registration_open" {{ request('status') === 'registration_open' ? 'selected' : '' }}>{{ __('app.tournaments.registration_open') }}</option>
+                            <option value="registration" {{ request('status') === 'registration' ? 'selected' : '' }}>{{ __('app.tournaments.registration') }}</option>
                             <option value="ongoing" {{ request('status') === 'ongoing' ? 'selected' : '' }}>{{ __('app.tournaments.ongoing') }}</option>
                             <option value="completed" {{ request('status') === 'completed' ? 'selected' : '' }}>{{ __('app.tournaments.completed') }}</option>
                             <option value="cancelled" {{ request('status') === 'cancelled' ? 'selected' : '' }}>{{ __('app.tournaments.cancelled') }}</option>

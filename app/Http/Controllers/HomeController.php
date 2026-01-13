@@ -26,9 +26,9 @@ class HomeController extends Controller
                     ? Tournament::where('status', 'active')->count()
                     : 0,
                 'featured_tournaments' => Schema::hasTable('tournaments')
-                    ? Tournament::with(['game', 'creator'])
+                    ? Tournament::with(['game', 'creator', 'schedule'])
                     ->where('status', 'active')
-                    ->orderBy('start_date', 'desc')
+                    ->orderBy('created_at', 'desc')
                     ->take(3)
                     ->get()
                     : collect(),

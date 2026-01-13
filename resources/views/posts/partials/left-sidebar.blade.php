@@ -10,7 +10,7 @@
     border-right: 1px solid rgba(0, 229, 255, 0.1);
     padding: 1rem 0.5rem;
     overflow-y: auto;
-    z-index: 100;
+    z-index: 10;
 }
 
 .sidebar-menu {
@@ -153,6 +153,21 @@
         display: none;
     }
 }
+
+/* Admin/Super Admin: Move sidebar to right */
+@php
+    $isAdmin = auth()->check() && in_array(auth()->user()->user_role, ['admin', 'super_admin']);
+@endphp
+@if($isAdmin)
+    <style>
+        .left-sidebar {
+            left: auto !important;
+            right: 0 !important;
+            border-right: none !important;
+            border-left: 1px solid rgba(0, 229, 255, 0.1) !important;
+        }
+    </style>
+@endif
 </style>
 
 <div class="left-sidebar">

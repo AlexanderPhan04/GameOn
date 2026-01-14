@@ -58,10 +58,20 @@ class ChatController extends Controller
 
         $conversation->markAsReadForUser($user->id);
 
-        $messages = $conversation->messages()
+        // Get participant's cleared_at to filter messages
+        $participant = $conversation->participants()->where('user_id', $user->id)->first();
+        $clearedAt = $participant?->cleared_at;
+
+        $messagesQuery = $conversation->messages()
             ->with('sender')
-            ->orderBy('created_at', 'asc')
-            ->paginate(50);
+            ->orderBy('created_at', 'asc');
+
+        // Only show messages after cleared_at if set
+        if ($clearedAt) {
+            $messagesQuery->where('created_at', '>', $clearedAt);
+        }
+
+        $messages = $messagesQuery->paginate(50);
 
         return view('chat.conversation', compact('conversation', 'messages', 'user'));
     }
@@ -241,6 +251,116 @@ class ChatController extends Controller
     }
 
     /**
+     * Get members of a group conversation
+     */
+    public function getMembers(ChatConversation $conversation)
+    {
+        $user = Auth::user();
+
+        if (!$conversation->hasParticipant($user->id)) {
+            return response()->json(['error' => 'Access denied'], 403);
+        }
+
+        $currentParticipant = $conversation->participants()->where('user_id', $user->id)->first();
+        $isAdmin = $currentParticipant && $currentParticipant->role === 'admin';
+
+        $members = $conversation->participants()
+            ->with('user')
+            ->get()
+            ->map(function ($participant) {
+                return [
+                    'id' => $participant->user->id,
+                    'name' => $participant->user->name,
+                    'avatar' => $participant->user->getDisplayAvatar(),
+                    'role' => $participant->role,
+                    'joined_at' => $participant->joined_at?->format('d/m/Y'),
+                ];
+            });
+
+        return response()->json([
+            'success' => true,
+            'members' => $members,
+            'is_admin' => $isAdmin,
+            'is_group' => $conversation->type === 'group',
+        ]);
+    }
+
+    /**
+     * Add member to group (admin only)
+     */
+    public function addMember(Request $request, ChatConversation $conversation)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+        ]);
+
+        $user = Auth::user();
+
+        if ($conversation->type !== 'group') {
+            return response()->json(['error' => 'Chỉ có thể thêm thành viên vào nhóm chat'], 400);
+        }
+
+        $currentParticipant = $conversation->participants()->where('user_id', $user->id)->first();
+        
+        if (!$currentParticipant || $currentParticipant->role !== 'admin') {
+            return response()->json(['error' => 'Chỉ admin mới có thể thêm thành viên'], 403);
+        }
+
+        if ($conversation->hasParticipant($request->user_id)) {
+            return response()->json(['error' => 'Người dùng đã là thành viên của nhóm'], 400);
+        }
+
+        $newMember = User::find($request->user_id);
+        $conversation->addParticipant($request->user_id, 'member');
+
+        return response()->json([
+            'success' => true,
+            'message' => "Đã thêm {$newMember->name} vào nhóm",
+            'member' => [
+                'id' => $newMember->id,
+                'name' => $newMember->name,
+                'avatar' => $newMember->getDisplayAvatar(),
+                'role' => 'member',
+            ],
+        ]);
+    }
+
+    /**
+     * Kick member from group (admin only)
+     */
+    public function kickMember(ChatConversation $conversation, User $user)
+    {
+        $currentUser = Auth::user();
+
+        if ($conversation->type !== 'group') {
+            return response()->json(['error' => 'Chỉ có thể kick thành viên khỏi nhóm chat'], 400);
+        }
+
+        $currentParticipant = $conversation->participants()->where('user_id', $currentUser->id)->first();
+        
+        if (!$currentParticipant || $currentParticipant->role !== 'admin') {
+            return response()->json(['error' => 'Chỉ admin mới có thể kick thành viên'], 403);
+        }
+
+        if ($user->id === $currentUser->id) {
+            return response()->json(['error' => 'Bạn không thể tự kick chính mình'], 400);
+        }
+
+        $targetParticipant = $conversation->participants()->where('user_id', $user->id)->first();
+        
+        if (!$targetParticipant) {
+            return response()->json(['error' => 'Người dùng không phải là thành viên của nhóm'], 404);
+        }
+
+        $targetParticipant->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => "Đã kick {$user->name} khỏi nhóm",
+        ]);
+    }
+
+    /**
      * Toggle block
      */
     public function toggleBlock(Request $request, ChatConversation $conversation)
@@ -343,11 +463,16 @@ class ChatController extends Controller
             return response()->json(['error' => 'Access denied'], 403);
         }
 
+        // Get participant's cleared_at to filter messages
+        $participant = $conversation->participants()->where('user_id', $user->id)->first();
+        $clearedAt = $participant?->cleared_at;
+
         $result = $this->chatService->getMessages(
             $conversation,
             $request->get('after_id'),
             $request->get('page', 1),
-            $request->get('per_page', 30)
+            $request->get('per_page', 30),
+            $clearedAt
         );
 
         $formattedMessages = $result['messages']->map(function ($message) {
@@ -487,7 +612,7 @@ class ChatController extends Controller
             return response()->json(['error' => 'Bạn không có quyền xóa lịch sử chat'], 403);
         }
 
-        $result = $this->chatService->clearHistory($conversation);
+        $result = $this->chatService->clearHistory($conversation, $user);
 
         if (!$result['success']) {
             return response()->json(['error' => $result['message']], 500);
@@ -625,11 +750,21 @@ class ChatController extends Controller
 
         $limit = $request->get('limit', 20);
 
+        // Get participant's cleared_at to filter messages
+        $participant = $conversation->participants()->where('user_id', $user->id)->first();
+        $clearedAt = $participant?->cleared_at;
+
         // Query messages directly without relationship ordering conflict
-        $messages = ChatMessage::where('conversation_id', $conversation->id)
+        $query = ChatMessage::where('conversation_id', $conversation->id)
             ->whereNull('deleted_at')
-            ->with('sender')
-            ->orderBy('created_at', 'desc')
+            ->with('sender');
+
+        // Only show messages after cleared_at if set
+        if ($clearedAt) {
+            $query->where('created_at', '>', $clearedAt);
+        }
+
+        $messages = $query->orderBy('created_at', 'desc')
             ->limit($limit)
             ->get()
             ->reverse()

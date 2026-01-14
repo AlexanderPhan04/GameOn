@@ -298,21 +298,23 @@ class ChatService
     }
 
     /**
-     * Clear conversation history
+     * Clear conversation history for a specific user
+     * Only clears for the requesting user, not for everyone
      *
      * @param ChatConversation $conversation
+     * @param User $user
      * @return array
      */
-    public function clearHistory(ChatConversation $conversation): array
+    public function clearHistory(ChatConversation $conversation, User $user): array
     {
-        DB::beginTransaction();
         try {
-            $conversation->messages()->update(['deleted_at' => now()]);
-            DB::commit();
+            // Update cleared_at for this user's participant record
+            $conversation->participants()
+                ->where('user_id', $user->id)
+                ->update(['cleared_at' => now()]);
 
             return ['success' => true];
         } catch (\Exception $e) {
-            DB::rollback();
             Log::error('Failed to clear history: ' . $e->getMessage());
 
             return [
@@ -396,17 +398,24 @@ class ChatService
      * @param int|null $afterId
      * @param int $page
      * @param int $perPage
+     * @param \Carbon\Carbon|null $clearedAt
      * @return array
      */
     public function getMessages(
         ChatConversation $conversation,
         ?int $afterId = null,
         int $page = 1,
-        int $perPage = 30
+        int $perPage = 30,
+        $clearedAt = null
     ): array {
         $query = $conversation->messages()
             ->with('sender')
             ->whereNull('deleted_at');
+
+        // Filter messages after cleared_at if set
+        if ($clearedAt) {
+            $query->where('created_at', '>', $clearedAt);
+        }
 
         if ($afterId) {
             $query->where('id', '>', $afterId);

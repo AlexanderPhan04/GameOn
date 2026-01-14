@@ -143,6 +143,7 @@ $hashtags = is_string($tournament->hashtags) ? json_decode($tournament->hashtags
                                             <select class="form-select" id="competition_type" name="competition_type" required>
                                                 <option value="team" {{ old('competition_type', $tournament->competition_type) === 'team' ? 'selected' : '' }}>Đội tuyển</option>
                                                 <option value="individual" {{ old('competition_type', $tournament->competition_type) === 'individual' ? 'selected' : '' }}>Cá nhân</option>
+                                                <option value="mixed" {{ old('competition_type', $tournament->competition_type) === 'mixed' ? 'selected' : '' }}>Hỗn hợp</option>
                                             </select>
                                         </div>
 
@@ -231,7 +232,7 @@ $hashtags = is_string($tournament->hashtags) ? json_decode($tournament->hashtags
                                         Loại địa điểm <span class="text-danger">*</span>
                                     </label>
                                     <div class="row">
-                                        <div class="col-md-4">
+                                        <div class="col-md-6">
                                             <div class="form-check">
                                                 <input class="form-check-input" type="radio" name="location_type"
                                                     id="location_online" value="online" {{ old('location_type', $tournament->location_type) === 'online' ? 'checked' : '' }}>
@@ -240,21 +241,12 @@ $hashtags = is_string($tournament->hashtags) ? json_decode($tournament->hashtags
                                                 </label>
                                             </div>
                                         </div>
-                                        <div class="col-md-4">
+                                        <div class="col-md-6">
                                             <div class="form-check">
                                                 <input class="form-check-input" type="radio" name="location_type"
                                                     id="location_lan" value="lan" {{ old('location_type', $tournament->location_type) === 'lan' ? 'checked' : '' }}>
                                                 <label class="form-check-label" for="location_lan">
-                                                    <i class="fas fa-network-wired me-1"></i>LAN
-                                                </label>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="location_type"
-                                                    id="location_physical" value="physical" {{ old('location_type', $tournament->location_type) === 'physical' ? 'checked' : '' }}>
-                                                <label class="form-check-label" for="location_physical">
-                                                    <i class="fas fa-map-marker-alt me-1"></i>Địa điểm cụ thể
+                                                    <i class="fas fa-map-marker-alt me-1"></i>Offline (LAN/Venue)
                                                 </label>
                                             </div>
                                         </div>
@@ -262,11 +254,11 @@ $hashtags = is_string($tournament->hashtags) ? json_decode($tournament->hashtags
                                 </div>
 
                                 @php
-                                $showAddress = in_array(old('location_type', $tournament->location_type), ['physical', 'lan']);
+                                $showAddress = old('location_type', $tournament->location_type) === 'lan';
                                 @endphp
                                 <div class="mb-3 {{ $showAddress ? '' : 'd-none' }}" id="location_address_group">
-                                    <label for="location_address" class="form-label">Địa chỉ cụ thể</label>
-                                    <textarea class="form-control" id="location_address" name="location_address" rows="2">{{ old('location_address', $tournament->location_address) }}</textarea>
+                                    <label for="location_address" class="form-label">Địa chỉ cụ thể <span class="text-danger">*</span></label>
+                                    <textarea class="form-control" id="location_address" name="location_address" rows="2" placeholder="Nhập địa chỉ venue, tòa nhà, thành phố...">{{ old('location_address', $tournament->location_address) }}</textarea>
                                 </div>
                             </div>
 
@@ -282,7 +274,7 @@ $hashtags = is_string($tournament->hashtags) ? json_decode($tournament->hashtags
                                                 <option value="single_elimination" {{ old('tournament_format', $tournament->tournament_format) === 'single_elimination' ? 'selected' : '' }}>Single Elimination</option>
                                                 <option value="double_elimination" {{ old('tournament_format', $tournament->tournament_format) === 'double_elimination' ? 'selected' : '' }}>Double Elimination</option>
                                                 <option value="round_robin" {{ old('tournament_format', $tournament->tournament_format) === 'round_robin' ? 'selected' : '' }}>Round Robin</option>
-                                                <option value="swiss_system" {{ old('tournament_format', $tournament->tournament_format) === 'swiss_system' ? 'selected' : '' }}>Swiss System</option>
+                                                <option value="swiss" {{ old('tournament_format', $tournament->tournament_format) === 'swiss' ? 'selected' : '' }}>Swiss System</option>
                                             </select>
                                         </div>
 
@@ -441,7 +433,7 @@ $hashtags = is_string($tournament->hashtags) ? json_decode($tournament->hashtags
                                             </label>
                                             <select class="form-select" id="status" name="status" required>
                                                 <option value="draft" {{ old('status', $tournament->status) === 'draft' ? 'selected' : '' }}>Chưa mở đăng ký</option>
-                                                <option value="registration_open" {{ old('status', $tournament->status) === 'registration_open' ? 'selected' : '' }}>Đang đăng ký</option>
+                                                <option value="registration" {{ old('status', $tournament->status) === 'registration' ? 'selected' : '' }}>Đang đăng ký</option>
                                                 <option value="ongoing" {{ old('status', $tournament->status) === 'ongoing' ? 'selected' : '' }}>Đang diễn ra</option>
                                                 <option value="completed" {{ old('status', $tournament->status) === 'completed' ? 'selected' : '' }}>Đã kết thúc</option>
                                                 <option value="cancelled" {{ old('status', $tournament->status) === 'cancelled' ? 'selected' : '' }}>Đã hủy</option>
@@ -545,7 +537,7 @@ $hashtags = is_string($tournament->hashtags) ? json_decode($tournament->hashtags
 
         locationRadios.forEach(radio => {
             radio.addEventListener('change', function() {
-                if (this.value === 'physical' || this.value === 'lan') {
+                if (this.value === 'lan') {
                     locationAddressGroup.style.display = 'block';
                 } else {
                     locationAddressGroup.style.display = 'none';

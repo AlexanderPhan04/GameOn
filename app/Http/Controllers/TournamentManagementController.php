@@ -73,20 +73,20 @@ class TournamentManagementController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'game_id' => 'required|exists:games,id',
-            'competition_type' => 'required|in:individual,team',
+            'competition_type' => 'required|in:individual,team,mixed',
             'format' => 'nullable|string|max:50',
             'description' => 'nullable|string|max:2000',
             'start_date' => 'required|date|after_or_equal:today',
             'end_date' => 'required|date|after_or_equal:start_date',
-            'location_type' => 'required|in:online,lan,physical',
+            'location_type' => 'required|in:online,lan',
             'location_address' => 'nullable|string|max:500',
             'scheduled_time' => 'nullable|date_format:H:i',
-            'tournament_format' => 'required|in:single_elimination,double_elimination,round_robin,swiss_system',
+            'tournament_format' => 'required|in:single_elimination,double_elimination,round_robin,swiss',
             'max_participants' => 'required|integer|min:2|max:1024',
             'substitute_players' => 'nullable|integer|min:0|max:10',
             'organizer_name' => 'nullable|string|max:255',
             'organizer_contact' => 'nullable|string|max:255',
-            'status' => 'required|in:draft,registration_open,ongoing,completed,cancelled',
+            'status' => 'required|in:draft,registration,ongoing,completed,cancelled',
             'participation_type' => 'required|in:public,invite_only',
             'stream_link' => 'nullable|url|max:500',
             'logo' => 'nullable|file|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
@@ -161,13 +161,40 @@ class TournamentManagementController extends Controller
         // Set created_by
         $data['created_by'] = Auth::id();
         
-        // Map tournament_format to format
-        if (isset($data['tournament_format'])) {
-            $data['format'] = $data['tournament_format'];
-            unset($data['tournament_format']);
-        }
+        // Separate data for different tables
+        $tournamentData = [
+            'name' => $data['name'],
+            'description' => $data['description'] ?? null,
+            'game_id' => $data['game_id'],
+            'created_by' => $data['created_by'],
+            'status' => $data['status'],
+            'image_url' => $data['logo'] ?? null,
+            'stream_link' => $data['stream_link'] ?? null,
+        ];
         
-        Tournament::create($data);
+        $settingsData = [
+            'prize_pool' => 0,
+            'prize_distribution' => $data['prize_structure'] ?? null,
+            'max_teams' => $data['max_participants'] ?? 32,
+            'format' => $data['tournament_format'] ?? 'single_elimination',
+            'competition_type' => $data['competition_type'],
+            'rules' => $data['rules_details'] ?? null,
+        ];
+        
+        $scheduleData = [
+            'start_date' => $data['start_date'],
+            'end_date' => $data['end_date'],
+            'registration_deadline' => $data['start_date'], // Default to start_date
+            'location_type' => $data['location_type'],
+            'location_address' => $data['location_address'] ?? null,
+        ];
+        
+        // Create tournament
+        $tournament = Tournament::create($tournamentData);
+        
+        // Create related records
+        $tournament->settings()->create($settingsData);
+        $tournament->schedule()->create($scheduleData);
 
         return redirect()->route('admin.tournaments.index')
             ->with('success', 'Tournament đã được tạo thành công!');
@@ -205,20 +232,20 @@ class TournamentManagementController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'game_id' => 'required|exists:games,id',
-            'competition_type' => 'required|in:individual,team',
+            'competition_type' => 'required|in:individual,team,mixed',
             'format' => 'nullable|string|max:50',
             'description' => 'nullable|string|max:2000',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
-            'location_type' => 'required|in:online,lan,physical',
+            'location_type' => 'required|in:online,lan',
             'location_address' => 'nullable|string|max:500',
             'scheduled_time' => 'nullable|date_format:H:i',
-            'tournament_format' => 'required|in:single_elimination,double_elimination,round_robin,swiss_system',
+            'tournament_format' => 'required|in:single_elimination,double_elimination,round_robin,swiss',
             'max_participants' => 'required|integer|min:2|max:1024',
             'substitute_players' => 'nullable|integer|min:0|max:10',
             'organizer_name' => 'nullable|string|max:255',
             'organizer_contact' => 'nullable|string|max:255',
-            'status' => 'required|in:draft,registration_open,ongoing,completed,cancelled',
+            'status' => 'required|in:draft,registration,ongoing,completed,cancelled',
             'participation_type' => 'required|in:public,invite_only',
             'stream_link' => 'nullable|url|max:500',
             'logo' => 'nullable|file|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
@@ -288,13 +315,44 @@ class TournamentManagementController extends Controller
             }
         }
 
-        // Map tournament_format to format
-        if (isset($data['tournament_format'])) {
-            $data['format'] = $data['tournament_format'];
-            unset($data['tournament_format']);
-        }
+        // Separate data for different tables
+        $tournamentData = [
+            'name' => $data['name'],
+            'description' => $data['description'] ?? null,
+            'game_id' => $data['game_id'],
+            'status' => $data['status'],
+            'image_url' => $data['logo'] ?? $tournament->image_url,
+            'stream_link' => $data['stream_link'] ?? null,
+        ];
+        
+        $settingsData = [
+            'prize_distribution' => $data['prize_structure'] ?? null,
+            'max_teams' => $data['max_participants'] ?? 32,
+            'format' => $data['tournament_format'] ?? 'single_elimination',
+            'competition_type' => $data['competition_type'],
+            'rules' => $data['rules_details'] ?? null,
+        ];
+        
+        $scheduleData = [
+            'start_date' => $data['start_date'],
+            'end_date' => $data['end_date'],
+            'location_type' => $data['location_type'],
+            'location_address' => $data['location_address'] ?? null,
+        ];
 
-        $tournament->update($data);
+        // Update tournament
+        $tournament->update($tournamentData);
+        
+        // Update or create related records
+        $tournament->settings()->updateOrCreate(
+            ['tournament_id' => $tournament->id],
+            $settingsData
+        );
+        
+        $tournament->schedule()->updateOrCreate(
+            ['tournament_id' => $tournament->id],
+            $scheduleData
+        );
 
         return redirect()->route('admin.tournaments.index')
             ->with('success', 'Tournament đã được cập nhật thành công!');
@@ -331,7 +389,8 @@ class TournamentManagementController extends Controller
             ->when($request->game_id, function ($query) use ($request) {
                 return $query->where('game_id', $request->game_id);
             })
-            ->orderBy('start_date', 'desc')
+            ->with('schedule')
+            ->orderBy('created_at', 'desc')
             ->get();
 
         return response()->json($tournaments);

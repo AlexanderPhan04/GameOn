@@ -8,6 +8,14 @@
         background: linear-gradient(180deg, #000814 0%, #0d1b2a 100%);
         min-height: 100vh;
     }
+    .posts-page.with-left-sidebar {
+        padding-left: 280px;
+    }
+    @media (max-width: 1200px) {
+        .posts-page.with-left-sidebar {
+            padding-left: 0;
+        }
+    }
     .feed-container {
         max-width: 680px;
         margin: 0 auto;
@@ -934,7 +942,16 @@
 @endpush
 
 @section('content')
-<div class="posts-page">
+@php
+    $isAdmin = auth()->check() && in_array(auth()->user()->user_role, ['admin', 'super_admin']);
+@endphp
+
+<!-- Sidebar - Only for participants -->
+@if(!$isAdmin)
+    @include('posts.partials.left-sidebar')
+@endif
+
+<div class="posts-page {{ !$isAdmin ? 'with-left-sidebar' : '' }}">
     <div class="feed-container">
         <h1 class="page-title">{{ __('app.nav.posts') }}</h1>
 

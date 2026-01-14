@@ -223,4 +223,38 @@ class Tournament extends Model
         // Fallback to legacy field
         return $this->registration_deadline >= now();
     }
+
+    /**
+     * Get formatted date range for display
+     */
+    public function getFormattedDateRange(): string
+    {
+        $startDate = $this->schedule?->start_date ?? $this->start_date;
+        $endDate = $this->schedule?->end_date ?? $this->end_date;
+
+        if (!$startDate) {
+            return 'Chưa xác định';
+        }
+
+        $start = \Carbon\Carbon::parse($startDate);
+        
+        if (!$endDate) {
+            return $start->format('d/m/Y');
+        }
+
+        $end = \Carbon\Carbon::parse($endDate);
+
+        // Same day
+        if ($start->isSameDay($end)) {
+            return $start->format('d/m/Y');
+        }
+
+        // Same month
+        if ($start->month === $end->month && $start->year === $end->year) {
+            return $start->format('d') . ' - ' . $end->format('d/m/Y');
+        }
+
+        // Different months
+        return $start->format('d/m') . ' - ' . $end->format('d/m/Y');
+    }
 }

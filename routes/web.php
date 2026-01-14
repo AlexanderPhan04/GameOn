@@ -1,5 +1,4 @@
 <?php
-
 use App\Http\Controllers\Admin\HonorManagementController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\AuthController;

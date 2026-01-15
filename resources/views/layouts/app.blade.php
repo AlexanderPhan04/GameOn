@@ -3294,6 +3294,12 @@
                                 </a>
                             </li>
                             <li class="list-none">
+                                <a href="{{ route('tournaments.index') }}" class="gameon-dropdown-item">
+                                    <i class="fas fa-trophy"></i>
+                                    <span>{{ __('app.nav.tournaments') ?? 'Tournaments' }}</span>
+                                </a>
+                            </li>
+                            <li class="list-none">
                                 <a href="{{ route('marketplace.inventory') }}" class="gameon-dropdown-item">
                                     <i class="fas fa-box"></i>
                                     <span>{{ __('app.marketplace.inventory') }}</span>

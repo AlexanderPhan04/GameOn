@@ -318,6 +318,23 @@ Route::prefix('admin/verification')->name('admin.verification.')->middleware(['a
     Route::post('/revoke/{userId}', [\App\Http\Controllers\Admin\GamerVerificationController::class, 'revoke'])->name('revoke');
 });
 
+// Admin Livestream Management Routes
+Route::prefix('admin/livestreams')->name('admin.livestreams.')->middleware(['auth.session', 'admin.permission:manage_tournaments'])->group(function () {
+    Route::get('/', [\App\Http\Controllers\Admin\LivestreamController::class, 'index'])->name('index');
+    Route::get('/create', [\App\Http\Controllers\Admin\LivestreamController::class, 'create'])->name('create');
+    Route::post('/', [\App\Http\Controllers\Admin\LivestreamController::class, 'store'])->name('store');
+    Route::get('/{livestream}/edit', [\App\Http\Controllers\Admin\LivestreamController::class, 'edit'])->name('edit');
+    Route::put('/{livestream}', [\App\Http\Controllers\Admin\LivestreamController::class, 'update'])->name('update');
+    Route::delete('/{livestream}', [\App\Http\Controllers\Admin\LivestreamController::class, 'destroy'])->name('destroy');
+    Route::post('/{livestream}/status/{status}', [\App\Http\Controllers\Admin\LivestreamController::class, 'toggleStatus'])->name('toggle-status');
+});
+
+// Public Livestream Routes
+Route::prefix('live')->name('livestreams.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\LivestreamController::class, 'index'])->name('index');
+    Route::get('/{livestream}', [\App\Http\Controllers\LivestreamController::class, 'show'])->name('show');
+});
+
 // Admin Management Routes (Super Admin only)
 Route::prefix('admin/admins')->name('admin.admins.')->middleware(['auth.session'])->group(function () {
     Route::get('/', [\App\Http\Controllers\Admin\AdminInvitationController::class, 'index'])->name('index');

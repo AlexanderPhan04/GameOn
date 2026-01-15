@@ -1,5 +1,4 @@
 <?php
-
 use App\Http\Controllers\Admin\HonorManagementController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\AuthController;
@@ -221,6 +220,11 @@ Route::middleware(['auth.session'])->prefix('chat')->name('chat.')->group(functi
     // User interactions
     Route::get('/search-users', [ChatController::class, 'searchUsers'])->name('search-users');
     Route::post('/conversation/{conversation}/block', [ChatController::class, 'toggleBlock'])->name('block');
+    
+    // Group member management (admin only)
+    Route::post('/conversation/{conversation}/add-member', [ChatController::class, 'addMember'])->name('add-member');
+    Route::delete('/conversation/{conversation}/kick-member/{user}', [ChatController::class, 'kickMember'])->name('kick-member');
+    Route::get('/conversation/{conversation}/members', [ChatController::class, 'getMembers'])->name('members');
 
     // Real-time features
     Route::post('/conversation/{conversation}/typing', [ChatController::class, 'updateTypingStatus'])->name('typing');

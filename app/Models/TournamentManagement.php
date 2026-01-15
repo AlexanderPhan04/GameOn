@@ -96,7 +96,7 @@ class TournamentManagement extends Model
     {
         return match ($this->status) {
             'draft' => __('app.tournaments.draft'),
-            'registration_open' => __('app.tournaments.registration_open'),
+            'registration' => __('app.tournaments.registration'),
             'ongoing' => __('app.tournaments.ongoing'),
             'completed' => __('app.tournaments.completed'),
             'cancelled' => __('app.tournaments.cancelled'),
@@ -108,7 +108,7 @@ class TournamentManagement extends Model
     {
         return match ($this->status) {
             'draft' => 'secondary',
-            'registration_open' => 'primary',
+            'registration' => 'primary',
             'ongoing' => 'success',
             'completed' => 'info',
             'cancelled' => 'danger',
@@ -127,7 +127,7 @@ class TournamentManagement extends Model
             'single_elimination' => __('app.tournaments.single_elimination'),
             'double_elimination' => __('app.tournaments.double_elimination'),
             'round_robin' => __('app.tournaments.round_robin'),
-            'swiss_system' => __('app.tournaments.swiss_system'),
+            'swiss' => __('app.tournaments.swiss'),
             default => __('app.tournaments.unknown')
         };
     }
@@ -150,12 +150,12 @@ class TournamentManagement extends Model
     // Scopes
     public function scopeActive($query)
     {
-        return $query->whereIn('status', ['registration_open', 'ongoing']);
+        return $query->whereIn('status', ['registration', 'ongoing']);
     }
 
     public function scopeUpcoming($query)
     {
-        return $query->where('status', 'registration_open')
+        return $query->where('status', 'registration')
             ->where('start_date', '>=', now());
     }
 
@@ -172,7 +172,7 @@ class TournamentManagement extends Model
     // Helper methods
     public function isRegistrationOpen(): bool
     {
-        return $this->status === 'registration_open' &&
+        return $this->status === 'registration' &&
             $this->start_date >= now()->toDateString();
     }
 
@@ -188,7 +188,7 @@ class TournamentManagement extends Model
 
     public function canEdit(): bool
     {
-        return in_array($this->status, ['draft', 'registration_open']);
+        return in_array($this->status, ['draft', 'registration']);
     }
 
     public function getDurationInDays(): int

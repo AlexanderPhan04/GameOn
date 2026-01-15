@@ -58,7 +58,7 @@
             </div>
             <div class="d-flex align-items-center gap-2">
                 <span class="badge bg-{{ $tournament->status_color }} status-badge">{{ $tournament->status_label }}</span>
-                @if($tournament->status === 'registration_open')
+                @if($tournament->status === 'registration')
                 <button class="btn cta-btn primary-soft"><i class="fas fa-user-plus me-1"></i>Đăng ký</button>
                 @endif
             </div>

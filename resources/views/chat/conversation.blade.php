@@ -401,6 +401,12 @@
             <div class="dropdown-wrapper">
                 <button class="btn-menu" id="menu-toggle"><i class="fas fa-ellipsis-v"></i></button>
                 <div class="dropdown-menu-chat" id="dropdown-menu">
+                    @if($conversation->type === 'group')
+                    <button class="dropdown-item-chat" id="view-members-btn">
+                        <i class="fas fa-users"></i> Xem thành viên ({{ $conversation->participants->count() }})
+                    </button>
+                    <div class="dropdown-divider"></div>
+                    @endif
                     <button class="dropdown-item-chat" id="toggle-notification-btn">
                         <i class="fas fa-bell"></i> <span id="notification-text">Bật thông báo</span>
                     </button>
@@ -1147,6 +1153,243 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }, 2000);
     });
+
+    // View members modal
+    @if($conversation->type === 'group')
+    @php
+        $currentParticipant = $conversation->participants->where('user_id', auth()->id())->first();
+        $isGroupAdmin = $currentParticipant && $currentParticipant->role === 'admin';
+        $membersData = $conversation->participants->load('user')->map(function($p) {
+            return [
+                'id' => $p->user->id,
+                'name' => $p->user->display_name ?? $p->user->name,
+                'avatar' => $p->user->getDisplayAvatar(),
+                'role' => $p->role,
+                'is_online' => $p->user->isOnline(),
+            ];
+        })->values();
+    @endphp
+    const isGroupAdmin = {{ $isGroupAdmin ? 'true' : 'false' }};
+    let currentMembers = @json($membersData);
+    
+    const viewMembersBtn = document.getElementById('view-members-btn');
+    if (viewMembersBtn) {
+        viewMembersBtn.addEventListener('click', function() {
+            showMembersModal();
+        });
+    }
+    
+    function showMembersModal() {
+        // Remove existing modal
+        const existingModal = document.getElementById('members-modal');
+        if (existingModal) existingModal.remove();
+        
+        let html = '<div style="position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:10000;display:flex;align-items:center;justify-content:center;" id="members-modal">';
+        html += '<div style="background:linear-gradient(145deg,#0d1b2a,#000022);border:1px solid rgba(0,229,255,0.2);border-radius:16px;width:90%;max-width:450px;max-height:85vh;overflow:hidden;">';
+        
+        // Header
+        html += '<div style="padding:1rem 1.5rem;border-bottom:1px solid rgba(0,229,255,0.1);display:flex;justify-content:space-between;align-items:center;">';
+        html += '<h3 style="color:#fff;margin:0;font-size:1.1rem;"><i class="fas fa-users" style="color:#00E5FF;margin-right:0.5rem;"></i>Thành viên nhóm (<span id="member-count">' + currentMembers.length + '</span>)</h3>';
+        html += '<button onclick="document.getElementById(\'members-modal\').remove()" style="background:none;border:none;color:#64748b;font-size:1.2rem;cursor:pointer;">&times;</button>';
+        html += '</div>';
+        
+        // Add member section (admin only)
+        if (isGroupAdmin) {
+            html += '<div style="padding:1rem 1.5rem;border-bottom:1px solid rgba(0,229,255,0.1);">';
+            html += '<div style="position:relative;">';
+            html += '<input type="text" id="add-member-input" placeholder="Tìm người dùng để thêm..." style="width:100%;box-sizing:border-box;background:rgba(0,0,20,0.6);border:1px solid rgba(0,229,255,0.2);border-radius:10px;padding:0.75rem 1rem;color:#fff;font-size:0.9rem;">';
+            html += '<div id="add-member-results" style="position:absolute;top:100%;left:0;right:0;background:#0d1b2a;border:1px solid rgba(0,229,255,0.2);border-radius:10px;margin-top:0.25rem;max-height:200px;overflow-y:auto;display:none;z-index:10;"></div>';
+            html += '</div>';
+            html += '</div>';
+        }
+        
+        // Members list
+        html += '<div id="members-list" style="padding:1rem;max-height:50vh;overflow-y:auto;">';
+        html += renderMembersList();
+        html += '</div></div></div>';
+        
+        document.body.insertAdjacentHTML('beforeend', html);
+        
+        // Close on backdrop click
+        document.getElementById('members-modal').addEventListener('click', function(e) {
+            if (e.target === this) this.remove();
+        });
+        
+        // Setup add member search (admin only)
+        if (isGroupAdmin) {
+            setupAddMemberSearch();
+        }
+    }
+    
+    function renderMembersList() {
+        let html = '';
+        currentMembers.forEach(m => {
+            const roleLabel = m.role === 'admin' ? '<span style="background:rgba(99,102,241,0.2);color:#818cf8;padding:0.15rem 0.5rem;border-radius:4px;font-size:0.7rem;margin-left:0.5rem;">Admin</span>' : '';
+            const onlineStatus = m.is_online ? '<span style="width:8px;height:8px;background:#22c55e;border-radius:50%;position:absolute;bottom:2px;right:2px;border:2px solid #0d1b2a;"></span>' : '';
+            
+            // Kick button (admin only, can't kick self or other admins)
+            let kickBtn = '';
+            if (isGroupAdmin && m.id !== currentUserId && m.role !== 'admin') {
+                kickBtn = `<button onclick="kickMember(${m.id}, '${m.name.replace(/'/g, "\\'")}')" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#ef4444;padding:0.4rem 0.75rem;border-radius:6px;font-size:0.75rem;cursor:pointer;display:flex;align-items:center;gap:0.3rem;" title="Kick khỏi nhóm"><i class="fas fa-user-minus"></i></button>`;
+            }
+            
+            html += '<div style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem;border-radius:8px;margin-bottom:0.5rem;background:rgba(0,229,255,0.05);" data-member-id="' + m.id + '">';
+            html += '<div style="position:relative;flex-shrink:0;"><img src="' + m.avatar + '" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">' + onlineStatus + '</div>';
+            html += '<div style="flex:1;min-width:0;"><div style="color:#fff;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + m.name + roleLabel + '</div></div>';
+            html += kickBtn;
+            html += '</div>';
+        });
+        return html;
+    }
+    
+    function setupAddMemberSearch() {
+        const input = document.getElementById('add-member-input');
+        const results = document.getElementById('add-member-results');
+        let searchTimeout;
+        
+        input.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            const q = this.value.trim();
+            if (q.length < 2) {
+                results.style.display = 'none';
+                return;
+            }
+            
+            searchTimeout = setTimeout(() => {
+                fetch(`{{ route("chat.search-users") }}?q=${encodeURIComponent(q)}`)
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.users?.length) {
+                            // Filter out existing members
+                            const existingIds = currentMembers.map(m => m.id);
+                            const filtered = data.users.filter(u => !existingIds.includes(u.id));
+                            
+                            if (filtered.length) {
+                                results.innerHTML = filtered.map(u => 
+                                    `<div class="add-member-item" data-id="${u.id}" data-name="${u.name}" data-avatar="${u.avatar}" style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem 1rem;cursor:pointer;border-bottom:1px solid rgba(0,229,255,0.1);">
+                                        <img src="${u.avatar}" style="width:32px;height:32px;border-radius:50%;">
+                                        <div style="flex:1;">
+                                            <div style="color:#fff;font-weight:500;">${u.name}</div>
+                                            <div style="color:#64748b;font-size:0.8rem;">${u.email}</div>
+                                        </div>
+                                        <i class="fas fa-plus" style="color:#00E5FF;"></i>
+                                    </div>`
+                                ).join('');
+                                results.style.display = 'block';
+                                
+                                // Add click handlers
+                                results.querySelectorAll('.add-member-item').forEach(item => {
+                                    item.addEventListener('click', function() {
+                                        addMember(this.dataset.id, this.dataset.name, this.dataset.avatar);
+                                    });
+                                    item.addEventListener('mouseenter', function() {
+                                        this.style.background = 'rgba(0,229,255,0.1)';
+                                    });
+                                    item.addEventListener('mouseleave', function() {
+                                        this.style.background = 'transparent';
+                                    });
+                                });
+                            } else {
+                                results.innerHTML = '<div style="padding:1rem;color:#64748b;text-align:center;">Không tìm thấy người dùng mới</div>';
+                                results.style.display = 'block';
+                            }
+                        } else {
+                            results.innerHTML = '<div style="padding:1rem;color:#64748b;text-align:center;">Không tìm thấy</div>';
+                            results.style.display = 'block';
+                        }
+                    });
+            }, 300);
+        });
+        
+        // Hide results when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!input.contains(e.target) && !results.contains(e.target)) {
+                results.style.display = 'none';
+            }
+        });
+    }
+    
+    window.addMember = async function(userId, userName, userAvatar) {
+        try {
+            const res = await fetch(`/chat/conversation/${convSlug}/add-member`, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json', 
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}' 
+                },
+                body: JSON.stringify({ user_id: userId })
+            });
+            const data = await res.json();
+            
+            if (data.success) {
+                // Add to current members
+                currentMembers.push({
+                    id: parseInt(userId),
+                    name: userName,
+                    avatar: userAvatar,
+                    role: 'member',
+                    is_online: false
+                });
+                
+                // Update UI
+                document.getElementById('members-list').innerHTML = renderMembersList();
+                document.getElementById('member-count').textContent = currentMembers.length;
+                document.getElementById('add-member-input').value = '';
+                document.getElementById('add-member-results').style.display = 'none';
+                
+                showToast(data.message, 'success');
+            } else {
+                showToast(data.error || 'Không thể thêm thành viên', 'error');
+            }
+        } catch (err) {
+            showToast('Có lỗi xảy ra', 'error');
+        }
+    };
+    
+    window.kickMember = function(userId, userName) {
+        // Close members modal first
+        const membersModal = document.getElementById('members-modal');
+        if (membersModal) membersModal.remove();
+        
+        showConfirm({
+            title: 'Kick thành viên',
+            subtitle: userName,
+            message: `Bạn có chắc chắn muốn kick "${userName}" khỏi nhóm? Người này sẽ cần được mời lại để tham gia.`,
+            okText: 'Kick',
+            icon: 'user-minus',
+            onConfirm: async () => {
+                try {
+                    const res = await fetch(`/chat/conversation/${convSlug}/kick-member/${userId}`, {
+                        method: 'DELETE',
+                        headers: { 
+                            'Content-Type': 'application/json', 
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}' 
+                        }
+                    });
+                    const data = await res.json();
+                    
+                    if (data.success) {
+                        // Remove from current members
+                        currentMembers = currentMembers.filter(m => m.id !== userId);
+                        showToast(data.message, 'success');
+                    } else {
+                        showToast(data.error || 'Không thể kick thành viên', 'error');
+                    }
+                } catch (err) {
+                    showToast('Có lỗi xảy ra', 'error');
+                }
+            }
+        });
+    };
+    
+    // Add fadeOut animation
+    if (!document.getElementById('member-styles')) {
+        const style = document.createElement('style');
+        style.id = 'member-styles';
+        style.textContent = `@keyframes fadeOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(20px); } }`;
+        document.head.appendChild(style);
+    }
+    @endif
 });
 </script>
 @endpush

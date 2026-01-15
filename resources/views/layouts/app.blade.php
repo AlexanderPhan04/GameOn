@@ -2878,7 +2878,7 @@
 
             <nav class="sidebar-nav">
                 <ul class="sidebar-menu">
-                    {{-- Dashboard --}}
+                    {{-- Dashboard - Luôn hiển thị cho tất cả admin --}}
                     <li class="menu-item {{ Request::is('dashboard*') ? 'active' : '' }}">
                         <a href="{{ route('dashboard') }}" class="menu-link" title="{{ __('app.nav.dashboard') }}">
                             <i class="fas fa-tachometer-alt"></i>
@@ -2886,21 +2886,38 @@
                         </a>
                     </li>
                     
+                    @php
+                        // Kiểm tra xem admin có quyền nào trong nhóm Manager không
+                        $hasManagerPermission = Auth::user()->isSuperAdmin() || 
+                            Auth::user()->hasAnyAdminPermission(['manage_users', 'manage_teams', 'manage_tournaments', 'manage_games', 'manage_posts']);
+                        
+                        // Kiểm tra xem admin có quyền nào trong nhóm Store & Honor không
+                        $hasStorePermission = Auth::user()->isSuperAdmin() || 
+                            Auth::user()->hasAnyAdminPermission(['manage_marketplace', 'manage_honor']);
+                        
+                        // Kiểm tra quyền Settings
+                        $hasSettingsPermission = Auth::user()->isSuperAdmin() || 
+                            Auth::user()->hasAdminPermission('manage_settings');
+                    @endphp
+                    
+                    @if($hasManagerPermission)
                     <li class="menu-divider"></li>
                     
-                    {{-- Management Section --}}
-                    <li class="menu-item has-submenu {{ Request::is('admin/tournaments*') || Request::is('admin/games*') || Request::is('admin/teams*') || Request::is('admin/users*') || Request::is('admin/admins*') ? 'open' : '' }}" id="managerMenu">
+                    {{-- Management Section - Chỉ hiển thị nếu có ít nhất 1 quyền --}}
+                    <li class="menu-item has-submenu {{ Request::is('admin/tournaments*') || Request::is('admin/games*') || Request::is('admin/teams*') || Request::is('admin/users*') || Request::is('admin/admins*') || Request::is('admin/posts*') ? 'open' : '' }}" id="managerMenu">
                         <a href="#" class="menu-link" onclick="event.preventDefault(); toggleSubmenu('managerMenu');" title="Manager">
                             <i class="fas fa-briefcase"></i>
                             <span>Manager</span>
                         </a>
                         <ul class="menu-submenu">
+                            @if(Auth::user()->isSuperAdmin() || Auth::user()->hasAdminPermission('manage_users'))
                             <li class="menu-item {{ Request::is('admin/users*') ? 'active' : '' }}">
                                 <a href="{{ route('admin.users.index') }}" class="menu-link" title="{{ __('app.profile.manage_users') }}">
                                     <i class="fas fa-users"></i>
                                     <span>{{ __('app.profile.manage_users') }}</span>
                                 </a>
                             </li>
+                            @endif
                             @if(Auth::user()->isSuperAdmin())
                             <li class="menu-item {{ Request::is('admin/admins*') ? 'active' : '' }}">
                                 <a href="{{ route('admin.admins.index') }}" class="menu-link" title="{{ __('app.nav.manage_admin') }}">
@@ -2909,58 +2926,81 @@
                                 </a>
                             </li>
                             @endif
+                            @if(Auth::user()->isSuperAdmin() || Auth::user()->hasAdminPermission('manage_teams'))
                             <li class="menu-item {{ Request::is('admin/teams*') ? 'active' : '' }}">
                                 <a href="{{ route('admin.teams.index') }}" class="menu-link" title="{{ __('app.profile.manage_teams') }}">
                                     <i class="fas fa-users-cog"></i>
                                     <span>{{ __('app.profile.manage_teams') }}</span>
                                 </a>
                             </li>
+                            @endif
+                            @if(Auth::user()->isSuperAdmin() || Auth::user()->hasAdminPermission('manage_tournaments'))
                             <li class="menu-item {{ Request::is('admin/tournaments*') ? 'active' : '' }}">
                                 <a href="{{ route('admin.tournaments.index') }}" class="menu-link" title="{{ __('app.profile.manage_tournaments') }}">
                                     <i class="fas fa-trophy"></i>
                                     <span>{{ __('app.profile.manage_tournaments') }}</span>
                                 </a>
                             </li>
+                            @endif
+                            @if(Auth::user()->isSuperAdmin() || Auth::user()->hasAdminPermission('manage_games'))
                             <li class="menu-item {{ Request::is('admin/games*') ? 'active' : '' }}">
                                 <a href="{{ route('admin.games.index') }}" class="menu-link" title="{{ __('app.profile.manage_games') }}">
                                     <i class="fas fa-gamepad"></i>
                                     <span>{{ __('app.profile.manage_games') }}</span>
                                 </a>
                             </li>
+                            @endif
+                            @if(Auth::user()->isSuperAdmin() || Auth::user()->hasAdminPermission('manage_posts'))
+                            <li class="menu-item {{ Request::is('admin/posts*') ? 'active' : '' }}">
+                                <a href="{{ route('admin.posts.index') }}" class="menu-link" title="{{ __('app.posts.manage_posts') }}">
+                                    <i class="fas fa-newspaper"></i>
+                                    <span>{{ __('app.posts.manage_posts') }}</span>
+                                </a>
+                            </li>
+                            @endif
                         </ul>
                     </li>
+                    @endif
                     
-                    {{-- Store & Honor Section --}}
+                    @if($hasStorePermission)
+                    {{-- Store & Honor Section - Chỉ hiển thị nếu có ít nhất 1 quyền --}}
                     <li class="menu-item has-submenu {{ Request::is('admin/honor*') || Request::is('honor*') || Request::is('admin/marketplace*') ? 'open' : '' }}" id="storeMenu">
                         <a href="#" class="menu-link" onclick="event.preventDefault(); toggleSubmenu('storeMenu');" title="Store & Honor">
                             <i class="fas fa-store"></i>
                             <span>Store & Honor</span>
                         </a>
                         <ul class="menu-submenu">
+                            @if(Auth::user()->isSuperAdmin() || Auth::user()->hasAdminPermission('manage_marketplace'))
                             <li class="menu-item {{ Request::is('admin/marketplace*') ? 'active' : '' }}">
                                 <a href="{{ route('admin.marketplace.index') }}" class="menu-link" title="{{ __('app.nav.manage_marketplace') }}">
                                     <i class="fas fa-shopping-bag"></i>
                                     <span>{{ __('app.nav.manage_marketplace') }}</span>
                                 </a>
                             </li>
+                            @endif
+                            @if(Auth::user()->isSuperAdmin() || Auth::user()->hasAdminPermission('manage_honor'))
                             <li class="menu-item {{ Request::is('admin/honor*') || Request::is('honor*') ? 'active' : '' }}">
                                 <a href="{{ route('admin.honor.index') }}" class="menu-link" title="{{ __('app.honor.manage_title') }}">
                                     <i class="fas fa-award"></i>
                                     <span>{{ __('app.honor.manage_title') }}</span>
                                 </a>
                             </li>
+                            @endif
                         </ul>
                     </li>
+                    @endif
                     
+                    @if($hasSettingsPermission)
                     <li class="menu-divider"></li>
                     
-                    {{-- System Settings --}}
+                    {{-- System Settings - Chỉ hiển thị nếu có quyền manage_settings --}}
                     <li class="menu-item {{ Request::is('admin/system*') || Request::is('admin/settings*') ? 'active' : '' }}">
                         <a href="{{ route('admin.system.settings') }}" class="menu-link" title="Setting">
                             <i class="fas fa-cog"></i>
                             <span>Setting</span>
                         </a>
                     </li>
+                    @endif
                     
                     <li class="menu-divider"></li>
                     
@@ -3291,6 +3331,12 @@
                                 <a href="{{ route('marketplace.index') }}" class="gameon-dropdown-item">
                                     <i class="fas fa-store"></i>
                                     <span>Marketplace</span>
+                                </a>
+                            </li>
+                            <li class="list-none">
+                                <a href="{{ route('tournaments.index') }}" class="gameon-dropdown-item">
+                                    <i class="fas fa-trophy"></i>
+                                    <span>{{ __('app.nav.tournaments') ?? 'Tournaments' }}</span>
                                 </a>
                             </li>
                             <li class="list-none">

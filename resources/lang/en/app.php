@@ -630,4 +630,27 @@ return [
         'retry' => 'Retry',
         'back_to_store' => 'Back to Store',
     ],
+
+    // Posts Management
+    'posts' => [
+        'manage_posts' => 'Manage Posts',
+        'manage_comments' => 'Manage Comments',
+        'total_posts' => 'Total Posts',
+        'total_comments' => 'Total Comments',
+        'posts_today' => 'Posts Today',
+        'comments_today' => 'Comments Today',
+        'post_content' => 'Post Content',
+        'posted_by' => 'Posted By',
+        'posted_at' => 'Posted At',
+        'reactions' => 'Reactions',
+        'comments' => 'Comments',
+        'delete_post' => 'Delete Post',
+        'delete_comment' => 'Delete Comment',
+        'confirm_delete_post' => 'Are you sure you want to delete this post?',
+        'confirm_delete_comment' => 'Are you sure you want to delete this comment?',
+        'post_deleted' => 'Post deleted successfully',
+        'comment_deleted' => 'Comment deleted successfully',
+        'no_posts' => 'No posts found',
+        'no_comments' => 'No comments found',
+    ],
 ];

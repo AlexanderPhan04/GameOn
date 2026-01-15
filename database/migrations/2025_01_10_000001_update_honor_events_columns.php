@@ -36,8 +36,11 @@ return new class extends Migration
             // Update existing 'player' values to 'user'
             DB::table('honor_events')->where('target_type', 'player')->update(['target_type' => 'user']);
             
-            // Modify the enum (MySQL specific)
-            DB::statement("ALTER TABLE honor_events MODIFY COLUMN target_type ENUM('user', 'team', 'tournament', 'game') NOT NULL");
+            // Modify the enum (MySQL specific - SQLite uses string)
+            $driver = Schema::getConnection()->getDriverName();
+            if ($driver === 'mysql') {
+                DB::statement("ALTER TABLE honor_events MODIFY COLUMN target_type ENUM('user', 'team', 'tournament', 'game') NOT NULL");
+            }
         }
     }
 
@@ -49,7 +52,10 @@ return new class extends Migration
         // Revert target_type enum
         if (Schema::hasColumn('honor_events', 'target_type')) {
             DB::table('honor_events')->where('target_type', 'user')->update(['target_type' => 'player']);
-            DB::statement("ALTER TABLE honor_events MODIFY COLUMN target_type ENUM('player', 'team', 'tournament', 'game') NOT NULL");
+            $driver = Schema::getConnection()->getDriverName();
+            if ($driver === 'mysql') {
+                DB::statement("ALTER TABLE honor_events MODIFY COLUMN target_type ENUM('player', 'team', 'tournament', 'game') NOT NULL");
+            }
         }
 
         // Revert column names

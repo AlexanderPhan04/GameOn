@@ -190,15 +190,43 @@ class PaymentController extends Controller
 
                         // Thêm items vào inventory
                         foreach ($order->items as $item) {
-                            for ($i = 0; $i < $item->quantity; $i++) {
-                                UserInventory::create([
+                            $product = $item->product;
+                            
+                            // Xử lý theo loại sản phẩm
+                            if ($product->type === 'sticker') {
+                                // Sticker pack - thêm vào user_stickers
+                                \App\Models\UserSticker::firstOrCreate([
                                     'user_id' => $order->user_id,
-                                    'product_id' => $item->product_id,
+                                    'pack_id' => $product->id,
+                                ], [
                                     'order_id' => $order->id,
-                                    'quantity' => 1,
+                                    'purchased_at' => now(),
                                 ]);
+                            } elseif ($product->type === 'tournament_ticket') {
+                                // Vé giải đấu - tạo ticket
+                                for ($i = 0; $i < $item->quantity; $i++) {
+                                    \App\Models\TournamentTicket::create([
+                                        'user_id' => $order->user_id,
+                                        'tournament_id' => $product->tournament_id,
+                                        'product_id' => $product->id,
+                                        'order_id' => $order->id,
+                                        'status' => 'valid',
+                                        'purchased_at' => now(),
+                                    ]);
+                                }
+                            } else {
+                                // Các loại khác - thêm vào inventory như cũ
+                                for ($i = 0; $i < $item->quantity; $i++) {
+                                    UserInventory::create([
+                                        'user_id' => $order->user_id,
+                                        'product_id' => $item->product_id,
+                                        'order_id' => $order->id,
+                                        'quantity' => 1,
+                                    ]);
+                                }
                             }
-                            $item->product->increment('sold_count', $item->quantity);
+                            
+                            $product->increment('sold_count', $item->quantity);
                         }
                     } else {
                         $order->payment_status = 'failed';

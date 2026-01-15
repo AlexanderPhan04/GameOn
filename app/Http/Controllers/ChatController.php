@@ -6,6 +6,8 @@ use App\Events\UserTyping;
 use App\Models\ChatConversation;
 use App\Models\ChatMessage;
 use App\Models\User;
+use App\Models\UserSticker;
+use App\Models\Sticker;
 use App\Services\ChatService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -822,6 +824,59 @@ class ChatController extends Controller
                 'is_mine' => true,
                 'time' => $result['message']->created_at->format('H:i'),
             ],
+        ]);
+    }
+
+    /**
+     * Get user's owned stickers for chat
+     */
+    public function getUserStickers()
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+        }
+
+        // Get all sticker packs user owns
+        $ownedPacks = UserSticker::where('user_id', $user->id)
+            ->with(['pack' => function ($query) {
+                $query->where('is_active', true);
+            }])
+            ->get()
+            ->pluck('pack')
+            ->filter();
+
+        // Get stickers from owned packs
+        $stickers = [];
+        foreach ($ownedPacks as $pack) {
+            $packStickers = Sticker::where('pack_id', $pack->id)
+                ->where('is_active', true)
+                ->orderBy('sort_order')
+                ->get()
+                ->map(function ($sticker) use ($pack) {
+                    return [
+                        'id' => $sticker->id,
+                        'name' => $sticker->name,
+                        'image_url' => $sticker->image_url,
+                        'emoji_code' => $sticker->emoji_code,
+                        'pack_name' => $pack->name,
+                        'pack_id' => $pack->id,
+                    ];
+                });
+
+            $stickers[] = [
+                'pack_id' => $pack->id,
+                'pack_name' => $pack->name,
+                'pack_thumbnail' => $pack->thumbnail ? asset('storage/' . $pack->thumbnail) : null,
+                'stickers' => $packStickers,
+            ];
+        }
+
+        return response()->json([
+            'success' => true,
+            'packs' => $stickers,
+            'total_packs' => count($stickers),
         ]);
     }
 }

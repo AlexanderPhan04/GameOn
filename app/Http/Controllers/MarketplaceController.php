@@ -91,15 +91,44 @@ class MarketplaceController extends Controller
         if (!$product->is_active || !$product->isInStock()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Sản phẩm không khả dụng'
+                'message' => 'Sản phẩm không khả dụng hoặc đã hết hàng'
             ], 400);
         }
 
+        // Kiểm tra điều kiện mua vé giải đấu
+        if ($product->type === 'tournament_ticket') {
+            $validationResult = $this->validateTournamentTicketPurchase($product);
+            if (!$validationResult['success']) {
+                return response()->json($validationResult, 400);
+            }
+        }
+
         $cart = session()->get('cart', []);
-        $quantity = $request->get('quantity', 1);
+        $quantity = max(1, intval($request->get('quantity', 1))); // Đảm bảo quantity >= 1
+        
+        // Tính tổng số lượng trong giỏ (hiện tại + thêm mới)
+        $currentInCart = isset($cart[$id]) ? $cart[$id]['quantity'] : 0;
+        $totalQuantity = $currentInCart + $quantity;
+        
+        // Kiểm tra số lượng tồn kho (nếu không phải unlimited)
+        if ($product->stock != -1) {
+            if ($totalQuantity > $product->stock) {
+                $available = $product->stock - $currentInCart;
+                if ($available <= 0) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Bạn đã thêm tối đa số lượng có thể mua cho sản phẩm này'
+                    ], 400);
+                }
+                return response()->json([
+                    'success' => false,
+                    'message' => "Chỉ còn {$available} sản phẩm có thể thêm vào giỏ (tồn kho: {$product->stock})"
+                ], 400);
+            }
+        }
 
         if (isset($cart[$id])) {
-            $cart[$id]['quantity'] += $quantity;
+            $cart[$id]['quantity'] = $totalQuantity;
         } else {
             $cart[$id] = [
                 'id' => $product->id,
@@ -127,6 +156,69 @@ class MarketplaceController extends Controller
             'message' => 'Đã thêm vào giỏ hàng',
             'cart_count' => count($cart)
         ]);
+    }
+
+    /**
+     * Kiểm tra điều kiện mua vé giải đấu
+     */
+    private function validateTournamentTicketPurchase(MarketplaceProduct $product): array
+    {
+        if (!Auth::check()) {
+            return [
+                'success' => false,
+                'message' => 'Vui lòng đăng nhập để mua vé giải đấu'
+            ];
+        }
+
+        $user = Auth::user();
+        $tournament = $product->tournament;
+
+        if (!$tournament) {
+            return [
+                'success' => false,
+                'message' => 'Giải đấu không tồn tại'
+            ];
+        }
+
+        // Kiểm tra user có team không
+        $userTeams = $user->teams()
+            ->wherePivot('status', 'active')
+            ->get();
+
+        if ($userTeams->isEmpty()) {
+            return [
+                'success' => false,
+                'message' => 'Bạn cần tham gia một đội để mua vé giải đấu'
+            ];
+        }
+
+        // Kiểm tra có team nào chơi game của giải đấu không
+        $matchingTeam = $userTeams->first(function ($team) use ($tournament) {
+            return $team->game_id === $tournament->game_id;
+        });
+
+        if (!$matchingTeam) {
+            $gameName = $tournament->game?->name ?? 'game này';
+            return [
+                'success' => false,
+                'message' => "Bạn cần có đội chơi {$gameName} để mua vé giải đấu này"
+            ];
+        }
+
+        // Kiểm tra đã mua vé cho giải đấu này chưa
+        $existingTicket = \App\Models\TournamentTicket::where('user_id', $user->id)
+            ->where('tournament_id', $tournament->id)
+            ->whereIn('status', ['valid', 'used'])
+            ->exists();
+
+        if ($existingTicket) {
+            return [
+                'success' => false,
+                'message' => 'Bạn đã có vé cho giải đấu này'
+            ];
+        }
+
+        return ['success' => true, 'team' => $matchingTeam];
     }
 
     /**
@@ -196,7 +288,7 @@ class MarketplaceController extends Controller
     public function updateCartQuantity(Request $request, $id)
     {
         $request->validate([
-            'quantity' => 'required|integer|min:1'
+            'quantity' => 'required|integer|min:1|max:9999'
         ]);
 
         $product = MarketplaceProduct::find($id);
@@ -206,15 +298,32 @@ class MarketplaceController extends Controller
                 'message' => 'Sản phẩm không tồn tại'
             ], 404);
         }
-
-        $quantity = $request->quantity;
-
-        if ($product->stock != -1 && $quantity > $product->stock) {
+        
+        // Kiểm tra sản phẩm còn active và còn hàng
+        if (!$product->is_active) {
             return response()->json([
                 'success' => false,
-                'message' => 'Số lượng vượt quá kho hàng (còn ' . $product->stock . ' sản phẩm)',
-                'max_quantity' => $product->stock
+                'message' => 'Sản phẩm không còn khả dụng'
             ], 400);
+        }
+
+        $quantity = max(1, intval($request->quantity)); // Đảm bảo >= 1
+
+        // Kiểm tra số lượng tồn kho
+        if ($product->stock != -1) {
+            if ($product->stock <= 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Sản phẩm đã hết hàng'
+                ], 400);
+            }
+            if ($quantity > $product->stock) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Số lượng vượt quá kho hàng (còn ' . $product->stock . ' sản phẩm)',
+                    'max_quantity' => $product->stock
+                ], 400);
+            }
         }
 
         $cart = session()->get('cart', []);
@@ -320,9 +429,20 @@ class MarketplaceController extends Controller
             // Tính tổng và tạo order items
             $total = 0;
             $payosItems = [];
+            $ticketTeams = []; // Lưu team cho mỗi vé giải đấu
+            
             foreach ($cart as $item) {
                 $product = MarketplaceProduct::find($item['id']);
                 if ($product && $product->is_active && $product->isInStock()) {
+                    // Double-check vé giải đấu
+                    if ($product->type === 'tournament_ticket') {
+                        $validationResult = $this->validateTournamentTicketPurchase($product);
+                        if (!$validationResult['success']) {
+                            throw new \Exception($validationResult['message']);
+                        }
+                        $ticketTeams[$product->id] = $validationResult['team'];
+                    }
+                    
                     $price = $product->current_price;
                     $quantity = (int) $item['quantity'];
                     
@@ -340,6 +460,15 @@ class MarketplaceController extends Controller
                     $orderItem->price = $product->price;
                     $orderItem->discount_price = $product->discount_price;
                     $orderItem->subtotal = $subtotal;
+                    
+                    // Lưu team_id cho vé giải đấu
+                    if ($product->type === 'tournament_ticket' && isset($ticketTeams[$product->id])) {
+                        $orderItem->metadata = [
+                            'team_id' => $ticketTeams[$product->id]->id,
+                            'tournament_id' => $product->tournament_id,
+                        ];
+                    }
+                    
                     $orderItem->save();
 
                     $total += $subtotal;

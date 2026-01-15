@@ -16,6 +16,7 @@ class MarketplaceOrderItem extends Model
         'price',
         'discount_price',
         'subtotal',
+        'metadata',
     ];
 
     protected $casts = [
@@ -23,6 +24,7 @@ class MarketplaceOrderItem extends Model
         'price' => 'decimal:2',
         'discount_price' => 'decimal:2',
         'subtotal' => 'decimal:2',
+        'metadata' => 'array',
     ];
 
     /**

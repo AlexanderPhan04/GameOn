@@ -628,4 +628,27 @@ return [
         'retry' => 'Thử lại',
         'back_to_store' => 'Về cửa hàng',
     ],
+
+    // Posts Management
+    'posts' => [
+        'manage_posts' => 'Quản lý bài viết',
+        'manage_comments' => 'Quản lý bình luận',
+        'total_posts' => 'Tổng bài viết',
+        'total_comments' => 'Tổng bình luận',
+        'posts_today' => 'Bài viết hôm nay',
+        'comments_today' => 'Bình luận hôm nay',
+        'post_content' => 'Nội dung bài viết',
+        'posted_by' => 'Người đăng',
+        'posted_at' => 'Ngày đăng',
+        'reactions' => 'Reactions',
+        'comments' => 'Bình luận',
+        'delete_post' => 'Xóa bài viết',
+        'delete_comment' => 'Xóa bình luận',
+        'confirm_delete_post' => 'Bạn có chắc chắn muốn xóa bài viết này?',
+        'confirm_delete_comment' => 'Bạn có chắc chắn muốn xóa bình luận này?',
+        'post_deleted' => 'Đã xóa bài viết thành công',
+        'comment_deleted' => 'Đã xóa bình luận thành công',
+        'no_posts' => 'Không có bài viết nào',
+        'no_comments' => 'Không có bình luận nào',
+    ],
 ];

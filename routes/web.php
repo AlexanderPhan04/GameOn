@@ -230,6 +230,9 @@ Route::middleware(['auth.session'])->prefix('chat')->name('chat.')->group(functi
     Route::post('/conversation/{conversation}/typing', [ChatController::class, 'updateTypingStatus'])->name('typing');
     Route::get('/conversation/{conversation}/typing-users', [ChatController::class, 'getTypingUsers'])->name('typing-users');
     Route::get('/online-count', [ChatController::class, 'getOnlineUsersCount'])->name('online-count');
+    
+    // Stickers
+    Route::get('/stickers', [ChatController::class, 'getUserStickers'])->name('stickers');
 });
 
 // API routes for real-time features

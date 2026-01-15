@@ -90,8 +90,8 @@ class MarketplaceController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'type' => 'required|in:theme,sticker,game_item,donation',
-            'category' => 'required|in:ui_theme,avatar_frame,sticker_pack,emote,weapon_skin,character_skin,currency,other',
+            'type' => 'required|in:theme,sticker,game_item,donation,tournament_ticket',
+            'category' => 'required|in:ui_theme,avatar_frame,sticker_pack,emote,weapon_skin,character_skin,currency,tournament_entry,other',
             'price' => 'required|numeric|min:0',
             'discount_price' => 'nullable|numeric|min:0|lt:price',
             'stock' => 'nullable|integer|min:-1',
@@ -100,14 +100,20 @@ class MarketplaceController extends Controller
             'images.*' => 'image|max:2048',
             'preview_url' => 'nullable|url',
             'game_id' => 'nullable|string',
+            'tournament_id' => 'nullable|exists:tournaments,id',
             'rarity' => 'nullable|in:common,uncommon,rare,epic,legendary',
             'is_active' => 'boolean',
             'is_featured' => 'boolean',
         ]);
 
+        // Validate tournament_id required for tournament_ticket
+        if ($request->type === 'tournament_ticket' && !$request->tournament_id) {
+            return back()->withErrors(['tournament_id' => 'Vui lòng chọn giải đấu cho vé'])->withInput();
+        }
+
         $data = $request->only([
             'name', 'description', 'type', 'category', 'price', 'discount_price',
-            'stock', 'preview_url', 'game_id', 'rarity', 'is_active', 'is_featured'
+            'stock', 'preview_url', 'game_id', 'tournament_id', 'rarity', 'is_active', 'is_featured'
         ]);
 
         // Handle thumbnail
@@ -172,8 +178,8 @@ class MarketplaceController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'type' => 'required|in:theme,sticker,game_item,donation',
-            'category' => 'required|in:ui_theme,avatar_frame,sticker_pack,emote,weapon_skin,character_skin,currency,other',
+            'type' => 'required|in:theme,sticker,game_item,donation,tournament_ticket',
+            'category' => 'required|in:ui_theme,avatar_frame,sticker_pack,emote,weapon_skin,character_skin,currency,tournament_entry,other',
             'price' => 'required|numeric|min:0',
             'discount_price' => 'nullable|numeric|min:0|lt:price',
             'stock' => 'nullable|integer|min:-1',
@@ -182,14 +188,20 @@ class MarketplaceController extends Controller
             'images.*' => 'image|max:2048',
             'preview_url' => 'nullable|url',
             'game_id' => 'nullable|string',
+            'tournament_id' => 'nullable|exists:tournaments,id',
             'rarity' => 'nullable|in:common,uncommon,rare,epic,legendary',
             'is_active' => 'boolean',
             'is_featured' => 'boolean',
         ]);
 
+        // Validate tournament_id required for tournament_ticket
+        if ($request->type === 'tournament_ticket' && !$request->tournament_id) {
+            return back()->withErrors(['tournament_id' => 'Vui lòng chọn giải đấu cho vé'])->withInput();
+        }
+
         $data = $request->only([
             'name', 'description', 'type', 'category', 'price', 'discount_price',
-            'stock', 'preview_url', 'game_id', 'rarity'
+            'stock', 'preview_url', 'game_id', 'tournament_id', 'rarity'
         ]);
 
         // Handle thumbnail

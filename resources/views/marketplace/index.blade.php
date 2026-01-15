@@ -238,6 +238,37 @@
         color: #00E5FF;
     }
     
+    .product-type.tournament_ticket {
+        background: rgba(236, 72, 153, 0.15);
+        border: 1px solid rgba(236, 72, 153, 0.3);
+        color: #ec4899;
+    }
+    
+    /* Stock Badge */
+    .stock-badge {
+        display: inline-block;
+        font-size: 0.7rem;
+        font-weight: 600;
+        padding: 0.2rem 0.5rem;
+        border-radius: 6px;
+        margin-top: 0.35rem;
+    }
+    
+    .stock-badge.in-stock {
+        background: rgba(34, 197, 94, 0.15);
+        color: #22c55e;
+    }
+    
+    .stock-badge.low-stock {
+        background: rgba(245, 158, 11, 0.15);
+        color: #f59e0b;
+    }
+    
+    .stock-badge.out-of-stock {
+        background: rgba(239, 68, 68, 0.15);
+        color: #ef4444;
+    }
+    
     /* Empty State */
     .empty-state {
         text-align: center;
@@ -398,11 +429,21 @@
                                 <span class="price-old">{{ number_format($product->price, 0, ',', '.') }} đ</span>
                             @endif
                             <span class="price-current">{{ number_format($product->current_price ?? $product->price, 0, ',', '.') }} đ</span>
+                            @if($product->stock != -1)
+                                @if($product->stock == 0)
+                                <span class="stock-badge out-of-stock">Hết hàng</span>
+                                @elseif($product->stock <= 5)
+                                <span class="stock-badge low-stock">Còn {{ $product->stock }}</span>
+                                @else
+                                <span class="stock-badge in-stock">Còn {{ $product->stock }}</span>
+                                @endif
+                            @endif
                         </div>
                         <span class="product-type {{ $product->type }}">
                             @if($product->type == 'theme') Giao diện
                             @elseif($product->type == 'sticker') Sticker
                             @elseif($product->type == 'game_item') Vật phẩm
+                            @elseif($product->type == 'tournament_ticket') Vé giải đấu
                             @else {{ ucfirst($product->type) }}
                             @endif
                         </span>

@@ -264,6 +264,7 @@
                             <th>Tên sản phẩm</th>
                             <th>Loại</th>
                             <th>Giá</th>
+                            <th>Tồn kho</th>
                             <th>Đã bán</th>
                             <th>Trạng thái</th>
                             <th class="w-32">Thao tác</th>
@@ -293,6 +294,17 @@
                                 <div class="price-current">{{ number_format($product->current_price, 0, ',', '.') }} đ</div>
                                 @else
                                 <div class="price-current">{{ number_format($product->price, 0, ',', '.') }} đ</div>
+                                @endif
+                            </td>
+                            <td>
+                                @if($product->stock == -1)
+                                <span class="badge-custom badge-active">∞ Không giới hạn</span>
+                                @elseif($product->stock == 0)
+                                <span class="badge-custom badge-inactive">Hết hàng</span>
+                                @elseif($product->stock <= 5)
+                                <span class="badge-custom" style="background: rgba(245, 158, 11, 0.2); color: #f59e0b;">{{ $product->stock }} (Sắp hết)</span>
+                                @else
+                                <span class="sold-count">{{ $product->stock }}</span>
                                 @endif
                             </td>
                             <td><span class="sold-count">{{ $product->sold_count }}</span></td>

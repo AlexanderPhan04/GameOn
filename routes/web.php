@@ -302,6 +302,22 @@ Route::prefix('admin/posts')->name('admin.posts.')->middleware(['auth.session', 
     Route::post('/comments/bulk-delete', [\App\Http\Controllers\Admin\PostManagementController::class, 'bulkDeleteComments'])->name('comments.bulk-delete');
 });
 
+// Pro Gamer Verification Routes (for participants)
+Route::prefix('verification')->name('verification.')->middleware(['auth.session'])->group(function () {
+    Route::get('/', [\App\Http\Controllers\GamerVerificationController::class, 'create'])->name('create');
+    Route::post('/', [\App\Http\Controllers\GamerVerificationController::class, 'store'])->name('store');
+    Route::get('/status', [\App\Http\Controllers\GamerVerificationController::class, 'status'])->name('status');
+});
+
+// Admin Pro Gamer Verification Management Routes
+Route::prefix('admin/verification')->name('admin.verification.')->middleware(['auth.session', 'admin.permission:manage_users'])->group(function () {
+    Route::get('/', [\App\Http\Controllers\Admin\GamerVerificationController::class, 'index'])->name('index');
+    Route::get('/{request}', [\App\Http\Controllers\Admin\GamerVerificationController::class, 'show'])->name('show');
+    Route::post('/{verificationRequest}/approve', [\App\Http\Controllers\Admin\GamerVerificationController::class, 'approve'])->name('approve');
+    Route::post('/{verificationRequest}/reject', [\App\Http\Controllers\Admin\GamerVerificationController::class, 'reject'])->name('reject');
+    Route::post('/revoke/{userId}', [\App\Http\Controllers\Admin\GamerVerificationController::class, 'revoke'])->name('revoke');
+});
+
 // Admin Management Routes (Super Admin only)
 Route::prefix('admin/admins')->name('admin.admins.')->middleware(['auth.session'])->group(function () {
     Route::get('/', [\App\Http\Controllers\Admin\AdminInvitationController::class, 'index'])->name('index');

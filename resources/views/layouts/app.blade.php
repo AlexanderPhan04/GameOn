@@ -2958,6 +2958,14 @@
                                 </a>
                             </li>
                             @endif
+                            @if(Auth::user()->isSuperAdmin() || Auth::user()->hasAdminPermission('manage_users'))
+                            <li class="menu-item {{ Request::is('admin/verification*') ? 'active' : '' }}">
+                                <a href="{{ route('admin.verification.index') }}" class="menu-link" title="Xét duyệt Pro Gamer">
+                                    <i class="fas fa-certificate"></i>
+                                    <span>Xét duyệt Pro Gamer</span>
+                                </a>
+                            </li>
+                            @endif
                         </ul>
                     </li>
                     @endif
@@ -3363,6 +3371,14 @@
                                     <span>{{ __('app.profile.personal_info') }}</span>
                                 </a>
                             </li>
+                            @if(!Auth::user()->is_verified_gamer)
+                            <li class="list-none">
+                                <a href="{{ route('verification.create') }}" class="gameon-dropdown-item">
+                                    <i class="fas fa-certificate"></i>
+                                    <span>{{ __('app.nav.pro_gamer_verification') ?? 'Pro Gamer Verification' }}</span>
+                                </a>
+                            </li>
+                            @endif
                             <li class="list-none">
                                 <a href="{{ route('profile.settings') }}" class="gameon-dropdown-item">
                                     <i class="fas fa-cog"></i>
@@ -3594,6 +3610,12 @@
                     <a href="{{ route('profile.show') }}" class="mobile-menu-item {{ Request::is('profile') ? 'active' : '' }}">
                         <i class="fas fa-id-card"></i>
                         <span>{{ __('app.profile.personal_info') }}</span>
+                    </a>
+                    @endif
+                    @if(!Auth::user()->is_verified_gamer && Route::has('verification.create'))
+                    <a href="{{ route('verification.create') }}" class="mobile-menu-item {{ Request::is('verification*') ? 'active' : '' }}">
+                        <i class="fas fa-certificate"></i>
+                        <span>{{ __('app.nav.pro_gamer_verification') ?? 'Pro Gamer Verification' }}</span>
                     </a>
                     @endif
                     @if(Route::has('profile.settings'))

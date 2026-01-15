@@ -75,6 +75,32 @@
     .search-result-item .email { color: #64748b; font-size: 0.8rem; }
     
     .conversations-section { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    
+    .conversations-tabs {
+        display: flex; padding: 0.75rem; gap: 0.5rem;
+        background: rgba(0, 0, 20, 0.4);
+        border-bottom: 1px solid rgba(0, 229, 255, 0.1);
+    }
+    .tab-btn {
+        flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.4rem;
+        padding: 0.6rem 0.5rem; background: rgba(0, 0, 20, 0.5);
+        border: 1px solid rgba(0, 229, 255, 0.1); border-radius: 10px;
+        color: #64748b; font-size: 0.8rem; font-weight: 500; cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .tab-btn:hover { background: rgba(0, 229, 255, 0.08); color: #94a3b8; }
+    .tab-btn.active {
+        background: linear-gradient(135deg, rgba(0, 229, 255, 0.15), rgba(139, 92, 246, 0.15));
+        border-color: rgba(0, 229, 255, 0.3); color: #00E5FF;
+    }
+    .tab-btn i { font-size: 0.75rem; }
+    .tab-count {
+        background: rgba(0, 229, 255, 0.2); color: #00E5FF;
+        font-size: 0.65rem; font-weight: 700;
+        padding: 0.1rem 0.4rem; border-radius: 8px;
+    }
+    .tab-btn.active .tab-count { background: rgba(0, 229, 255, 0.3); }
+    
     .conversations-header {
         display: flex; align-items: center; justify-content: space-between;
         padding: 0.875rem 1.25rem; background: rgba(0, 0, 20, 0.4);
@@ -203,17 +229,32 @@
             </div>
         </div>
         <div class="conversations-section">
-            <div class="conversations-header">
-                <span class="conversations-title">Cuộc trò chuyện</span>
-                <span class="conversations-count">{{ $conversations->count() }}</span>
+            <div class="conversations-tabs">
+                <button class="tab-btn active" data-tab="all">
+                    <i class="fas fa-comments"></i> Tất cả
+                    <span class="tab-count">{{ $conversations->count() }}</span>
+                </button>
+                <button class="tab-btn" data-tab="private">
+                    <i class="fas fa-user"></i> Riêng tư
+                    <span class="tab-count">{{ $conversations->where('type', 'private')->count() }}</span>
+                </button>
+                <button class="tab-btn" data-tab="group">
+                    <i class="fas fa-users"></i> Nhóm
+                    <span class="tab-count">{{ $conversations->where('type', 'group')->count() }}</span>
+                </button>
             </div>
             <div class="conversations-list">
                 @forelse($conversations as $conversation)
                 @php $unreadCount = $conversation->getUnreadCount(auth()->id()); @endphp
-                <a href="{{ route('chat.show', $conversation) }}" class="conversation-item {{ request()->route('conversation')?->slug == $conversation->slug ? 'active' : '' }} {{ $unreadCount > 0 ? 'has-unread' : '' }}">
+                <a href="{{ route('chat.show', $conversation) }}" class="conversation-item {{ request()->route('conversation')?->slug == $conversation->slug ? 'active' : '' }} {{ $unreadCount > 0 ? 'has-unread' : '' }}" data-type="{{ $conversation->type }}">
                     <img src="{{ $conversation->getDisplayAvatar(auth()->id()) }}" class="conversation-avatar">
                     <div class="conversation-info">
-                        <div class="conversation-name">{{ $conversation->getDisplayName(auth()->id()) }}</div>
+                        <div class="conversation-name">
+                            @if($conversation->type === 'group')
+                            <i class="fas fa-users" style="font-size:0.7rem;color:#8b5cf6;margin-right:0.3rem;"></i>
+                            @endif
+                            {{ $conversation->getDisplayName(auth()->id()) }}
+                        </div>
                         <div class="conversation-preview">{{ $conversation->last_message_preview ?? 'Chưa có tin nhắn' }}</div>
                     </div>
                     <div class="conversation-meta">
@@ -276,6 +317,36 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Tab switching
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const conversationItems = document.querySelectorAll('.conversation-item');
+    
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            // Update active tab
+            tabBtns.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            
+            const tab = this.dataset.tab;
+            
+            // Filter conversations
+            conversationItems.forEach(item => {
+                if (tab === 'all') {
+                    item.style.display = 'flex';
+                } else if (item.dataset.type === tab) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+            
+            // Check if empty state needed
+            const visibleItems = document.querySelectorAll('.conversation-item[style="display: flex;"], .conversation-item:not([style*="display"])');
+            const emptyState = document.querySelector('.empty-state');
+            // Empty state logic handled by blade
+        });
+    });
+    
     const overlay = document.getElementById('modalOverlay');
     const container = document.getElementById('modalContainer');
     const openBtns = document.querySelectorAll('#openModalBtn, #openModalBtn2');

@@ -132,19 +132,19 @@ Route::middleware(['auth.session', 'track.login'])->prefix('profile')->name('pro
 });
 
 // Game Management Routes (Admin only)
-Route::prefix('admin')->name('admin.')->middleware(['auth.session'])->group(function () {
+Route::prefix('admin')->name('admin.')->middleware(['auth.session', 'admin.permission:manage_games'])->group(function () {
     Route::resource('games', GameManagementController::class);
     Route::get('games-api', [GameManagementController::class, 'getGames'])->name('games.api');
 });
 
 // Tournament Management Routes (Admin only)
-Route::prefix('admin')->name('admin.')->middleware(['auth.session'])->group(function () {
+Route::prefix('admin')->name('admin.')->middleware(['auth.session', 'admin.permission:manage_tournaments'])->group(function () {
     Route::resource('tournaments', TournamentManagementController::class);
     Route::get('tournaments-api', [TournamentManagementController::class, 'getTournaments'])->name('tournaments.api');
 });
 
 // User Management Routes (Admin only)
-Route::prefix('admin')->name('admin.')->middleware(['auth.session'])->group(function () {
+Route::prefix('admin')->name('admin.')->middleware(['auth.session', 'admin.permission:manage_users'])->group(function () {
     Route::resource('users', UserManagementController::class);
     Route::patch('users/{user}/status', [UserManagementController::class, 'updateStatus'])->name('users.update-status');
     Route::post('users/bulk-update', [UserManagementController::class, 'bulkUpdate'])->name('users.bulk-update');
@@ -152,15 +152,15 @@ Route::prefix('admin')->name('admin.')->middleware(['auth.session'])->group(func
 });
 
 // Team Management Routes (Admin only)
-Route::prefix('admin')->name('admin.')->middleware(['auth.session'])->group(function () {
+Route::prefix('admin')->name('admin.')->middleware(['auth.session', 'admin.permission:manage_teams'])->group(function () {
     Route::resource('teams', \App\Http\Controllers\Admin\TeamManagementController::class);
     Route::patch('teams/{team}/status', [\App\Http\Controllers\Admin\TeamManagementController::class, 'updateStatus'])->name('teams.update-status');
     Route::post('teams/bulk-update', [\App\Http\Controllers\Admin\TeamManagementController::class, 'bulkUpdate'])->name('teams.bulk-update');
     Route::get('teams-export', [\App\Http\Controllers\Admin\TeamManagementController::class, 'export'])->name('teams.export');
 });
 
-// System Management Routes (Super Admin only)
-Route::prefix('admin')->name('admin.')->middleware(['auth.session'])->group(function () {
+// System Management Routes (Super Admin only - manage_settings permission)
+Route::prefix('admin')->name('admin.')->middleware(['auth.session', 'admin.permission:manage_settings'])->group(function () {
     Route::prefix('system')->name('system.')->group(function () {
         Route::get('settings', [\App\Http\Controllers\Admin\SystemController::class, 'settings'])->name('settings');
         Route::post('settings', [\App\Http\Controllers\Admin\SystemController::class, 'updateSettings'])->name('update-settings');
@@ -230,6 +230,9 @@ Route::middleware(['auth.session'])->prefix('chat')->name('chat.')->group(functi
     Route::post('/conversation/{conversation}/typing', [ChatController::class, 'updateTypingStatus'])->name('typing');
     Route::get('/conversation/{conversation}/typing-users', [ChatController::class, 'getTypingUsers'])->name('typing-users');
     Route::get('/online-count', [ChatController::class, 'getOnlineUsersCount'])->name('online-count');
+    
+    // Stickers
+    Route::get('/stickers', [ChatController::class, 'getUserStickers'])->name('stickers');
 });
 
 // API routes for real-time features
@@ -276,7 +279,7 @@ Route::prefix('honor')->name('honor.')->group(function () {
 });
 
 // Admin Honor Management Routes
-Route::prefix('admin/honor')->name('admin.honor.')->middleware(['auth.session'])->group(function () {
+Route::prefix('admin/honor')->name('admin.honor.')->middleware(['auth.session', 'admin.permission:manage_honor'])->group(function () {
     Route::get('/', [HonorManagementController::class, 'index'])->name('index');
     Route::get('/create', [HonorManagementController::class, 'create'])->name('create');
     Route::post('/', [HonorManagementController::class, 'store'])->name('store');
@@ -286,6 +289,17 @@ Route::prefix('admin/honor')->name('admin.honor.')->middleware(['auth.session'])
     Route::patch('/{honorEvent}/toggle', [HonorManagementController::class, 'toggleStatus'])->name('toggle');
     Route::delete('/{honorEvent}/reset', [HonorManagementController::class, 'resetVotes'])->name('reset');
     Route::delete('/{honorEvent}', [HonorManagementController::class, 'destroy'])->name('destroy');
+});
+
+// Admin Posts Management Routes
+Route::prefix('admin/posts')->name('admin.posts.')->middleware(['auth.session', 'admin.permission:manage_posts'])->group(function () {
+    Route::get('/', [\App\Http\Controllers\Admin\PostManagementController::class, 'index'])->name('index');
+    Route::get('/comments', [\App\Http\Controllers\Admin\PostManagementController::class, 'comments'])->name('comments');
+    Route::get('/{post}', [\App\Http\Controllers\Admin\PostManagementController::class, 'show'])->name('show');
+    Route::delete('/{post}', [\App\Http\Controllers\Admin\PostManagementController::class, 'destroy'])->name('destroy');
+    Route::post('/bulk-delete', [\App\Http\Controllers\Admin\PostManagementController::class, 'bulkDelete'])->name('bulk-delete');
+    Route::delete('/comments/{comment}', [\App\Http\Controllers\Admin\PostManagementController::class, 'destroyComment'])->name('comments.destroy');
+    Route::post('/comments/bulk-delete', [\App\Http\Controllers\Admin\PostManagementController::class, 'bulkDeleteComments'])->name('comments.bulk-delete');
 });
 
 // Admin Management Routes (Super Admin only)
@@ -305,7 +319,7 @@ Route::get('/admin-invitation/{token}/accept', [\App\Http\Controllers\Admin\Admi
 Route::get('/admin-invitation/{token}/reject', [\App\Http\Controllers\Admin\AdminInvitationController::class, 'reject'])->name('admin.invitation.reject');
 
 // Admin Marketplace Management Routes
-Route::prefix('admin/marketplace')->name('admin.marketplace.')->middleware(['auth.session'])->group(function () {
+Route::prefix('admin/marketplace')->name('admin.marketplace.')->middleware(['auth.session', 'admin.permission:manage_marketplace'])->group(function () {
     Route::get('/', [AdminMarketplaceController::class, 'index'])->name('index');
     Route::get('/revenue', [AdminMarketplaceController::class, 'revenue'])->name('revenue');
     Route::get('/create', [AdminMarketplaceController::class, 'create'])->name('create');

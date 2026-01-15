@@ -17,7 +17,7 @@ class MarketplaceProduct extends Model
         'description',
         'type',
         'category',
-        'category_id', // New: FK to product_categories
+        'category_id',
         'price',
         'discount_price',
         'is_active',
@@ -26,10 +26,8 @@ class MarketplaceProduct extends Model
         'sold_count',
         'thumbnail',
         'images',
-        'preview_url',
         'metadata',
-        'game_id', // Fixed: Now BIGINT with FK to games
-        'rarity',
+        'tournament_id',
         'created_by',
         'sort_order',
     ];
@@ -109,14 +107,6 @@ class MarketplaceProduct extends Model
     }
 
     /**
-     * Game liên quan (nếu là vật phẩm game)
-     */
-    public function game(): BelongsTo
-    {
-        return $this->belongsTo(Game::class);
-    }
-
-    /**
      * Category của sản phẩm (new normalized approach)
      */
     public function productCategory(): BelongsTo
@@ -130,6 +120,22 @@ class MarketplaceProduct extends Model
     public function orderItems(): HasMany
     {
         return $this->hasMany(MarketplaceOrderItem::class, 'product_id');
+    }
+
+    /**
+     * Tournament liên quan (nếu là vé giải đấu)
+     */
+    public function tournament(): BelongsTo
+    {
+        return $this->belongsTo(Tournament::class);
+    }
+
+    /**
+     * Stickers trong pack (nếu là sticker pack)
+     */
+    public function stickers(): HasMany
+    {
+        return $this->hasMany(Sticker::class, 'pack_id')->orderBy('sort_order');
     }
 
     /**

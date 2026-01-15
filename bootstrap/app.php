@@ -25,6 +25,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'auth.session' => \App\Http\Middleware\SessionAuthMiddleware::class,
             'track.login' => \App\Http\Middleware\TrackLastLogin::class,
             'check.participant.role' => \App\Http\Middleware\CheckParticipantRole::class,
+            'admin.permission' => \App\Http\Middleware\CheckAdminPermission::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

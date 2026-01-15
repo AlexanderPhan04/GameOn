@@ -88,7 +88,7 @@
     .icon-pink { background: linear-gradient(135deg, #ec4899, #db2777); }
     .icon-green { background: linear-gradient(135deg, #22c55e, #16a34a); }
     .card-title { font-family: 'Rajdhani', sans-serif; font-size: 1.1rem; font-weight: 700; color: #FFFFFF; margin: 0; }
-    .form-card-body { padding: 1.5rem; }
+    .form-card-body { padding: 1.5rem; overflow: hidden; }
 
     /* Form Controls */
     .form-group { margin-bottom: 1.25rem; }
@@ -96,6 +96,8 @@
     .form-label .required { color: #ef4444; }
     .form-input, .form-select, .form-textarea {
         width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
         padding: 0.7rem 1rem;
         background: rgba(0, 0, 0, 0.3);
         border: 1px solid rgba(139, 92, 246, 0.2);
@@ -137,13 +139,6 @@
     .checkbox-item:hover { background: rgba(139, 92, 246, 0.1); }
     .checkbox-input { width: 20px; height: 20px; accent-color: #8b5cf6; cursor: pointer; }
     .checkbox-label { color: #e2e8f0; font-size: 0.9rem; cursor: pointer; }
-
-    /* Rarity Badges */
-    .rarity-common { color: #94a3b8; }
-    .rarity-uncommon { color: #22c55e; }
-    .rarity-rare { color: #3b82f6; }
-    .rarity-epic { color: #a855f7; }
-    .rarity-legendary { color: #f59e0b; }
 
     /* Error Alert */
     .error-alert {
@@ -230,29 +225,36 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="form-group">
                                     <label class="form-label">Loại sản phẩm <span class="required">*</span></label>
-                                    <select name="type" class="form-select" required>
+                                    <select name="type" class="form-select" required id="productType">
                                         <option value="">Chọn loại</option>
-                                        <option value="theme" {{ old('type') == 'theme' ? 'selected' : '' }}>Giao diện</option>
-                                        <option value="sticker" {{ old('type') == 'sticker' ? 'selected' : '' }}>Sticker</option>
-                                        <option value="game_item" {{ old('type') == 'game_item' ? 'selected' : '' }}>Vật phẩm game</option>
+                                        <option value="sticker" {{ old('type') == 'sticker' ? 'selected' : '' }}>Sticker Pack</option>
+                                        <option value="tournament_ticket" {{ old('type') == 'tournament_ticket' ? 'selected' : '' }}>Vé giải đấu</option>
                                     </select>
                                     @error('type')<p class="form-error">{{ $message }}</p>@enderror
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Danh mục <span class="required">*</span></label>
-                                    <select name="category" class="form-select" required>
+                                    <select name="category" class="form-select" required id="productCategory">
                                         <option value="">Chọn danh mục</option>
-                                        <option value="ui_theme" {{ old('category') == 'ui_theme' ? 'selected' : '' }}>Giao diện UI</option>
-                                        <option value="avatar_frame" {{ old('category') == 'avatar_frame' ? 'selected' : '' }}>Khung avatar</option>
                                         <option value="sticker_pack" {{ old('category') == 'sticker_pack' ? 'selected' : '' }}>Bộ sticker</option>
-                                        <option value="emote" {{ old('category') == 'emote' ? 'selected' : '' }}>Emote</option>
-                                        <option value="weapon_skin" {{ old('category') == 'weapon_skin' ? 'selected' : '' }}>Skin vũ khí</option>
-                                        <option value="character_skin" {{ old('category') == 'character_skin' ? 'selected' : '' }}>Skin nhân vật</option>
-                                        <option value="currency" {{ old('category') == 'currency' ? 'selected' : '' }}>Tiền tệ</option>
-                                        <option value="other" {{ old('category') == 'other' ? 'selected' : '' }}>Khác</option>
+                                        <option value="tournament_entry" {{ old('category') == 'tournament_entry' ? 'selected' : '' }}>Vé tham gia giải</option>
                                     </select>
                                     @error('category')<p class="form-error">{{ $message }}</p>@enderror
                                 </div>
+                            </div>
+                            
+                            <!-- Tournament Selection (for tournament_ticket type) -->
+                            <div class="form-group" id="tournamentSection" style="display: none;">
+                                <label class="form-label">Chọn giải đấu <span class="required">*</span></label>
+                                <select name="tournament_id" class="form-select" id="tournamentSelect">
+                                    <option value="">Chọn giải đấu</option>
+                                    @foreach(\App\Models\Tournament::where('status', '!=', 'completed')->orderBy('created_at', 'desc')->get() as $tournament)
+                                    <option value="{{ $tournament->id }}" {{ old('tournament_id') == $tournament->id ? 'selected' : '' }}>
+                                        {{ $tournament->name }}
+                                    </option>
+                                    @endforeach
+                                </select>
+                                @error('tournament_id')<p class="form-error">{{ $message }}</p>@enderror
                             </div>
                         </div>
                     </div>
@@ -285,36 +287,7 @@
                         </div>
                     </div>
 
-                    <!-- Additional Info Card -->
-                    <div class="form-card">
-                        <div class="form-card-header">
-                            <div class="card-icon icon-cyan"><i class="fas fa-cog"></i></div>
-                            <h3 class="card-title">Thông tin bổ sung</h3>
-                        </div>
-                        <div class="form-card-body">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div class="form-group">
-                                    <label class="form-label">Độ hiếm</label>
-                                    <select name="rarity" class="form-select">
-                                        <option value="">Không có</option>
-                                        <option value="common" {{ old('rarity') == 'common' ? 'selected' : '' }}>⚪ Thường</option>
-                                        <option value="uncommon" {{ old('rarity') == 'uncommon' ? 'selected' : '' }}>🟢 Không thường</option>
-                                        <option value="rare" {{ old('rarity') == 'rare' ? 'selected' : '' }}>🔵 Hiếm</option>
-                                        <option value="epic" {{ old('rarity') == 'epic' ? 'selected' : '' }}>🟣 Huyền thoại</option>
-                                        <option value="legendary" {{ old('rarity') == 'legendary' ? 'selected' : '' }}>🟡 Cực hiếm</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Game ID (nếu là vật phẩm game)</label>
-                                    <input type="text" name="game_id" class="form-input" value="{{ old('game_id') }}" placeholder="ID game liên kết">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">URL Preview</label>
-                                <input type="url" name="preview_url" class="form-input" value="{{ old('preview_url') }}" placeholder="https://example.com/preview">
-                            </div>
-                        </div>
-                    </div>
+
                 </div>
 
                 <!-- Right Column: Media & Settings -->
@@ -381,3 +354,39 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const typeSelect = document.getElementById('productType');
+    const categorySelect = document.getElementById('productCategory');
+    const tournamentSection = document.getElementById('tournamentSection');
+    const tournamentSelect = document.getElementById('tournamentSelect');
+    
+    function updateFormBasedOnType() {
+        const type = typeSelect.value;
+        
+        // Show/hide tournament section
+        if (type === 'tournament_ticket') {
+            tournamentSection.style.display = 'block';
+            tournamentSelect.required = true;
+        } else {
+            tournamentSection.style.display = 'none';
+            tournamentSelect.required = false;
+        }
+        
+        // Auto-select category based on type
+        if (type === 'sticker') {
+            categorySelect.value = 'sticker_pack';
+        } else if (type === 'tournament_ticket') {
+            categorySelect.value = 'tournament_entry';
+        }
+    }
+    
+    typeSelect.addEventListener('change', updateFormBasedOnType);
+    
+    // Initial check
+    updateFormBasedOnType();
+});
+</script>
+@endpush

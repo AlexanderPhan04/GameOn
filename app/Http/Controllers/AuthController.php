@@ -221,17 +221,16 @@ class AuthController extends Controller
     public function handleGoogleCallback()
     {
         try {
-            // Get Google user based on environment
+            // Get Google user - disable SSL verification for local environment
             if (config('app.env') === 'local') {
-                $originalVerifyPeer = ini_get('openssl.cafile');
-                $originalCurlCA = ini_get('curl.cainfo');
-                ini_set('openssl.cafile', '');
-                ini_set('curl.cainfo', '');
+                // Temporarily disable SSL verification for local development
+                $guzzleClient = new \GuzzleHttp\Client([
+                    'verify' => false,
+                ]);
                 
-                $googleUser = Socialite::driver('google')->user();
-                
-                ini_set('openssl.cafile', $originalVerifyPeer);
-                ini_set('curl.cainfo', $originalCurlCA);
+                $googleUser = Socialite::driver('google')
+                    ->setHttpClient($guzzleClient)
+                    ->user();
             } else {
                 $googleUser = Socialite::driver('google')->user();
             }

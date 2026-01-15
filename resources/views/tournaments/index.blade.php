@@ -294,7 +294,7 @@
         color: #FFFFFF;
     }
     
-    .status-registration_open {
+    .status-registration {
         background: rgba(34, 197, 94, 0.9);
         color: #FFFFFF;
         box-shadow: 0 0 15px rgba(34, 197, 94, 0.5);
@@ -563,7 +563,7 @@
                     <label class="filter-label">{{ __('app.teams.status') }}</label>
                     <select class="filter-select" name="status">
                         <option value="">{{ __('app.tournaments.all_statuses') }}</option>
-                        <option value="registration_open" {{ request('status')=='registration_open' ? 'selected' : '' }}>{{ __('app.tournaments.registration_open') }}</option>
+                        <option value="registration" {{ request('status')=='registration' ? 'selected' : '' }}>{{ __('app.tournaments.registration') }}</option>
                         <option value="ongoing" {{ request('status')=='ongoing' ? 'selected' : '' }}>{{ __('app.tournaments.ongoing') }}</option>
                         <option value="completed" {{ request('status')=='completed' ? 'selected' : '' }}>{{ __('app.tournaments.completed') }}</option>
                     </select>
@@ -581,8 +581,8 @@
                 <a class="filter-chip {{ !request('status') ? 'active' : '' }}" href="{{ route('tournaments.index', $qs) }}">
                     {{ __('app.common.all') }}
                 </a>
-                <a class="filter-chip {{ request('status')==='registration_open' ? 'active' : '' }}" href="{{ route('tournaments.index', array_merge($qs,['status'=>'registration_open'])) }}">
-                    <i class="fas fa-door-open mr-1"></i> {{ __('app.tournaments.registration_open') }}
+                <a class="filter-chip {{ request('status')==='registration' ? 'active' : '' }}" href="{{ route('tournaments.index', array_merge($qs,['status'=>'registration'])) }}">
+                    <i class="fas fa-door-open mr-1"></i> {{ __('app.tournaments.registration') }}
                 </a>
                 <a class="filter-chip {{ request('status')==='ongoing' ? 'active' : '' }}" href="{{ route('tournaments.index', array_merge($qs,['status'=>'ongoing'])) }}">
                     <i class="fas fa-play mr-1"></i> {{ __('app.tournaments.ongoing') }}
@@ -602,8 +602,8 @@
             </div>
             <div class="stat-badge">
                 <i class="fas fa-door-open text-green-500"></i>
-                <span>{{ $tournaments->where('status', 'registration_open')->count() }}</span>
-                <small>{{ __('app.tournaments.registration_open') }}</small>
+                <span>{{ $tournaments->where('status', 'registration')->count() }}</span>
+                <small>{{ __('app.tournaments.registration') }}</small>
             </div>
             <div class="stat-badge">
                 <i class="fas fa-play text-blue-500"></i>
@@ -677,7 +677,7 @@
                         <i class="fas fa-eye"></i>
                         <span>{{ __('app.common.view') }}</span>
                     </a>
-                    @if($t->status === 'registration_open')
+                    @if($t->status === 'registration')
                     <a href="{{ route('tournaments.show', $t->id) }}#register" class="btn-card btn-register">
                         <i class="fas fa-sign-in-alt"></i>
                         <span>{{ __('app.tournaments.register') }}</span>

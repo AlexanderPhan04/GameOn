@@ -32,7 +32,30 @@ class PostsController extends Controller
             'media', 'reactions'
         ])->orderByDesc('created_at')->paginate(10);
 
-        return view('posts.index', compact('posts'));
+        // Get ongoing tournaments (top 3)
+        $ongoingTournaments = \App\Models\Tournament::with(['game', 'schedule'])
+            ->where('status', 'ongoing')
+            ->orWhere(function($query) {
+                $query->where('status', 'registration')
+                    ->whereHas('schedule', function($q) {
+                        $q->where('start_date', '>=', now())
+                            ->where('registration_deadline', '>=', now());
+                    });
+            })
+            ->orderBy('created_at', 'desc')
+            ->limit(3)
+            ->get();
+
+        // Get top honor users (top 3)
+        $topHonorUsers = \App\Models\HonorVote::select('voted_user_id', DB::raw('SUM(weight) as total_weight'), DB::raw('COUNT(*) as vote_count'))
+            ->whereNotNull('voted_user_id')
+            ->groupBy('voted_user_id')
+            ->orderByDesc('total_weight')
+            ->limit(3)
+            ->with('votedUser.profile')
+            ->get();
+
+        return view('posts.index', compact('posts', 'ongoingTournaments', 'topHonorUsers'));
     }
 
     public function store(Request $request)

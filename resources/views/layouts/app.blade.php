@@ -2958,6 +2958,22 @@
                                 </a>
                             </li>
                             @endif
+                            @if(Auth::user()->isSuperAdmin() || Auth::user()->hasAdminPermission('manage_users'))
+                            <li class="menu-item {{ Request::is('admin/verification*') ? 'active' : '' }}">
+                                <a href="{{ route('admin.verification.index') }}" class="menu-link" title="Xét duyệt Pro Gamer">
+                                    <i class="fas fa-certificate"></i>
+                                    <span>Xét duyệt Pro Gamer</span>
+                                </a>
+                            </li>
+                            @endif
+                            @if(Auth::user()->isSuperAdmin() || Auth::user()->hasAdminPermission('manage_tournaments'))
+                            <li class="menu-item {{ Request::is('admin/livestreams*') ? 'active' : '' }}">
+                                <a href="{{ route('admin.livestreams.index') }}" class="menu-link" title="Quản lý Livestream">
+                                    <i class="fas fa-broadcast-tower" style="color: #ef4444;"></i>
+                                    <span>Quản lý Livestream</span>
+                                </a>
+                            </li>
+                            @endif
                         </ul>
                     </li>
                     @endif
@@ -3340,6 +3356,12 @@
                                 </a>
                             </li>
                             <li class="list-none">
+                                <a href="{{ route('livestreams.index') }}" class="gameon-dropdown-item">
+                                    <i class="fas fa-broadcast-tower" style="color: #ef4444;"></i>
+                                    <span>Live Stream</span>
+                                </a>
+                            </li>
+                            <li class="list-none">
                                 <a href="{{ route('marketplace.inventory') }}" class="gameon-dropdown-item">
                                     <i class="fas fa-box"></i>
                                     <span>{{ __('app.marketplace.inventory') }}</span>
@@ -3363,6 +3385,14 @@
                                     <span>{{ __('app.profile.personal_info') }}</span>
                                 </a>
                             </li>
+                            @if(!Auth::user()->is_verified_gamer)
+                            <li class="list-none">
+                                <a href="{{ route('verification.create') }}" class="gameon-dropdown-item">
+                                    <i class="fas fa-certificate"></i>
+                                    <span>{{ __('app.nav.pro_gamer_verification') ?? 'Pro Gamer Verification' }}</span>
+                                </a>
+                            </li>
+                            @endif
                             <li class="list-none">
                                 <a href="{{ route('profile.settings') }}" class="gameon-dropdown-item">
                                     <i class="fas fa-cog"></i>
@@ -3388,6 +3418,12 @@
                                 <a href="{{ route('admin.tournaments.index') }}" class="gameon-dropdown-item">
                                     <i class="fas fa-trophy"></i>
                                     <span>{{ __('app.profile.manage_tournaments') }}</span>
+                                </a>
+                            </li>
+                            <li class="list-none">
+                                <a href="{{ route('admin.livestreams.index') }}" class="gameon-dropdown-item">
+                                    <i class="fas fa-broadcast-tower" style="color: #ef4444;"></i>
+                                    <span>Quản lý Livestream</span>
                                 </a>
                             </li>
                             <li class="list-none">
@@ -3590,10 +3626,22 @@
                         <span>{{ __('app.nav.honor') ?? 'Honor' }}</span>
                     </a>
                     @endif
+                    @if(Route::has('livestreams.index'))
+                    <a href="{{ route('livestreams.index') }}" class="mobile-menu-item {{ Request::is('live*') ? 'active' : '' }}">
+                        <i class="fas fa-broadcast-tower" style="color: #ef4444;"></i>
+                        <span>Live Stream</span>
+                    </a>
+                    @endif
                     @if(Route::has('profile.show'))
                     <a href="{{ route('profile.show') }}" class="mobile-menu-item {{ Request::is('profile') ? 'active' : '' }}">
                         <i class="fas fa-id-card"></i>
                         <span>{{ __('app.profile.personal_info') }}</span>
+                    </a>
+                    @endif
+                    @if(!Auth::user()->is_verified_gamer && Route::has('verification.create'))
+                    <a href="{{ route('verification.create') }}" class="mobile-menu-item {{ Request::is('verification*') ? 'active' : '' }}">
+                        <i class="fas fa-certificate"></i>
+                        <span>{{ __('app.nav.pro_gamer_verification') ?? 'Pro Gamer Verification' }}</span>
                     </a>
                     @endif
                     @if(Route::has('profile.settings'))
@@ -3615,6 +3663,10 @@
                     <a href="{{ route('admin.tournaments.index') }}" class="mobile-menu-item">
                         <i class="fas fa-trophy"></i>
                         <span>{{ __('app.profile.manage_tournaments') }}</span>
+                    </a>
+                    <a href="{{ route('admin.livestreams.index') }}" class="mobile-menu-item">
+                        <i class="fas fa-broadcast-tower" style="color: #ef4444;"></i>
+                        <span>Quản lý Livestream</span>
                     </a>
                     <a href="{{ route('admin.teams.index') }}" class="mobile-menu-item">
                         <i class="fas fa-users-gear"></i>

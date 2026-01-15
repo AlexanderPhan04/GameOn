@@ -148,6 +148,42 @@
         border: 1px solid rgba(148, 163, 184, 0.3);
     }
     
+    /* Pro Gamer Badge */
+    .pro-gamer-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-family: 'Rajdhani', sans-serif;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        background: linear-gradient(135deg, rgba(34, 197, 94, 0.2) 0%, rgba(16, 185, 129, 0.1) 100%);
+        color: #22c55e;
+        border: 1px solid rgba(34, 197, 94, 0.4);
+        box-shadow: 0 0 15px rgba(34, 197, 94, 0.3);
+        margin-left: 0.5rem;
+        animation: pro-glow 2s ease-in-out infinite alternate;
+    }
+    .pro-gamer-badge i {
+        color: #22c55e;
+        filter: drop-shadow(0 0 3px rgba(34, 197, 94, 0.5));
+    }
+    @keyframes pro-glow {
+        0% { box-shadow: 0 0 10px rgba(34, 197, 94, 0.2); }
+        100% { box-shadow: 0 0 20px rgba(34, 197, 94, 0.4); }
+    }
+    
+    .badges-container {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+    }
+    
     /* Action Buttons */
     .hero-actions {
         display: flex;
@@ -420,23 +456,31 @@
                         </p>
                         
                         <!-- Role Badge -->
-                        @if($user->user_role === 'super_admin')
-                        <div class="role-badge super-admin">
-                            <i class="fas fa-crown"></i> Super Admin
+                        <div class="badges-container">
+                            @if($user->user_role === 'super_admin')
+                            <div class="role-badge super-admin">
+                                <i class="fas fa-crown"></i> Super Admin
+                            </div>
+                            @elseif($user->user_role === 'admin')
+                            <div class="role-badge admin">
+                                <i class="fas fa-shield-alt"></i> Admin
+                            </div>
+                            @elseif($user->user_role === 'participant')
+                            <div class="role-badge participant">
+                                <i class="fas fa-gamepad"></i> Participant
+                            </div>
+                            @else
+                            <div class="role-badge user">
+                                <i class="fas fa-user"></i> User
+                            </div>
+                            @endif
+                            
+                            @if($user->is_verified_gamer)
+                            <div class="pro-gamer-badge" title="Pro Gamer đã được xác minh">
+                                <i class="fas fa-certificate"></i> Pro Gamer
+                            </div>
+                            @endif
                         </div>
-                        @elseif($user->user_role === 'admin')
-                        <div class="role-badge admin">
-                            <i class="fas fa-shield-alt"></i> Admin
-                        </div>
-                        @elseif($user->user_role === 'participant')
-                        <div class="role-badge participant">
-                            <i class="fas fa-gamepad"></i> Participant
-                        </div>
-                        @else
-                        <div class="role-badge user">
-                            <i class="fas fa-user"></i> User
-                        </div>
-                        @endif
                     </div>
                 </div>
                 

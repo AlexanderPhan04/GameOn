@@ -101,4 +101,24 @@ class Notification extends Model
             ],
         ]);
     }
+
+    /**
+     * Create a new follower notification.
+     */
+    public static function createFollowNotification(int $userId, array $follower): self
+    {
+        return self::create([
+            'user_id' => $userId,
+            'type' => 'new_follower',
+            'title' => 'Người theo dõi mới',
+            'message' => "{$follower['name']} đã bắt đầu theo dõi bạn",
+            'data' => [
+                'icon' => 'user-plus',
+                'avatar' => $follower['avatar'] ?? null,
+                'url' => "/profile/{$follower['id']}",
+                'follower_id' => $follower['id'],
+            ],
+        ]);
+    }
 }
+

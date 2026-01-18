@@ -489,9 +489,18 @@
                     <a href="#" class="btn-action btn-primary" data-user-id="{{ $user->id }}" onclick="startChatWithUser({{ $user->id }}); return false;">
                         <i class="fas fa-comment"></i> Nhắn tin
                     </a>
-                    <button class="btn-action btn-outline" onclick="toggleFollow()">
-                        <i class="fas fa-user-plus"></i> Theo dõi
-                    </button>
+                    @auth
+                        @if(auth()->id() !== $user->id)
+                        <button id="followBtn" class="btn-action {{ auth()->user()->isFollowing($user->id) ? 'btn-following' : 'btn-outline' }}" onclick="toggleFollow({{ $user->id }})">
+                            <i class="fas {{ auth()->user()->isFollowing($user->id) ? 'fa-user-check' : 'fa-user-plus' }}"></i>
+                            <span id="followBtnText">{{ auth()->user()->isFollowing($user->id) ? 'Đang theo dõi' : 'Theo dõi' }}</span>
+                        </button>
+                        @endif
+                    @else
+                        <a href="{{ route('auth.login') }}" class="btn-action btn-outline">
+                            <i class="fas fa-user-plus"></i> Theo dõi
+                        </a>
+                    @endauth
                 </div>
             </div>
         </div>
@@ -575,14 +584,14 @@
             <!-- Stats -->
             <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-icon"><i class="fas fa-trophy"></i></div>
-                    <div class="stat-value">0</div>
-                    <div class="stat-label">Giải thắng</div>
+                    <div class="stat-icon"><i class="fas fa-user-friends"></i></div>
+                    <div class="stat-value" id="followersCount">{{ $user->followers_count }}</div>
+                    <div class="stat-label">Người theo dõi</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-icon"><i class="fas fa-gamepad"></i></div>
-                    <div class="stat-value">0</div>
-                    <div class="stat-label">Game chơi</div>
+                    <div class="stat-icon"><i class="fas fa-heart"></i></div>
+                    <div class="stat-value">{{ $user->following_count }}</div>
+                    <div class="stat-label">Đang theo dõi</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon"><i class="fas fa-users"></i></div>
@@ -609,9 +618,81 @@
 </div>
 
 @push('scripts')
+<style>
+    .btn-following {
+        background: linear-gradient(135deg, rgba(34, 197, 94, 0.2) 0%, rgba(16, 185, 129, 0.1) 100%);
+        border: 1px solid rgba(34, 197, 94, 0.4);
+        color: #22c55e;
+    }
+    .btn-following:hover {
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(220, 38, 38, 0.1) 100%);
+        border-color: rgba(239, 68, 68, 0.4);
+        color: #f87171;
+    }
+    .btn-following:hover i { color: #f87171; }
+    .btn-following:hover span::after { content: ' - Hủy'; }
+</style>
 <script>
-function toggleFollow() {
-    alert('Tính năng theo dõi sẽ được triển khai sau!');
+let isFollowProcessing = false;
+
+function toggleFollow(userId) {
+    if (isFollowProcessing) return;
+    isFollowProcessing = true;
+    
+    const btn = document.getElementById('followBtn');
+    const btnText = document.getElementById('followBtnText');
+    const btnIcon = btn.querySelector('i');
+    const followersCount = document.getElementById('followersCount');
+    
+    // Show loading
+    const originalText = btnText.textContent;
+    const originalIcon = btnIcon.className;
+    btnText.textContent = 'Đang xử lý...';
+    btnIcon.className = 'fas fa-spinner fa-spin';
+    btn.disabled = true;
+    
+    fetch(`/follow/toggle/${userId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Accept': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            if (data.is_following) {
+                btn.classList.remove('btn-outline');
+                btn.classList.add('btn-following');
+                btnText.textContent = 'Đang theo dõi';
+                btnIcon.className = 'fas fa-user-check';
+            } else {
+                btn.classList.remove('btn-following');
+                btn.classList.add('btn-outline');
+                btnText.textContent = 'Theo dõi';
+                btnIcon.className = 'fas fa-user-plus';
+            }
+            // Update followers count
+            if (followersCount && data.followers_count !== undefined) {
+                followersCount.textContent = data.followers_count;
+            }
+        } else {
+            alert(data.message || 'Có lỗi xảy ra');
+            btnText.textContent = originalText;
+            btnIcon.className = originalIcon;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Có lỗi xảy ra khi thực hiện thao tác.');
+        btnText.textContent = originalText;
+        btnIcon.className = originalIcon;
+    })
+    .finally(() => {
+        btn.disabled = false;
+        isFollowProcessing = false;
+    });
 }
 
 function startChatWithUser(userId) {

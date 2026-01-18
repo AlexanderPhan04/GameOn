@@ -184,11 +184,11 @@
 
         <!-- Main Menu Items -->
         <li>
-            <a href="{{ route('search.view') }}" class="sidebar-item">
+            <a href="{{ route('follow.index') }}" class="sidebar-item">
                 <div class="sidebar-icon">
-                    <i class="fas fa-user-friends" style="color: #60a5fa;"></i>
+                    <i class="fas fa-heart" style="color: #f87171;"></i>
                 </div>
-                <span class="sidebar-text">Bạn bè</span>
+                <span class="sidebar-text">Theo dõi</span>
             </a>
         </li>
 

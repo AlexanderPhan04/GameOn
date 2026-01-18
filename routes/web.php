@@ -3,6 +3,7 @@ use App\Http\Controllers\Admin\HonorManagementController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\FollowController;
 use App\Http\Controllers\GameManagementController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\HonorController;
@@ -129,6 +130,15 @@ Route::middleware(['auth.session', 'track.login'])->prefix('profile')->name('pro
     Route::put('/update-password', [ProfileController::class, 'updatePassword'])->name('update-password');
     Route::get('/search-users', [ProfileController::class, 'searchUsers'])->name('search-users');
     Route::get('/{appId}', [ProfileController::class, 'showUser'])->name('show-user');
+});
+
+// Follow routes
+Route::middleware(['auth.session'])->prefix('follow')->name('follow.')->group(function () {
+    Route::get('/', [FollowController::class, 'index'])->name('index');
+    Route::post('/toggle/{user}', [FollowController::class, 'toggle'])->name('toggle');
+    Route::get('/{user}/status', [FollowController::class, 'status'])->name('status');
+    Route::get('/{user}/followers', [FollowController::class, 'followers'])->name('followers');
+    Route::get('/{user}/following', [FollowController::class, 'following'])->name('following');
 });
 
 // Game Management Routes (Admin only)

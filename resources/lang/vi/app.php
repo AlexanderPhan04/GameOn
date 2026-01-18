@@ -22,6 +22,12 @@ return [
         'manage_admin' => 'Quản lý Admin',
         'manage_marketplace' => 'Quản lý Marketplace',
         'home' => 'Trang chủ',
+        'live_stream' => 'Phát trực tiếp',
+        'inventory' => 'Kho đồ',
+        'order_history' => 'Lịch sử đơn hàng',
+        'personal_info' => 'Thông tin cá nhân',
+        'account_settings' => 'Cài đặt tài khoản',
+        'pro_gamer_verification' => 'Xác minh Pro Gamer',
     ],
 
     // Feed / Posts

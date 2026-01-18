@@ -977,13 +977,13 @@
         <div class="empty-state">
             <div class="empty-icon">📰</div>
             <h2 class="empty-title">Bảng tin của bạn còn trống</h2>
-            <p class="empty-desc">Hãy kết bạn để xem thêm bài viết mới từ mọi người.</p>
+            <p class="empty-desc">Hãy theo dõi mọi người để xem thêm bài viết mới.</p>
             <div class="empty-actions">
-                <a href="{{ route('search.view') }}" class="btn-primary-glow">
-                    <i class="fas fa-user-plus"></i> Tìm bạn bè
+                <a href="{{ route('follow.index') }}" class="btn-primary-glow">
+                    <i class="fas fa-user-plus"></i> Khám phá & Theo dõi
                 </a>
                 <a href="{{ route('search.view') }}" class="btn-secondary-outline">
-                    <i class="fas fa-users"></i> Khám phá cộng đồng
+                    <i class="fas fa-search"></i> Tìm kiếm
                 </a>
             </div>
         </div>
@@ -1340,7 +1340,7 @@
                             </button>
                             <div class="visibility-dropdown" id="visibilityDropdown">
                                 <span class="visibility-option" data-vis="public">Công khai</span>
-                                <span class="visibility-option" data-vis="friends">Bạn bè</span>
+                                <span class="visibility-option" data-vis="followers">Người theo dõi</span>
                                 <span class="visibility-option" data-vis="only_me">Chỉ mình tôi</span>
                             </div>
                         </div>

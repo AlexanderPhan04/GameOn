@@ -22,6 +22,12 @@ return [
         'manage_admin' => 'Manage Admins',
         'manage_marketplace' => 'Manage Marketplace',
         'home' => 'Home',
+        'live_stream' => 'Live Stream',
+        'inventory' => 'Inventory',
+        'order_history' => 'Order History',
+        'personal_info' => 'Personal Information',
+        'account_settings' => 'Account Settings',
+        'pro_gamer_verification' => 'Pro Gamer Verification',
     ],
 
     // Feed / Posts

@@ -3058,11 +3058,7 @@
             <div class="sidebar-footer">
                 <div class="sidebar-user-info">
                     <div class="user-avatar">
-                        @if(Auth::user()->avatar)
-                            <img src="{{ get_avatar_url(Auth::user()->avatar) }}" alt="Avatar">
-                        @else
-                            <i class="fas fa-user"></i>
-                        @endif
+                        <img src="{{ Auth::user()->getDisplayAvatar() }}" alt="Avatar">
                     </div>
                     <div class="user-details">
                         <div class="user-name">{{ Auth::user()->name ?? 'User' }}</div>
@@ -3301,11 +3297,7 @@
                     <div class="relative" id="userMenuDropdown">
                         <a href="#" class="gameon-nav-link" id="userMenuToggle" style="text-decoration: none;">
                             <div class="gameon-user-avatar">
-                                @if(Auth::user()->avatar)
-                                    <img src="{{ get_avatar_url(Auth::user()->avatar) }}" alt="Avatar" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
-                                @else
-                                    <i class="fas fa-user"></i>
-                                @endif
+                                <img src="{{ Auth::user()->getDisplayAvatar() }}" alt="Avatar" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
                             </div>
                             <div class="gameon-user-info hidden lg:block">
                                 <div class="gameon-user-name">{{ Auth::user()->name ?? 'User' }}</div>
@@ -3313,7 +3305,7 @@
                             </div>
                             <i class="fas fa-chevron-down"></i>
                         </a>
-                        <ul class="absolute right-0 top-full mt-2 hidden bg-[#0d1b2a] border border-[rgba(0,229,255,0.2)] rounded-lg py-2 min-w-[220px] z-[10000] shadow-lg" id="userMenuDropdownMenu" style="padding-left: 0; margin: 0; list-style: none;">
+                        <ul class="absolute right-0 top-full mt-2 hidden bg-[#0d1b2a] border border-[rgba(0,229,255,0.2)] rounded-lg py-2 min-w-[220px] z-[10000] shadow-lg" id="userMenuDropdownMenu" style="padding-left: 0; margin: 0; list-style: none; max-height: calc(100vh - 80px); overflow-y: auto;">
                             <!-- Main Navigation Items -->
                             @if(!Request::is('dashboard*'))
                             <li class="list-none">
@@ -3554,11 +3546,7 @@
                 <!-- User Info -->
                 <div class="mobile-user-info">
                     <div class="mobile-user-avatar">
-                        @if(Auth::user()->avatar)
-                            <img src="{{ get_avatar_url(Auth::user()->avatar) }}" alt="Avatar">
-                        @else
-                            <i class="fas fa-user"></i>
-                        @endif
+                        <img src="{{ Auth::user()->getDisplayAvatar() }}" alt="Avatar">
                     </div>
                     <div class="mobile-user-details">
                         <div class="mobile-user-name">{{ Auth::user()->name ?? 'User' }}</div>
@@ -4980,6 +4968,15 @@
                     .listen('.status.changed', (e) => {
                         // User status has been changed by admin
                         showUserStatusPopup(e.status, e.status_display, e.message);
+                    })
+                    .listen('.follow.new', (e) => {
+                        // New follower notification
+                        addNotification({
+                            message: `<strong>${e.follower_name}</strong> đã bắt đầu theo dõi bạn`,
+                            avatar: e.follower_avatar,
+                            icon: 'user-plus',
+                            url: `/profile/${e.follower_id}`
+                        });
                     });
             }
             
